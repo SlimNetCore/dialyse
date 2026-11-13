@@ -2,7 +2,7 @@ package com.hemodialyse.backend.infrastructure.persistence.adapter.referential;
 
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
 
-import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,10 +13,10 @@ import java.util.Map;
  */
 final class ReferentialAdminTables {
 
-    private static final Map<ReferentialKind, Table> TABLES = new EnumMap<>(ReferentialKind.class);
+    private static final Map<ReferentialKind, Table> TABLES = new HashMap<>();
 
     static {
-        // ReferentialKind.FORFAIT : retiré (RF2, ADR 0124) ; la table appartient à patient-couverture (catalogue de forfaits), les usages
+        // Forfaits : retirés (RF2, ADR 0124) ; la table appartient à patient-couverture (catalogue de forfaits), les usages
         // (prises en charge, séances, lignes de facture) sont additionnés par ses propriétaires via UsageDuForfait.
 
         TABLES.put(ReferentialKind.CRENEAU, new Table("position_creneau",
@@ -39,11 +39,11 @@ final class ReferentialAdminTables {
                 List.of(new Usage("patients", "medecin_traitant_id"), new Usage("prescriptions_medicales", "medecin_id")),
                 List.of("ref.medecins")));
 
-        // ReferentialKind.CAISSE, AGENCE, CENTRE_PAYEUR : retirés (RF3a, ADR 0126) ; les tables caisse_assurance, agence et centre_payeur
-        // appartiennent à patient-couverture (chaîne des payeurs), les descripteurs des référentiels restent à l'administration générique.
+        // Caisses, agences, centres payeurs : retirés (RF3a, ADR 0126) ; les tables caisse_assurance, agence et centre_payeur
+        // appartiennent à patient-couverture (chaîne des payeurs), qui publie aussi leurs descripteurs (PL11-1, ADR 0157).
 
-        // ReferentialKind.TRANSPORTEUR : retiré (RF1, ADR 0122) ; la table appartient à patient-couverture, le descripteur du
-        // référentiel (champs, alias d'en-têtes, modèle d'import) reste à l'administration générique.
+        // Transporteurs : retirés (RF1, ADR 0122) ; la table appartient à patient-couverture, qui publie le descripteur du
+        // référentiel (champs, alias d'en-têtes, modèle d'import) depuis PL11-1 (ADR 0157).
     }
 
     private ReferentialAdminTables() {

@@ -10,6 +10,7 @@ import com.hemodialyse.backend.infrastructure.migration.port.GenerateursDeRepris
 import com.hemodialyse.backend.infrastructure.migration.model.IdMapping;
 import com.hemodialyse.backend.infrastructure.migration.model.MigrationEntity;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialEntry;
+import com.hemodialyse.backend.infrastructure.acl.patientcouverture.ReferentielsDePatientCouverture;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ValidationIssue;
 import com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminRepositoryPort;
@@ -18,7 +19,6 @@ import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -260,7 +260,7 @@ public class PatientMigrator implements EntityMigrator {
      */
     private final class Lookups {
         private final CentreId center;
-        private final Map<ReferentialKind, Map<String, ReferentialEntry>> indexes = new EnumMap<>(ReferentialKind.class);
+        private final Map<ReferentialKind, Map<String, ReferentialEntry>> indexes = new HashMap<>();
         private final Map<CentreId, Map<String, GenerateurRepris>> generateurIndex = new HashMap<>();
 
         Lookups(CentreId center) {
@@ -286,13 +286,13 @@ public class PatientMigrator implements EntityMigrator {
                 }
             }
             return new Refs(
-                    find(row, "centrePayeur", ReferentialKind.CENTRE_PAYEUR, errors),
+                    find(row, "centrePayeur", ReferentielsDePatientCouverture.CENTRE_PAYEUR, errors),
                     find(row, "medecinTraitant", ReferentialKind.MEDECIN, errors),
                     salle,
                     find(row, "creneau", ReferentialKind.CRENEAU, errors),
                     generateur,
-                    find(row, "transporteurAller", ReferentialKind.TRANSPORTEUR, errors),
-                    find(row, "transporteurRetour", ReferentialKind.TRANSPORTEUR, errors));
+                    find(row, "transporteurAller", ReferentielsDePatientCouverture.TRANSPORTEUR, errors),
+                    find(row, "transporteurRetour", ReferentielsDePatientCouverture.TRANSPORTEUR, errors));
         }
 
         private UUID find(Row row, String field, ReferentialKind kind, List<ValidationIssue> errors) {
@@ -346,12 +346,10 @@ public class PatientMigrator implements EntityMigrator {
                 Map<String, ReferentialEntry> index = new HashMap<>();
                 for (ReferentialEntry e : referentials.findAllForMatching(center, k)) {
                     Map<String, String> v = e.values();
-                    List<String> keys = switch (k) {
-                        case MEDECIN ->
-                                List.of(v.get("nom") + " " + nz(v.get("prenom")), nz(v.get("prenom")) + " " + v.get("nom"));
-                        case TRANSPORTEUR -> List.of(nz(v.get("nom")));
-                        default -> List.of(nz(v.get("code")));
-                    };
+                    List<String> keys = k.equals(ReferentialKind.MEDECIN)
+                            ? List.of(v.get("nom") + " " + nz(v.get("prenom")), nz(v.get("prenom")) + " " + v.get("nom"))
+                            : k.equals(ReferentielsDePatientCouverture.TRANSPORTEUR) ? List.of(nz(v.get("nom")))
+                            : List.of(nz(v.get("code")));
                     keys.forEach(raw -> index.putIfAbsent(key(LegacyValueParser.toCode(raw)), e));
                 }
                 return index;

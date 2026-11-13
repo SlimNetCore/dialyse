@@ -2,6 +2,7 @@ package com.hemodialyse.backend.infrastructure.referential.admin;
 
 import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+import com.hemodialyse.backend.infrastructure.acl.patientcouverture.ReferentielsDePatientCouverture;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ImportReport;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ImportTable;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialEntry;
@@ -39,7 +40,12 @@ class ReferentialAdminDelegationTest {
         ReferentialAdminDelegate delegate = new ReferentialAdminDelegate() {
             @Override
             public boolean prend(ReferentialKind kind) {
-                return kind == ReferentialKind.TRANSPORTEUR;
+                return kind == ReferentielsDePatientCouverture.TRANSPORTEUR;
+            }
+
+            @Override
+            public List<ReferentialKind> descripteurs() {
+                return List.of(ReferentielsDePatientCouverture.TRANSPORTEUR);
             }
 
             @Override
@@ -77,8 +83,8 @@ class ReferentialAdminDelegationTest {
 
     @Test
     void la_liste_est_normalisee_puis_deleguee_sans_toucher_au_depot_generique() {
-        service.list(CENTER, ReferentialKind.TRANSPORTEUR, "  taxi ", -3, 1000);
-        service.list(CENTER, ReferentialKind.TRANSPORTEUR, " ", 2, 0);
+        service.list(CENTER, ReferentielsDePatientCouverture.TRANSPORTEUR, "  taxi ", -3, 1000);
+        service.list(CENTER, ReferentielsDePatientCouverture.TRANSPORTEUR, " ", 2, 0);
 
         assertThat(appels).containsExactly("list:taxi:0:100", "list:null:2:20");
         assertThat(repo.writes).isZero();
@@ -87,9 +93,9 @@ class ReferentialAdminDelegationTest {
     @Test
     void la_saisie_et_la_suppression_des_transporteurs_sont_deleguees() {
         UUID id = UUID.randomUUID();
-        service.create(CENTER, ReferentialKind.TRANSPORTEUR, Map.of("nom", "Taxi"));
-        service.update(CENTER, ReferentialKind.TRANSPORTEUR, id, Map.of("nom", "Taxi 2"));
-        service.delete(CENTER, ReferentialKind.TRANSPORTEUR, id);
+        service.create(CENTER, ReferentielsDePatientCouverture.TRANSPORTEUR, Map.of("nom", "Taxi"));
+        service.update(CENTER, ReferentielsDePatientCouverture.TRANSPORTEUR, id, Map.of("nom", "Taxi 2"));
+        service.delete(CENTER, ReferentielsDePatientCouverture.TRANSPORTEUR, id);
 
         assertThat(appels).containsExactly("create:Taxi", "update:" + id, "delete:" + id);
         assertThat(repo.writes).isZero();
@@ -98,18 +104,18 @@ class ReferentialAdminDelegationTest {
     @Test
     void les_delegues_assembles_confient_chaque_referentiel_au_delegue_qui_le_prend() {
         List<String> vus = new ArrayList<>();
-        ReferentialAdminDelegate forfaits = unDelegue(ReferentialKind.FORFAIT, "forfaits", vus);
-        ReferentialAdminDelegate transporteurs = unDelegue(ReferentialKind.TRANSPORTEUR, "transporteurs", vus);
+        ReferentialAdminDelegate forfaits = unDelegue(ReferentielsDePatientCouverture.FORFAIT, "forfaits", vus);
+        ReferentialAdminDelegate transporteurs = unDelegue(ReferentielsDePatientCouverture.TRANSPORTEUR, "transporteurs", vus);
         ReferentialAdminDomainService assemble = new ReferentialAdminDomainService(repo,
                 new com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminDelegates(List.of(transporteurs, forfaits)));
 
-        assemble.create(CENTER, ReferentialKind.FORFAIT, Map.of("code", "HD", "libelle", "Hémodialyse"));
-        assemble.create(CENTER, ReferentialKind.TRANSPORTEUR, Map.of("nom", "Taxi"));
+        assemble.create(CENTER, ReferentielsDePatientCouverture.FORFAIT, Map.of("code", "HD", "libelle", "Hémodialyse"));
+        assemble.create(CENTER, ReferentielsDePatientCouverture.TRANSPORTEUR, Map.of("nom", "Taxi"));
         assemble.create(CENTER, ReferentialKind.SALLE, Map.of("code", "S1", "nom", "Salle 1"));
 
         assertThat(vus).containsExactly("forfaits", "transporteurs");
         assertThat(repo.of(CENTER, ReferentialKind.SALLE)).hasSize(1);
-        assertThat(repo.of(CENTER, ReferentialKind.FORFAIT)).isEmpty();
+        assertThat(repo.of(CENTER, ReferentielsDePatientCouverture.FORFAIT)).isEmpty();
     }
 
     @Test
@@ -118,7 +124,12 @@ class ReferentialAdminDelegationTest {
         ReferentialAdminDelegate payeurs = new ReferentialAdminDelegate() {
             @Override
             public boolean prend(ReferentialKind kind) {
-                return kind == ReferentialKind.CAISSE || kind == ReferentialKind.AGENCE || kind == ReferentialKind.CENTRE_PAYEUR;
+                return ReferentielsDePatientCouverture.PAYEURS.contains(kind);
+            }
+
+            @Override
+            public List<ReferentialKind> descripteurs() {
+                return ReferentielsDePatientCouverture.PAYEURS;
             }
 
             @Override
@@ -154,13 +165,13 @@ class ReferentialAdminDelegationTest {
                 new com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminDelegates(List.of(payeurs)));
         UUID id = UUID.randomUUID();
 
-        assemble.create(CENTER, ReferentialKind.CAISSE, Map.of("code", "CNAS", "nom", "Caisse"));
-        assemble.update(CENTER, ReferentialKind.AGENCE, id, Map.of("code", "AG", "nom", "Agence", "caisse", "CNAS"));
-        assemble.delete(CENTER, ReferentialKind.CENTRE_PAYEUR, id);
-        assemble.list(CENTER, ReferentialKind.AGENCE, null, 0, 20);
-        assemble.importEntries(CENTER, ReferentialKind.CAISSE, table(List.of("code", "nom"), List.of(List.of("CNAS", "Caisse"))), true);
+        assemble.create(CENTER, ReferentielsDePatientCouverture.CAISSE, Map.of("code", "CNAS", "nom", "Caisse"));
+        assemble.update(CENTER, ReferentielsDePatientCouverture.AGENCE, id, Map.of("code", "AG", "nom", "Agence", "caisse", "CNAS"));
+        assemble.delete(CENTER, ReferentielsDePatientCouverture.CENTRE_PAYEUR, id);
+        assemble.list(CENTER, ReferentielsDePatientCouverture.AGENCE, null, 0, 20);
+        assemble.importEntries(CENTER, ReferentielsDePatientCouverture.CAISSE, table(List.of("code", "nom"), List.of(List.of("CNAS", "Caisse"))), true);
 
-        assertThat(vus).containsExactly("create:CAISSE", "update:AGENCE", "delete:CENTRE_PAYEUR", "list:AGENCE", "import:CAISSE");
+        assertThat(vus).containsExactly("create:caisses", "update:agences", "delete:centres-payeurs", "list:agences", "import:caisses");
         assertThat(repo.writes).isZero();
     }
 
@@ -169,6 +180,11 @@ class ReferentialAdminDelegationTest {
             @Override
             public boolean prend(ReferentialKind kind) {
                 return kind == pris;
+            }
+
+            @Override
+            public List<ReferentialKind> descripteurs() {
+                return List.of(pris);
             }
 
             @Override
@@ -215,7 +231,7 @@ class ReferentialAdminDelegationTest {
 
     @Test
     void l_import_lit_les_en_tetes_puis_delegue_les_lignes_non_vides_avec_leur_numero() {
-        ImportReport report = service.importEntries(CENTER, ReferentialKind.TRANSPORTEUR,
+        ImportReport report = service.importEntries(CENTER, ReferentielsDePatientCouverture.TRANSPORTEUR,
                 table(List.of("TRANSPORTEUR", "TÉL", "Autre"),
                         List.of(List.of("Taxi", "0795006136", "x"), List.of("", "", ""), List.of("Ambulance", "", "y"))), false);
 
@@ -232,15 +248,15 @@ class ReferentialAdminDelegationTest {
     @Test
     void les_anomalies_deleguees_rendent_un_fichier_refuse_et_les_bornes_sont_controlees_avant() {
         anomaliesRendues = List.of(new ValidationIssue(3, "nom", "REQUIRED", "Obligatoire.", Map.of()));
-        ImportReport refuse = service.importEntries(CENTER, ReferentialKind.TRANSPORTEUR,
+        ImportReport refuse = service.importEntries(CENTER, ReferentielsDePatientCouverture.TRANSPORTEUR,
                 table(List.of("nom"), List.of(List.of("Taxi"))), false);
         assertThat(refuse.applied()).isFalse();
         assertThat(refuse.errors()).extracting(ValidationIssue::code).containsExactly("REQUIRED");
 
         appels.clear();
-        ImportReport sansColonne = service.importEntries(CENTER, ReferentialKind.TRANSPORTEUR,
+        ImportReport sansColonne = service.importEntries(CENTER, ReferentielsDePatientCouverture.TRANSPORTEUR,
                 table(List.of("telephone"), List.of(List.of("0795006136"))), false);
-        ImportReport vide = service.importEntries(CENTER, ReferentialKind.TRANSPORTEUR, table(List.of("nom"), List.of()), false);
+        ImportReport vide = service.importEntries(CENTER, ReferentielsDePatientCouverture.TRANSPORTEUR, table(List.of("nom"), List.of()), false);
         assertThat(sansColonne.missingColumns()).containsExactly("nom");
         assertThat(vide.errors()).extracting(ValidationIssue::code).containsExactly("NO_DATA");
         assertThat(appels).isEmpty();

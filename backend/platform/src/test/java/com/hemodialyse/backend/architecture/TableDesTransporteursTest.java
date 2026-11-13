@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Les tables {@code transporteur} et {@code categorie_transport} appartiennent au contexte patient-couverture (slice RF1, ADR 0122).
  * Hors de ce contexte (et des entités JPA), plus aucun code de production ne les nomme : ni en SQL, ni comme nom de table d'une
- * description de table ({@code new Table("transporteur", …)}). Le descripteur {@code ReferentialKind.TRANSPORTEUR} (champs, alias
+ * description de table ({@code new Table("transporteur", …)}). Le descripteur {@code DescripteursDeReferentiels.TRANSPORTEUR} (champs, alias
  * d'en-têtes, modèle d'import) reste à l'administration générique : c'est le résiduel nominatif RF1-R1 de la fiche.
  * Les lecteurs passent par le langage publié {@code patientcouverture.v1} ({@code Transporteurs}, {@code CategoriesDeTransport}),
  * l'administration générique par {@code GestionDesTransporteurs}.

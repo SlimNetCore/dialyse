@@ -63,24 +63,24 @@ class ForfaitsParPatientCouvertureTest {
 
     @Test
     void elle_ne_prend_que_les_forfaits() {
-        assertThat(acl.prend(ReferentialKind.FORFAIT)).isTrue();
-        assertThat(acl.prend(ReferentialKind.TRANSPORTEUR)).isFalse();
+        assertThat(acl.prend(ReferentielsDePatientCouverture.FORFAIT)).isTrue();
+        assertThat(acl.prend(ReferentielsDePatientCouverture.TRANSPORTEUR)).isFalse();
         assertThat(acl.prend(ReferentialKind.SALLE)).isFalse();
     }
 
     @Test
     void la_saisie_passe_le_code_le_libelle_et_le_prix_tels_quels_et_le_prix_est_rendu_en_texte_simple() {
-        ReferentialEntry entree = acl.create(CENTRE, ReferentialKind.FORFAIT, java.util.Collections.singletonMap("prix", "5600.50"));
+        ReferentialEntry entree = acl.create(CENTRE, ReferentielsDePatientCouverture.FORFAIT, java.util.Collections.singletonMap("prix", "5600.50"));
         assertThat(entree.values()).containsEntry("prix", "5600.50");
 
-        ReferentialEntry sansPrix = acl.update(CENTRE, ReferentialKind.FORFAIT, FORFAIT, Map.of("code", "HD", "libelle", "Hémodialyse"));
+        ReferentialEntry sansPrix = acl.update(CENTRE, ReferentielsDePatientCouverture.FORFAIT, FORFAIT, Map.of("code", "HD", "libelle", "Hémodialyse"));
         assertThat(sansPrix.values().get("prix")).isNull();
         assertThat(appels).containsExactly("creer:null:null:5600.50", "modifier:HD:null");
     }
 
     @Test
     void la_liste_rend_le_code_le_libelle_et_le_prix() {
-        var page = acl.list(CENTRE, ReferentialKind.FORFAIT, null, 0, 20);
+        var page = acl.list(CENTRE, ReferentielsDePatientCouverture.FORFAIT, null, 0, 20);
         assertThat(page.items()).hasSize(1);
         assertThat(page.items().get(0).values()).containsEntry("code", "HD").containsEntry("libelle", "Hémodialyse")
                 .containsEntry("prix", "5600.00");
@@ -89,7 +89,7 @@ class ForfaitsParPatientCouvertureTest {
     @Test
     void un_forfait_deja_existant_est_une_anomalie_sur_le_code_avec_le_message_d_avant() {
         aLever = RefusDeForfait.dejaExistant("doublon");
-        assertThatThrownBy(() -> acl.create(CENTRE, ReferentialKind.FORFAIT, Map.of("code", "HD")))
+        assertThatThrownBy(() -> acl.create(CENTRE, ReferentielsDePatientCouverture.FORFAIT, Map.of("code", "HD")))
                 .isInstanceOfSatisfying(ReferentialValidationException.class, e -> assertThat(e.getIssues())
                         .extracting(ValidationIssue::field, ValidationIssue::code, ValidationIssue::message)
                         .containsExactly(org.assertj.core.groups.Tuple.tuple("code", "ALREADY_EXISTS",
@@ -99,14 +99,14 @@ class ForfaitsParPatientCouvertureTest {
     @Test
     void un_forfait_introuvable_ou_utilise_est_une_erreur_metier_avec_le_message_d_avant() {
         aLever = RefusDeForfait.introuvable();
-        assertThatThrownBy(() -> acl.delete(CENTRE, ReferentialKind.FORFAIT, FORFAIT))
+        assertThatThrownBy(() -> acl.delete(CENTRE, ReferentielsDePatientCouverture.FORFAIT, FORFAIT))
                 .isInstanceOfSatisfying(BusinessException.class, e -> {
                     assertThat(e.getCode()).isEqualTo("REFERENTIAL_NOT_FOUND");
                     assertThat(e.getMessage()).isEqualTo("Élément introuvable dans « Forfaits » pour ce centre.");
                 });
 
         aLever = RefusDeForfait.utilise(4);
-        assertThatThrownBy(() -> acl.delete(CENTRE, ReferentialKind.FORFAIT, FORFAIT))
+        assertThatThrownBy(() -> acl.delete(CENTRE, ReferentielsDePatientCouverture.FORFAIT, FORFAIT))
                 .isInstanceOfSatisfying(BusinessException.class, e -> {
                     assertThat(e.getCode()).isEqualTo("REFERENTIAL_IN_USE");
                     assertThat(e.getMessage()).isEqualTo("Suppression impossible : cet élément de « Forfaits » est encore utilisé "
@@ -116,7 +116,7 @@ class ForfaitsParPatientCouvertureTest {
 
     @Test
     void l_import_traduit_les_lignes_et_rend_le_bilan() {
-        ReferentialAdminDelegate.Outcome bilan = acl.importRows(CENTRE, ReferentialKind.FORFAIT,
+        ReferentialAdminDelegate.Outcome bilan = acl.importRows(CENTRE, ReferentielsDePatientCouverture.FORFAIT,
                 List.of(new ReferentialAdminDelegate.Row(2, Map.of("code", "HD", "libelle", "x", "prix", "1"))), true);
 
         assertThat(appels).containsExactly("importer:1:false");

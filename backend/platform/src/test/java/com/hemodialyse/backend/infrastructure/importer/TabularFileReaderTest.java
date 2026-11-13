@@ -2,6 +2,7 @@ package com.hemodialyse.backend.infrastructure.importer;
 
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ImportTable;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialField;
+import com.hemodialyse.backend.infrastructure.acl.patientcouverture.ReferentielsDePatientCouverture;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
 import com.hemodialyse.backend.application.erreur.BusinessException;
 import org.junit.jupiter.api.Test;
@@ -59,9 +60,9 @@ class TabularFileReaderTest {
 
     @Test
     void csvTemplateHeadersAreRecognisedByTheDomain() {
-        ImportTable table = reader.read("modele.csv", writer.csv(ReferentialKind.CENTRE_PAYEUR));
+        ImportTable table = reader.read("modele.csv", writer.csv(ReferentielsDePatientCouverture.CENTRE_PAYEUR));
 
-        List<ReferentialField> fields = ReferentialKind.CENTRE_PAYEUR.fields();
+        List<ReferentialField> fields = ReferentielsDePatientCouverture.CENTRE_PAYEUR.fields();
         for (int i = 0; i < fields.size(); i++) {
             assertThat(fields.get(i).matchesHeader(ReferentialField.normalize(table.headers().get(i)))).isTrue();
         }

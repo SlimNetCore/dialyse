@@ -4,6 +4,7 @@ import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.Forf
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.GestionDesPayeurs;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.Transporteurs;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialEntry;
+import com.hemodialyse.backend.infrastructure.acl.patientcouverture.ReferentielsDePatientCouverture;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
 import com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminRepositoryPort;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
@@ -159,12 +160,12 @@ public class ReferentialAdminJdbcAdapter implements ReferentialAdminRepositoryPo
 
     @Override
     public List<ReferentialEntry> findAllForMatching(CentreId centerId, ReferentialKind kind) {
-        if (kind == ReferentialKind.TRANSPORTEUR) {
+        if (kind.equals(ReferentielsDePatientCouverture.TRANSPORTEUR)) {
             // RF1 (ADR 0122) : les transporteurs appartiennent à patient-couverture ; la reprise des patients les retrouve par leur nom.
             return transporteurs.lister(centerId.valeur()).stream()
                     .map(t -> new ReferentialEntry(t.id(), java.util.Collections.singletonMap("nom", t.nom()), Map.of())).toList();
         }
-        if (kind == ReferentialKind.FORFAIT) {
+        if (kind.equals(ReferentielsDePatientCouverture.FORFAIT)) {
             // RF2 (ADR 0124) : le catalogue de forfaits appartient à patient-couverture ; la reprise de l'historique les retrouve par leur code.
             return forfaits.lister(centerId.valeur()).stream().map(f -> {
                 Map<String, String> valeurs = new LinkedHashMap<>();
@@ -174,17 +175,20 @@ public class ReferentialAdminJdbcAdapter implements ReferentialAdminRepositoryPo
                 return new ReferentialEntry(f.id(), valeurs, Map.of());
             }).toList();
         }
-        if (kind == ReferentialKind.CAISSE || kind == ReferentialKind.AGENCE || kind == ReferentialKind.CENTRE_PAYEUR) {
+        if (ReferentielsDePatientCouverture.PAYEURS.contains(kind)) {
             // RF3a (ADR 0126) : la chaîne des payeurs appartient à patient-couverture ; la reprise des patients retrouve un payeur par son code.
-            GestionDesPayeurs.Niveau niveau = kind == ReferentialKind.CAISSE ? GestionDesPayeurs.Niveau.CAISSE
-                    : kind == ReferentialKind.AGENCE ? GestionDesPayeurs.Niveau.AGENCE : GestionDesPayeurs.Niveau.CENTRE_PAYEUR;
+            GestionDesPayeurs.Niveau niveau = kind.equals(ReferentielsDePatientCouverture.CAISSE) ? GestionDesPayeurs.Niveau.CAISSE
+                    : kind.equals(ReferentielsDePatientCouverture.AGENCE) ? GestionDesPayeurs.Niveau.AGENCE
+                    : GestionDesPayeurs.Niveau.CENTRE_PAYEUR;
             return payeurs.toutes(centerId.valeur(), niveau).stream().map(p -> {
                 Map<String, String> valeurs = new LinkedHashMap<>();
                 valeurs.put("code", p.code());
                 valeurs.put("nom", p.nom());
-                if (kind == ReferentialKind.CAISSE) valeurs.put("typeCaisse", p.typeCaisse());
-                if (kind == ReferentialKind.AGENCE) valeurs.put("caisse", p.parent() == null ? null : p.parent().toString());
-                if (kind == ReferentialKind.CENTRE_PAYEUR) {
+                if (kind.equals(ReferentielsDePatientCouverture.CAISSE)) valeurs.put("typeCaisse", p.typeCaisse());
+                if (kind.equals(ReferentielsDePatientCouverture.AGENCE)) {
+                    valeurs.put("caisse", p.parent() == null ? null : p.parent().toString());
+                }
+                if (kind.equals(ReferentielsDePatientCouverture.CENTRE_PAYEUR)) {
                     valeurs.put("adresse", p.adresse());
                     valeurs.put("agence", p.parent() == null ? null : p.parent().toString());
                 }

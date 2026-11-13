@@ -214,6 +214,6 @@ class MedecinsPl11CharacterizationIntegrationTest extends Pl11FiletSupport {
         trace("import reel", importer("medecins", CENTRE_A, true, "nom\nImporte\n", admin()));
         trace("desactivation par l'organisation", doDelete(ORG + "/medecins/" + utilise + "?centreId=" + CENTRE_A, admin()));
         traceAudit("journal d'audit");
-        verrouiller("audit");
+        verrouiller("audit_nouveau_code"); // PL11-1 : identifiant créé et type de référentiel tracés (ancien : voir _ecarts-legacy)
     }
 }

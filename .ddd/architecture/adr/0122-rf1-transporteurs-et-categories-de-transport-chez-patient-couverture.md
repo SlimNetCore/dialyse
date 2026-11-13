@@ -29,7 +29,7 @@ Aucun. Les défauts du legacy sont REPRODUITS et consignés (KB-RF1-01 : 500 sur
 ## Résiduels nominatifs
 | ID | Résiduel | Raison / retrait |
 |---|---|---|
-| RF1-R1 | `ReferentialKind.TRANSPORTEUR` (descripteur : champs, alias d'en-têtes, modèle d'import, libellé) reste dans l'administration générique | le lecteur de fichiers et les modèles sont communs aux neuf référentiels ; retiré avec l'admin générique (butoir : 2027-03-31, à confirmer par les métiers ; le « butoir fin de RF3 » est périmé, RF3 étant clos ; verrouillé par `DescripteursResiduelsDeLAdministrationGeneriqueTest`) |
+| RF1-R1 | `ReferentialKind.TRANSPORTEUR` (descripteur : champs, alias d'en-têtes, modèle d'import, libellé) reste dans l'administration générique | **SOLDÉ par PL11-1 (2026-11-13, ADR 0157)** : le descripteur est publié par Patient et couverture (`DescripteursDeReferentiels.TRANSPORTEUR`) et reçu par la façade (SPI `descripteurs()`) ; plus de butoir 2027-03-31 ; garde anti-retour : `LaFacadeDesReferentielsNeDecritQueLesReferentielsEncoreDirectsTest` |
 | RF1-R2 | `ReferentialAdminDomainService` conserve le chemin générique pour les autres référentiels | forfaits (RF2) et payeurs (RF3) |
 | RF1-R3 | Les modules `migration`/`PatientMigrator` lisent les transporteurs par le langage publié | aucun SQL ; rien à retirer |
 

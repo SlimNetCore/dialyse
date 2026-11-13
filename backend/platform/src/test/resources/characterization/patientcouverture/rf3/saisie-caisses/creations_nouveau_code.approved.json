@@ -16,7 +16,7 @@
   "nom absent" : "422 REFERENTIAL_VALIDATION | « Nom » est obligatoire. | REQUIRED/nom/ligne 0 {}",
   "nom de 255 caracteres" : "201 | {\"id\":\"<UUID_GENERE_7>\",\"references\":{},\"values\":{\"code\":\"C-N255\",\"nom\":\"<255 x N>\",\"typeCaisse\":\"STANDARD\"}}",
   "nom de 256 caracteres" : "422 REFERENTIAL_VALIDATION | « Nom » dépasse 255 caractères (256). | TOO_LONG/nom/ligne 0 {\"length\":\"256\",\"max\":\"255\"}",
-  "sans corps" : "400 BAD_REQUEST | Corps de la requête illisible",
+  "sans corps" : "415 UNSUPPORTED_MEDIA_TYPE | Type de contenu non supporté sur cette route",
   "trois anomalies ensemble" : "422 REFERENTIAL_VALIDATION | « Code » est obligatoire. « Nom » est obligatoire. « Type de caisse » : « PREMIUM » n'est pas une valeur autorisée (STANDARD, VACANCIER). | REQUIRED/code/ligne 0 {} | REQUIRED/nom/ligne 0 {} | INVALID_VALUE/typeCaisse/ligne 0 {\"allowed\":\"STANDARD, VACANCIER\",\"value\":\"PREMIUM\"}",
   "type avec espaces et tiret" : "201 | {\"id\":\"<UUID_GENERE_8>\",\"references\":{},\"values\":{\"code\":\"C-ESP\",\"nom\":\"Type espaces\",\"typeCaisse\":\"VACANCIER\"}}",
   "type en minuscules" : "201 | {\"id\":\"<UUID_GENERE_9>\",\"references\":{},\"values\":{\"code\":\"C-MIN\",\"nom\":\"Type minuscules\",\"typeCaisse\":\"VACANCIER\"}}",

@@ -2,7 +2,7 @@ package com.hemodialyse.backend.infrastructure.migration.service;
 
 import com.hemodialyse.backend.infrastructure.migration.model.MigrationEntity;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialEntry;
-import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
+import com.hemodialyse.backend.infrastructure.acl.patientcouverture.ReferentielsDePatientCouverture;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ValidationIssue;
 import com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminRepositoryPort;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
@@ -110,7 +110,7 @@ public final class HistoryRules {
         public void begin(CentreId centerId) {
             Map<String, UUID> codes = forfaits.get();
             codes.clear();
-            for (ReferentialEntry e : referentials.findAllForMatching(centerId, ReferentialKind.FORFAIT)) {
+            for (ReferentialEntry e : referentials.findAllForMatching(centerId, ReferentielsDePatientCouverture.FORFAIT)) {
                 String code = e.values().get("code");
                 if (code != null) codes.putIfAbsent(code.trim().toUpperCase(Locale.ROOT), e.id());
             }

@@ -1,0 +1,259 @@
+{
+  "01 creation" : {
+    "body" : {
+      "id" : "<UUID_GENERE_1>",
+      "references" : { },
+      "values" : {
+        "capacite" : null,
+        "code" : "S3",
+        "isolement" : "NON",
+        "nom" : "Trois"
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 201
+  },
+  "02 creation invalide" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "« Code » est obligatoire. « Nom » est obligatoire.",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "issues" : [ {
+        "code" : "REQUIRED",
+        "field" : "code",
+        "message" : "« Code » est obligatoire.",
+        "params" : { },
+        "row" : 0
+      }, {
+        "code" : "REQUIRED",
+        "field" : "nom",
+        "message" : "« Nom » est obligatoire.",
+        "params" : { },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "03 modification" : {
+    "body" : {
+      "id" : "<S>",
+      "references" : { },
+      "values" : {
+        "capacite" : null,
+        "code" : "S1",
+        "isolement" : "NON",
+        "nom" : "Renommee"
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "04 suppression refusee" : {
+    "body" : {
+      "code" : "REFERENTIAL_IN_USE",
+      "detail" : "Suppression impossible : cet élément de « Salles » est encore utilisé (1 référence(s) : patients, prises en charge, séances ou autres référentiels).",
+      "instance" : "/api/v1/admin/referentials/salles/<U>",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "05 suppression" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "06 suppression inconnue" : {
+    "body" : {
+      "code" : "REFERENTIAL_NOT_FOUND",
+      "detail" : "Élément introuvable dans « Salles » pour ce centre.",
+      "instance" : "/api/v1/admin/referentials/salles/<UUID_GENERE_2>",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "07 verification d'import" : {
+    "body" : {
+      "applied" : false,
+      "created" : 1,
+      "errors" : [ ],
+      "ignoredColumns" : [ ],
+      "kind" : "salles",
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : true
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "08 import reel" : {
+    "body" : {
+      "applied" : true,
+      "created" : 1,
+      "errors" : [ ],
+      "ignoredColumns" : [ ],
+      "kind" : "salles",
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : true
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "09 lecture" : {
+    "body" : {
+      "items" : [ {
+        "id" : "<U>",
+        "references" : { },
+        "values" : {
+          "capacite" : null,
+          "code" : "S2",
+          "isolement" : "NON",
+          "nom" : "Utilisee"
+        }
+      }, {
+        "id" : "<UUID_GENERE_1>",
+        "references" : { },
+        "values" : {
+          "capacite" : null,
+          "code" : "S3",
+          "isolement" : "NON",
+          "nom" : "Trois"
+        }
+      }, {
+        "id" : "<UUID_GENERE_3>",
+        "references" : { },
+        "values" : {
+          "capacite" : null,
+          "code" : "S5",
+          "isolement" : "NON",
+          "nom" : "Cinq"
+        }
+      } ],
+      "page" : 0,
+      "size" : 20,
+      "total" : 3
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "10 modele" : {
+    "bodyText" : "﻿Code;Nom;Salle d'isolement;Capacité (générateurs max.)\r\nS1;Salle 1;NON;12\r\n",
+    "contentType" : "text/csv",
+    "status" : 200
+  },
+  "11 refus 403 secretaire" : {
+    "body" : {
+      "code" : "ACCESS_DENIED",
+      "detail" : "Access Denied",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "status" : 403,
+      "title" : "Acces refuse"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 403
+  },
+  "12 refus 403 autre centre" : {
+    "body" : {
+      "code" : "ACCESS_DENIED",
+      "detail" : "Accès refusé : le centre demandé ne correspond pas à la session",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "status" : 403,
+      "title" : "Acces refuse"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 403
+  },
+  "13 journal d'audit (centre de session A)" : {
+    "lignes" : [ {
+      "action_code" : "ADMIN_CREATION",
+      "entity_id" : "<UUID_GENERE_1>",
+      "entity_type" : "admin",
+      "http_method" : "POST",
+      "nombre" : "1",
+      "roles" : "ROLE_ADMIN",
+      "route_template" : "/api/v1/admin/referentials/{kind}",
+      "status_code" : "201"
+    }, {
+      "action_code" : "ADMIN_CREATION",
+      "entity_id" : "salles",
+      "entity_type" : "admin",
+      "http_method" : "POST",
+      "nombre" : "1",
+      "roles" : "ROLE_ADMIN",
+      "route_template" : "/api/v1/admin/referentials/{kind}",
+      "status_code" : "403"
+    }, {
+      "action_code" : "ADMIN_CREATION",
+      "entity_id" : "salles",
+      "entity_type" : "admin",
+      "http_method" : "POST",
+      "nombre" : "1",
+      "roles" : "ROLE_SECRETAIRE",
+      "route_template" : "/api/v1/admin/referentials/{kind}",
+      "status_code" : "403"
+    }, {
+      "action_code" : "ADMIN_CREATION",
+      "entity_id" : "salles",
+      "entity_type" : "admin",
+      "http_method" : "POST",
+      "nombre" : "1",
+      "roles" : "ROLE_ADMIN",
+      "route_template" : "/api/v1/admin/referentials/{kind}",
+      "status_code" : "422"
+    }, {
+      "action_code" : "ADMIN_CREATION",
+      "entity_id" : "salles",
+      "entity_type" : "admin",
+      "http_method" : "POST",
+      "nombre" : "2",
+      "roles" : "ROLE_ADMIN",
+      "route_template" : "/api/v1/admin/referentials/{kind}/import",
+      "status_code" : "200"
+    }, {
+      "action_code" : "ADMIN_SUPPRESSION",
+      "entity_id" : "<S>",
+      "entity_type" : "admin",
+      "http_method" : "DELETE",
+      "nombre" : "1",
+      "roles" : "ROLE_ADMIN",
+      "route_template" : "/api/v1/admin/referentials/{kind}/{id}",
+      "status_code" : "204"
+    }, {
+      "action_code" : "ADMIN_SUPPRESSION",
+      "entity_id" : "<UUID_GENERE_2>",
+      "entity_type" : "admin",
+      "http_method" : "DELETE",
+      "nombre" : "1",
+      "roles" : "ROLE_ADMIN",
+      "route_template" : "/api/v1/admin/referentials/{kind}/{id}",
+      "status_code" : "422"
+    }, {
+      "action_code" : "ADMIN_SUPPRESSION",
+      "entity_id" : "<U>",
+      "entity_type" : "admin",
+      "http_method" : "DELETE",
+      "nombre" : "1",
+      "roles" : "ROLE_ADMIN",
+      "route_template" : "/api/v1/admin/referentials/{kind}/{id}",
+      "status_code" : "422"
+    }, {
+      "action_code" : "ADMIN_MODIFICATION",
+      "entity_id" : "<S>",
+      "entity_type" : "admin",
+      "http_method" : "PUT",
+      "nombre" : "1",
+      "roles" : "ROLE_ADMIN",
+      "route_template" : "/api/v1/admin/referentials/{kind}/{id}",
+      "status_code" : "200"
+    } ]
+  }
+}

@@ -17,7 +17,7 @@
   "nom et telephone invalides ensemble" : "422 REFERENTIAL_VALIDATION | « Nom » est obligatoire. « Téléphone » : « x » n'est pas un numéro de téléphone valide. | REQUIRED/nom/ligne 0 {} | INVALID_PHONE/telephone/ligne 0 {\"value\":\"x\"}",
   "nom numerique" : "201 | {\"id\":\"<UUID_GENERE_8>\",\"references\":{},\"values\":{\"nom\":\"123\",\"telephone\":null}}",
   "nom vide" : "422 REFERENTIAL_VALIDATION | « Nom » est obligatoire. | REQUIRED/nom/ligne 0 {}",
-  "sans corps" : "400 BAD_REQUEST | Corps de la requête illisible",
+  "sans corps" : "415 UNSUPPORTED_MEDIA_TYPE | Type de contenu non supporté sur cette route",
   "telephone avec lettres" : "422 REFERENTIAL_VALIDATION | « Téléphone » : « abcdef » n'est pas un numéro de téléphone valide. | INVALID_PHONE/telephone/ligne 0 {\"value\":\"abcdef\"}",
   "telephone avec signes admis" : "201 | {\"id\":\"<UUID_GENERE_9>\",\"references\":{},\"values\":{\"nom\":\"Transport Signes\",\"telephone\":\"+213 (0)21-12.34/56\"}}",
   "telephone avec un caractere interdit" : "422 REFERENTIAL_VALIDATION | « Téléphone » : « 0795 00 61 3x » n'est pas un numéro de téléphone valide. | INVALID_PHONE/telephone/ligne 0 {\"value\":\"0795 00 61 3x\"}",

@@ -28,7 +28,7 @@ import java.util.UUID;
  */
 public class ForfaitsParPatientCouverture implements ReferentialAdminDelegate {
 
-    private static final String LIBELLE = ReferentialKind.FORFAIT.label();
+    private static final String LIBELLE = ReferentielsDePatientCouverture.FORFAIT.label();
 
     private final GestionDuCatalogueDeForfaits forfaits;
 
@@ -38,7 +38,12 @@ public class ForfaitsParPatientCouverture implements ReferentialAdminDelegate {
 
     @Override
     public boolean prend(ReferentialKind kind) {
-        return kind == ReferentialKind.FORFAIT;
+        return kind.equals(ReferentielsDePatientCouverture.FORFAIT);
+    }
+
+    @Override
+    public List<ReferentialKind> descripteurs() {
+        return List.of(ReferentielsDePatientCouverture.FORFAIT);
     }
 
     private static ReferentialEntry entree(FicheDeForfait fiche) {

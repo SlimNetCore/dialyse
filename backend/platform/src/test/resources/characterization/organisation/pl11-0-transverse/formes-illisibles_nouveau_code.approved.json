@@ -1,0 +1,448 @@
+{
+  "01 POST JSON tronque" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Corps de la requête illisible",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "02 POST corps vide" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Corps de la requête illisible",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "03 POST sans corps ni type" : {
+    "body" : {
+      "code" : "UNSUPPORTED_MEDIA_TYPE",
+      "detail" : "Type de contenu non supporté sur cette route",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "status" : 415,
+      "title" : "Type de contenu non supporte"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 415
+  },
+  "04 POST tableau JSON" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Corps de la requête illisible",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "05 POST values nul" : {
+    "body" : {
+      "code" : "VALIDATION_ERROR",
+      "detail" : "Invalid request content.",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "status" : 400,
+      "title" : "Validation echouee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "06 POST values chaine" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Corps de la requête illisible",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "07 POST values avec valeur imbriquee" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Corps de la requête illisible",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "08 POST centerId illisible" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Corps de la requête illisible",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "09 POST texte brut" : {
+    "body" : {
+      "code" : "UNSUPPORTED_MEDIA_TYPE",
+      "detail" : "Type de contenu non supporté sur cette route",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "status" : 415,
+      "title" : "Type de contenu non supporte"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 415
+  },
+  "10 POST XML" : {
+    "body" : {
+      "code" : "UNSUPPORTED_MEDIA_TYPE",
+      "detail" : "Type de contenu non supporté sur cette route",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "status" : 415,
+      "title" : "Type de contenu non supporte"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 415
+  },
+  "11 PUT id illisible" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Paramètre illisible : id",
+      "instance" : "/api/v1/admin/referentials/salles/pas-un-uuid",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "12 PUT JSON tronque" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Corps de la requête illisible",
+      "instance" : "/api/v1/admin/referentials/salles/<A>",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "13 DELETE id illisible" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Paramètre illisible : id",
+      "instance" : "/api/v1/admin/referentials/salles/pas-un-uuid",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "14 GET page illisible" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Paramètre illisible : page",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "15 GET taille illisible" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Paramètre illisible : size",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "16 GET taille enorme" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Paramètre illisible : size",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "17 PATCH sur une salle" : {
+    "body" : {
+      "code" : "METHOD_NOT_ALLOWED",
+      "detail" : "Méthode non supportée sur cette route",
+      "instance" : "/api/v1/admin/referentials/salles/<A>",
+      "status" : 405,
+      "title" : "Methode non supportee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 405
+  },
+  "18 PUT sans identifiant" : {
+    "body" : {
+      "code" : "METHOD_NOT_ALLOWED",
+      "detail" : "Méthode non supportée sur cette route",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "status" : 405,
+      "title" : "Methode non supportee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 405
+  },
+  "19 DELETE sans identifiant" : {
+    "body" : {
+      "code" : "METHOD_NOT_ALLOWED",
+      "detail" : "Méthode non supportée sur cette route",
+      "instance" : "/api/v1/admin/referentials/salles",
+      "status" : 405,
+      "title" : "Methode non supportee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 405
+  },
+  "20 POST sur une salle identifiee" : {
+    "body" : {
+      "code" : "METHOD_NOT_ALLOWED",
+      "detail" : "Méthode non supportée sur cette route",
+      "instance" : "/api/v1/admin/referentials/salles/<A>",
+      "status" : 405,
+      "title" : "Methode non supportee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 405
+  },
+  "21 GET d'une salle identifiee" : {
+    "body" : {
+      "code" : "METHOD_NOT_ALLOWED",
+      "detail" : "Méthode non supportée sur cette route",
+      "instance" : "/api/v1/admin/referentials/salles/<A>",
+      "status" : 405,
+      "title" : "Methode non supportee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 405
+  },
+  "22 PUT sur les descripteurs" : {
+    "body" : {
+      "code" : "METHOD_NOT_ALLOWED",
+      "detail" : "Méthode non supportée sur cette route",
+      "instance" : "/api/v1/admin/referentials",
+      "status" : 405,
+      "title" : "Methode non supportee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 405
+  },
+  "23 POST sur les descripteurs" : {
+    "body" : {
+      "code" : "METHOD_NOT_ALLOWED",
+      "detail" : "Méthode non supportée sur cette route",
+      "instance" : "/api/v1/admin/referentials",
+      "status" : 405,
+      "title" : "Methode non supportee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 405
+  },
+  "24 DELETE sur le modele" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Paramètre illisible : id",
+      "instance" : "/api/v1/admin/referentials/salles/template",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "25 POST sur le modele" : {
+    "body" : {
+      "code" : "METHOD_NOT_ALLOWED",
+      "detail" : "Méthode non supportée sur cette route",
+      "instance" : "/api/v1/admin/referentials/salles/template",
+      "status" : 405,
+      "title" : "Methode non supportee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 405
+  },
+  "26 GET import" : {
+    "body" : {
+      "code" : "METHOD_NOT_ALLOWED",
+      "detail" : "Méthode non supportée sur cette route",
+      "instance" : "/api/v1/admin/referentials/salles/import",
+      "status" : 405,
+      "title" : "Methode non supportee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 405
+  },
+  "27 Accept XML sur la liste" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 406
+  },
+  "28 Accept texte sur la liste" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 406
+  },
+  "29 Accept XML sur les descripteurs" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 406
+  },
+  "30 Accept JSON sur le modele csv" : {
+    "bodyText" : "﻿Code;Nom;Salle d'isolement;Capacité (générateurs max.)\r\nS1;Salle 1;NON;12\r\n",
+    "contentType" : "text/csv",
+    "status" : 200
+  },
+  "31 Accept csv sur le modele csv" : {
+    "bodyText" : "﻿Code;Nom;Salle d'isolement;Capacité (générateurs max.)\r\nS1;Salle 1;NON;12\r\n",
+    "contentType" : "text/csv",
+    "status" : 200
+  },
+  "32 Accept XML sur la suppression" : {
+    "body" : {
+      "code" : "REFERENTIAL_NOT_FOUND",
+      "detail" : "Élément introuvable dans « Salles » pour ce centre.",
+      "instance" : "/api/v1/admin/referentials/salles/<UUID_GENERE_1>",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "33 import sans fichier" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Partie obligatoire absente : file",
+      "instance" : "/api/v1/admin/referentials/salles/import",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "34 import non multipart" : {
+    "body" : {
+      "code" : "UNSUPPORTED_MEDIA_TYPE",
+      "detail" : "Type de contenu non supporté sur cette route",
+      "instance" : "/api/v1/admin/referentials/salles/import",
+      "status" : 415,
+      "title" : "Type de contenu non supporte"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 415
+  },
+  "35 import dryRun illisible" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Paramètre illisible : dryRun",
+      "instance" : "/api/v1/admin/referentials/salles/import",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "36 import dryRun=1" : {
+    "body" : {
+      "applied" : false,
+      "created" : 1,
+      "errors" : [ ],
+      "ignoredColumns" : [ ],
+      "kind" : "salles",
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : true
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "37 import dryRun=FALSE" : {
+    "body" : {
+      "applied" : true,
+      "created" : 1,
+      "errors" : [ ],
+      "ignoredColumns" : [ ],
+      "kind" : "salles",
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : true
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "38 import d'un fichier .pdf" : {
+    "body" : {
+      "code" : "IMPORT_UNSUPPORTED_FORMAT",
+      "detail" : "Format non pris en charge : utilisez un fichier .csv, .xlsx ou .xls.",
+      "instance" : "/api/v1/admin/referentials/salles/import",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "39 import d'un faux .xlsx" : {
+    "body" : {
+      "code" : "IMPORT_UNREADABLE_FILE",
+      "detail" : "Le fichier porte l'extension Excel mais son contenu n'est pas un classeur Excel valide.",
+      "instance" : "/api/v1/admin/referentials/salles/import",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "40 import sans nom de fichier" : {
+    "body" : {
+      "applied" : false,
+      "created" : 1,
+      "errors" : [ ],
+      "ignoredColumns" : [ ],
+      "kind" : "salles",
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : true
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "41 import d'un .txt" : {
+    "body" : {
+      "applied" : false,
+      "created" : 1,
+      "errors" : [ ],
+      "ignoredColumns" : [ ],
+      "kind" : "salles",
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : true
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "42 etat apres tous ces refus" : {
+    "lignes" : [ {
+      "code" : "S1",
+      "nom" : "Salle A"
+    }, {
+      "code" : "S8",
+      "nom" : "Huit"
+    } ]
+  }
+}

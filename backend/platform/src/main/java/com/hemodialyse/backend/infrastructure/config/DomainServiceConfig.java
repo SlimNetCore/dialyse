@@ -39,14 +39,26 @@ public class DomainServiceConfig {
         return new com.hemodialyse.backend.infrastructure.acl.patientcouverture.PayeursParPatientCouverture(payeurs);
     }
 
+    /** PL11-1 (ADR 0157) : les fournisseurs de descripteurs et de gestion que la façade distribue. */
     @Bean
-    public com.hemodialyse.backend.infrastructure.referential.admin.service.ReferentialAdminDomainService referentialAdminDomainService(
-            com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminRepositoryPort repo,
+    public com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminDelegates referentialAdminDelegates(
             com.hemodialyse.backend.infrastructure.acl.patientcouverture.TransporteursParPatientCouverture transporteurs,
             com.hemodialyse.backend.infrastructure.acl.patientcouverture.ForfaitsParPatientCouverture forfaits,
             com.hemodialyse.backend.infrastructure.acl.patientcouverture.PayeursParPatientCouverture payeurs) {
-        return new com.hemodialyse.backend.infrastructure.referential.admin.service.ReferentialAdminDomainService(repo,
-                new com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminDelegates(
-                        java.util.List.of(transporteurs, forfaits, payeurs)));
+        return new com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminDelegates(
+                java.util.List.of(transporteurs, forfaits, payeurs));
+    }
+
+    @Bean
+    public com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialCatalogue referentialCatalogue(
+            com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminDelegates delegues) {
+        return new com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialCatalogue(java.util.List.of(delegues));
+    }
+
+    @Bean
+    public com.hemodialyse.backend.infrastructure.referential.admin.service.ReferentialAdminDomainService referentialAdminDomainService(
+            com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminRepositoryPort repo,
+            com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminDelegates delegues) {
+        return new com.hemodialyse.backend.infrastructure.referential.admin.service.ReferentialAdminDomainService(repo, delegues);
     }
 }

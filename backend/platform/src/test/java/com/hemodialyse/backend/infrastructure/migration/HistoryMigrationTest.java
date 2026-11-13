@@ -10,7 +10,7 @@ import com.hemodialyse.backend.infrastructure.migration.service.MigrationDomainS
 import com.hemodialyse.backend.infrastructure.migration.service.OpeningBalanceMigrator;
 import com.hemodialyse.backend.infrastructure.migration.service.PatientRecordMigrator;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ImportTable;
-import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
+import com.hemodialyse.backend.infrastructure.acl.patientcouverture.ReferentielsDePatientCouverture;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ValidationIssue;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,7 +56,7 @@ class HistoryMigrationTest {
         balances = new InMemoryHistoryPorts.Balances();
         InMemoryMigrationPorts.Patients patients = new InMemoryMigrationPorts.Patients();
         InMemoryMigrationPorts.Referentials referentials = new InMemoryMigrationPorts.Referentials();
-        forfait = referentials.add(ReferentialKind.FORFAIT, Map.of("code", "HD-CONV", "libelle", "Hémodialyse"));
+        forfait = referentials.add(ReferentielsDePatientCouverture.FORFAIT, Map.of("code", "HD-CONV", "libelle", "Hémodialyse"));
 
         List<EntityMigrator> migrators = new ArrayList<>();
         HistoryRules.all(referentials).forEach(rules -> migrators.add(new PatientRecordMigrator(rules, records)));

@@ -31,6 +31,10 @@ import java.util.UUID;
  */
 public class PayeursParPatientCouverture implements ReferentialAdminDelegate {
 
+    private static final ReferentialKind CAISSE = ReferentielsDePatientCouverture.CAISSE;
+    private static final ReferentialKind AGENCE = ReferentielsDePatientCouverture.AGENCE;
+    private static final ReferentialKind CENTRE_PAYEUR = ReferentielsDePatientCouverture.CENTRE_PAYEUR;
+
     private final GestionDesPayeurs payeurs;
 
     public PayeursParPatientCouverture(GestionDesPayeurs payeurs) {
@@ -39,24 +43,25 @@ public class PayeursParPatientCouverture implements ReferentialAdminDelegate {
 
     @Override
     public boolean prend(ReferentialKind kind) {
-        return kind == ReferentialKind.CAISSE || kind == ReferentialKind.AGENCE || kind == ReferentialKind.CENTRE_PAYEUR;
+        return ReferentielsDePatientCouverture.PAYEURS.contains(kind);
+    }
+
+    @Override
+    public List<ReferentialKind> descripteurs() {
+        return ReferentielsDePatientCouverture.PAYEURS;
     }
 
     private static Niveau niveau(ReferentialKind kind) {
-        return switch (kind) {
-            case CAISSE -> Niveau.CAISSE;
-            case AGENCE -> Niveau.AGENCE;
-            case CENTRE_PAYEUR -> Niveau.CENTRE_PAYEUR;
-            default -> throw new IllegalStateException("Référentiel non géré par les payeurs : " + kind);
-        };
+        if (kind.equals(CAISSE)) return Niveau.CAISSE;
+        if (kind.equals(AGENCE)) return Niveau.AGENCE;
+        if (kind.equals(CENTRE_PAYEUR)) return Niveau.CENTRE_PAYEUR;
+        throw new IllegalStateException("Référentiel non géré par les payeurs : " + kind);
     }
 
     private static SaisieDePayeur saisie(ReferentialKind kind, Map<String, String> v) {
-        return switch (kind) {
-            case CAISSE -> new SaisieDePayeur(v.get("code"), v.get("nom"), v.get("typeCaisse"), null, null);
-            case AGENCE -> new SaisieDePayeur(v.get("code"), v.get("nom"), null, null, v.get("caisse"));
-            default -> new SaisieDePayeur(v.get("code"), v.get("nom"), null, v.get("adresse"), v.get("agence"));
-        };
+        if (kind.equals(CAISSE)) return new SaisieDePayeur(v.get("code"), v.get("nom"), v.get("typeCaisse"), null, null);
+        if (kind.equals(AGENCE)) return new SaisieDePayeur(v.get("code"), v.get("nom"), null, null, v.get("caisse"));
+        return new SaisieDePayeur(v.get("code"), v.get("nom"), null, v.get("adresse"), v.get("agence"));
     }
 
     private static ReferentialEntry entree(ReferentialKind kind, FicheDePayeur fiche) {
@@ -64,17 +69,15 @@ public class PayeursParPatientCouverture implements ReferentialAdminDelegate {
         Map<String, String> references = new LinkedHashMap<>();
         valeurs.put("code", fiche.code());
         valeurs.put("nom", fiche.nom());
-        switch (kind) {
-            case CAISSE -> valeurs.put("typeCaisse", fiche.typeCaisse());
-            case AGENCE -> {
-                valeurs.put("caisse", fiche.parent() == null ? null : fiche.parent().toString());
-                references.put("caisse", fiche.parentLibelle());
-            }
-            default -> {
-                valeurs.put("adresse", fiche.adresse());
-                valeurs.put("agence", fiche.parent() == null ? null : fiche.parent().toString());
-                references.put("agence", fiche.parentLibelle());
-            }
+        if (kind.equals(CAISSE)) {
+            valeurs.put("typeCaisse", fiche.typeCaisse());
+        } else if (kind.equals(AGENCE)) {
+            valeurs.put("caisse", fiche.parent() == null ? null : fiche.parent().toString());
+            references.put("caisse", fiche.parentLibelle());
+        } else {
+            valeurs.put("adresse", fiche.adresse());
+            valeurs.put("agence", fiche.parent() == null ? null : fiche.parent().toString());
+            references.put("agence", fiche.parentLibelle());
         }
         return new ReferentialEntry(fiche.id(), valeurs, references);
     }

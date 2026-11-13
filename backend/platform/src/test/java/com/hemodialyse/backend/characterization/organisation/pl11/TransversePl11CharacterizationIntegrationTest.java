@@ -180,7 +180,7 @@ class TransversePl11CharacterizationIntegrationTest extends Pl11FiletSupport {
         trace("import sans nom de fichier", doPostFichier(A + "/salles/import?centerId=" + CENTRE_A, "code,nom\nS7,Sept\n".getBytes(StandardCharsets.UTF_8), "", admin));
         trace("import d'un .txt", doPostFichier(A + "/salles/import?centerId=" + CENTRE_A, "code,nom\nS6,Six\n".getBytes(StandardCharsets.UTF_8), "x.txt", admin));
         traceSql("etat apres tous ces refus", "SELECT code, nom FROM salle WHERE center_id = ? ORDER BY code", CENTRE_A);
-        verrouiller("formes-illisibles");
+        verrouiller("formes-illisibles_nouveau_code"); // PL11-1, KB-PL11-12 : 405/406/415/400 propres (ancien : 500, voir _ecarts-legacy)
     }
 
     @Test
@@ -216,6 +216,6 @@ class TransversePl11CharacterizationIntegrationTest extends Pl11FiletSupport {
         trace("superadmin : creation dans B", creer("salles", CENTRE_B, "{'code':'S3','nom':'x'}", as(CENTRE_A, "SUPERADMIN")));
         trace("anonyme : creation", creer("salles", CENTRE_A, "{'code':'S4','nom':'x'}", null));
         traceAudit("journal d'audit (centre de session A et B)");
-        verrouiller("audit-des-refus");
+        verrouiller("audit-des-refus_nouveau_code"); // PL11-1, KB-PL11-12 : le PATCH répond 405 (ancien : 500, voir _ecarts-legacy)
     }
 }

@@ -30,7 +30,7 @@ public class ReferentialTemplateWriter {
             case DECIMAL -> "Nombre positif, 2 décimales max. (ex. 5600 ou 5600,50)";
             case INTEGER -> "Nombre entier positif (ex. 12)";
             case ENUM -> "Une valeur parmi : " + String.join(", ", field.allowedValues());
-            case REFERENCE -> "Code d'un élément existant de « " + field.referenceKind().label() + " »";
+            case REFERENCE -> "Code d'un élément existant de « " + field.referenceLabel() +" »";
         };
         if (field.type() != FieldType.REFERENCE && field.defaultValue() != null) {
             base += " — vide = " + field.defaultValue();

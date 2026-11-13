@@ -14,13 +14,14 @@ import java.util.Locale;
  * @param maxLength     longueur maximale (texte), 0 = sans objet
  * @param allowedValues valeurs autorisées (ENUM)
  * @param defaultValue  valeur appliquée quand le champ est vide (colonne alors facultative à l'import)
- * @param referenceSlug référentiel cible (REFERENCE), résolu par {@link ReferentialKind#fromSlug(String)}
+ * @param referenceSlug référentiel cible (REFERENCE)
+ * @param referenceLabel libellé du référentiel cible (REFERENCE)
  * @param example       valeur d'exemple écrite dans le modèle d'import
  * @param aliases       autres en-têtes de colonne acceptés à l'import
  */
 public record ReferentialField(String key, String label, FieldType type, boolean required, int maxLength,
                                List<String> allowedValues, String defaultValue, String referenceSlug,
-                               String example, List<String> aliases) {
+                               String referenceLabel, String example, List<String> aliases) {
 
     public ReferentialField {
         allowedValues = allowedValues == null ? List.of() : List.copyOf(allowedValues);
@@ -29,38 +30,38 @@ public record ReferentialField(String key, String label, FieldType type, boolean
 
     public static ReferentialField text(String key, String label, boolean required, int maxLength,
                                         String example, String... aliases) {
-        return new ReferentialField(key, label, FieldType.TEXT, required, maxLength, List.of(), null, null,
+        return new ReferentialField(key, label, FieldType.TEXT, required, maxLength, List.of(), null, null, null,
                 example, List.of(aliases));
     }
 
     public static ReferentialField decimal(String key, String label, boolean required, String example,
                                            String... aliases) {
-        return new ReferentialField(key, label, FieldType.DECIMAL, required, 0, List.of(), null, null,
+        return new ReferentialField(key, label, FieldType.DECIMAL, required, 0, List.of(), null, null, null,
                 example, List.of(aliases));
     }
 
     public static ReferentialField integer(String key, String label, boolean required, String example,
                                            String... aliases) {
-        return new ReferentialField(key, label, FieldType.INTEGER, required, 0, List.of(), null, null,
+        return new ReferentialField(key, label, FieldType.INTEGER, required, 0, List.of(), null, null, null,
                 example, List.of(aliases));
     }
 
     public static ReferentialField phone(String key, String label, boolean required, int maxLength,
                                          String example, String... aliases) {
-        return new ReferentialField(key, label, FieldType.PHONE, required, maxLength, List.of(), null, null,
+        return new ReferentialField(key, label, FieldType.PHONE, required, maxLength, List.of(), null, null, null,
                 example, List.of(aliases));
     }
 
     public static ReferentialField enumeration(String key, String label, List<String> allowedValues,
                                                String defaultValue, String... aliases) {
-        return new ReferentialField(key, label, FieldType.ENUM, true, 30, allowedValues, defaultValue, null,
+        return new ReferentialField(key, label, FieldType.ENUM, true, 30, allowedValues, defaultValue, null, null,
                 defaultValue, List.of(aliases));
     }
 
-    public static ReferentialField reference(String key, String label, String referenceSlug, String example,
-                                             String... aliases) {
+    public static ReferentialField reference(String key, String label, String referenceSlug, String referenceLabel,
+                                             String example, String... aliases) {
         return new ReferentialField(key, label, FieldType.REFERENCE, true, 0, List.of(), null, referenceSlug,
-                example, List.of(aliases));
+                referenceLabel, example, List.of(aliases));
     }
 
     /**
@@ -70,13 +71,6 @@ public record ReferentialField(String key, String label, FieldType type, boolean
         if (header == null) return "";
         String withoutAccents = Normalizer.normalize(header, Normalizer.Form.NFD).replaceAll("\\p{M}", "");
         return withoutAccents.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]", "");
-    }
-
-    /**
-     * Référentiel ciblé par un champ REFERENCE.
-     */
-    public ReferentialKind referenceKind() {
-        return referenceSlug == null ? null : ReferentialKind.fromSlug(referenceSlug);
     }
 
     /**

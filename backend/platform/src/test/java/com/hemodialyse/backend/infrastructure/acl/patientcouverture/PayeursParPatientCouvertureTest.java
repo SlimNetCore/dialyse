@@ -12,7 +12,7 @@ import com.hemodialyse.backend.infrastructure.referential.admin.model.Validation
 import com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminDelegate;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +27,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * erreurs de l'administration (mêmes codes et mêmes messages qu'avant).
  */
 class PayeursParPatientCouvertureTest {
+
+    static java.util.List<ReferentialKind> payeurs() {
+        return ReferentielsDePatientCouverture.PAYEURS;
+    }
 
     private static final CentreId CENTRE = new CentreId(UUID.fromString("00000000-0000-0000-0000-0000000000a1"));
     private static final UUID ID = UUID.fromString("00000000-0000-0000-0000-0000000000f1");
@@ -85,17 +89,17 @@ class PayeursParPatientCouvertureTest {
 
     @Test
     void elle_prend_les_caisses_les_agences_et_les_centres_payeurs_et_rien_d_autre() {
-        assertThat(acl.prend(ReferentialKind.CAISSE)).isTrue();
-        assertThat(acl.prend(ReferentialKind.AGENCE)).isTrue();
-        assertThat(acl.prend(ReferentialKind.CENTRE_PAYEUR)).isTrue();
-        assertThat(acl.prend(ReferentialKind.FORFAIT)).isFalse();
-        assertThat(acl.prend(ReferentialKind.TRANSPORTEUR)).isFalse();
+        assertThat(acl.prend(ReferentielsDePatientCouverture.CAISSE)).isTrue();
+        assertThat(acl.prend(ReferentielsDePatientCouverture.AGENCE)).isTrue();
+        assertThat(acl.prend(ReferentielsDePatientCouverture.CENTRE_PAYEUR)).isTrue();
+        assertThat(acl.prend(ReferentielsDePatientCouverture.FORFAIT)).isFalse();
+        assertThat(acl.prend(ReferentielsDePatientCouverture.TRANSPORTEUR)).isFalse();
         assertThat(acl.prend(ReferentialKind.SALLE)).isFalse();
     }
 
     @Test
     void une_caisse_est_rendue_avec_son_code_son_nom_et_son_type_sans_reference() {
-        ReferentialEntry entree = acl.create(CENTRE, ReferentialKind.CAISSE, Map.of("code", "CNAS", "nom", "Caisse", "typeCaisse", "x"));
+        ReferentialEntry entree = acl.create(CENTRE, ReferentielsDePatientCouverture.CAISSE, Map.of("code", "CNAS", "nom", "Caisse", "typeCaisse", "x"));
 
         assertThat(entree.id()).isEqualTo(ID);
         assertThat(entree.values()).containsOnlyKeys("code", "nom", "typeCaisse").containsEntry("typeCaisse", "VACANCIER");
@@ -105,7 +109,7 @@ class PayeursParPatientCouvertureTest {
 
     @Test
     void une_agence_est_rendue_avec_l_identifiant_de_sa_caisse_et_son_libelle_de_reference() {
-        ReferentialEntry entree = acl.update(CENTRE, ReferentialKind.AGENCE, ID, Map.of("code", "AG-1", "nom", "Agence", "caisse", "CNAS"));
+        ReferentialEntry entree = acl.update(CENTRE, ReferentielsDePatientCouverture.AGENCE, ID, Map.of("code", "AG-1", "nom", "Agence", "caisse", "CNAS"));
 
         assertThat(entree.values()).containsOnlyKeys("code", "nom", "caisse").containsEntry("caisse", PARENT.toString());
         assertThat(entree.references()).containsExactly(Map.entry("caisse", "CNAS · Caisse"));
@@ -113,7 +117,7 @@ class PayeursParPatientCouvertureTest {
 
     @Test
     void un_centre_payeur_est_rendu_avec_son_adresse_sa_agence_et_son_libelle_de_reference_et_l_adresse_absente_reste_nulle() {
-        ReferentialEntry entree = acl.create(CENTRE, ReferentialKind.CENTRE_PAYEUR,
+        ReferentialEntry entree = acl.create(CENTRE, ReferentielsDePatientCouverture.CENTRE_PAYEUR,
                 Map.of("code", "CP-1", "nom", "Centre", "adresse", "Rue", "agence", "AG-1"));
 
         assertThat(entree.values()).containsOnlyKeys("code", "nom", "adresse", "agence").containsEntry("adresse", "Rue")
@@ -124,8 +128,8 @@ class PayeursParPatientCouvertureTest {
 
     @Test
     void la_liste_rend_les_valeurs_de_chaque_niveau() {
-        var caisses = acl.list(CENTRE, ReferentialKind.CAISSE, null, 0, 20);
-        var centres = acl.list(CENTRE, ReferentialKind.CENTRE_PAYEUR, "x", 1, 5);
+        var caisses = acl.list(CENTRE, ReferentielsDePatientCouverture.CAISSE, null, 0, 20);
+        var centres = acl.list(CENTRE, ReferentielsDePatientCouverture.CENTRE_PAYEUR, "x", 1, 5);
 
         assertThat(caisses.items().getFirst().values()).containsEntry("code", "X").containsEntry("typeCaisse", "VACANCIER");
         assertThat(centres.items().getFirst().values()).containsEntry("adresse", "Rue");
@@ -134,7 +138,7 @@ class PayeursParPatientCouvertureTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = ReferentialKind.class, names = {"CAISSE", "AGENCE", "CENTRE_PAYEUR"})
+    @MethodSource("payeurs")
     void un_payeur_deja_existant_est_une_anomalie_sur_le_code_avec_le_message_d_avant(ReferentialKind kind) {
         aLever = RefusDePayeur.dejaExistant("doublon");
 
@@ -150,7 +154,7 @@ class PayeursParPatientCouvertureTest {
         aLever = RefusDePayeur.saisieInvalide(List.of(
                 new GestionDesPayeurs.Anomalie(0, "code", "REQUIRED", "« Code » est obligatoire.", Map.of())));
 
-        assertThatThrownBy(() -> acl.create(CENTRE, ReferentialKind.AGENCE, Map.of()))
+        assertThatThrownBy(() -> acl.create(CENTRE, ReferentielsDePatientCouverture.AGENCE, Map.of()))
                 .isInstanceOfSatisfying(ReferentialValidationException.class, e -> assertThat(e.getIssues())
                         .extracting(ValidationIssue::row, ValidationIssue::field, ValidationIssue::code)
                         .containsExactly(org.assertj.core.groups.Tuple.tuple(0, "code", "REQUIRED")));
@@ -159,14 +163,14 @@ class PayeursParPatientCouvertureTest {
     @Test
     void un_payeur_introuvable_ou_utilise_est_une_erreur_metier_avec_le_message_d_avant() {
         aLever = RefusDePayeur.introuvable();
-        assertThatThrownBy(() -> acl.delete(CENTRE, ReferentialKind.CAISSE, ID))
+        assertThatThrownBy(() -> acl.delete(CENTRE, ReferentielsDePatientCouverture.CAISSE, ID))
                 .isInstanceOfSatisfying(BusinessException.class, e -> {
                     assertThat(e.getCode()).isEqualTo("REFERENTIAL_NOT_FOUND");
                     assertThat(e.getMessage()).isEqualTo("Élément introuvable dans « Caisses » pour ce centre.");
                 });
 
         aLever = RefusDePayeur.utilise(4);
-        assertThatThrownBy(() -> acl.delete(CENTRE, ReferentialKind.CENTRE_PAYEUR, ID))
+        assertThatThrownBy(() -> acl.delete(CENTRE, ReferentielsDePatientCouverture.CENTRE_PAYEUR, ID))
                 .isInstanceOfSatisfying(BusinessException.class, e -> {
                     assertThat(e.getCode()).isEqualTo("REFERENTIAL_IN_USE");
                     assertThat(e.getMessage()).isEqualTo("Suppression impossible : cet élément de « Centres payeurs » est encore utilisé "
@@ -177,7 +181,7 @@ class PayeursParPatientCouvertureTest {
 
     @Test
     void l_import_traduit_les_lignes_du_fichier_par_niveau_et_rend_le_bilan() {
-        ReferentialAdminDelegate.Outcome bilan = acl.importRows(CENTRE, ReferentialKind.AGENCE,
+        ReferentialAdminDelegate.Outcome bilan = acl.importRows(CENTRE, ReferentielsDePatientCouverture.AGENCE,
                 List.of(new ReferentialAdminDelegate.Row(2, Map.of("code", "AG", "nom", "x", "caisse", "CNAS"))), true);
 
         assertThat(appels).containsExactly("importer:AGENCE:1:false:CNAS");

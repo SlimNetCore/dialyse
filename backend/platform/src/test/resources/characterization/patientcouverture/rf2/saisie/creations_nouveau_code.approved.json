@@ -44,7 +44,7 @@
   "prix vide devient absent" : "201 | {\"id\":\"<UUID_GENERE_25>\",\"references\":{},\"values\":{\"code\":\"HD-VIDE\",\"libelle\":\"Forfait prix vide\",\"prix\":null}}",
   "prix zero" : "201 | {\"id\":\"<UUID_GENERE_26>\",\"references\":{},\"values\":{\"code\":\"HD-ZERO\",\"libelle\":\"Forfait gratuit\",\"prix\":\"0.00\"}}",
   "prix zero virgule zero zero" : "201 | {\"id\":\"<UUID_GENERE_27>\",\"references\":{},\"values\":{\"code\":\"HD-ZERO2\",\"libelle\":\"Forfait gratuit bis\",\"prix\":\"0.00\"}}",
-  "sans corps" : "400 BAD_REQUEST | Corps de la requête illisible",
+  "sans corps" : "415 UNSUPPORTED_MEDIA_TYPE | Type de contenu non supporté sur cette route",
   "trois anomalies ensemble" : "422 REFERENTIAL_VALIDATION | « Code » est obligatoire. « Libellé » est obligatoire. « Prix » ne peut pas être négatif. | REQUIRED/code/ligne 0 {} | REQUIRED/libelle/ligne 0 {} | NEGATIVE_NUMBER/prix/ligne 0 {\"value\":\"-5\"}",
   "values nul" : "400 VALIDATION_ERROR | Invalid request content."
 }

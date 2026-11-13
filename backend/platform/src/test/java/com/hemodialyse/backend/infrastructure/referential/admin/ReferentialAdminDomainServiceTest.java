@@ -52,26 +52,27 @@ class ReferentialAdminDomainServiceTest {
 
     @Test
     void createNormalizesValuesAndAppliesDefaults() {
-        ReferentialEntry forfait = service.create(CENTER, ReferentialKind.FORFAIT,
-                Map.of("code", "  HD-CONV ", "libelle", "Hémodialyse conventionnelle", "prix", "5 600,5"));
+        ReferentialEntry salle = service.create(CENTER, ReferentialKind.SALLE,
+                Map.of("code", "  S1 ", "nom", "Salle principale", "isolement", "oui", "capacite", " 12 "));
 
-        assertEquals("HD-CONV", forfait.values().get("code"));
-        assertEquals("5600.50", forfait.values().get("prix"));
+        assertEquals("S1", salle.values().get("code"));
+        assertEquals("OUI", salle.values().get("isolement"));
+        assertEquals("12", salle.values().get("capacite"));
 
-        ReferentialEntry caisse = service.create(CENTER, ReferentialKind.CAISSE, Map.of("code", "CNAS", "nom", "CNAS"));
-        assertEquals("STANDARD", caisse.values().get("typeCaisse"));
+        ReferentialEntry autre = service.create(CENTER, ReferentialKind.SALLE, Map.of("code", "S2", "nom", "Salle 2"));
+        assertEquals("NON", autre.values().get("isolement"));
     }
 
     @Test
     void createReportsEveryInvalidField() {
         Map<String, String> values = new HashMap<>();
         values.put("code", "X".repeat(51));
-        values.put("prix", "abc");
+        values.put("capacite", "abc");
 
         ReferentialValidationException ex = assertThrows(ReferentialValidationException.class,
-                () -> service.create(CENTER, ReferentialKind.FORFAIT, values));
+                () -> service.create(CENTER, ReferentialKind.SALLE, values));
 
-        assertEquals(List.of("code:TOO_LONG", "libelle:REQUIRED", "prix:INVALID_NUMBER"),
+        assertEquals(List.of("code:TOO_LONG", "nom:REQUIRED", "capacite:INVALID_INTEGER"),
                 ex.getIssues().stream().map(i -> i.field() + ":" + i.code()).toList());
         assertEquals(0, repo.writes);
     }
@@ -99,38 +100,20 @@ class ReferentialAdminDomainServiceTest {
         assertEquals("Salle principale", updated.values().get("nom"));
     }
 
-    @Test
-    void referenceAcceptsIdOrCodeButOnlyFromTheSameCenter() {
-        UUID caisse = repo.seed(CENTER, ReferentialKind.CAISSE, Map.of("code", "CNAS", "nom", "CNAS", "typeCaisse", "STANDARD"));
-        repo.seed(OTHER, ReferentialKind.CAISSE, Map.of("code", "CNAS9", "nom", "Autre centre", "typeCaisse", "STANDARD"));
-
-        ReferentialEntry byCode = service.create(CENTER, ReferentialKind.AGENCE,
-                Map.of("code", "AG1", "nom", "Agence 1", "caisse", "cnas"));
-        ReferentialEntry byId = service.create(CENTER, ReferentialKind.AGENCE,
-                Map.of("code", "AG2", "nom", "Agence 2", "caisse", caisse.toString()));
-
-        assertEquals(caisse.toString(), byCode.values().get("caisse"));
-        assertEquals(caisse.toString(), byId.values().get("caisse"));
-
-        ReferentialValidationException ex = assertThrows(ReferentialValidationException.class,
-                () -> service.create(CENTER, ReferentialKind.AGENCE, Map.of("code", "AG3", "nom", "Agence 3", "caisse", "CNAS9")));
-        assertEquals("REFERENCE_NOT_FOUND", ex.getIssues().getFirst().code());
-    }
-
     // ---- Import ----------------------------------------------------------------------------------------------
 
     @Test
     void deleteIsRefusedWhileStillUsed() {
-        UUID caisse = repo.seed(CENTER, ReferentialKind.CAISSE, Map.of("code", "CNAS", "nom", "CNAS", "typeCaisse", "STANDARD"));
-        repo.usages.put(caisse, 2L);
+        UUID salle = repo.seed(CENTER, ReferentialKind.SALLE, Map.of("code", "S1", "nom", "Salle 1"));
+        repo.usages.put(salle, 2L);
 
         BusinessException ex = assertThrows(BusinessException.class,
-                () -> service.delete(CENTER, ReferentialKind.CAISSE, caisse));
+                () -> service.delete(CENTER, ReferentialKind.SALLE, salle));
         assertEquals("REFERENTIAL_IN_USE", ex.getCode());
 
-        repo.usages.remove(caisse);
-        service.delete(CENTER, ReferentialKind.CAISSE, caisse);
-        assertTrue(repo.of(CENTER, ReferentialKind.CAISSE).isEmpty());
+        repo.usages.remove(salle);
+        service.delete(CENTER, ReferentialKind.SALLE, salle);
+        assertTrue(repo.of(CENTER, ReferentialKind.SALLE).isEmpty());
     }
 
     @Test
@@ -145,10 +128,10 @@ class ReferentialAdminDomainServiceTest {
 
     @Test
     void importReportsMissingRequiredColumnsAndIgnoredOnes() {
-        ImportReport report = service.importEntries(CENTER, ReferentialKind.AGENCE,
-                table(List.of("Code", "Nom", "Couleur"), List.of("AG1", "Agence 1", "bleu")), false);
+        ImportReport report = service.importEntries(CENTER, ReferentialKind.SALLE,
+                table(List.of("Code", "Couleur"), List.of("S1", "bleu")), false);
 
-        assertEquals(List.of("caisse"), report.missingColumns());
+        assertEquals(List.of("nom"), report.missingColumns());
         assertEquals(List.of("Couleur"), report.ignoredColumns());
         assertFalse(report.applied());
         assertFalse(report.isValid());
@@ -157,17 +140,15 @@ class ReferentialAdminDomainServiceTest {
 
     @Test
     void importReportsEachRowErrorWithItsLineNumberAndWritesNothing() {
-        repo.seed(CENTER, ReferentialKind.CAISSE, Map.of("code", "CNAS", "nom", "CNAS", "typeCaisse", "STANDARD"));
-
-        ImportReport report = service.importEntries(CENTER, ReferentialKind.AGENCE, table(
-                List.of("code", "nom", "Caisse (code)"),
-                List.of("AG1", "Agence 1", "CNAS"),
-                List.of("AG2", "", "CNAS"),
-                List.of("AG3", "Agence 3", "INCONNUE"),
-                List.of("ag1", "Agence 1 bis", "CNAS")), false);
+        ImportReport report = service.importEntries(CENTER, ReferentialKind.SALLE, table(
+                List.of("code", "nom", "Capacité (générateurs max.)"),
+                List.of("S1", "Salle 1", "12"),
+                List.of("S2", "", "12"),
+                List.of("S3", "Salle 3", "beaucoup"),
+                List.of("s1", "Salle 1 bis", "12")), false);
 
         assertEquals(4, report.totalRows());
-        assertEquals(List.of("3:nom:REQUIRED", "4:caisse:REFERENCE_NOT_FOUND", "5:code:DUPLICATE_IN_FILE"),
+        assertEquals(List.of("3:nom:REQUIRED", "4:capacite:INVALID_INTEGER", "5:code:DUPLICATE_IN_FILE"),
                 report.errors().stream().map(i -> i.row() + ":" + i.field() + ":" + i.code()).toList());
         assertFalse(report.applied());
         assertEquals(0, repo.writes);

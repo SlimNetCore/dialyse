@@ -6,6 +6,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -147,7 +148,15 @@ class DatesIllisiblesDeLaDirectionAdvice {
 
         /** La Direction (KB-DIR-02) et le cahier de dialyse imprimé (PL5, KB-PL5-1 : un POST répondait 500). */
         private static final java.util.List<String> PREFIXES = java.util.List.of("/api/v1/direction/", "/api/v1/cahier-dialyse/",
-                "/api/v1/facturation/synthese/");
+                "/api/v1/facturation/synthese/",
+                // PL11-1, KB-PL11-12 : l'administration des référentiels (JSON seul ; 405/406/415/400 propres au lieu de 500).
+                "/api/v1/admin/referentials");
+
+        private static final String ROUTES_DE_L_ADMINISTRATION_DES_REFERENTIELS = "/api/v1/admin/referentials";
+
+        private static boolean estUneRouteDeLAdministrationDesReferentiels(HttpServletRequest requete) {
+            return requete.getRequestURI().startsWith(ROUTES_DE_L_ADMINISTRATION_DES_REFERENTIELS);
+        }
 
         private final ApiExceptionHandler gestionnaireCommun;
 
@@ -174,7 +183,7 @@ class DatesIllisiblesDeLaDirectionAdvice {
         @ExceptionHandler(org.springframework.web.HttpMediaTypeNotAcceptableException.class)
         ResponseEntity<ProblemDetail> typeNonAcceptable(org.springframework.web.HttpMediaTypeNotAcceptableException erreur,
                                                         HttpServletRequest requete) {
-            if (!estUneRouteDuRapportOuDesInstantanes(requete)) {
+            if (!estUneRouteDuRapportOuDesInstantanes(requete) && !estUneRouteDeLAdministrationDesReferentiels(requete)) {
                 ProblemDetail commun = gestionnaireCommun.handleUnexpected(erreur);
                 return ResponseEntity.status(commun.getStatus()).body(commun);
             }
@@ -209,6 +218,60 @@ class DatesIllisiblesDeLaDirectionAdvice {
                 reponse.allow(erreur.getSupportedHttpMethods().toArray(new HttpMethod[0]));
             }
             return reponse.body(probleme);
+        }
+    }
+
+    /**
+     * PL11-1, KB-PL11-12 : les 415 (corps qui n'est pas du JSON, requête d'import non multipart) et le 400 d'un import sans fichier de
+     * l'administration des référentiels (c'étaient des 500). Précédence BASSE : les gestionnaires propres à un contrôleur (fiche des
+     * patients, absences, planification : mêmes erreurs, leurs propres messages) passent avant ; ailleurs, le gestionnaire commun répond.
+     * Sans restriction de paquetage : le refus de {@code consumes} est levé avant le choix d'un contrôleur.
+     */
+    @Order(Ordered.LOWEST_PRECEDENCE - 100)
+    @RestControllerAdvice
+    static class FormesIllisiblesDeLAdministrationDesReferentielsAdvice {
+
+        private static final String ROUTES = "/api/v1/admin/referentials";
+
+        private final ApiExceptionHandler gestionnaireCommun;
+
+        FormesIllisiblesDeLAdministrationDesReferentielsAdvice(ApiExceptionHandler gestionnaireCommun) {
+            this.gestionnaireCommun = gestionnaireCommun;
+        }
+
+        private static boolean estUneRouteDeLAdministration(HttpServletRequest requete) {
+            return requete.getRequestURI().startsWith(ROUTES);
+        }
+
+        private ResponseEntity<ProblemDetail> commun(Exception erreur) {
+            ProblemDetail commun = gestionnaireCommun.handleUnexpected(erreur);
+            return ResponseEntity.status(commun.getStatus()).contentType(MediaType.APPLICATION_PROBLEM_JSON).body(commun);
+        }
+
+        private static ResponseEntity<ProblemDetail> probleme(HttpStatus statut, String titre, String detail, String code,
+                                                              HttpServletRequest requete) {
+            ProblemDetail probleme = ProblemDetail.forStatus(statut);
+            probleme.setTitle(titre);
+            probleme.setDetail(detail);
+            probleme.setProperty("code", code);
+            probleme.setInstance(java.net.URI.create(requete.getRequestURI()));
+            return ResponseEntity.status(statut).contentType(MediaType.APPLICATION_PROBLEM_JSON).body(probleme);
+        }
+
+        @ExceptionHandler(org.springframework.web.HttpMediaTypeNotSupportedException.class)
+        ResponseEntity<ProblemDetail> typeNonSupporte(org.springframework.web.HttpMediaTypeNotSupportedException erreur,
+                                                      HttpServletRequest requete) {
+            if (!estUneRouteDeLAdministration(requete)) return commun(erreur);
+            return probleme(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Type de contenu non supporte",
+                    "Type de contenu non supporté sur cette route", "UNSUPPORTED_MEDIA_TYPE", requete);
+        }
+
+        @ExceptionHandler(org.springframework.web.multipart.support.MissingServletRequestPartException.class)
+        ResponseEntity<ProblemDetail> partieAbsente(org.springframework.web.multipart.support.MissingServletRequestPartException erreur,
+                                                    HttpServletRequest requete) {
+            if (!estUneRouteDeLAdministration(requete)) return commun(erreur);
+            return probleme(HttpStatus.BAD_REQUEST, "Requete invalide", "Partie obligatoire absente : " + erreur.getRequestPartName(),
+                    "BAD_REQUEST", requete);
         }
     }
 }

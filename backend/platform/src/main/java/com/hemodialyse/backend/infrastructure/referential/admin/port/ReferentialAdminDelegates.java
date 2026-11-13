@@ -32,6 +32,11 @@ public class ReferentialAdminDelegates implements ReferentialAdminDelegate {
     }
 
     @Override
+    public List<ReferentialKind> descripteurs() {
+        return delegues.stream().flatMap(d -> d.descripteurs().stream()).toList();
+    }
+
+    @Override
     public PagedResult<ReferentialEntry> list(CentreId centerId, ReferentialKind kind, String search, int page, int size) {
         return de(kind).list(centerId, kind, search, page, size);
     }

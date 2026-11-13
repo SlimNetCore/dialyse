@@ -15,7 +15,6 @@ import com.hemodialyse.backend.application.erreur.BusinessException;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -261,7 +260,7 @@ public class ReferentialAdminDomainService implements ReferentialAdminUseCase {
      */
     private final class Matching {
         private final CentreId centerId;
-        private final Map<ReferentialKind, KeyIndex> indexes = new EnumMap<>(ReferentialKind.class);
+        private final Map<ReferentialKind, KeyIndex> indexes = new HashMap<>();
 
         private Matching(CentreId centerId) {
             this.centerId = centerId;
@@ -282,7 +281,10 @@ public class ReferentialAdminDomainService implements ReferentialAdminUseCase {
         /**
          * Identifiant (depuis un formulaire) ou code (depuis un fichier) → identifiant existant du centre.
          */
-        Optional<UUID> resolve(ReferentialKind target, String idOrCode) {
+        Optional<UUID> resolve(String targetSlug, String idOrCode) {
+            Optional<ReferentialKind> found = ReferentialKind.direct(targetSlug);
+            if (found.isEmpty()) return Optional.empty();
+            ReferentialKind target = found.get();
             KeyIndex index = index(target);
             try {
                 UUID id = UUID.fromString(idOrCode.trim());

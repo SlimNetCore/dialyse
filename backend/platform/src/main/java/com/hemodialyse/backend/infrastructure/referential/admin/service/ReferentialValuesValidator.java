@@ -94,13 +94,13 @@ public final class ReferentialValuesValidator {
                 yield Optional.of(code);
             }
             case REFERENCE -> {
-                ReferentialKind target = field.referenceKind();
-                Optional<UUID> id = resolver.resolve(target, value);
+                Optional<UUID> id = resolver.resolve(field.referenceSlug(), value);
                 if (id.isEmpty()) {
+                    String cible = field.referenceLabel();
                     issues.add(issue(field, "REFERENCE_NOT_FOUND",
-                            "« " + field.label() + " » : « " + value + " » est introuvable dans « " + target.label()
-                                    + " » — créez-le d'abord (ou importez d'abord le fichier « " + target.label() + " »).",
-                            Map.of("value", value, "target", target.slug())));
+                            "« " + field.label() + " » : « " + value + " » est introuvable dans « " + cible
+                                    + " » — créez-le d'abord (ou importez d'abord le fichier « " + cible + " »).",
+                            Map.of("value", value, "target", field.referenceSlug())));
                     yield Optional.empty();
                 }
                 yield Optional.of(id.get().toString());
@@ -169,7 +169,7 @@ public final class ReferentialValuesValidator {
      */
     @FunctionalInterface
     public interface ReferenceResolver {
-        Optional<UUID> resolve(ReferentialKind target, String idOrCode);
+        Optional<UUID> resolve(String targetSlug, String idOrCode);
     }
 
     /**

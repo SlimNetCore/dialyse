@@ -28,7 +28,7 @@ import java.util.UUID;
  */
 public class TransporteursParPatientCouverture implements ReferentialAdminDelegate {
 
-    private static final String LIBELLE = ReferentialKind.TRANSPORTEUR.label();
+    private static final String LIBELLE = ReferentielsDePatientCouverture.TRANSPORTEUR.label();
 
     private final GestionDesTransporteurs transporteurs;
 
@@ -38,7 +38,12 @@ public class TransporteursParPatientCouverture implements ReferentialAdminDelega
 
     @Override
     public boolean prend(ReferentialKind kind) {
-        return kind == ReferentialKind.TRANSPORTEUR;
+        return kind.equals(ReferentielsDePatientCouverture.TRANSPORTEUR);
+    }
+
+    @Override
+    public List<ReferentialKind> descripteurs() {
+        return List.of(ReferentielsDePatientCouverture.TRANSPORTEUR);
     }
 
     private static ReferentialEntry entree(FicheDeTransporteur fiche) {

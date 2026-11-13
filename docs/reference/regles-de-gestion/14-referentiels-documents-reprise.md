@@ -11,7 +11,10 @@ chaque ligne** avant d'écrire, **n'enregistre rien tant qu'un fichier
 
 ## 14.1 Référentiels administrables
 
-- **RG-REF-001** — Référentiels propres à chaque centre, gérés par `ADMIN` (et `SUPERADMIN`) : **forfaits** (code,
+- **RG-REF-001** — Référentiels propres à chaque centre, gérés par `ADMIN` (le `SUPERADMIN` est refusé : 403 `ROLE_SCOPE`,
+  décision reproduite à confirmer par les métiers avant le 2026-12-15). Une seule URL d'administration ; elle distribue chaque
+  référentiel au contexte qui le publie (descripteurs de Patient et couverture, PL11-1) ; JSON seul (405/406/415 propres), audit
+  avec le type de référentiel et l'identifiant créé : **forfaits** (code,
   libellé, prix), **créneaux** (code, libellé), **salles** (code, nom, isolement oui/non, capacité en
   générateurs), **médecins traitants** (nom, prénom, spécialité), **caisses** (code, nom, type standard/vacancier),
   **agences** (code, nom, caisse), **centres payeurs** (code, nom, adresse, agence), **transporteurs** (nom, téléphone).

@@ -155,6 +155,6 @@ class CreneauxPl11CharacterizationIntegrationTest extends Pl11FiletSupport {
         trace("suppression", supprimer("creneaux", c, CENTRE_A, admin()));
         trace("import reel", importer("creneaux", CENTRE_A, true, "code,libelle\nC5,Cinq\n", admin()));
         traceAudit("journal d'audit");
-        verrouiller("audit");
+        verrouiller("audit_nouveau_code"); // PL11-1 : identifiant créé et type de référentiel tracés (ancien : voir _ecarts-legacy)
     }
 }

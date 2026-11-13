@@ -3,6 +3,7 @@ package com.hemodialyse.backend.infrastructure.web.rest;
 import com.hemodialyse.backend.application.referential.ReferentialAdminApplicationService;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ImportTable;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
+import com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialCatalogue;
 import com.hemodialyse.backend.application.erreur.BusinessException;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.infrastructure.importer.ReferentialTemplateWriter;
@@ -13,6 +14,8 @@ import com.hemodialyse.backend.infrastructure.web.dto.referential.ReferentialEnt
 import com.hemodialyse.backend.infrastructure.web.dto.referential.ReferentialKindResponse;
 import com.hemodialyse.backend.infrastructure.web.dto.referential.UpsertReferentialEntryRequest;
 import com.hemodialyse.backend.infrastructure.web.dto.response.PagedResponse;
+import com.hemodialyse.backend.infrastructure.security.AuditRequestFilter;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
@@ -33,35 +36,39 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
 /**
- * Administration des référentiels du centre : forfaits, créneaux, salles, médecins traitants, générateurs,
- * caisses, agences, centres payeurs, transporteurs — saisie, import CSV/Excel vérifié, modèles d'import.
+ * Façade fine d'administration des référentiels du centre (PL11-1, ADR 0157) : elle distribue chaque {@code {kind}} au
+ * fournisseur qui le publie (Patient et couverture : forfaits, caisses, agences, centres payeurs, transporteurs ; en direct
+ * pour l'instant : créneaux, salles, médecins traitants). Saisie, import CSV/Excel vérifié, modèles d'import. JSON seul
+ * (415/406 sinon). Les générateurs sont des équipements GMAO ({@code /gmao/equipements}).
  * <p>
- * Réservé à l'ADMIN (son centre, jamais un autre) et au SUPERADMIN.
+ * Réservé à l'ADMIN, sur son centre, jamais un autre. Le SUPERADMIN est refusé (403 {@code ROLE_SCOPE}, par le
+ * {@code RoleScopeFilter}) : décision KB-PL11-13, reproduite, à confirmer par les métiers avant le 2026-12-15.
  */
 @RestController
 @RequestMapping("/api/v1/admin/referentials")
-@PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN')")
+@PreAuthorize("hasRole('ADMIN')")
 public class ReferentialAdminRestController {
 
     private static final MediaType XLSX =
             MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
     private final ReferentialAdminApplicationService service;
+    private final ReferentialCatalogue catalogue;
     private final CenterAccessGuard centerAccessGuard;
     private final TabularFileReader fileReader;
     private final ReferentialTemplateWriter templateWriter;
 
     public ReferentialAdminRestController(ReferentialAdminApplicationService service,
+                                          ReferentialCatalogue catalogue,
                                           CenterAccessGuard centerAccessGuard,
                                           TabularFileReader fileReader,
                                           ReferentialTemplateWriter templateWriter) {
         this.service = service;
+        this.catalogue = catalogue;
         this.centerAccessGuard = centerAccessGuard;
         this.fileReader = fileReader;
         this.templateWriter = templateWriter;
@@ -70,45 +77,60 @@ public class ReferentialAdminRestController {
     /**
      * Référentiels administrables, dans l'ordre d'import conseillé.
      */
-    @GetMapping
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public List<ReferentialKindResponse> kinds() {
-        return Arrays.stream(ReferentialKind.values())
-                .sorted(Comparator.comparingInt(ReferentialKind::importOrder))
+        return catalogue.kinds().stream()
                 .map(ReferentialKindResponse::from)
                 .toList();
     }
 
-    @GetMapping("/{kind}")
+    @GetMapping(value = "/{kind}", produces = MediaType.APPLICATION_JSON_VALUE)
     public PagedResponse<ReferentialEntryResponse> list(@PathVariable String kind,
                                                         @RequestParam(required = false) UUID centerId,
                                                         @RequestParam(required = false) String search,
                                                         @RequestParam(defaultValue = "0") int page,
                                                         @RequestParam(defaultValue = "20") int size) {
         CentreId center =centerAccessGuard.requireCenter(centerId);
-        return PagedResponse.from(service.list(center, ReferentialKind.fromSlug(kind), search, page, size),
+        return PagedResponse.from(service.list(center, catalogue.fromSlug(kind), search, page, size),
                 ReferentialEntryResponse::from);
     }
 
-    @PostMapping("/{kind}")
+    @PostMapping(value = "/{kind}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ReferentialEntryResponse> create(@PathVariable String kind,
-                                                           @RequestBody @Valid UpsertReferentialEntryRequest request) {
+                                                           @RequestBody @Valid UpsertReferentialEntryRequest request,
+                                                           HttpServletRequest http) {
         CentreId center =centerAccessGuard.requireCenter(request.centerId());
-        var created = service.create(center, ReferentialKind.fromSlug(kind), request.values());
+        ReferentialKind referential = catalogue.fromSlug(kind);
+        tracer(http, referential, "création");
+        var created = service.create(center, referential, request.values());
+        // Audit enrichi (PL11-1, KB-PL11-12) : l'identifiant de l'élément créé (le chemin n'en porte pas).
+        http.setAttribute(AuditRequestFilter.ATTRIBUT_IDENTIFIANT, created.id().toString());
         return ResponseEntity.status(HttpStatus.CREATED).body(ReferentialEntryResponse.from(created));
     }
 
-    @PutMapping("/{kind}/{id}")
+    /** Audit enrichi (PL11-1) : le type de référentiel écrit figure dans le libellé de l'évènement. */
+    private static void tracer(HttpServletRequest http, ReferentialKind referential, String action) {
+        http.setAttribute(AuditRequestFilter.ATTRIBUT_LIBELLE,
+                "Administration des référentiels : " + action + " (" + referential.slug() + ")");
+    }
+
+    @PutMapping(value = "/{kind}/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ReferentialEntryResponse update(@PathVariable String kind, @PathVariable UUID id,
-                                           @RequestBody @Valid UpsertReferentialEntryRequest request) {
+                                           @RequestBody @Valid UpsertReferentialEntryRequest request,
+                                           HttpServletRequest http) {
         CentreId center =centerAccessGuard.requireCenter(request.centerId());
-        return ReferentialEntryResponse.from(service.update(center, ReferentialKind.fromSlug(kind), id, request.values()));
+        ReferentialKind referential = catalogue.fromSlug(kind);
+        tracer(http, referential, "modification");
+        return ReferentialEntryResponse.from(service.update(center, referential, id, request.values()));
     }
 
     @DeleteMapping("/{kind}/{id}")
     public ResponseEntity<Void> delete(@PathVariable String kind, @PathVariable UUID id,
-                                       @RequestParam(required = false) UUID centerId) {
+                                       @RequestParam(required = false) UUID centerId, HttpServletRequest http) {
         CentreId center =centerAccessGuard.requireCenter(centerId);
-        service.delete(center, ReferentialKind.fromSlug(kind), id);
+        ReferentialKind referential = catalogue.fromSlug(kind);
+        tracer(http, referential, "suppression");
+        service.delete(center, referential, id);
         return ResponseEntity.noContent().build();
     }
 
@@ -117,13 +139,15 @@ public class ReferentialAdminRestController {
      * colonnes manquantes, les colonnes ignorées et chaque anomalie avec son numéro de ligne ; rien n'est écrit
      * tant que le fichier n'est pas entièrement valide.
      */
-    @PostMapping(value = "/{kind}/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/{kind}/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ImportReportResponse importFile(@PathVariable String kind,
                                            @RequestParam("file") MultipartFile file,
                                            @RequestParam(required = false) UUID centerId,
-                                           @RequestParam(defaultValue = "true") boolean dryRun) {
+                                           @RequestParam(defaultValue = "true") boolean dryRun,
+                                           HttpServletRequest http) {
         CentreId center =centerAccessGuard.requireCenter(centerId);
-        ReferentialKind referential = ReferentialKind.fromSlug(kind);
+        ReferentialKind referential = catalogue.fromSlug(kind);
+        tracer(http, referential, dryRun ? "vérification d'import" : "import");
         ImportTable table;
         try {
             table = fileReader.read(file.getOriginalFilename(), file.getBytes());
@@ -139,7 +163,7 @@ public class ReferentialAdminRestController {
     @GetMapping("/{kind}/template")
     public ResponseEntity<byte[]> template(@PathVariable String kind,
                                            @RequestParam(defaultValue = "xlsx") String format) {
-        ReferentialKind referential = ReferentialKind.fromSlug(kind);
+        ReferentialKind referential = catalogue.fromSlug(kind);
         boolean csv = "csv".equalsIgnoreCase(format);
         byte[] body = csv ? templateWriter.csv(referential) : templateWriter.xlsx(referential);
         HttpHeaders headers = new HttpHeaders();

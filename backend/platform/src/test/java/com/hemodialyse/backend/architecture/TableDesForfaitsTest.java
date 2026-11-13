@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * La table {@code forfait} appartient au contexte patient-couverture (slice RF2, ADR 0124 : catalogue de forfaits). Hors de ce
  * contexte (et des entités JPA), plus aucun code de production ne la nomme, ni en SQL, ni comme nom de table d'une description de
  * table ({@code new Table("forfait", …)}), à une exception nominative et datée ({@link #LECTEURS_CONNUS}). Le descripteur
- * {@code ReferentialKind.FORFAIT} (champs, alias d'en-têtes, modèle d'import) reste à l'administration générique : c'est le résiduel
+ * {@code DescripteursDeReferentiels.FORFAIT} (champs, alias d'en-têtes, modèle d'import), publié par Patient et couverture depuis PL11-1 : c'était le résiduel
  * nominatif RF2-R1 de la fiche. Les lecteurs passent par le langage publié {@code patientcouverture.v1} ({@code ForfaitsDuCentre}),
  * l'administration générique par {@code GestionDuCatalogueDeForfaits}.
  * <ul>

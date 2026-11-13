@@ -253,6 +253,6 @@ class SallesPl11CharacterizationIntegrationTest extends Pl11FiletSupport {
         trace("refus 403 secretaire", creer("salles", CENTRE_A, "{'code':'S6','nom':'Six'}", as(CENTRE_A, "SECRETAIRE")));
         trace("refus 403 autre centre", creer("salles", CENTRE_B, "{'code':'S7','nom':'Sept'}", admin()));
         traceAudit("journal d'audit (centre de session A)");
-        verrouiller("audit");
+        verrouiller("audit_nouveau_code"); // PL11-1 : identifiant créé et type de référentiel tracés (ancien : voir _ecarts-legacy)
     }
 }

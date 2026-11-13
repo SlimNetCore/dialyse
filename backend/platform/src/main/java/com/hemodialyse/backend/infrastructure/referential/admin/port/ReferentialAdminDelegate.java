@@ -21,6 +21,12 @@ public interface ReferentialAdminDelegate {
     /** Ce référentiel est-il géré par le délégué ? */
     boolean prend(ReferentialKind kind);
 
+    /**
+     * SPI de la façade (PL11-1, ADR 0157) : les descripteurs des référentiels que le contexte publie (champs, alias, modèle
+     * d'import, libellé, ordre). La façade les distribue ; elle ne les décrit pas.
+     */
+    List<ReferentialKind> descripteurs();
+
     PagedResult<ReferentialEntry> list(CentreId centerId, ReferentialKind kind, String search, int page, int size);
 
     ReferentialEntry create(CentreId centerId, ReferentialKind kind, Map<String, String> values);
