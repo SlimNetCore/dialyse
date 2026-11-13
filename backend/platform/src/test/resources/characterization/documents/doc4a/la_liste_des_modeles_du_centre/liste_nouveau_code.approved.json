@@ -1,0 +1,334 @@
+{
+  "01 centre D" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : [ {
+      "id" : "<ATTESTATION_D>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "ATT-D",
+      "libelle" : "Attestation",
+      "type_document" : "ATTESTATION",
+      "chemin_jrxml" : "reports/attestation.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : true
+    }, {
+      "id" : "<BETA_D>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "BETA-D",
+      "libelle" : "Beta",
+      "type_document" : "CUSTOM",
+      "chemin_jrxml" : "reports/beta.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : true
+    }, {
+      "id" : "<CHARLIE_D>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "CHARLIE-D",
+      "libelle" : "Charlie",
+      "type_document" : "FICHE_PATIENT",
+      "chemin_jrxml" : "reports/charlie.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : false
+    } ]
+  },
+  "02 filtre ATTESTATION" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : [ {
+      "id" : "<ATTESTATION_D>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "ATT-D",
+      "libelle" : "Attestation",
+      "type_document" : "ATTESTATION",
+      "chemin_jrxml" : "reports/attestation.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : true
+    } ]
+  },
+  "03 filtre en minuscules" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : [ ]
+  },
+  "04 type inconnu" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : [ ]
+  },
+  "05 type vide" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : [ ]
+  },
+  "06 sans centerId" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Paramètre illisible : centerId",
+      "instance" : "/api/v1/documents/modeles",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "07 centerId illisible" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Paramètre illisible : centerId",
+      "instance" : "/api/v1/documents/modeles",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "08 centre E demande par un admin de D" : {
+    "statut" : 403,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Accès refusé : le centre demandé ne correspond pas à la session",
+      "instance" : "/api/v1/documents/modeles",
+      "status" : 403,
+      "title" : "Acces refuse",
+      "code" : "ACCESS_DENIED"
+    }
+  },
+  "09 superadmin de D, centre E" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : [ {
+      "id" : "<ATTESTATION_E>",
+      "center_id" : "<CENTRE_E>",
+      "code" : "ATT-E",
+      "libelle" : "Attestation E",
+      "type_document" : "ATTESTATION",
+      "chemin_jrxml" : "reports/attestation.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : true
+    } ]
+  },
+  "10 superadmin sans centre de session" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : [ {
+      "id" : "<ATTESTATION_E>",
+      "center_id" : "<CENTRE_E>",
+      "code" : "ATT-E",
+      "libelle" : "Attestation E",
+      "type_document" : "ATTESTATION",
+      "chemin_jrxml" : "reports/attestation.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : true
+    } ]
+  },
+  "11 admin sans centre de session" : {
+    "statut" : 403,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Session sans centre de rattachement",
+      "instance" : "/api/v1/documents/modeles",
+      "status" : 403,
+      "title" : "Acces refuse",
+      "code" : "ACCESS_DENIED"
+    }
+  },
+  "12 centre sans modele" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : [ ]
+  },
+  "profil MEDECIN" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : [ {
+      "id" : "<ATTESTATION_D>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "ATT-D",
+      "libelle" : "Attestation",
+      "type_document" : "ATTESTATION",
+      "chemin_jrxml" : "reports/attestation.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : true
+    }, {
+      "id" : "<BETA_D>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "BETA-D",
+      "libelle" : "Beta",
+      "type_document" : "CUSTOM",
+      "chemin_jrxml" : "reports/beta.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : true
+    }, {
+      "id" : "<CHARLIE_D>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "CHARLIE-D",
+      "libelle" : "Charlie",
+      "type_document" : "FICHE_PATIENT",
+      "chemin_jrxml" : "reports/charlie.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : false
+    } ]
+  },
+  "profil INFIRMIER" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : [ {
+      "id" : "<ATTESTATION_D>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "ATT-D",
+      "libelle" : "Attestation",
+      "type_document" : "ATTESTATION",
+      "chemin_jrxml" : "reports/attestation.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : true
+    }, {
+      "id" : "<BETA_D>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "BETA-D",
+      "libelle" : "Beta",
+      "type_document" : "CUSTOM",
+      "chemin_jrxml" : "reports/beta.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : true
+    }, {
+      "id" : "<CHARLIE_D>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "CHARLIE-D",
+      "libelle" : "Charlie",
+      "type_document" : "FICHE_PATIENT",
+      "chemin_jrxml" : "reports/charlie.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : false
+    } ]
+  },
+  "profil SECRETAIRE" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : [ {
+      "id" : "<ATTESTATION_D>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "ATT-D",
+      "libelle" : "Attestation",
+      "type_document" : "ATTESTATION",
+      "chemin_jrxml" : "reports/attestation.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : true
+    }, {
+      "id" : "<BETA_D>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "BETA-D",
+      "libelle" : "Beta",
+      "type_document" : "CUSTOM",
+      "chemin_jrxml" : "reports/beta.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : true
+    }, {
+      "id" : "<CHARLIE_D>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "CHARLIE-D",
+      "libelle" : "Charlie",
+      "type_document" : "FICHE_PATIENT",
+      "chemin_jrxml" : "reports/charlie.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : false
+    } ]
+  },
+  "profil SOCIETE_ADMIN" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : [ {
+      "id" : "<ATTESTATION_D>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "ATT-D",
+      "libelle" : "Attestation",
+      "type_document" : "ATTESTATION",
+      "chemin_jrxml" : "reports/attestation.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : true
+    }, {
+      "id" : "<BETA_D>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "BETA-D",
+      "libelle" : "Beta",
+      "type_document" : "CUSTOM",
+      "chemin_jrxml" : "reports/beta.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : true
+    }, {
+      "id" : "<CHARLIE_D>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "CHARLIE-D",
+      "libelle" : "Charlie",
+      "type_document" : "FICHE_PATIENT",
+      "chemin_jrxml" : "reports/charlie.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : false
+    } ]
+  },
+  "13 sans session" : {
+    "statut" : 403,
+    "contentType" : null
+  },
+  "14 Accept XML" : {
+    "statut" : 200,
+    "contentType" : "application/xml",
+    "corps" : "<ArrayList><item><id><ATTESTATION_D></id><center_id><CENTRE_D></center_id><code>ATT-D</code><libelle>Attestation</libelle><type_document>ATTESTATION</type_document><chemin_jrxml>reports/attestation.jrxml</chemin_jrxml><format_impression>PDF</format_impression><description/><active>true</active></item><item><id><BETA_D></id><center_id><CENTRE_D></center_id><code>BETA-D</code><libelle>Beta</libelle><type_document>CUSTOM</type_document><chemin_jrxml>reports/beta.jrxml</chemin_jrxml><format_impression>PDF</format_impression><description/><active>true</active></item><item><id><CHARLIE_D></id><center_id><CENTRE_D></center_id><code>CHARLIE-D</code><libelle>Charlie</libelle><type_document>FICHE_PATIENT</type_document><chemin_jrxml>reports/charlie.jrxml</chemin_jrxml><format_impression>PDF</format_impression><description/><active>false</active></item></ArrayList>"
+  },
+  "15 Accept texte" : {
+    "statut" : 406,
+    "contentType" : null
+  },
+  "16 verbe HEAD" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : [ {
+      "id" : "<ATTESTATION_D>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "ATT-D",
+      "libelle" : "Attestation",
+      "type_document" : "ATTESTATION",
+      "chemin_jrxml" : "reports/attestation.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : true
+    }, {
+      "id" : "<BETA_D>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "BETA-D",
+      "libelle" : "Beta",
+      "type_document" : "CUSTOM",
+      "chemin_jrxml" : "reports/beta.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : true
+    }, {
+      "id" : "<CHARLIE_D>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "CHARLIE-D",
+      "libelle" : "Charlie",
+      "type_document" : "FICHE_PATIENT",
+      "chemin_jrxml" : "reports/charlie.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : false
+    } ]
+  }
+}

@@ -183,11 +183,18 @@ class DatesIllisiblesDeLaDirectionAdvice {
         @ExceptionHandler(org.springframework.web.HttpMediaTypeNotAcceptableException.class)
         ResponseEntity<ProblemDetail> typeNonAcceptable(org.springframework.web.HttpMediaTypeNotAcceptableException erreur,
                                                         HttpServletRequest requete) {
-            if (!estUneRouteDuRapportOuDesInstantanes(requete) && !estUneRouteDeLAdministrationDesReferentiels(requete)) {
+            if (!estUneRouteDuRapportOuDesInstantanes(requete) && !estUneRouteDeLAdministrationDesReferentiels(requete)
+                    && !estUneRouteDeLaGestionDesModelesDeDocument(requete)) {
                 ProblemDetail commun = gestionnaireCommun.handleUnexpected(erreur);
                 return ResponseEntity.status(commun.getStatus()).body(commun);
             }
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
+        }
+
+        /** DOC4a, KB-DOC4A-2 : la gestion des modèles de document (liste, recherche, écritures) répond 406 à un {@code Accept} indisponible (c'était un 500). */
+        private static boolean estUneRouteDeLaGestionDesModelesDeDocument(HttpServletRequest requete) {
+            String uri = requete.getRequestURI();
+            return uri.equals("/api/v1/documents/modeles") || uri.equals("/api/v1/documents/modeles/search");
         }
 
         /**

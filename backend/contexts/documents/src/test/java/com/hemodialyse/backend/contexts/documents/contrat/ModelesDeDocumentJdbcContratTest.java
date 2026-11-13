@@ -31,7 +31,7 @@ class ModelesDeDocumentJdbcContratTest extends ModelesDeDocumentContrat {
         jdbc.execute("CREATE TABLE IF NOT EXISTS modele_document (id UUID PRIMARY KEY, center_id UUID NOT NULL, code VARCHAR(50) NOT NULL, "
                 + "libelle VARCHAR(255) NOT NULL, type_document VARCHAR(50) NOT NULL, chemin_jrxml VARCHAR(500) NOT NULL, "
                 + "format_impression VARCHAR(20) DEFAULT 'PDF' NOT NULL, description VARCHAR(500), active BOOLEAN DEFAULT TRUE NOT NULL, "
-                + "created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL)");
+                + "created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL, UNIQUE(center_id, code))");
         vider();
     }
 

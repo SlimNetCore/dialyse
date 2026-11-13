@@ -2,7 +2,11 @@ package com.hemodialyse.backend.contexts.documents.doubles;
 
 import com.hemodialyse.backend.contexts.documents.application.AccesRefuse;
 import com.hemodialyse.backend.contexts.documents.application.IdentitesImprimables;
+import com.hemodialyse.backend.contexts.documents.application.ModeleEnDoublon;
 import com.hemodialyse.backend.contexts.documents.application.ModelesDeDocument;
+import com.hemodialyse.backend.contexts.documents.domain.DefinitionDeModele;
+import com.hemodialyse.backend.contexts.documents.domain.ModeleDuCatalogue;
+import com.hemodialyse.backend.contexts.documents.domain.RechercheDeModeles;
 import com.hemodialyse.backend.contexts.documents.application.SessionCourante;
 import com.hemodialyse.backend.contexts.documents.domain.IdentiteImprimable;
 import com.hemodialyse.backend.contexts.documents.domain.ModeleDeDocument;
@@ -47,14 +51,19 @@ public final class Doubles {
 
     /** Les modèles en mémoire : même sélection que la base (actif le plus récent du centre, type comparé sans casse). */
     public static final class ModelesEnMemoire implements ModelesDeDocument {
-        private record Ligne(UUID centre, ModeleDeDocument modele, boolean actif, java.time.Instant creeLe) {
+        private record Ligne(ModeleDuCatalogue modele, java.time.Instant creeLe) {
+            ModeleDeDocument pourLImpression() {
+                return new ModeleDeDocument(modele.id(), modele.cheminDuGabarit() == null ? "" : modele.cheminDuGabarit(),
+                        modele.format() == null ? "PDF" : modele.format(), modele.type() == null ? "CUSTOM" : modele.type());
+            }
         }
 
         private final List<Ligne> lignes = new ArrayList<>();
         public int recherches;
 
         public ModeleDeDocument ajouter(UUID centre, ModeleDeDocument modele, boolean actif, java.time.Instant creeLe) {
-            lignes.add(new Ligne(centre, modele, actif, creeLe));
+            lignes.add(new Ligne(new ModeleDuCatalogue(modele.id(), centre, "C-" + modele.id(), "Modele", modele.type(), modele.cheminDuGabarit(),
+                    modele.formatDImpression(), null, actif), creeLe));
             return modele;
         }
 
@@ -63,22 +72,78 @@ public final class Doubles {
             return ajouter(centre, modele, true, java.time.Instant.now());
         }
 
+        public List<ModeleDuCatalogue> tous() {
+            return lignes.stream().map(Ligne::modele).toList();
+        }
+
         @Override
         public Optional<ModeleDeDocument> actifDuCentre(UUID centre, String typeNormalise) {
             recherches++;
-            return lignes.stream().filter(l -> l.centre().equals(centre) && l.actif() && l.modele().type().equalsIgnoreCase(typeNormalise))
-                    .max(java.util.Comparator.comparing(Ligne::creeLe)).map(Ligne::modele);
+            return lignes.stream().filter(l -> l.modele().centre().equals(centre) && l.modele().actif()
+                            && l.pourLImpression().type().equalsIgnoreCase(typeNormalise))
+                    .max(java.util.Comparator.comparing(Ligne::creeLe)).map(Ligne::pourLImpression);
         }
 
         @Override
         public Optional<ModeleDeDocument> duCentre(UUID modele, UUID centre) {
             recherches++;
-            return lignes.stream().filter(l -> l.modele().id().equals(modele) && l.centre().equals(centre)).map(Ligne::modele).findFirst();
+            return lignes.stream().filter(l -> l.modele().id().equals(modele) && l.modele().centre().equals(centre)).map(Ligne::pourLImpression)
+                    .findFirst();
         }
 
         @Override
         public Optional<String> typeDuModele(UUID modele) {
-            return lignes.stream().filter(l -> l.modele().id().equals(modele)).map(l -> l.modele().type()).findFirst();
+            return lignes.stream().filter(l -> l.modele().id().equals(modele)).map(l -> l.modele().type()).filter(t -> t != null).findFirst();
+        }
+
+        private List<ModeleDuCatalogue> filtrer(UUID centre, String type) {
+            return lignes.stream().map(Ligne::modele).filter(m -> m.centre().equals(centre) && (type == null || type.equals(m.type())))
+                    .sorted(java.util.Comparator.comparing(ModeleDuCatalogue::libelle)).toList();
+        }
+
+        @Override
+        public List<ModeleDuCatalogue> lister(UUID centre, String type) {
+            return filtrer(centre, type);
+        }
+
+        @Override
+        public List<ModeleDuCatalogue> rechercher(RechercheDeModeles recherche) {
+            List<ModeleDuCatalogue> tous = filtrer(recherche.centre(), recherche.type());
+            long debut = recherche.decalage();
+            if (debut >= tous.size()) return List.of();
+            return tous.subList((int) debut, (int) Math.min(debut + recherche.taille(), tous.size()));
+        }
+
+        private ModeleDuCatalogue catalogue(UUID id, DefinitionDeModele d) {
+            return new ModeleDuCatalogue(id, d.centre(), d.code(), d.libelle(), d.type(), d.gabarit().valeur(), d.format(), d.description(), d.actif());
+        }
+
+        @Override
+        public void creer(UUID id, DefinitionDeModele modele) {
+            if (lignes.stream().anyMatch(l -> l.modele().id().equals(id)
+                    || (l.modele().centre().equals(modele.centre()) && l.modele().code().equals(modele.code())))) {
+                throw new ModeleEnDoublon("doublon", null);
+            }
+            lignes.add(new Ligne(catalogue(id, modele), java.time.Instant.now()));
+        }
+
+        @Override
+        public void modifier(UUID id, DefinitionDeModele modele) {
+            for (int i = 0; i < lignes.size(); i++) {
+                Ligne l = lignes.get(i);
+                if (l.modele().id().equals(id) && l.modele().centre().equals(modele.centre())) {
+                    boolean pris = lignes.stream().anyMatch(a -> !a.modele().id().equals(id) && a.modele().centre().equals(modele.centre())
+                            && a.modele().code().equals(modele.code()));
+                    if (pris) throw new ModeleEnDoublon("doublon", null);
+                    lignes.set(i, new Ligne(catalogue(id, modele), l.creeLe()));
+                    return;
+                }
+            }
+        }
+
+        @Override
+        public void supprimer(UUID centre, UUID id) {
+            lignes.removeIf(l -> l.modele().id().equals(id) && l.modele().centre().equals(centre));
         }
     }
 

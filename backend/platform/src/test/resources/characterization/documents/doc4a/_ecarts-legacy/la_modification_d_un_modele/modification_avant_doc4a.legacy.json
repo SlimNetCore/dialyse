@@ -1,0 +1,192 @@
+{
+  "01 nominal" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : {
+      "id" : "<BETA_D>"
+    }
+  },
+  "02 etat apres" : [ {
+    "id" : "<ATTESTATION_D>",
+    "center_id" : "<CENTRE_D>",
+    "code" : "ATT-D",
+    "libelle" : "Attestation",
+    "type_document" : "ATTESTATION",
+    "chemin_jrxml" : "reports/attestation.jrxml",
+    "format_impression" : "PDF",
+    "description" : null,
+    "active" : true
+  }, {
+    "id" : "<BETA_D>",
+    "center_id" : "<CENTRE_D>",
+    "code" : "BETA-2",
+    "libelle" : "Beta bis",
+    "type_document" : "CUSTOM",
+    "chemin_jrxml" : "reports/beta2.jrxml",
+    "format_impression" : "PDF",
+    "description" : "Description",
+    "active" : false
+  }, {
+    "id" : "<CHARLIE_D>",
+    "center_id" : "<CENTRE_D>",
+    "code" : "CHARLIE-D",
+    "libelle" : "Charlie",
+    "type_document" : "FICHE_PATIENT",
+    "chemin_jrxml" : "reports/charlie.jrxml",
+    "format_impression" : "PDF",
+    "description" : null,
+    "active" : false
+  }, {
+    "id" : "<ATTESTATION_E>",
+    "center_id" : "<CENTRE_E>",
+    "code" : "ATT-E",
+    "libelle" : "Attestation E",
+    "type_document" : "ATTESTATION",
+    "chemin_jrxml" : "reports/attestation.jrxml",
+    "format_impression" : "PDF",
+    "description" : null,
+    "active" : true
+  } ],
+  "03 doublon de code dans le centre" : {
+    "statut" : 500,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "<message SGBD>",
+      "instance" : "/api/v1/documents/modeles/<BETA_D>",
+      "status" : 500,
+      "title" : "Erreur technique",
+      "code" : "DATA_ACCESS_ERROR"
+    }
+  },
+  "04 modele inconnu (aucune ligne touchee)" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : {
+      "id" : "<INCONNU>"
+    }
+  },
+  "05 modele d'un autre centre, centre D" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : {
+      "id" : "<ATTESTATION_E>"
+    }
+  },
+  "06 centre E par un admin de D" : {
+    "statut" : 403,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Accès refusé : le centre demandé ne correspond pas à la session",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_E>",
+      "status" : 403,
+      "title" : "Acces refuse",
+      "code" : "ACCESS_DENIED"
+    }
+  },
+  "07 superadmin, centre E" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : {
+      "id" : "<ATTESTATION_E>"
+    }
+  },
+  "08 sans centerId (centre de session)" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : {
+      "id" : "<CHARLIE_D>"
+    }
+  },
+  "09 chemin invalide" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Chemin de modèle invalide : attendu reports/<nom>.jrxml",
+      "instance" : "/api/v1/documents/modeles/<BETA_D>",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "10 chemin absent" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Chemin de modèle invalide : attendu reports/<nom>.jrxml",
+      "instance" : "/api/v1/documents/modeles/<BETA_D>",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "11 code absent" : {
+    "statut" : 500,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "<message SGBD>",
+      "instance" : "/api/v1/documents/modeles/<BETA_D>",
+      "status" : 500,
+      "title" : "Erreur technique",
+      "code" : "DATA_ACCESS_ERROR"
+    }
+  },
+  "12 identifiant de chemin illisible" : {
+    "statut" : 500,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Method parameter 'id': Failed to convert value of type 'java.lang.String' to required type 'java.util.UUID'; Invalid UUID string: pas-un-uuid",
+      "instance" : "/api/v1/documents/modeles/pas-un-uuid",
+      "status" : 500,
+      "title" : "Erreur interne",
+      "code" : "INTERNAL_ERROR"
+    }
+  },
+  "13 l'identifiant du corps est ignore" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : {
+      "id" : "<BETA_D>"
+    }
+  },
+  "14 etat final" : [ {
+    "id" : "<ATTESTATION_D>",
+    "center_id" : "<CENTRE_D>",
+    "code" : "ATT-D",
+    "libelle" : "Attestation",
+    "type_document" : "ATTESTATION",
+    "chemin_jrxml" : "reports/attestation.jrxml",
+    "format_impression" : "PDF",
+    "description" : null,
+    "active" : true
+  }, {
+    "id" : "<BETA_D>",
+    "center_id" : "<CENTRE_D>",
+    "code" : "BETA-4",
+    "libelle" : "Libelle BETA-4",
+    "type_document" : "CUSTOM",
+    "chemin_jrxml" : "reports/beta4.jrxml",
+    "format_impression" : "PDF",
+    "description" : "Description",
+    "active" : true
+  }, {
+    "id" : "<CHARLIE_D>",
+    "center_id" : "<CENTRE_D>",
+    "code" : "CHARLIE-2",
+    "libelle" : "Libelle CHARLIE-2",
+    "type_document" : "CUSTOM",
+    "chemin_jrxml" : "reports/charlie2.jrxml",
+    "format_impression" : "PDF",
+    "description" : "Description",
+    "active" : true
+  }, {
+    "id" : "<ATTESTATION_E>",
+    "center_id" : "<CENTRE_E>",
+    "code" : "ATT-E2",
+    "libelle" : "Libelle ATT-E2",
+    "type_document" : "CUSTOM",
+    "chemin_jrxml" : "reports/e2.jrxml",
+    "format_impression" : "PDF",
+    "description" : "Description",
+    "active" : true
+  } ]
+}

@@ -30,9 +30,8 @@ import com.hemodialyse.backend.contexts.documents.infrastructure.persistence.His
 import com.hemodialyse.backend.contexts.documents.infrastructure.persistence.ModelesDuCentreJdbc;
 import com.hemodialyse.backend.contexts.documents.infrastructure.rendu.GabaritsLivresDuClasspath;
 import com.hemodialyse.backend.contexts.documents.infrastructure.transaction.UniteDeTravailSpring;
-import com.hemodialyse.backend.contexts.documents.interfaces.publie.VersionsDeModelePublie;
+import com.hemodialyse.backend.contexts.documents.application.GererLesModeles;
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.VerificationDeGabarit;
-import com.hemodialyse.backend.contexts.documents.publishedlanguage.VersionsDeModele;
 import com.hemodialyse.backend.contexts.organisation.publishedlanguage.AnnuaireDesCentres;
 import javax.sql.DataSource;
 import org.springframework.context.annotation.Bean;
@@ -114,9 +113,10 @@ public class DocumentsConfiguration {
                 java.util.UUID::randomUUID);
     }
 
+    /** La gestion des modèles de document (DOC4a, ADR 0164) ; supprimer un modèle retire aussi l'historique de ses versions de gabarit. */
     @Bean
-    VersionsDeModele versionsDeModele(GererLesGabarits gabarits) {
-        return new VersionsDeModelePublie(gabarits);
+    GererLesModeles gererLesModeles(SessionCourante session, ModelesDeDocument modeles, GererLesGabarits gabarits, UniteDeTravail unite) {
+        return new GererLesModeles(session, modeles, gabarits, unite, java.util.UUID::randomUUID);
     }
 
     /** Le moteur de rendu (DOC2, ADR 0162) ; les gabarits personnalisés des centres sont ceux de ce contexte depuis DOC3 (ADR 0163). */

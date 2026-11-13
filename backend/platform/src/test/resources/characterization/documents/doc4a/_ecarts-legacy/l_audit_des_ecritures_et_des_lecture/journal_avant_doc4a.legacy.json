@@ -1,0 +1,65 @@
+[ {
+  "action_code" : "DOCUMENTS_CREATION",
+  "entity_type" : "documents",
+  "entity_id" : null,
+  "http_method" : "POST",
+  "route_template" : "/api/v1/documents/modeles",
+  "status_code" : 200,
+  "nombre" : 1
+}, {
+  "action_code" : "DOCUMENTS_CREATION",
+  "entity_type" : "documents",
+  "entity_id" : null,
+  "http_method" : "POST",
+  "route_template" : "/api/v1/documents/modeles",
+  "status_code" : 400,
+  "nombre" : 1
+}, {
+  "action_code" : "DOCUMENTS_CREATION",
+  "entity_type" : "documents",
+  "entity_id" : null,
+  "http_method" : "POST",
+  "route_template" : "/api/v1/documents/modeles",
+  "status_code" : 500,
+  "nombre" : 1
+}, {
+  "action_code" : "DOCUMENTS_CREATION",
+  "entity_type" : "documents",
+  "entity_id" : null,
+  "http_method" : "POST",
+  "route_template" : "/api/v1/documents/modeles/search",
+  "status_code" : 200,
+  "nombre" : 1
+}, {
+  "action_code" : "DOCUMENTS_SUPPRESSION",
+  "entity_type" : "documents",
+  "entity_id" : "<NOUVEAU>",
+  "http_method" : "DELETE",
+  "route_template" : "/api/v1/documents/modeles/{id}",
+  "status_code" : 200,
+  "nombre" : 1
+}, {
+  "action_code" : "DOCUMENTS_SUPPRESSION",
+  "entity_type" : "documents",
+  "entity_id" : "<INCONNU>",
+  "http_method" : "DELETE",
+  "route_template" : "/api/v1/documents/modeles/{id}",
+  "status_code" : 200,
+  "nombre" : 1
+}, {
+  "action_code" : "DOCUMENTS_MODIFICATION",
+  "entity_type" : "documents",
+  "entity_id" : "<NOUVEAU>",
+  "http_method" : "PUT",
+  "route_template" : "/api/v1/documents/modeles/{id}",
+  "status_code" : 200,
+  "nombre" : 1
+}, {
+  "action_code" : "DOCUMENTS_MODIFICATION",
+  "entity_type" : "documents",
+  "entity_id" : "<NOUVEAU>",
+  "http_method" : "PUT",
+  "route_template" : "/api/v1/documents/modeles/{id}",
+  "status_code" : 403,
+  "nombre" : 1
+} ]

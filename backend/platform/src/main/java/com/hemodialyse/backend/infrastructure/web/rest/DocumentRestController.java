@@ -5,144 +5,31 @@ import com.hemodialyse.backend.contexts.facturation.publishedlanguage.ProfilDeLa
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseDeFacturation;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseMensuelle;
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.ModeleDocumentCatalog;
-import com.hemodialyse.backend.contexts.documents.publishedlanguage.VersionsDeModele;
 import com.hemodialyse.backend.infrastructure.security.CenterAccessGuard;
-import com.hemodialyse.backend.infrastructure.web.dto.ModeleDocumentDto;
-import com.hemodialyse.backend.infrastructure.web.dto.request.DocumentSearchRequest;
-import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
 /**
- * Contrôleur REST pour la gestion des modèles de documents (reste en plateforme jusqu'à DOC3 / DOC4).
+ * Contrôleur REST des types de documents (reste en plateforme jusqu'à DOC4b).
  * <p>
- * Les routes d'impression {@code POST /print} et {@code POST /print/{modeleId}} sont servies par le contexte Documents
- * (DOC1, ADR 0142). Cette classe fournit encore à Documents, de façon TRANSITOIRE, les règles des types sensibles
- * ({@link ReglesDImpressionDesTypesSensibles}) : profil exigé pour l'ordonnance et la synthèse de facturation, totaux de la synthèse.
+ * La gestion des modèles ({@code /modeles}) est servie par le contexte Documents (DOC4a, ADR 0164), les routes d'impression
+ * {@code POST /print} et {@code POST /print/{modeleId}} aussi (DOC1, ADR 0142). Cette classe fournit encore à Documents, de façon
+ * TRANSITOIRE, les règles des types sensibles ({@link ReglesDImpressionDesTypesSensibles}) : profil exigé pour l'ordonnance et la
+ * synthèse de facturation, totaux de la synthèse.
  */
 @RestController
 @RequestMapping("/api/v1/documents")
 public class DocumentRestController implements ReglesDImpressionDesTypesSensibles {
 
-    private final JdbcTemplate jdbc;
-    /**
-     * Chemins de modèles autorisés : uniquement les modèles livrés avec l'application (jamais un chemin disque libre).
-     */
-    private static final java.util.regex.Pattern SAFE_TEMPLATE_PATH =
-            java.util.regex.Pattern.compile("reports/[A-Za-z0-9_\\-]+\\.jrxml");
-    private final VersionsDeModele versionsDeModele;
     private final CenterAccessGuard centerAccessGuard;
     private final SyntheseDeFacturation syntheseDeFacturation;
 
-    public DocumentRestController(JdbcTemplate jdbc, VersionsDeModele versionsDeModele,
-                                  CenterAccessGuard centerAccessGuard, SyntheseDeFacturation syntheseDeFacturation) {
-        this.jdbc = jdbc;
-        this.versionsDeModele = versionsDeModele;
+    public DocumentRestController(CenterAccessGuard centerAccessGuard, SyntheseDeFacturation syntheseDeFacturation) {
         this.centerAccessGuard = centerAccessGuard;
         this.syntheseDeFacturation = syntheseDeFacturation;
-    }
-
-    private static void requireSafeTemplatePath(String path) {
-        if (path == null || !SAFE_TEMPLATE_PATH.matcher(path).matches()) {
-            throw new IllegalArgumentException("Chemin de modèle invalide : attendu reports/<nom>.jrxml");
-        }
-    }
-
-    // ═══════════════════════════════════════════════════════════════════
-    //  CRUD Modèles de documents
-    // ═══════════════════════════════════════════════════════════════════
-
-    /**
-     * Liste des modèles pour un centre
-     */
-    @GetMapping("/modeles")
-    public ResponseEntity<?> listModeles(@RequestParam UUID centerId,
-                                         @RequestParam(required = false) String typeDocument) {
-        centerId = centerAccessGuard.requireCenter(centerId).valeur();
-        String sql = "SELECT id, center_id, code, libelle, type_document, chemin_jrxml, " +
-                "format_impression, description, active FROM modele_document " +
-                "WHERE center_id = ? " +
-                (typeDocument != null ? "AND type_document = ? " : "") +
-                "ORDER BY libelle";
-
-        var rows = typeDocument != null
-                ? jdbc.queryForList(sql, centerId, typeDocument)
-                : jdbc.queryForList(sql, centerId);
-        return ResponseEntity.ok(rows);
-    }
-
-    /**
-     * Recherche des modèles avec critères structurés
-     */
-    @PostMapping("/modeles/search")
-    public ResponseEntity<?> searchModeles(@RequestBody @Valid DocumentSearchRequest criteria) {
-        centerAccessGuard.requireCenter(criteria.centerId());
-        String sql = "SELECT id, center_id, code, libelle, type_document, chemin_jrxml, " +
-                "format_impression, description, active FROM modele_document " +
-                "WHERE center_id = ? " +
-                (criteria.typeDocument() != null ? "AND type_document = ? " : "") +
-                "ORDER BY libelle " +
-                "LIMIT ? OFFSET ?";
-
-        java.util.List<?> rows;
-        if (criteria.typeDocument() != null) {
-            rows = jdbc.queryForList(sql, criteria.centerId(), criteria.typeDocument(),
-                    criteria.size(), criteria.page() * criteria.size());
-        } else {
-            rows = jdbc.queryForList(sql, criteria.centerId(),
-                    criteria.size(), criteria.page() * criteria.size());
-        }
-        return ResponseEntity.ok(rows);
-    }
-
-    /**
-     * Créer un modèle
-     */
-    @PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN')")
-    @PostMapping("/modeles")
-    public ResponseEntity<?> createModele(@RequestBody ModeleDocumentDto req) {
-        UUID centerId = centerAccessGuard.requireCenter(req.centerId()).valeur();
-        requireSafeTemplatePath(req.cheminJrxml());
-        UUID id = req.id() != null ? req.id() : UUID.randomUUID();
-        jdbc.update("INSERT INTO modele_document (id, center_id, code, libelle, type_document, " +
-                        "chemin_jrxml, format_impression, description, active) VALUES (?,?,?,?,?,?,?,?,?)",
-                id, centerId, req.code(), req.libelle(), req.typeDocument(),
-                req.cheminJrxml(), req.formatImpression(), req.description(), req.active());
-        return ResponseEntity.ok(Map.of("id", id));
-    }
-
-    /**
-     * Modifier un modèle
-     */
-    @PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN')")
-    @PutMapping("/modeles/{id}")
-    public ResponseEntity<?> updateModele(@PathVariable UUID id, @RequestBody ModeleDocumentDto req) {
-        UUID centerId = centerAccessGuard.requireCenter(req.centerId()).valeur();
-        requireSafeTemplatePath(req.cheminJrxml());
-        jdbc.update("UPDATE modele_document SET code=?, libelle=?, type_document=?, " +
-                        "chemin_jrxml=?, format_impression=?, description=?, active=? " +
-                        "WHERE id=? AND center_id=?",
-                req.code(), req.libelle(), req.typeDocument(),
-                req.cheminJrxml(), req.formatImpression(), req.description(), req.active(),
-                id, centerId);
-        return ResponseEntity.ok(Map.of("id", id));
-    }
-
-    /**
-     * Supprimer un modèle
-     */
-    @PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN')")
-    @DeleteMapping("/modeles/{id}")
-    public ResponseEntity<?> deleteModele(@PathVariable UUID id, @RequestParam UUID centerId) {
-        centerId = centerAccessGuard.requireCenter(centerId).valeur();
-        versionsDeModele.retirerToutes(centerId, id);
-        jdbc.update("DELETE FROM modele_document WHERE id = ? AND center_id = ?", id, centerId);
-        return ResponseEntity.ok(Map.of("deleted", true));
     }
 
     /**

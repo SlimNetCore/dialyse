@@ -1,0 +1,133 @@
+{
+  "01 modele de D par D" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : {
+      "deleted" : true
+    }
+  },
+  "02 deja supprime" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : {
+      "deleted" : true
+    }
+  },
+  "03 modele inconnu" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : {
+      "deleted" : true
+    }
+  },
+  "04 modele de E avec centerId D (rien ne bouge)" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : {
+      "deleted" : true
+    }
+  },
+  "05 centre E par un admin de D" : {
+    "statut" : 403,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Accès refusé : le centre demandé ne correspond pas à la session",
+      "instance" : "/api/v1/documents/modeles/<ATTESTATION_E>",
+      "status" : 403,
+      "title" : "Acces refuse",
+      "code" : "ACCESS_DENIED"
+    }
+  },
+  "06 sans centerId" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Paramètre illisible : centerId",
+      "instance" : "/api/v1/documents/modeles/<CHARLIE_D>",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "07 centerId illisible" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Paramètre illisible : centerId",
+      "instance" : "/api/v1/documents/modeles/<CHARLIE_D>",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "08 identifiant illisible" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Paramètre illisible : id",
+      "instance" : "/api/v1/documents/modeles/pas-un-uuid",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "09 etat apres" : [ {
+    "id" : "<ATTESTATION_D>",
+    "center_id" : "<CENTRE_D>",
+    "code" : "ATT-D",
+    "libelle" : "Attestation",
+    "type_document" : "ATTESTATION",
+    "chemin_jrxml" : "reports/attestation.jrxml",
+    "format_impression" : "PDF",
+    "description" : null,
+    "active" : true
+  }, {
+    "id" : "<CHARLIE_D>",
+    "center_id" : "<CENTRE_D>",
+    "code" : "CHARLIE-D",
+    "libelle" : "Charlie",
+    "type_document" : "FICHE_PATIENT",
+    "chemin_jrxml" : "reports/charlie.jrxml",
+    "format_impression" : "PDF",
+    "description" : null,
+    "active" : false
+  }, {
+    "id" : "<ATTESTATION_E>",
+    "center_id" : "<CENTRE_E>",
+    "code" : "ATT-E",
+    "libelle" : "Attestation E",
+    "type_document" : "ATTESTATION",
+    "chemin_jrxml" : "reports/attestation.jrxml",
+    "format_impression" : "PDF",
+    "description" : null,
+    "active" : true
+  } ],
+  "10 superadmin supprime le modele de E" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : {
+      "deleted" : true
+    }
+  },
+  "11 etat final" : [ {
+    "id" : "<ATTESTATION_D>",
+    "center_id" : "<CENTRE_D>",
+    "code" : "ATT-D",
+    "libelle" : "Attestation",
+    "type_document" : "ATTESTATION",
+    "chemin_jrxml" : "reports/attestation.jrxml",
+    "format_impression" : "PDF",
+    "description" : null,
+    "active" : true
+  }, {
+    "id" : "<CHARLIE_D>",
+    "center_id" : "<CENTRE_D>",
+    "code" : "CHARLIE-D",
+    "libelle" : "Charlie",
+    "type_document" : "FICHE_PATIENT",
+    "chemin_jrxml" : "reports/charlie.jrxml",
+    "format_impression" : "PDF",
+    "description" : null,
+    "active" : false
+  } ]
+}

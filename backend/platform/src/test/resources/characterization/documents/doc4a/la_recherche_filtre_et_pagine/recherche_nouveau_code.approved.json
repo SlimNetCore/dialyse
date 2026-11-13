@@ -1,0 +1,331 @@
+{
+  "01 defaut (page 0 taille 10)" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : [ {
+      "id" : "<ATTESTATION_D>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "ATT-D",
+      "libelle" : "Attestation",
+      "type_document" : "ATTESTATION",
+      "chemin_jrxml" : "reports/attestation.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : true
+    }, {
+      "id" : "<BETA_D>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "BETA-D",
+      "libelle" : "Beta",
+      "type_document" : "CUSTOM",
+      "chemin_jrxml" : "reports/beta.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : true
+    }, {
+      "id" : "<CHARLIE_D>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "CHARLIE-D",
+      "libelle" : "Charlie",
+      "type_document" : "FICHE_PATIENT",
+      "chemin_jrxml" : "reports/charlie.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : false
+    } ]
+  },
+  "02 filtre ATTESTATION" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : [ {
+      "id" : "<ATTESTATION_D>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "ATT-D",
+      "libelle" : "Attestation",
+      "type_document" : "ATTESTATION",
+      "chemin_jrxml" : "reports/attestation.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : true
+    } ]
+  },
+  "03 taille 2 page 0" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : [ {
+      "id" : "<ATTESTATION_D>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "ATT-D",
+      "libelle" : "Attestation",
+      "type_document" : "ATTESTATION",
+      "chemin_jrxml" : "reports/attestation.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : true
+    }, {
+      "id" : "<BETA_D>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "BETA-D",
+      "libelle" : "Beta",
+      "type_document" : "CUSTOM",
+      "chemin_jrxml" : "reports/beta.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : true
+    } ]
+  },
+  "04 taille 2 page 1" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : [ {
+      "id" : "<CHARLIE_D>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "CHARLIE-D",
+      "libelle" : "Charlie",
+      "type_document" : "FICHE_PATIENT",
+      "chemin_jrxml" : "reports/charlie.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : false
+    } ]
+  },
+  "05 page au-dela de la fin" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : [ ]
+  },
+  "06 taille 200" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : [ {
+      "id" : "<ATTESTATION_D>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "ATT-D",
+      "libelle" : "Attestation",
+      "type_document" : "ATTESTATION",
+      "chemin_jrxml" : "reports/attestation.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : true
+    }, {
+      "id" : "<BETA_D>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "BETA-D",
+      "libelle" : "Beta",
+      "type_document" : "CUSTOM",
+      "chemin_jrxml" : "reports/beta.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : true
+    }, {
+      "id" : "<CHARLIE_D>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "CHARLIE-D",
+      "libelle" : "Charlie",
+      "type_document" : "FICHE_PATIENT",
+      "chemin_jrxml" : "reports/charlie.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : false
+    } ]
+  },
+  "07 taille 201" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "La taille de page doit aller de 1 à 200",
+      "instance" : "/api/v1/documents/modeles/search",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "08 taille 0" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "La taille de page doit aller de 1 à 200",
+      "instance" : "/api/v1/documents/modeles/search",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "09 taille absente" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Champ obligatoire : size",
+      "instance" : "/api/v1/documents/modeles/search",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "10 page absente" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Champ obligatoire : page",
+      "instance" : "/api/v1/documents/modeles/search",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "11 page negative" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "La page demandée doit être 0 ou plus",
+      "instance" : "/api/v1/documents/modeles/search",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "12 centerId absent" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Paramètre illisible : centerId",
+      "instance" : "/api/v1/documents/modeles/search",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "13 centre E par un admin de D" : {
+    "statut" : 403,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Accès refusé : le centre demandé ne correspond pas à la session",
+      "instance" : "/api/v1/documents/modeles/search",
+      "status" : 403,
+      "title" : "Acces refuse",
+      "code" : "ACCESS_DENIED"
+    }
+  },
+  "14 centre E par un admin de D, taille invalide" : {
+    "statut" : 403,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Accès refusé : le centre demandé ne correspond pas à la session",
+      "instance" : "/api/v1/documents/modeles/search",
+      "status" : 403,
+      "title" : "Acces refuse",
+      "code" : "ACCESS_DENIED"
+    }
+  },
+  "15 superadmin, centre E" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : [ {
+      "id" : "<ATTESTATION_E>",
+      "center_id" : "<CENTRE_E>",
+      "code" : "ATT-E",
+      "libelle" : "Attestation E",
+      "type_document" : "ATTESTATION",
+      "chemin_jrxml" : "reports/attestation.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : true
+    } ]
+  },
+  "16 taille illisible" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Corps de requête illisible",
+      "instance" : "/api/v1/documents/modeles/search",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "17 centerId illisible" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Paramètre illisible : centerId",
+      "instance" : "/api/v1/documents/modeles/search",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "18 champ inconnu ignore" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : [ {
+      "id" : "<ATTESTATION_D>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "ATT-D",
+      "libelle" : "Attestation",
+      "type_document" : "ATTESTATION",
+      "chemin_jrxml" : "reports/attestation.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : true
+    }, {
+      "id" : "<BETA_D>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "BETA-D",
+      "libelle" : "Beta",
+      "type_document" : "CUSTOM",
+      "chemin_jrxml" : "reports/beta.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : true
+    }, {
+      "id" : "<CHARLIE_D>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "CHARLIE-D",
+      "libelle" : "Charlie",
+      "type_document" : "FICHE_PATIENT",
+      "chemin_jrxml" : "reports/charlie.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : false
+    } ]
+  },
+  "19 profil MEDECIN" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : [ {
+      "id" : "<ATTESTATION_D>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "ATT-D",
+      "libelle" : "Attestation",
+      "type_document" : "ATTESTATION",
+      "chemin_jrxml" : "reports/attestation.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : true
+    }, {
+      "id" : "<BETA_D>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "BETA-D",
+      "libelle" : "Beta",
+      "type_document" : "CUSTOM",
+      "chemin_jrxml" : "reports/beta.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : true
+    }, {
+      "id" : "<CHARLIE_D>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "CHARLIE-D",
+      "libelle" : "Charlie",
+      "type_document" : "FICHE_PATIENT",
+      "chemin_jrxml" : "reports/charlie.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : false
+    } ]
+  },
+  "20 sans session" : {
+    "statut" : 403,
+    "contentType" : null
+  }
+}

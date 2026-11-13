@@ -115,7 +115,21 @@ chaque ligne** avant d'écrire, **n'enregistre rien tant qu'un fichier
   serveur) ; l'impression produit un PDF ou un HTML.
 - **RG-DOC-006** — La liste des modèles (types et modèles du centre) est paginée ; création, modification et suppression
   d'un modèle de document : `ADMIN`, `SUPERADMIN` ; l'impression est ouverte aux profils
-  de l'écran appelant.
+  de l'écran appelant. Voir RG-DOC-010 pour la gestion des modèles.
+- **RG-DOC-010** — **Gestion des modèles de document (contexte Documents, DOC4a, ADR 0164)** : mêmes URL, rôles et codes qu'avant
+  (liste `GET /modeles?centerId=` et recherche `POST /modeles/search` : toute session ; création, modification, suppression :
+  `ADMIN`, `SUPERADMIN`). Le centre demandé doit être celui de la session (`403` sinon ; `SUPERADMIN` transverse). Un modèle ne peut
+  désigner qu'un gabarit **livré** : `reports/<nom>.jrxml` (lettres sans accent, chiffres, `-`, `_`), jamais un chemin libre (`400`).
+  Code, libellé, type de document et format d'impression sont obligatoires et bornés (50, 255, 50, 20 caractères ; description 500,
+  facultative) : `400` sinon ; la recherche exige une page de 0 ou plus et une taille de 1 à 200 (`400` sinon, jamais ramenée). Un code
+  déjà pris dans le centre, ou un identifiant déjà attribué, répond `409 CONFLICT` (corrigé le 2026-11-13, KB-DOC4A-4). Supprimer un
+  modèle supprime aussi l'historique de ses versions de gabarit, en une seule opération. Les formes illisibles sont propres : `400`
+  (paramètre, identifiant ou corps), `415` (corps non JSON), `405` avec `Allow` (verbe non géré), `406` (`Accept` indisponible)
+  (KB-DOC4A-1, 2) ; le profil est contrôlé avant la lecture du corps (`403` avant `400`, KB-DOC4A-3). Création, modification,
+  suppression et recherche ont leur propre action d'audit `MODELE_CREE`, `MODELE_MODIFIE`, `MODELE_SUPPRIME`, `MODELE_RECHERCHE`
+  (KB-DOC4A-5). Reproduits, à confirmer par les métiers/DPO avant le 2026-12-15 : modifier ou supprimer un modèle inexistant ou d'un
+  autre centre répond `200` sans rien changer ; code et libellé peuvent être blancs ; type et format sont libres ; le filtre de type
+  de la liste distingue majuscules et minuscules (KB-DOC4A-6, 7).
 - **RG-DOC-007** — **Impression (contexte Documents, DOC1, ADR 0142)** : `POST /api/v1/documents/print` (par type) et
   `/print/{modeleId}` (par modèle). Tout profil authentifié imprime (matrice rôle x type de document **à confirmer avant
   le 2026-12-15**) ; l'anonyme est refusé. Le centre demandé doit être celui de la session (`403 ACCESS_DENIED`

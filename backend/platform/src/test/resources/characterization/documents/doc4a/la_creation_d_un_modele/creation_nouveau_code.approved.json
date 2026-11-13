@@ -1,0 +1,409 @@
+{
+  "01 nominal sans identifiant" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : {
+      "id" : "<UUID>"
+    }
+  },
+  "02 nominal avec identifiant" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : {
+      "id" : "<NOUVEAU>"
+    }
+  },
+  "03 doublon de code dans le centre" : {
+    "statut" : 409,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Un modèle porte déjà ce code dans le centre, ou cet identifiant est déjà attribué",
+      "instance" : "/api/v1/documents/modeles",
+      "status" : 409,
+      "title" : "Conflit",
+      "code" : "CONFLICT"
+    }
+  },
+  "04 meme code dans un autre centre" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : {
+      "id" : "<UUID>"
+    }
+  },
+  "05 identifiant deja pris" : {
+    "statut" : 409,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Un modèle porte déjà ce code dans le centre, ou cet identifiant est déjà attribué",
+      "instance" : "/api/v1/documents/modeles",
+      "status" : 409,
+      "title" : "Conflit",
+      "code" : "CONFLICT"
+    }
+  },
+  "06 sans centerId (centre de session)" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : {
+      "id" : "<UUID>"
+    }
+  },
+  "07 centre E par un admin de D" : {
+    "statut" : 403,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Accès refusé : le centre demandé ne correspond pas à la session",
+      "instance" : "/api/v1/documents/modeles",
+      "status" : 403,
+      "title" : "Acces refuse",
+      "code" : "ACCESS_DENIED"
+    }
+  },
+  "08 etat apres" : [ {
+    "id" : "<ATTESTATION_D>",
+    "center_id" : "<CENTRE_D>",
+    "code" : "ATT-D",
+    "libelle" : "Attestation",
+    "type_document" : "ATTESTATION",
+    "chemin_jrxml" : "reports/attestation.jrxml",
+    "format_impression" : "PDF",
+    "description" : null,
+    "active" : true
+  }, {
+    "id" : "<BETA_D>",
+    "center_id" : "<CENTRE_D>",
+    "code" : "BETA-D",
+    "libelle" : "Beta",
+    "type_document" : "CUSTOM",
+    "chemin_jrxml" : "reports/beta.jrxml",
+    "format_impression" : "PDF",
+    "description" : null,
+    "active" : true
+  }, {
+    "id" : "<CHARLIE_D>",
+    "center_id" : "<CENTRE_D>",
+    "code" : "CHARLIE-D",
+    "libelle" : "Charlie",
+    "type_document" : "FICHE_PATIENT",
+    "chemin_jrxml" : "reports/charlie.jrxml",
+    "format_impression" : "PDF",
+    "description" : null,
+    "active" : false
+  }, {
+    "id" : "<UUID>",
+    "center_id" : "<CENTRE_D>",
+    "code" : "NOUVEAU-1",
+    "libelle" : "Libelle NOUVEAU-1",
+    "type_document" : "CUSTOM",
+    "chemin_jrxml" : "reports/nouveau.jrxml",
+    "format_impression" : "PDF",
+    "description" : "Description",
+    "active" : true
+  }, {
+    "id" : "<NOUVEAU>",
+    "center_id" : "<CENTRE_D>",
+    "code" : "NOUVEAU-2",
+    "libelle" : "Libelle NOUVEAU-2",
+    "type_document" : "CUSTOM",
+    "chemin_jrxml" : "reports/nouveau_2.jrxml",
+    "format_impression" : "PDF",
+    "description" : "Description",
+    "active" : true
+  }, {
+    "id" : "<UUID>",
+    "center_id" : "<CENTRE_D>",
+    "code" : "NOUVEAU-4",
+    "libelle" : "Libelle NOUVEAU-4",
+    "type_document" : "CUSTOM",
+    "chemin_jrxml" : "reports/nouveau.jrxml",
+    "format_impression" : "PDF",
+    "description" : "Description",
+    "active" : true
+  }, {
+    "id" : "<ATTESTATION_E>",
+    "center_id" : "<CENTRE_E>",
+    "code" : "ATT-E",
+    "libelle" : "Attestation E",
+    "type_document" : "ATTESTATION",
+    "chemin_jrxml" : "reports/attestation.jrxml",
+    "format_impression" : "PDF",
+    "description" : null,
+    "active" : true
+  }, {
+    "id" : "<UUID>",
+    "center_id" : "<CENTRE_E>",
+    "code" : "NOUVEAU-1",
+    "libelle" : "Libelle NOUVEAU-1",
+    "type_document" : "CUSTOM",
+    "chemin_jrxml" : "reports/nouveau.jrxml",
+    "format_impression" : "PDF",
+    "description" : "Description",
+    "active" : true
+  } ],
+  "09 chemins de gabarit" : {
+    "01 '../../etc/passwd'" : {
+      "statut" : 400,
+      "contentType" : "application/problem+json",
+      "corps" : {
+        "detail" : "Chemin de modèle invalide : attendu reports/<nom>.jrxml",
+        "instance" : "/api/v1/documents/modeles",
+        "status" : 400,
+        "title" : "Requete invalide",
+        "code" : "BAD_REQUEST"
+      }
+    },
+    "02 'reports/../secret.jrxml'" : {
+      "statut" : 400,
+      "contentType" : "application/problem+json",
+      "corps" : {
+        "detail" : "Chemin de modèle invalide : attendu reports/<nom>.jrxml",
+        "instance" : "/api/v1/documents/modeles",
+        "status" : 400,
+        "title" : "Requete invalide",
+        "code" : "BAD_REQUEST"
+      }
+    },
+    "03 'reports/a/b.jrxml'" : {
+      "statut" : 400,
+      "contentType" : "application/problem+json",
+      "corps" : {
+        "detail" : "Chemin de modèle invalide : attendu reports/<nom>.jrxml",
+        "instance" : "/api/v1/documents/modeles",
+        "status" : 400,
+        "title" : "Requete invalide",
+        "code" : "BAD_REQUEST"
+      }
+    },
+    "04 'reports/a.jrxml.exe'" : {
+      "statut" : 400,
+      "contentType" : "application/problem+json",
+      "corps" : {
+        "detail" : "Chemin de modèle invalide : attendu reports/<nom>.jrxml",
+        "instance" : "/api/v1/documents/modeles",
+        "status" : 400,
+        "title" : "Requete invalide",
+        "code" : "BAD_REQUEST"
+      }
+    },
+    "05 'reports/.jrxml'" : {
+      "statut" : 400,
+      "contentType" : "application/problem+json",
+      "corps" : {
+        "detail" : "Chemin de modèle invalide : attendu reports/<nom>.jrxml",
+        "instance" : "/api/v1/documents/modeles",
+        "status" : 400,
+        "title" : "Requete invalide",
+        "code" : "BAD_REQUEST"
+      }
+    },
+    "06 'reports/é.jrxml'" : {
+      "statut" : 400,
+      "contentType" : "application/problem+json",
+      "corps" : {
+        "detail" : "Chemin de modèle invalide : attendu reports/<nom>.jrxml",
+        "instance" : "/api/v1/documents/modeles",
+        "status" : 400,
+        "title" : "Requete invalide",
+        "code" : "BAD_REQUEST"
+      }
+    },
+    "07 '/etc/reports/a.jrxml'" : {
+      "statut" : 400,
+      "contentType" : "application/problem+json",
+      "corps" : {
+        "detail" : "Chemin de modèle invalide : attendu reports/<nom>.jrxml",
+        "instance" : "/api/v1/documents/modeles",
+        "status" : 400,
+        "title" : "Requete invalide",
+        "code" : "BAD_REQUEST"
+      }
+    },
+    "08 'reports/a b.jrxml'" : {
+      "statut" : 400,
+      "contentType" : "application/problem+json",
+      "corps" : {
+        "detail" : "Chemin de modèle invalide : attendu reports/<nom>.jrxml",
+        "instance" : "/api/v1/documents/modeles",
+        "status" : 400,
+        "title" : "Requete invalide",
+        "code" : "BAD_REQUEST"
+      }
+    },
+    "09 'REPORTS/a.jrxml'" : {
+      "statut" : 400,
+      "contentType" : "application/problem+json",
+      "corps" : {
+        "detail" : "Chemin de modèle invalide : attendu reports/<nom>.jrxml",
+        "instance" : "/api/v1/documents/modeles",
+        "status" : 400,
+        "title" : "Requete invalide",
+        "code" : "BAD_REQUEST"
+      }
+    },
+    "10 'reports/A-b_9.jrxml'" : {
+      "statut" : 200,
+      "contentType" : "application/json",
+      "corps" : {
+        "id" : "<UUID>"
+      }
+    },
+    "11 'reports/a.JRXML'" : {
+      "statut" : 400,
+      "contentType" : "application/problem+json",
+      "corps" : {
+        "detail" : "Chemin de modèle invalide : attendu reports/<nom>.jrxml",
+        "instance" : "/api/v1/documents/modeles",
+        "status" : 400,
+        "title" : "Requete invalide",
+        "code" : "BAD_REQUEST"
+      }
+    },
+    "12 ''" : {
+      "statut" : 400,
+      "contentType" : "application/problem+json",
+      "corps" : {
+        "detail" : "Chemin de modèle invalide : attendu reports/<nom>.jrxml",
+        "instance" : "/api/v1/documents/modeles",
+        "status" : 400,
+        "title" : "Requete invalide",
+        "code" : "BAD_REQUEST"
+      }
+    },
+    "13 '   '" : {
+      "statut" : 400,
+      "contentType" : "application/problem+json",
+      "corps" : {
+        "detail" : "Chemin de modèle invalide : attendu reports/<nom>.jrxml",
+        "instance" : "/api/v1/documents/modeles",
+        "status" : 400,
+        "title" : "Requete invalide",
+        "code" : "BAD_REQUEST"
+      }
+    },
+    "14 'reports/a.jrxml\\n'" : {
+      "statut" : 400,
+      "contentType" : "application/problem+json",
+      "corps" : {
+        "detail" : "Chemin de modèle invalide : attendu reports/<nom>.jrxml",
+        "instance" : "/api/v1/documents/modeles",
+        "status" : 400,
+        "title" : "Requete invalide",
+        "code" : "BAD_REQUEST"
+      }
+    },
+    "15 'classpath:reports/a.jrxml'" : {
+      "statut" : 400,
+      "contentType" : "application/problem+json",
+      "corps" : {
+        "detail" : "Chemin de modèle invalide : attendu reports/<nom>.jrxml",
+        "instance" : "/api/v1/documents/modeles",
+        "status" : 400,
+        "title" : "Requete invalide",
+        "code" : "BAD_REQUEST"
+      }
+    },
+    "16 chemin absent" : {
+      "statut" : 400,
+      "contentType" : "application/problem+json",
+      "corps" : {
+        "detail" : "Chemin de modèle invalide : attendu reports/<nom>.jrxml",
+        "instance" : "/api/v1/documents/modeles",
+        "status" : 400,
+        "title" : "Requete invalide",
+        "code" : "BAD_REQUEST"
+      }
+    },
+    "17 etat apres (seuls les chemins valides)" : [ {
+      "id" : "<ATTESTATION_D>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "ATT-D",
+      "libelle" : "Attestation",
+      "type_document" : "ATTESTATION",
+      "chemin_jrxml" : "reports/attestation.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : true
+    }, {
+      "id" : "<BETA_D>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "BETA-D",
+      "libelle" : "Beta",
+      "type_document" : "CUSTOM",
+      "chemin_jrxml" : "reports/beta.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : true
+    }, {
+      "id" : "<UUID>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "CH-10",
+      "libelle" : "Libelle CH-10",
+      "type_document" : "CUSTOM",
+      "chemin_jrxml" : "reports/A-b_9.jrxml",
+      "format_impression" : "PDF",
+      "description" : "Description",
+      "active" : true
+    }, {
+      "id" : "<CHARLIE_D>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "CHARLIE-D",
+      "libelle" : "Charlie",
+      "type_document" : "FICHE_PATIENT",
+      "chemin_jrxml" : "reports/charlie.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : false
+    }, {
+      "id" : "<UUID>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "NOUVEAU-1",
+      "libelle" : "Libelle NOUVEAU-1",
+      "type_document" : "CUSTOM",
+      "chemin_jrxml" : "reports/nouveau.jrxml",
+      "format_impression" : "PDF",
+      "description" : "Description",
+      "active" : true
+    }, {
+      "id" : "<NOUVEAU>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "NOUVEAU-2",
+      "libelle" : "Libelle NOUVEAU-2",
+      "type_document" : "CUSTOM",
+      "chemin_jrxml" : "reports/nouveau_2.jrxml",
+      "format_impression" : "PDF",
+      "description" : "Description",
+      "active" : true
+    }, {
+      "id" : "<UUID>",
+      "center_id" : "<CENTRE_D>",
+      "code" : "NOUVEAU-4",
+      "libelle" : "Libelle NOUVEAU-4",
+      "type_document" : "CUSTOM",
+      "chemin_jrxml" : "reports/nouveau.jrxml",
+      "format_impression" : "PDF",
+      "description" : "Description",
+      "active" : true
+    }, {
+      "id" : "<ATTESTATION_E>",
+      "center_id" : "<CENTRE_E>",
+      "code" : "ATT-E",
+      "libelle" : "Attestation E",
+      "type_document" : "ATTESTATION",
+      "chemin_jrxml" : "reports/attestation.jrxml",
+      "format_impression" : "PDF",
+      "description" : null,
+      "active" : true
+    }, {
+      "id" : "<UUID>",
+      "center_id" : "<CENTRE_E>",
+      "code" : "NOUVEAU-1",
+      "libelle" : "Libelle NOUVEAU-1",
+      "type_document" : "CUSTOM",
+      "chemin_jrxml" : "reports/nouveau.jrxml",
+      "format_impression" : "PDF",
+      "description" : "Description",
+      "active" : true
+    } ]
+  }
+}

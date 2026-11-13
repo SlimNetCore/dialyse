@@ -1,0 +1,389 @@
+{
+  "01 creation, JSON mal forme" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Corps de requête illisible",
+      "instance" : "/api/v1/documents/modeles",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "02 creation, sans corps" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Corps de requête absent",
+      "instance" : "/api/v1/documents/modeles",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "03 creation, corps texte" : {
+    "statut" : 415,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Type de contenu non supporté : application/json attendu",
+      "instance" : "/api/v1/documents/modeles",
+      "status" : 415,
+      "title" : "Type de contenu non supporte",
+      "code" : "UNSUPPORTED_MEDIA_TYPE"
+    }
+  },
+  "04 creation, sans Content-Type" : {
+    "statut" : 415,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Type de contenu non supporté : application/json attendu",
+      "instance" : "/api/v1/documents/modeles",
+      "status" : 415,
+      "title" : "Type de contenu non supporte",
+      "code" : "UNSUPPORTED_MEDIA_TYPE"
+    }
+  },
+  "05 creation, corps XML" : {
+    "statut" : 415,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Type de contenu non supporté : application/json attendu",
+      "instance" : "/api/v1/documents/modeles",
+      "status" : 415,
+      "title" : "Type de contenu non supporte",
+      "code" : "UNSUPPORTED_MEDIA_TYPE"
+    }
+  },
+  "06 creation, tableau JSON" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Corps de requête illisible",
+      "instance" : "/api/v1/documents/modeles",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "07 creation, JSON null" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Corps de requête absent",
+      "instance" : "/api/v1/documents/modeles",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "08 creation, objet vide" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Chemin de modèle invalide : attendu reports/<nom>.jrxml",
+      "instance" : "/api/v1/documents/modeles",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "09 creation, Accept XML" : {
+    "statut" : 200,
+    "contentType" : "application/xml",
+    "corps" : "<Map><id><UUID></id></Map>"
+  },
+  "10 modification, JSON mal forme" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Corps de requête illisible",
+      "instance" : "/api/v1/documents/modeles/<BETA_D>",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "11 modification, sans corps" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Corps de requête absent",
+      "instance" : "/api/v1/documents/modeles/<BETA_D>",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "12 modification, corps texte" : {
+    "statut" : 415,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Type de contenu non supporté : application/json attendu",
+      "instance" : "/api/v1/documents/modeles/<BETA_D>",
+      "status" : 415,
+      "title" : "Type de contenu non supporte",
+      "code" : "UNSUPPORTED_MEDIA_TYPE"
+    }
+  },
+  "13 recherche, JSON mal forme" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Corps de requête illisible",
+      "instance" : "/api/v1/documents/modeles/search",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "14 recherche, sans corps" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Corps de requête absent",
+      "instance" : "/api/v1/documents/modeles/search",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "15 recherche, corps texte" : {
+    "statut" : 415,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Type de contenu non supporté : application/json attendu",
+      "instance" : "/api/v1/documents/modeles/search",
+      "status" : 415,
+      "title" : "Type de contenu non supporte",
+      "code" : "UNSUPPORTED_MEDIA_TYPE"
+    }
+  },
+  "16 PATCH sur la collection" : {
+    "statut" : 405,
+    "contentType" : "application/problem+json",
+    "Allow" : "GET, HEAD, POST, OPTIONS",
+    "corps" : {
+      "detail" : "Méthode non supportée : PATCH",
+      "instance" : "/api/v1/documents/modeles",
+      "status" : 405,
+      "title" : "Methode non supportee",
+      "code" : "METHOD_NOT_ALLOWED"
+    }
+  },
+  "17 PUT sur la collection" : {
+    "statut" : 405,
+    "contentType" : "application/problem+json",
+    "Allow" : "GET, HEAD, POST, OPTIONS",
+    "corps" : {
+      "detail" : "Méthode non supportée : PUT",
+      "instance" : "/api/v1/documents/modeles",
+      "status" : 405,
+      "title" : "Methode non supportee",
+      "code" : "METHOD_NOT_ALLOWED"
+    }
+  },
+  "18 DELETE sur la collection" : {
+    "statut" : 405,
+    "contentType" : "application/problem+json",
+    "Allow" : "GET, HEAD, POST, OPTIONS",
+    "corps" : {
+      "detail" : "Méthode non supportée : DELETE",
+      "instance" : "/api/v1/documents/modeles",
+      "status" : 405,
+      "title" : "Methode non supportee",
+      "code" : "METHOD_NOT_ALLOWED"
+    }
+  },
+  "19 POST sur un modele" : {
+    "statut" : 405,
+    "contentType" : "application/problem+json",
+    "Allow" : "PUT, DELETE, OPTIONS",
+    "corps" : {
+      "detail" : "Méthode non supportée : POST",
+      "instance" : "/api/v1/documents/modeles/<BETA_D>",
+      "status" : 405,
+      "title" : "Methode non supportee",
+      "code" : "METHOD_NOT_ALLOWED"
+    }
+  },
+  "20 GET sur un modele" : {
+    "statut" : 405,
+    "contentType" : "application/problem+json",
+    "Allow" : "PUT, DELETE, OPTIONS",
+    "corps" : {
+      "detail" : "Méthode non supportée : GET",
+      "instance" : "/api/v1/documents/modeles/<BETA_D>",
+      "status" : 405,
+      "title" : "Methode non supportee",
+      "code" : "METHOD_NOT_ALLOWED"
+    }
+  },
+  "21 PATCH sur un modele" : {
+    "statut" : 405,
+    "contentType" : "application/problem+json",
+    "Allow" : "PUT, DELETE, OPTIONS",
+    "corps" : {
+      "detail" : "Méthode non supportée : PATCH",
+      "instance" : "/api/v1/documents/modeles/<BETA_D>",
+      "status" : 405,
+      "title" : "Methode non supportee",
+      "code" : "METHOD_NOT_ALLOWED"
+    }
+  },
+  "22 GET sur la recherche" : {
+    "statut" : 405,
+    "contentType" : "application/problem+json",
+    "Allow" : "POST, OPTIONS",
+    "corps" : {
+      "detail" : "Méthode non supportée : GET",
+      "instance" : "/api/v1/documents/modeles/search",
+      "status" : 405,
+      "title" : "Methode non supportee",
+      "code" : "METHOD_NOT_ALLOWED"
+    }
+  },
+  "23 PUT sur la recherche" : {
+    "statut" : 405,
+    "contentType" : "application/problem+json",
+    "Allow" : "POST, OPTIONS",
+    "corps" : {
+      "detail" : "Méthode non supportée : PUT",
+      "instance" : "/api/v1/documents/modeles/search",
+      "status" : 405,
+      "title" : "Methode non supportee",
+      "code" : "METHOD_NOT_ALLOWED"
+    }
+  },
+  "24 medecin, creation en JSON mal forme" : {
+    "statut" : 403,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Access Denied",
+      "instance" : "/api/v1/documents/modeles",
+      "status" : 403,
+      "title" : "Acces refuse",
+      "code" : "ACCESS_DENIED"
+    }
+  },
+  "25 medecin, creation en corps texte" : {
+    "statut" : 403,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Access Denied",
+      "instance" : "/api/v1/documents/modeles",
+      "status" : 403,
+      "title" : "Acces refuse",
+      "code" : "ACCESS_DENIED"
+    }
+  },
+  "26 medecin, modification en JSON mal forme" : {
+    "statut" : 403,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Access Denied",
+      "instance" : "/api/v1/documents/modeles/<BETA_D>",
+      "status" : 403,
+      "title" : "Acces refuse",
+      "code" : "ACCESS_DENIED"
+    }
+  },
+  "27 medecin, modification avec identifiant illisible" : {
+    "statut" : 403,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Access Denied",
+      "instance" : "/api/v1/documents/modeles/pas-un-uuid",
+      "status" : 403,
+      "title" : "Acces refuse",
+      "code" : "ACCESS_DENIED"
+    }
+  },
+  "28 medecin, suppression sans centerId" : {
+    "statut" : 403,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Access Denied",
+      "instance" : "/api/v1/documents/modeles/<BETA_D>",
+      "status" : 403,
+      "title" : "Acces refuse",
+      "code" : "ACCESS_DENIED"
+    }
+  },
+  "29 medecin, suppression avec centerId illisible" : {
+    "statut" : 403,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Access Denied",
+      "instance" : "/api/v1/documents/modeles/<BETA_D>",
+      "status" : 403,
+      "title" : "Acces refuse",
+      "code" : "ACCESS_DENIED"
+    }
+  },
+  "30 sans session, creation en JSON mal forme" : {
+    "statut" : 403,
+    "contentType" : null
+  },
+  "31 admin d'un autre centre, creation en corps texte" : {
+    "statut" : 415,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Type de contenu non supporté : application/json attendu",
+      "instance" : "/api/v1/documents/modeles",
+      "status" : 415,
+      "title" : "Type de contenu non supporte",
+      "code" : "UNSUPPORTED_MEDIA_TYPE"
+    }
+  },
+  "32 etat stocke (rien d'ecrit)" : [ {
+    "id" : "<ATTESTATION_D>",
+    "center_id" : "<CENTRE_D>",
+    "code" : "ATT-D",
+    "libelle" : "Attestation",
+    "type_document" : "ATTESTATION",
+    "chemin_jrxml" : "reports/attestation.jrxml",
+    "format_impression" : "PDF",
+    "description" : null,
+    "active" : true
+  }, {
+    "id" : "<BETA_D>",
+    "center_id" : "<CENTRE_D>",
+    "code" : "BETA-D",
+    "libelle" : "Beta",
+    "type_document" : "CUSTOM",
+    "chemin_jrxml" : "reports/beta.jrxml",
+    "format_impression" : "PDF",
+    "description" : null,
+    "active" : true
+  }, {
+    "id" : "<CHARLIE_D>",
+    "center_id" : "<CENTRE_D>",
+    "code" : "CHARLIE-D",
+    "libelle" : "Charlie",
+    "type_document" : "FICHE_PATIENT",
+    "chemin_jrxml" : "reports/charlie.jrxml",
+    "format_impression" : "PDF",
+    "description" : null,
+    "active" : false
+  }, {
+    "id" : "<UUID>",
+    "center_id" : "<CENTRE_D>",
+    "code" : "F-9",
+    "libelle" : "Libelle F-9",
+    "type_document" : "CUSTOM",
+    "chemin_jrxml" : "reports/f.jrxml",
+    "format_impression" : "PDF",
+    "description" : "Description",
+    "active" : true
+  }, {
+    "id" : "<ATTESTATION_E>",
+    "center_id" : "<CENTRE_E>",
+    "code" : "ATT-E",
+    "libelle" : "Attestation E",
+    "type_document" : "ATTESTATION",
+    "chemin_jrxml" : "reports/attestation.jrxml",
+    "format_impression" : "PDF",
+    "description" : null,
+    "active" : true
+  } ]
+}

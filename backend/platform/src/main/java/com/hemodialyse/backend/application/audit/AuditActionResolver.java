@@ -54,6 +54,8 @@ public final class AuditActionResolver {
     private static final String ROUTE_ABSENCES_DIRECTION = "/api/v1/direction/absences";
 
     /** Dépôt, activation et réinitialisation d'un gabarit de modèle d'un centre (DOC3, KB-DOC3-3, décision du 2026-11-13). */
+    private static final String ROUTE_MODELES = "/api/v1/documents/modeles";
+    private static final String ROUTE_MODELE = "/api/v1/documents/modeles/{id}";
     private static final String ROUTE_GABARIT_TELEVERSE = "/api/v1/documents/modeles/{modeleId}/versions";
     private static final String ROUTE_GABARIT_ACTIVE = "/api/v1/documents/modeles/{modeleId}/versions/{version}/activate";
     private static final String ROUTE_GABARIT_REINITIALISE = "/api/v1/documents/modeles/{modeleId}/reset";
@@ -165,7 +167,13 @@ public final class AuditActionResolver {
             // celui du modèle (le libellé précis, avec le numéro de version, est posé par le contrôleur).
             Map.entry("POST " + ROUTE_GABARIT_TELEVERSE, new Resolved("GABARIT_TELEVERSE", "documents", "Gabarit de modèle téléversé")),
             Map.entry("POST " + ROUTE_GABARIT_ACTIVE, new Resolved("GABARIT_ACTIVE", "documents", "Version de gabarit activée")),
-            Map.entry("POST " + ROUTE_GABARIT_REINITIALISE, new Resolved("GABARIT_REINITIALISE", "documents", "Gabarit de modèle réinitialisé")));
+            Map.entry("POST " + ROUTE_GABARIT_REINITIALISE, new Resolved("GABARIT_REINITIALISE", "documents", "Gabarit de modèle réinitialisé")),
+            // Gestion des modèles de document (DOC4a, KB-DOC4A-5, décision du 2026-11-13) : plus « DOCUMENTS_* » ; la recherche (lecture par corps)
+            // n'est plus journalisée comme une création.
+            Map.entry("POST " + ROUTE_MODELES, new Resolved("MODELE_CREE", "documents", "Modèle de document créé")),
+            Map.entry("PUT " + ROUTE_MODELE, new Resolved("MODELE_MODIFIE", "documents", "Modèle de document modifié")),
+            Map.entry("DELETE " + ROUTE_MODELE, new Resolved("MODELE_SUPPRIME", "documents", "Modèle de document supprimé")),
+            Map.entry("POST " + ROUTE_MODELES + "/search", new Resolved("MODELE_RECHERCHE", "documents", "Recherche de modèles de document")));
 
     private AuditActionResolver() {
     }

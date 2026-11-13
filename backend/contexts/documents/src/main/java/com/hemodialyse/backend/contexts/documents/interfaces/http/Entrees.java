@@ -23,6 +23,15 @@ final class Entrees {
         }
     }
 
+    /** Un identifiant requis : absent, vide ou illisible = {@link ParametreIllisible}. */
+    static UUID identifiantObligatoire(String brut, String nom) {
+        UUID lu = identifiant(brut, nom);
+        if (lu == null) {
+            throw new ParametreIllisible(nom);
+        }
+        return lu;
+    }
+
     static Integer entierOuNull(String brut, String nom) {
         if (brut == null || brut.isBlank()) {
             return null;

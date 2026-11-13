@@ -61,7 +61,17 @@ class AuditActionResolverTest {
         assertFalse(AuditActionResolver.isTracked("GET", racine + "/source"));
         assertFalse(AuditActionResolver.isTracked("GET", racine + "/versions"));
         // les autres routes de /documents gardent l'action générique
-        assertEquals("DOCUMENTS_CREATION", AuditActionResolver.resolve("POST", "/api/v1/documents/modeles").actionCode());
+        assertEquals("DOCUMENTS_CREATION", AuditActionResolver.resolve("POST", "/api/v1/documents/print").actionCode());
+    }
+
+    /** DOC4a, KB-DOC4A-5 : la création, la modification, la suppression et la recherche des modèles ont leur action. */
+    @Test
+    void the_template_management_routes_have_their_own_action() {
+        assertEquals("MODELE_CREE", AuditActionResolver.resolve("POST", "/api/v1/documents/modeles").actionCode());
+        assertEquals("MODELE_MODIFIE", AuditActionResolver.resolve("PUT", "/api/v1/documents/modeles/{id}").actionCode());
+        assertEquals("MODELE_SUPPRIME", AuditActionResolver.resolve("DELETE", "/api/v1/documents/modeles/{id}").actionCode());
+        assertEquals("MODELE_RECHERCHE", AuditActionResolver.resolve("POST", "/api/v1/documents/modeles/search").actionCode());
+        assertEquals("documents", AuditActionResolver.resolve("PUT", "/api/v1/documents/modeles/{id}").entityType());
     }
 
     @Test

@@ -1,0 +1,24 @@
+{
+  "01 suppression de l'attestation" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : {
+      "deleted" : true
+    }
+  },
+  "02 impression par type apres suppression" : {
+    "statut" : 400,
+    "contentType" : "text/plain",
+    "corps" : "patientId ou attestationId est obligatoire pour ATTESTATION"
+  },
+  "03 impression par identifiant apres suppression" : {
+    "statut" : 400,
+    "contentType" : "text/plain",
+    "corps" : "Modèle introuvable pour ce centre"
+  },
+  "04 impression par type d'un modele desactive" : {
+    "statut" : 400,
+    "contentType" : "text/plain",
+    "corps" : "patientId est obligatoire pour FICHE_PATIENT"
+  }
+}

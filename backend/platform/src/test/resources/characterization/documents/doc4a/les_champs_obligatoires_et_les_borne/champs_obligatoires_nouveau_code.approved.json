@@ -1,0 +1,288 @@
+{
+  "01 code absent" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Champ obligatoire : code",
+      "instance" : "/api/v1/documents/modeles",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "02 libelle absent" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Champ obligatoire : libelle",
+      "instance" : "/api/v1/documents/modeles",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "03 type absent" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Champ obligatoire : typeDocument",
+      "instance" : "/api/v1/documents/modeles",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "04 format absent" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Champ obligatoire : formatImpression",
+      "instance" : "/api/v1/documents/modeles",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "05 description absente" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : {
+      "id" : "<UUID>"
+    }
+  },
+  "06 active absent" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Champ obligatoire : active",
+      "instance" : "/api/v1/documents/modeles",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "07 code de 50 caracteres" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : {
+      "id" : "<UUID>"
+    }
+  },
+  "08 code de 51 caracteres" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Champ trop long : code (50 caractères au plus)",
+      "instance" : "/api/v1/documents/modeles",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "09 libelle de 256 caracteres" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Champ trop long : libelle (255 caractères au plus)",
+      "instance" : "/api/v1/documents/modeles",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "10 type de 51 caracteres" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Champ trop long : typeDocument (50 caractères au plus)",
+      "instance" : "/api/v1/documents/modeles",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "11 format de 21 caracteres" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Champ trop long : formatImpression (20 caractères au plus)",
+      "instance" : "/api/v1/documents/modeles",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "12 description de 501 caracteres" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Champ trop long : description (500 caractères au plus)",
+      "instance" : "/api/v1/documents/modeles",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "13 format libre" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : {
+      "id" : "<UUID>"
+    }
+  },
+  "14 type libre en minuscules" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : {
+      "id" : "<UUID>"
+    }
+  },
+  "15 code vide" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : {
+      "id" : "<UUID>"
+    }
+  },
+  "16 code blanc" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : {
+      "id" : "<UUID>"
+    }
+  },
+  "17 active en texte" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Corps de requête illisible",
+      "instance" : "/api/v1/documents/modeles",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "18 identifiant illisible" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Paramètre illisible : id",
+      "instance" : "/api/v1/documents/modeles",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "19 centerId illisible" : {
+    "statut" : 400,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "detail" : "Paramètre illisible : centerId",
+      "instance" : "/api/v1/documents/modeles",
+      "status" : 400,
+      "title" : "Requete invalide",
+      "code" : "BAD_REQUEST"
+    }
+  },
+  "20 etat apres" : [ {
+    "id" : "<UUID>",
+    "center_id" : "<CENTRE_D>",
+    "code" : "",
+    "libelle" : "Libelle ",
+    "type_document" : "CUSTOM",
+    "chemin_jrxml" : "reports/x.jrxml",
+    "format_impression" : "PDF",
+    "description" : "Description",
+    "active" : true
+  }, {
+    "id" : "<UUID>",
+    "center_id" : "<CENTRE_D>",
+    "code" : "   ",
+    "libelle" : "Libelle    ",
+    "type_document" : "CUSTOM",
+    "chemin_jrxml" : "reports/x.jrxml",
+    "format_impression" : "PDF",
+    "description" : "Description",
+    "active" : true
+  }, {
+    "id" : "<ATTESTATION_D>",
+    "center_id" : "<CENTRE_D>",
+    "code" : "ATT-D",
+    "libelle" : "Attestation",
+    "type_document" : "ATTESTATION",
+    "chemin_jrxml" : "reports/attestation.jrxml",
+    "format_impression" : "PDF",
+    "description" : null,
+    "active" : true
+  }, {
+    "id" : "<BETA_D>",
+    "center_id" : "<CENTRE_D>",
+    "code" : "BETA-D",
+    "libelle" : "Beta",
+    "type_document" : "CUSTOM",
+    "chemin_jrxml" : "reports/beta.jrxml",
+    "format_impression" : "PDF",
+    "description" : null,
+    "active" : true
+  }, {
+    "id" : "<UUID>",
+    "center_id" : "<CENTRE_D>",
+    "code" : "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+    "libelle" : "Libelle CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+    "type_document" : "CUSTOM",
+    "chemin_jrxml" : "reports/x.jrxml",
+    "format_impression" : "PDF",
+    "description" : "Description",
+    "active" : true
+  }, {
+    "id" : "<CHARLIE_D>",
+    "center_id" : "<CENTRE_D>",
+    "code" : "CHARLIE-D",
+    "libelle" : "Charlie",
+    "type_document" : "FICHE_PATIENT",
+    "chemin_jrxml" : "reports/charlie.jrxml",
+    "format_impression" : "PDF",
+    "description" : null,
+    "active" : false
+  }, {
+    "id" : "<UUID>",
+    "center_id" : "<CENTRE_D>",
+    "code" : "L-13",
+    "libelle" : "Libelle L-13",
+    "type_document" : "CUSTOM",
+    "chemin_jrxml" : "reports/x.jrxml",
+    "format_impression" : "WORD",
+    "description" : "Description",
+    "active" : true
+  }, {
+    "id" : "<UUID>",
+    "center_id" : "<CENTRE_D>",
+    "code" : "L-14",
+    "libelle" : "Libelle L-14",
+    "type_document" : "ordonnance",
+    "chemin_jrxml" : "reports/x.jrxml",
+    "format_impression" : "PDF",
+    "description" : "Description",
+    "active" : true
+  }, {
+    "id" : "<UUID>",
+    "center_id" : "<CENTRE_D>",
+    "code" : "L-5",
+    "libelle" : "Libelle L-5",
+    "type_document" : "CUSTOM",
+    "chemin_jrxml" : "reports/x.jrxml",
+    "format_impression" : "PDF",
+    "description" : null,
+    "active" : true
+  }, {
+    "id" : "<ATTESTATION_E>",
+    "center_id" : "<CENTRE_E>",
+    "code" : "ATT-E",
+    "libelle" : "Attestation E",
+    "type_document" : "ATTESTATION",
+    "chemin_jrxml" : "reports/attestation.jrxml",
+    "format_impression" : "PDF",
+    "description" : null,
+    "active" : true
+  } ]
+}
