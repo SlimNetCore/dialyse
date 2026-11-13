@@ -194,7 +194,9 @@ class DatesIllisiblesDeLaDirectionAdvice {
         /** DOC4a, KB-DOC4A-2 : la gestion des modèles de document (liste, recherche, écritures) répond 406 à un {@code Accept} indisponible (c'était un 500). */
         private static boolean estUneRouteDeLaGestionDesModelesDeDocument(HttpServletRequest requete) {
             String uri = requete.getRequestURI();
-            return uri.equals("/api/v1/documents/modeles") || uri.equals("/api/v1/documents/modeles/search");
+            // DOC4b, KB-DOC4B-1 : la liste des types de document répond aussi 406 à un Accept indisponible.
+            return uri.equals("/api/v1/documents/modeles") || uri.equals("/api/v1/documents/modeles/search")
+                    || uri.equals("/api/v1/documents/types");
         }
 
         /**

@@ -4,19 +4,18 @@ import com.hemodialyse.backend.contexts.documents.publishedlanguage.ReglesDImpre
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.ProfilDeLaSynthese;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseDeFacturation;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseMensuelle;
-import com.hemodialyse.backend.contexts.documents.publishedlanguage.ModeleDocumentCatalog;
 import com.hemodialyse.backend.infrastructure.security.CenterAccessGuard;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
 /**
- * Contrôleur REST des types de documents (reste en plateforme jusqu'à DOC4b).
+ * Règles des types sensibles de documents (reste en plateforme jusqu'à DOC4c).
  * <p>
- * La gestion des modèles ({@code /modeles}) est servie par le contexte Documents (DOC4a, ADR 0164), les routes d'impression
- * {@code POST /print} et {@code POST /print/{modeleId}} aussi (DOC1, ADR 0142). Cette classe fournit encore à Documents, de façon
+ * La gestion des modèles ({@code /modeles}) est servie par le contexte Documents (DOC4a, ADR 0164), la liste des types
+ * ({@code GET /types}) aussi (DOC4b, ADR 0165), comme les routes d'impression
+ * {@code POST /print} et {@code POST /print/{modeleId}} (DOC1, ADR 0142). Cette classe fournit encore à Documents, de façon
  * TRANSITOIRE, les règles des types sensibles ({@link ReglesDImpressionDesTypesSensibles}) : profil exigé pour l'ordonnance et la
  * synthèse de facturation, totaux de la synthèse.
  */
@@ -30,17 +29,6 @@ public class DocumentRestController implements ReglesDImpressionDesTypesSensible
     public DocumentRestController(CenterAccessGuard centerAccessGuard, SyntheseDeFacturation syntheseDeFacturation) {
         this.centerAccessGuard = centerAccessGuard;
         this.syntheseDeFacturation = syntheseDeFacturation;
-    }
-
-    /**
-     * Types de documents disponibles : le catalogue des documents livrés, plus les rapports personnalisés.
-     */
-    @GetMapping("/types")
-    public ResponseEntity<?> availableTypes() {
-        List<Map<String, String>> types = new ArrayList<>();
-        ModeleDocumentCatalog.entries().forEach(e -> types.add(Map.of("code", e.type(), "label", e.libelle())));
-        types.add(Map.of("code", "CUSTOM", "label", "Rapport personnalisé"));
-        return ResponseEntity.ok(types);
     }
 
     // ═══════════════════════════════════════════════════════════════════

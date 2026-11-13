@@ -74,6 +74,15 @@ class AuditActionResolverTest {
         assertEquals("documents", AuditActionResolver.resolve("PUT", "/api/v1/documents/modeles/{id}").entityType());
     }
 
+    /** DOC4b, KB-DOC4B-2 : une écriture tentée sur la liste des types (en lecture seule) a son action, plus « DOCUMENTS_CREATION ». */
+    @Test
+    void a_write_attempt_on_the_document_types_has_its_own_action_and_the_read_is_not_tracked() {
+        for (String verbe : new String[]{"POST", "PUT", "PATCH", "DELETE"}) {
+            assertEquals("TYPE_DE_DOCUMENT_ECRITURE_REFUSEE", AuditActionResolver.resolve(verbe, "/api/v1/documents/types").actionCode());
+        }
+        assertFalse(AuditActionResolver.isTracked("GET", "/api/v1/documents/types"));
+    }
+
     @Test
     void resolves_a_readable_action_code_and_label_per_resource_and_verb() {
         var created = AuditActionResolver.resolve("POST", "/api/v1/patients");

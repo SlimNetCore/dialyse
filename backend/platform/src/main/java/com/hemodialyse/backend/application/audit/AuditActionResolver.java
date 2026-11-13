@@ -56,6 +56,9 @@ public final class AuditActionResolver {
     /** Dépôt, activation et réinitialisation d'un gabarit de modèle d'un centre (DOC3, KB-DOC3-3, décision du 2026-11-13). */
     private static final String ROUTE_MODELES = "/api/v1/documents/modeles";
     private static final String ROUTE_MODELE = "/api/v1/documents/modeles/{id}";
+    private static final String ROUTE_TYPES = "/api/v1/documents/types";
+    private static final Resolved ECRITURE_DES_TYPES_REFUSEE =
+            new Resolved("TYPE_DE_DOCUMENT_ECRITURE_REFUSEE", "documents", "Écriture refusée sur les types de document");
     private static final String ROUTE_GABARIT_TELEVERSE = "/api/v1/documents/modeles/{modeleId}/versions";
     private static final String ROUTE_GABARIT_ACTIVE = "/api/v1/documents/modeles/{modeleId}/versions/{version}/activate";
     private static final String ROUTE_GABARIT_REINITIALISE = "/api/v1/documents/modeles/{modeleId}/reset";
@@ -173,7 +176,13 @@ public final class AuditActionResolver {
             Map.entry("POST " + ROUTE_MODELES, new Resolved("MODELE_CREE", "documents", "Modèle de document créé")),
             Map.entry("PUT " + ROUTE_MODELE, new Resolved("MODELE_MODIFIE", "documents", "Modèle de document modifié")),
             Map.entry("DELETE " + ROUTE_MODELE, new Resolved("MODELE_SUPPRIME", "documents", "Modèle de document supprimé")),
-            Map.entry("POST " + ROUTE_MODELES + "/search", new Resolved("MODELE_RECHERCHE", "documents", "Recherche de modèles de document")));
+            Map.entry("POST " + ROUTE_MODELES + "/search", new Resolved("MODELE_RECHERCHE", "documents", "Recherche de modèles de document")),
+            // Types de document (DOC4b, KB-DOC4B-2, décision du 2026-11-13) : la liste est en lecture seule ; une écriture tentée (405) n'est plus
+            // journalisée comme une « création de documents ».
+            Map.entry("POST " + ROUTE_TYPES, ECRITURE_DES_TYPES_REFUSEE),
+            Map.entry("PUT " + ROUTE_TYPES, ECRITURE_DES_TYPES_REFUSEE),
+            Map.entry("PATCH " + ROUTE_TYPES, ECRITURE_DES_TYPES_REFUSEE),
+            Map.entry("DELETE " + ROUTE_TYPES, ECRITURE_DES_TYPES_REFUSEE));
 
     private AuditActionResolver() {
     }

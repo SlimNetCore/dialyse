@@ -1,0 +1,406 @@
+{
+  "profil ADMIN" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : [ {
+      "code" : "FICHE_PATIENT",
+      "label" : "Fiche signalétique patient"
+    }, {
+      "code" : "ATTESTATION",
+      "label" : "Attestation d'ouverture de droit"
+    }, {
+      "code" : "PEC",
+      "label" : "Prise en charge"
+    }, {
+      "code" : "LISTE_PATIENTS",
+      "label" : "Liste des patients"
+    }, {
+      "code" : "LISTE_PEC",
+      "label" : "Liste des prises en charge"
+    }, {
+      "code" : "LISTE_ATTESTATIONS",
+      "label" : "Liste des attestations"
+    }, {
+      "code" : "SYNTHESE_FACTURATION_MENSUELLE",
+      "label" : "Synthèse mensuelle facturation"
+    }, {
+      "code" : "ORDONNANCE",
+      "label" : "Ordonnance médicamenteuse"
+    }, {
+      "code" : "INVENTAIRE_STOCK",
+      "label" : "Procès-verbal d'inventaire de stock"
+    }, {
+      "code" : "BON_INTERVENTION",
+      "label" : "Bon d'intervention (GMAO)"
+    }, {
+      "code" : "PLANNING_PRESENCE_INFIRMIERS",
+      "label" : "Planning de présence des infirmiers"
+    }, {
+      "code" : "PLANNING_OPTIMISE",
+      "label" : "Planning proposé par l'optimisation"
+    }, {
+      "code" : "CAHIER_DIALYSE",
+      "label" : "Cahier de dialyse"
+    }, {
+      "code" : "RAPPORT_DIRECTION",
+      "label" : "Rapport de synthèse de la direction"
+    }, {
+      "code" : "CUSTOM",
+      "label" : "Rapport personnalisé"
+    } ]
+  },
+  "profil SUPERADMIN" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : [ {
+      "code" : "FICHE_PATIENT",
+      "label" : "Fiche signalétique patient"
+    }, {
+      "code" : "ATTESTATION",
+      "label" : "Attestation d'ouverture de droit"
+    }, {
+      "code" : "PEC",
+      "label" : "Prise en charge"
+    }, {
+      "code" : "LISTE_PATIENTS",
+      "label" : "Liste des patients"
+    }, {
+      "code" : "LISTE_PEC",
+      "label" : "Liste des prises en charge"
+    }, {
+      "code" : "LISTE_ATTESTATIONS",
+      "label" : "Liste des attestations"
+    }, {
+      "code" : "SYNTHESE_FACTURATION_MENSUELLE",
+      "label" : "Synthèse mensuelle facturation"
+    }, {
+      "code" : "ORDONNANCE",
+      "label" : "Ordonnance médicamenteuse"
+    }, {
+      "code" : "INVENTAIRE_STOCK",
+      "label" : "Procès-verbal d'inventaire de stock"
+    }, {
+      "code" : "BON_INTERVENTION",
+      "label" : "Bon d'intervention (GMAO)"
+    }, {
+      "code" : "PLANNING_PRESENCE_INFIRMIERS",
+      "label" : "Planning de présence des infirmiers"
+    }, {
+      "code" : "PLANNING_OPTIMISE",
+      "label" : "Planning proposé par l'optimisation"
+    }, {
+      "code" : "CAHIER_DIALYSE",
+      "label" : "Cahier de dialyse"
+    }, {
+      "code" : "RAPPORT_DIRECTION",
+      "label" : "Rapport de synthèse de la direction"
+    }, {
+      "code" : "CUSTOM",
+      "label" : "Rapport personnalisé"
+    } ]
+  },
+  "profil MEDECIN" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : [ {
+      "code" : "FICHE_PATIENT",
+      "label" : "Fiche signalétique patient"
+    }, {
+      "code" : "ATTESTATION",
+      "label" : "Attestation d'ouverture de droit"
+    }, {
+      "code" : "PEC",
+      "label" : "Prise en charge"
+    }, {
+      "code" : "LISTE_PATIENTS",
+      "label" : "Liste des patients"
+    }, {
+      "code" : "LISTE_PEC",
+      "label" : "Liste des prises en charge"
+    }, {
+      "code" : "LISTE_ATTESTATIONS",
+      "label" : "Liste des attestations"
+    }, {
+      "code" : "SYNTHESE_FACTURATION_MENSUELLE",
+      "label" : "Synthèse mensuelle facturation"
+    }, {
+      "code" : "ORDONNANCE",
+      "label" : "Ordonnance médicamenteuse"
+    }, {
+      "code" : "INVENTAIRE_STOCK",
+      "label" : "Procès-verbal d'inventaire de stock"
+    }, {
+      "code" : "BON_INTERVENTION",
+      "label" : "Bon d'intervention (GMAO)"
+    }, {
+      "code" : "PLANNING_PRESENCE_INFIRMIERS",
+      "label" : "Planning de présence des infirmiers"
+    }, {
+      "code" : "PLANNING_OPTIMISE",
+      "label" : "Planning proposé par l'optimisation"
+    }, {
+      "code" : "CAHIER_DIALYSE",
+      "label" : "Cahier de dialyse"
+    }, {
+      "code" : "RAPPORT_DIRECTION",
+      "label" : "Rapport de synthèse de la direction"
+    }, {
+      "code" : "CUSTOM",
+      "label" : "Rapport personnalisé"
+    } ]
+  },
+  "profil INFIRMIER" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : [ {
+      "code" : "FICHE_PATIENT",
+      "label" : "Fiche signalétique patient"
+    }, {
+      "code" : "ATTESTATION",
+      "label" : "Attestation d'ouverture de droit"
+    }, {
+      "code" : "PEC",
+      "label" : "Prise en charge"
+    }, {
+      "code" : "LISTE_PATIENTS",
+      "label" : "Liste des patients"
+    }, {
+      "code" : "LISTE_PEC",
+      "label" : "Liste des prises en charge"
+    }, {
+      "code" : "LISTE_ATTESTATIONS",
+      "label" : "Liste des attestations"
+    }, {
+      "code" : "SYNTHESE_FACTURATION_MENSUELLE",
+      "label" : "Synthèse mensuelle facturation"
+    }, {
+      "code" : "ORDONNANCE",
+      "label" : "Ordonnance médicamenteuse"
+    }, {
+      "code" : "INVENTAIRE_STOCK",
+      "label" : "Procès-verbal d'inventaire de stock"
+    }, {
+      "code" : "BON_INTERVENTION",
+      "label" : "Bon d'intervention (GMAO)"
+    }, {
+      "code" : "PLANNING_PRESENCE_INFIRMIERS",
+      "label" : "Planning de présence des infirmiers"
+    }, {
+      "code" : "PLANNING_OPTIMISE",
+      "label" : "Planning proposé par l'optimisation"
+    }, {
+      "code" : "CAHIER_DIALYSE",
+      "label" : "Cahier de dialyse"
+    }, {
+      "code" : "RAPPORT_DIRECTION",
+      "label" : "Rapport de synthèse de la direction"
+    }, {
+      "code" : "CUSTOM",
+      "label" : "Rapport personnalisé"
+    } ]
+  },
+  "profil SECRETAIRE" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : [ {
+      "code" : "FICHE_PATIENT",
+      "label" : "Fiche signalétique patient"
+    }, {
+      "code" : "ATTESTATION",
+      "label" : "Attestation d'ouverture de droit"
+    }, {
+      "code" : "PEC",
+      "label" : "Prise en charge"
+    }, {
+      "code" : "LISTE_PATIENTS",
+      "label" : "Liste des patients"
+    }, {
+      "code" : "LISTE_PEC",
+      "label" : "Liste des prises en charge"
+    }, {
+      "code" : "LISTE_ATTESTATIONS",
+      "label" : "Liste des attestations"
+    }, {
+      "code" : "SYNTHESE_FACTURATION_MENSUELLE",
+      "label" : "Synthèse mensuelle facturation"
+    }, {
+      "code" : "ORDONNANCE",
+      "label" : "Ordonnance médicamenteuse"
+    }, {
+      "code" : "INVENTAIRE_STOCK",
+      "label" : "Procès-verbal d'inventaire de stock"
+    }, {
+      "code" : "BON_INTERVENTION",
+      "label" : "Bon d'intervention (GMAO)"
+    }, {
+      "code" : "PLANNING_PRESENCE_INFIRMIERS",
+      "label" : "Planning de présence des infirmiers"
+    }, {
+      "code" : "PLANNING_OPTIMISE",
+      "label" : "Planning proposé par l'optimisation"
+    }, {
+      "code" : "CAHIER_DIALYSE",
+      "label" : "Cahier de dialyse"
+    }, {
+      "code" : "RAPPORT_DIRECTION",
+      "label" : "Rapport de synthèse de la direction"
+    }, {
+      "code" : "CUSTOM",
+      "label" : "Rapport personnalisé"
+    } ]
+  },
+  "profil SOCIETE_ADMIN" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : [ {
+      "code" : "FICHE_PATIENT",
+      "label" : "Fiche signalétique patient"
+    }, {
+      "code" : "ATTESTATION",
+      "label" : "Attestation d'ouverture de droit"
+    }, {
+      "code" : "PEC",
+      "label" : "Prise en charge"
+    }, {
+      "code" : "LISTE_PATIENTS",
+      "label" : "Liste des patients"
+    }, {
+      "code" : "LISTE_PEC",
+      "label" : "Liste des prises en charge"
+    }, {
+      "code" : "LISTE_ATTESTATIONS",
+      "label" : "Liste des attestations"
+    }, {
+      "code" : "SYNTHESE_FACTURATION_MENSUELLE",
+      "label" : "Synthèse mensuelle facturation"
+    }, {
+      "code" : "ORDONNANCE",
+      "label" : "Ordonnance médicamenteuse"
+    }, {
+      "code" : "INVENTAIRE_STOCK",
+      "label" : "Procès-verbal d'inventaire de stock"
+    }, {
+      "code" : "BON_INTERVENTION",
+      "label" : "Bon d'intervention (GMAO)"
+    }, {
+      "code" : "PLANNING_PRESENCE_INFIRMIERS",
+      "label" : "Planning de présence des infirmiers"
+    }, {
+      "code" : "PLANNING_OPTIMISE",
+      "label" : "Planning proposé par l'optimisation"
+    }, {
+      "code" : "CAHIER_DIALYSE",
+      "label" : "Cahier de dialyse"
+    }, {
+      "code" : "RAPPORT_DIRECTION",
+      "label" : "Rapport de synthèse de la direction"
+    }, {
+      "code" : "CUSTOM",
+      "label" : "Rapport personnalisé"
+    } ]
+  },
+  "sans centre de session" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : [ {
+      "code" : "FICHE_PATIENT",
+      "label" : "Fiche signalétique patient"
+    }, {
+      "code" : "ATTESTATION",
+      "label" : "Attestation d'ouverture de droit"
+    }, {
+      "code" : "PEC",
+      "label" : "Prise en charge"
+    }, {
+      "code" : "LISTE_PATIENTS",
+      "label" : "Liste des patients"
+    }, {
+      "code" : "LISTE_PEC",
+      "label" : "Liste des prises en charge"
+    }, {
+      "code" : "LISTE_ATTESTATIONS",
+      "label" : "Liste des attestations"
+    }, {
+      "code" : "SYNTHESE_FACTURATION_MENSUELLE",
+      "label" : "Synthèse mensuelle facturation"
+    }, {
+      "code" : "ORDONNANCE",
+      "label" : "Ordonnance médicamenteuse"
+    }, {
+      "code" : "INVENTAIRE_STOCK",
+      "label" : "Procès-verbal d'inventaire de stock"
+    }, {
+      "code" : "BON_INTERVENTION",
+      "label" : "Bon d'intervention (GMAO)"
+    }, {
+      "code" : "PLANNING_PRESENCE_INFIRMIERS",
+      "label" : "Planning de présence des infirmiers"
+    }, {
+      "code" : "PLANNING_OPTIMISE",
+      "label" : "Planning proposé par l'optimisation"
+    }, {
+      "code" : "CAHIER_DIALYSE",
+      "label" : "Cahier de dialyse"
+    }, {
+      "code" : "RAPPORT_DIRECTION",
+      "label" : "Rapport de synthèse de la direction"
+    }, {
+      "code" : "CUSTOM",
+      "label" : "Rapport personnalisé"
+    } ]
+  },
+  "sans session" : {
+    "statut" : 403,
+    "contentType" : null
+  },
+  "parametres inconnus ignores" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : [ {
+      "code" : "FICHE_PATIENT",
+      "label" : "Fiche signalétique patient"
+    }, {
+      "code" : "ATTESTATION",
+      "label" : "Attestation d'ouverture de droit"
+    }, {
+      "code" : "PEC",
+      "label" : "Prise en charge"
+    }, {
+      "code" : "LISTE_PATIENTS",
+      "label" : "Liste des patients"
+    }, {
+      "code" : "LISTE_PEC",
+      "label" : "Liste des prises en charge"
+    }, {
+      "code" : "LISTE_ATTESTATIONS",
+      "label" : "Liste des attestations"
+    }, {
+      "code" : "SYNTHESE_FACTURATION_MENSUELLE",
+      "label" : "Synthèse mensuelle facturation"
+    }, {
+      "code" : "ORDONNANCE",
+      "label" : "Ordonnance médicamenteuse"
+    }, {
+      "code" : "INVENTAIRE_STOCK",
+      "label" : "Procès-verbal d'inventaire de stock"
+    }, {
+      "code" : "BON_INTERVENTION",
+      "label" : "Bon d'intervention (GMAO)"
+    }, {
+      "code" : "PLANNING_PRESENCE_INFIRMIERS",
+      "label" : "Planning de présence des infirmiers"
+    }, {
+      "code" : "PLANNING_OPTIMISE",
+      "label" : "Planning proposé par l'optimisation"
+    }, {
+      "code" : "CAHIER_DIALYSE",
+      "label" : "Cahier de dialyse"
+    }, {
+      "code" : "RAPPORT_DIRECTION",
+      "label" : "Rapport de synthèse de la direction"
+    }, {
+      "code" : "CUSTOM",
+      "label" : "Rapport personnalisé"
+    } ]
+  }
+}

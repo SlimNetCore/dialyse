@@ -1,0 +1,9 @@
+[ {
+  "ACTION_CODE" : "TYPE_DE_DOCUMENT_ECRITURE_REFUSEE",
+  "ENTITY_TYPE" : "documents",
+  "ENTITY_ID" : null,
+  "HTTP_METHOD" : "POST",
+  "ROUTE_TEMPLATE" : "/api/v1/documents/types",
+  "STATUS_CODE" : 405,
+  "NOMBRE" : 1
+} ]

@@ -1,0 +1,197 @@
+{
+  "01 Accept JSON" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : [ {
+      "code" : "FICHE_PATIENT",
+      "label" : "Fiche signalétique patient"
+    }, {
+      "code" : "ATTESTATION",
+      "label" : "Attestation d'ouverture de droit"
+    }, {
+      "code" : "PEC",
+      "label" : "Prise en charge"
+    }, {
+      "code" : "LISTE_PATIENTS",
+      "label" : "Liste des patients"
+    }, {
+      "code" : "LISTE_PEC",
+      "label" : "Liste des prises en charge"
+    }, {
+      "code" : "LISTE_ATTESTATIONS",
+      "label" : "Liste des attestations"
+    }, {
+      "code" : "SYNTHESE_FACTURATION_MENSUELLE",
+      "label" : "Synthèse mensuelle facturation"
+    }, {
+      "code" : "ORDONNANCE",
+      "label" : "Ordonnance médicamenteuse"
+    }, {
+      "code" : "INVENTAIRE_STOCK",
+      "label" : "Procès-verbal d'inventaire de stock"
+    }, {
+      "code" : "BON_INTERVENTION",
+      "label" : "Bon d'intervention (GMAO)"
+    }, {
+      "code" : "PLANNING_PRESENCE_INFIRMIERS",
+      "label" : "Planning de présence des infirmiers"
+    }, {
+      "code" : "PLANNING_OPTIMISE",
+      "label" : "Planning proposé par l'optimisation"
+    }, {
+      "code" : "CAHIER_DIALYSE",
+      "label" : "Cahier de dialyse"
+    }, {
+      "code" : "RAPPORT_DIRECTION",
+      "label" : "Rapport de synthèse de la direction"
+    }, {
+      "code" : "CUSTOM",
+      "label" : "Rapport personnalisé"
+    } ]
+  },
+  "02 Accept XML" : {
+    "statut" : 200,
+    "contentType" : "application/xml",
+    "corps" : "<List><item><code>FICHE_PATIENT</code><label>Fiche signalétique patient</label></item><item><code>ATTESTATION</code><label>Attestation d'ouverture de droit</label></item><item><code>PEC</code><label>Prise en charge</label></item><item><code>LISTE_PATIENTS</code><label>Liste des patients</label></item><item><code>LISTE_PEC</code><label>Liste des prises en charge</label></item><item><code>LISTE_ATTESTATIONS</code><label>Liste des attestations</label></item><item><code>SYNTHESE_FACTURATION_MENSUELLE</code><label>Synthèse mensuelle facturation</label></item><item><code>ORDONNANCE</code><label>Ordonnance médicamenteuse</label></item><item><code>INVENTAIRE_STOCK</code><label>Procès-verbal d'inventaire de stock</label></item><item><code>BON_INTERVENTION</code><label>Bon d'intervention (GMAO)</label></item><item><code>PLANNING_PRESENCE_INFIRMIERS</code><label>Planning de présence des infirmiers</label></item><item><code>PLANNING_OPTIMISE</code><label>Planning proposé par l'optimisation</label></item><item><code>CAHIER_DIALYSE</code><label>Cahier de dialyse</label></item><item><code>RAPPORT_DIRECTION</code><label>Rapport de synthèse de la direction</label></item><item><code>CUSTOM</code><label>Rapport personnalisé</label></item></List>"
+  },
+  "03 Accept texte" : {
+    "statut" : 406,
+    "contentType" : null
+  },
+  "04 verbe HEAD" : {
+    "statut" : 200,
+    "contentType" : "application/json",
+    "corps" : [ {
+      "code" : "FICHE_PATIENT",
+      "label" : "Fiche signalétique patient"
+    }, {
+      "code" : "ATTESTATION",
+      "label" : "Attestation d'ouverture de droit"
+    }, {
+      "code" : "PEC",
+      "label" : "Prise en charge"
+    }, {
+      "code" : "LISTE_PATIENTS",
+      "label" : "Liste des patients"
+    }, {
+      "code" : "LISTE_PEC",
+      "label" : "Liste des prises en charge"
+    }, {
+      "code" : "LISTE_ATTESTATIONS",
+      "label" : "Liste des attestations"
+    }, {
+      "code" : "SYNTHESE_FACTURATION_MENSUELLE",
+      "label" : "Synthèse mensuelle facturation"
+    }, {
+      "code" : "ORDONNANCE",
+      "label" : "Ordonnance médicamenteuse"
+    }, {
+      "code" : "INVENTAIRE_STOCK",
+      "label" : "Procès-verbal d'inventaire de stock"
+    }, {
+      "code" : "BON_INTERVENTION",
+      "label" : "Bon d'intervention (GMAO)"
+    }, {
+      "code" : "PLANNING_PRESENCE_INFIRMIERS",
+      "label" : "Planning de présence des infirmiers"
+    }, {
+      "code" : "PLANNING_OPTIMISE",
+      "label" : "Planning proposé par l'optimisation"
+    }, {
+      "code" : "CAHIER_DIALYSE",
+      "label" : "Cahier de dialyse"
+    }, {
+      "code" : "RAPPORT_DIRECTION",
+      "label" : "Rapport de synthèse de la direction"
+    }, {
+      "code" : "CUSTOM",
+      "label" : "Rapport personnalisé"
+    } ]
+  },
+  "05 verbe POST" : {
+    "statut" : 405,
+    "contentType" : "application/problem+json",
+    "Allow" : "GET, HEAD, OPTIONS",
+    "corps" : {
+      "code" : "METHOD_NOT_ALLOWED",
+      "detail" : "Méthode non supportée : POST",
+      "instance" : "/api/v1/documents/types",
+      "status" : 405,
+      "title" : "Methode non supportee"
+    }
+  },
+  "06 verbe PUT" : {
+    "statut" : 405,
+    "contentType" : "application/problem+json",
+    "Allow" : "GET, HEAD, OPTIONS",
+    "corps" : {
+      "code" : "METHOD_NOT_ALLOWED",
+      "detail" : "Méthode non supportée : PUT",
+      "instance" : "/api/v1/documents/types",
+      "status" : 405,
+      "title" : "Methode non supportee"
+    }
+  },
+  "07 verbe DELETE" : {
+    "statut" : 405,
+    "contentType" : "application/problem+json",
+    "Allow" : "GET, HEAD, OPTIONS",
+    "corps" : {
+      "code" : "METHOD_NOT_ALLOWED",
+      "detail" : "Méthode non supportée : DELETE",
+      "instance" : "/api/v1/documents/types",
+      "status" : 405,
+      "title" : "Methode non supportee"
+    }
+  },
+  "08 verbe PATCH" : {
+    "statut" : 405,
+    "contentType" : "application/problem+json",
+    "Allow" : "GET, HEAD, OPTIONS",
+    "corps" : {
+      "code" : "METHOD_NOT_ALLOWED",
+      "detail" : "Méthode non supportée : PATCH",
+      "instance" : "/api/v1/documents/types",
+      "status" : 405,
+      "title" : "Methode non supportee"
+    }
+  },
+  "09 verbe POST par un MEDECIN" : {
+    "statut" : 405,
+    "contentType" : "application/problem+json",
+    "Allow" : "GET, HEAD, OPTIONS",
+    "corps" : {
+      "code" : "METHOD_NOT_ALLOWED",
+      "detail" : "Méthode non supportée : POST",
+      "instance" : "/api/v1/documents/types",
+      "status" : 405,
+      "title" : "Methode non supportee"
+    }
+  },
+  "10 verbe POST sans session" : {
+    "statut" : 403,
+    "contentType" : null
+  },
+  "11 barre finale" : {
+    "statut" : 500,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "code" : "INTERNAL_ERROR",
+      "detail" : "No static resource api/v1/documents/types for request '/api/v1/documents/types/'.",
+      "instance" : "/api/v1/documents/types/",
+      "status" : 500,
+      "title" : "Erreur interne"
+    }
+  },
+  "12 chemin voisin inconnu" : {
+    "statut" : 500,
+    "contentType" : "application/problem+json",
+    "corps" : {
+      "code" : "INTERNAL_ERROR",
+      "detail" : "No static resource api/v1/documents/types/x for request '/api/v1/documents/types/x'.",
+      "instance" : "/api/v1/documents/types/x",
+      "status" : 500,
+      "title" : "Erreur interne"
+    }
+  }
+}

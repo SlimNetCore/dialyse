@@ -1,6 +1,9 @@
 package com.hemodialyse.backend.contexts.documents.configuration;
 
 import com.hemodialyse.backend.contexts.documents.application.IdentitesImprimables;
+import com.hemodialyse.backend.contexts.documents.application.ListerLesTypesDeDocument;
+import com.hemodialyse.backend.contexts.documents.infrastructure.declaration.TypesLivresDeDocuments;
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.DeclarationDesTypesDeDocument;
 import com.hemodialyse.backend.contexts.documents.application.ImprimerUnDocument;
 import com.hemodialyse.backend.contexts.documents.application.ModelesDeDocument;
 import com.hemodialyse.backend.contexts.documents.application.PapierEnTeteDesDocuments;
@@ -124,6 +127,18 @@ public class DocumentsConfiguration {
     MoteurDeRendu moteurDeRendu(JdbcTemplate jdbc, JasperReportService jasper, GabaritPersonnaliseDuCentre gabarits,
                                 CustomTemplateCompiler compiler, PapierEnTeteDuCentre papier, ModeleDocumentProvisioner provisioner) {
         return new MoteurDeRenduJasper(jdbc, jasper, gabarits, compiler, papier, provisioner);
+    }
+
+    /** Les types livrés, déclarés par Documents lui-même (DOC4b, ADR 0165) ; les autres contextes déclarent les leurs par le même port. */
+    @Bean
+    DeclarationDesTypesDeDocument typesLivresDeDocuments() {
+        return new TypesLivresDeDocuments();
+    }
+
+    /** Les types de document proposés : l'agrégat des déclarations (DOC4b, ADR 0165). */
+    @Bean
+    ListerLesTypesDeDocument listerLesTypesDeDocument(java.util.List<DeclarationDesTypesDeDocument> declarations) {
+        return new ListerLesTypesDeDocument(declarations);
     }
 
     @Bean

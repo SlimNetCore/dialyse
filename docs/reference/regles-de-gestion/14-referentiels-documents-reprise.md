@@ -130,6 +130,13 @@ chaque ligne** avant d'écrire, **n'enregistre rien tant qu'un fichier
   (KB-DOC4A-5). Reproduits, à confirmer par les métiers/DPO avant le 2026-12-15 : modifier ou supprimer un modèle inexistant ou d'un
   autre centre répond `200` sans rien changer ; code et libellé peuvent être blancs ; type et format sont libres ; le filtre de type
   de la liste distingue majuscules et minuscules (KB-DOC4A-6, 7).
+- **RG-DOC-011** — **Types de document proposés (contexte Documents, DOC4b, ADR 0165)** : `GET /api/v1/documents/types`, toute session,
+  même URL et mêmes champs (`code`, `label`) qu'avant. La liste est celle des types que les contextes **déclarent** à Documents (langage
+  publié : code en majuscules, libellé, gabarit par défaut, version), dans l'ordre des déclarations, suivie du rapport personnalisé
+  `CUSTOM` que Documents seul possède ; un type déclaré deux fois, ou le code `CUSTOM` déclaré par un autre, empêche le démarrage. Les
+  types livrés sont déclarés par Documents lui-même (le catalogue reste dans Documents, ADR 0165). Un verbe d'écriture répond `405`
+  avec `Allow` (journalisé sous `TYPE_DE_DOCUMENT_ECRITURE_REFUSEE`) et un `Accept` indisponible `406` (corrigé le 2026-11-13, KB-DOC4B-1, 2).
+  La liste ne dépend ni du profil ni du centre (reproduit, à confirmer par les métiers/DPO avant le 2026-12-15, KB-DOC4B-3).
 - **RG-DOC-007** — **Impression (contexte Documents, DOC1, ADR 0142)** : `POST /api/v1/documents/print` (par type) et
   `/print/{modeleId}` (par modèle). Tout profil authentifié imprime (matrice rôle x type de document **à confirmer avant
   le 2026-12-15**) ; l'anonyme est refusé. Le centre demandé doit être celui de la session (`403 ACCESS_DENIED`
