@@ -1,5 +1,6 @@
-package com.hemodialyse.backend.infrastructure.reporting;
+package com.hemodialyse.backend.contexts.documents.infrastructure.rendu;
 
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.ModeleDocumentCatalog;
 import com.hemodialyse.backend.contexts.organisation.publishedlanguage.AnnuaireDesCentres;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,7 +8,6 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.UUID;
@@ -18,7 +18,6 @@ import java.util.UUID;
  * Idempotent : un modèle existant (même code ou même type) n'est jamais modifié — un modèle désactivé par le
  * centre reste désactivé.
  */
-@Component
 public class ModeleDocumentProvisioner implements ApplicationRunner {
 
     private static final Logger log = LoggerFactory.getLogger(ModeleDocumentProvisioner.class);
@@ -26,7 +25,7 @@ public class ModeleDocumentProvisioner implements ApplicationRunner {
     private final JdbcTemplate jdbc;
     private final AnnuaireDesCentres annuaireDesCentres;
 
-    /** Les centres à provisionner sont lus par le langage publié d'Organisation (O4 lot E, ADR 0111) ; les modèles restent à la plateforme. */
+    /** Les centres à provisionner sont lus par le langage publié d'Organisation (O4 lot E, ADR 0111) ; les modèles par centre sont lus et écrits ici jusqu'à DOC3 (le provisionnement est inséparable du rendu par type). */
     public ModeleDocumentProvisioner(JdbcTemplate jdbc, AnnuaireDesCentres annuaireDesCentres) {
         this.jdbc = jdbc;
         this.annuaireDesCentres = annuaireDesCentres;

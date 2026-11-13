@@ -97,7 +97,7 @@ class TableDesPayeursTest {
         Files.writeString(gabarit, "<queryString><![CDATA[SELECT 1 FROM factures f LEFT JOIN agence a ON a.id = f.agence_id_snapshot]]></queryString>");
         assertThat(nommeUneTableDesPayeurs(gabarit)).isTrue();
         assertThat(sourcesDeProduction(backend()).stream().map(TableDesPayeursTest::relatif))
-                .contains("platform/src/main/resources/reports/synthese_mensuelle_facturation.jrxml");
+                .contains("contexts/documents/src/main/resources/reports/synthese_mensuelle_facturation.jrxml");
     }
 
     @Test

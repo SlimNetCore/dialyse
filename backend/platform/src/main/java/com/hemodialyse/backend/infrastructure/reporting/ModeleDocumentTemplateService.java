@@ -1,7 +1,9 @@
 package com.hemodialyse.backend.infrastructure.reporting;
 
-import com.hemodialyse.backend.application.reporting.JrxmlSecurityValidator;
-import com.hemodialyse.backend.application.reporting.JrxmlSecurityValidator.Violation;
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.GabaritPersonnaliseDuCentre;
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.JrxmlSecurityValidator;
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.JrxmlSecurityValidator.Violation;
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.VerificationDeGabarit;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
 import com.hemodialyse.backend.infrastructure.persistence.entity.ModeleDocumentVersionJpaEntity;
 import com.hemodialyse.backend.infrastructure.persistence.repository.ModeleDocumentVersionJpaRepository;
@@ -37,18 +39,18 @@ import java.util.regex.Pattern;
  * Toute opération est bornée au centre de l'appelant : un modèle d'un autre centre est traité comme inexistant.
  */
 @Service
-public class ModeleDocumentTemplateService {
+public class ModeleDocumentTemplateService implements GabaritPersonnaliseDuCentre {
 
     private static final Logger log = LoggerFactory.getLogger(ModeleDocumentTemplateService.class);
     private static final Pattern SAFE_TEMPLATE_NAME = Pattern.compile("[A-Za-z0-9_\\-]+\\.jrxml");
     private static final int MAX_COMMENT = 500;
     private final JdbcTemplate jdbc;
     private final ModeleDocumentVersionJpaRepository versions;
-    private final CustomTemplateCompiler compiler;
+    private final VerificationDeGabarit compiler;
     private final JrxmlSecurityValidator validator = new JrxmlSecurityValidator();
 
     public ModeleDocumentTemplateService(JdbcTemplate jdbc, ModeleDocumentVersionJpaRepository versions,
-                                         CustomTemplateCompiler compiler) {
+                                         VerificationDeGabarit compiler) {
         this.jdbc = jdbc;
         this.versions = versions;
         this.compiler = compiler;
@@ -120,6 +122,12 @@ public class ModeleDocumentTemplateService {
         }
     }
 
+    /** Port FOURNI à Documents (DOC2, ADR 0162) : le moteur lit la version personnalisée active ; le dépôt reste ici jusqu'à DOC3. */
+    @Override
+    public Optional<Gabarit> actif(UUID centre, UUID modele) {
+        return activeCustom(centre, modele).map(v -> new Gabarit(v.version(), v.contenu()));
+    }
+
     public Optional<ActiveCustomTemplate> activeCustom(UUID centerId, UUID modeleId) {
         return versions.findByModeleIdAndCenterIdAndActifTrue(modeleId, centerId)
                 .map(v -> new ActiveCustomTemplate(v.getVersion(), v.getContenu()));
@@ -180,7 +188,7 @@ public class ModeleDocumentTemplateService {
             return new UploadOutcome(null, violations);
         }
         try {
-            compiler.compileNoCache(content);
+            compiler.verifierQuIlSeCompile(content);
         } catch (Exception e) {
             log.warn("Compilation impossible (centre={}, modèle={}) : {}", modele.centerId(), modele.id(), e.getMessage());
             return rejected("COMPILE_FAILED", rootMessage(e));

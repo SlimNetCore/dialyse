@@ -123,6 +123,12 @@ chaque ligne** avant d'écrire, **n'enregistre rien tant qu'un fichier
   fournis par le serveur : la valeur du client est ignorée. Une entrée illisible (corps absent ou cassé, identifiant de
   modèle non UUID) est refusée en `400 BAD_REQUEST`. Dette d'affichage reproduite : dates avec `00:00`, document sans
   données imprimé vide, format inconnu servi en PDF.
+- **RG-DOC-008** — **Moteur de rendu (contexte Documents, DOC2, ADR 0162)** : le rendu (Jasper), la validation de sécurité
+  des gabarits téléversés (liste blanche JRXML), leur compilation, le catalogue des types livrés et le provisionnement du
+  modèle d'un centre sont portés par le contexte Documents ; aucun comportement ne change. Un refus de rendu (type inconnu
+  `DOCUMENT_TYPE_UNKNOWN`, modèle désactivé `DOCUMENT_MODEL_INACTIVE`, génération impossible `DOCUMENT_GENERATION_FAILED`)
+  répond `422` avec ce code. Les caractères hors de la police du document (japonais, étoile, arabe) restent perdus sans
+  erreur (dette KB-PL6-4, KB-PL7-3, KB-PL8-3, KB-PL9-6 : décision de l'utilisateur en attente, ADR 0162).
 
 ## 14.4 Reprise de données d'un logiciel existant
 

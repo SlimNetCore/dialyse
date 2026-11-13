@@ -29,6 +29,14 @@ public interface MoteurDeRendu {
         throw new UnsupportedOperationException("Rendu sans centre non fourni");
     }
 
+    /**
+     * DOC2 : rend un gabarit LIVRÉ sans modèle de centre (Planification : un centre sans modèle utilise le gabarit livré en lecture seule).
+     * Aucun paramètre n'est ajouté par le moteur.
+     */
+    default byte[] rendreSansModele(String cheminDuGabarit, Map<String, Object> parametres, String format) throws Exception {
+        throw new UnsupportedOperationException("Rendu sans modèle non fourni");
+    }
+
     /** Le document produit et son format ({@code PDF}, {@code EXCEL} ou {@code HTML}). */
     record Rendu(byte[] octets, String format) {
     }

@@ -1,4 +1,4 @@
-package com.hemodialyse.backend.application.reporting;
+package com.hemodialyse.backend.contexts.documents.publishedlanguage;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

@@ -679,9 +679,9 @@ class FrontieresDesContextesTest {
     /** PL8 : le gabarit livré ne contient plus de requête (ADR 0140 D3 : le contexte fournit ses données). */
     @org.junit.jupiter.api.Test
     void le_gabarit_de_la_synthese_ne_contient_aucune_requete() throws java.io.IOException {
-        java.nio.file.Path gabarit = java.nio.file.Path.of("src/main/resources/reports/synthese_mensuelle_facturation.jrxml");
+        java.nio.file.Path gabarit = java.nio.file.Path.of("../contexts/documents/src/main/resources/reports/synthese_mensuelle_facturation.jrxml");
         if (!java.nio.file.Files.exists(gabarit)) {
-            gabarit = java.nio.file.Path.of("platform/src/main/resources/reports/synthese_mensuelle_facturation.jrxml");
+            gabarit = java.nio.file.Path.of("contexts/documents/src/main/resources/reports/synthese_mensuelle_facturation.jrxml");
         }
         String xml = java.nio.file.Files.readString(gabarit);
         org.assertj.core.api.Assertions.assertThat(xml).doesNotContain("<queryString").doesNotContain("<![CDATA[\n        SELECT")
@@ -719,9 +719,9 @@ class FrontieresDesContextesTest {
     /** PL9 : le gabarit du rapport de la direction ne contient aucune requête (ADR 0140 D3 : le Pilotage fournit ses données). */
     @org.junit.jupiter.api.Test
     void le_gabarit_du_rapport_de_la_direction_ne_contient_aucune_requete() throws java.io.IOException {
-        java.nio.file.Path gabarit = java.nio.file.Path.of("src/main/resources/reports/rapport_direction.jrxml");
+        java.nio.file.Path gabarit = java.nio.file.Path.of("../contexts/documents/src/main/resources/reports/rapport_direction.jrxml");
         if (!java.nio.file.Files.exists(gabarit)) {
-            gabarit = java.nio.file.Path.of("platform/src/main/resources/reports/rapport_direction.jrxml");
+            gabarit = java.nio.file.Path.of("contexts/documents/src/main/resources/reports/rapport_direction.jrxml");
         }
         String xml = java.nio.file.Files.readString(gabarit);
         org.assertj.core.api.Assertions.assertThat(xml).doesNotContain("<queryString").doesNotContainIgnoringCase("SELECT ")
@@ -876,6 +876,23 @@ class FrontieresDesContextesTest {
             .orShould().haveFullyQualifiedName("com.hemodialyse.backend.application.reporting.LogoImageValidator")
             .allowEmptyShould(true)
             .because("l'impression et le papier en-tete sont servis par contexts/documents (DOC1, ADR 0142)");
+
+    /**
+     * DOC2 (ADR 0162) : le moteur de rendu (Jasper, validation de sécurité JRXML, compilation, catalogue des types livrés, provisionnement
+     * des modèles, imprimeur) vit dans {@code contexts/documents} ; ses classes ne doivent pas réapparaître à la plateforme, ni aucune classe
+     * de la plateforme dépendre de Jasper en dehors des gabarits (la plateforme passe par {@code MoteurDeRendu}).
+     */
+    @ArchTest
+    static final ArchRule le_moteur_de_rendu_n_est_plus_a_la_plateforme = noClasses()
+            .should().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.reporting.JasperReportService")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.reporting.ModeleDocumentPrinter")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.reporting.CustomTemplateCompiler")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.reporting.ModeleDocumentCatalog")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.reporting.ModeleDocumentProvisioner")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.reporting.FrenchFormatFactory")
+            .orShould().haveFullyQualifiedName("com.hemodialyse.backend.application.reporting.JrxmlSecurityValidator")
+            .allowEmptyShould(true)
+            .because("le moteur de rendu est porté par contexts/documents (DOC2, ADR 0162)");
 
     /**
      * PL11-6 (ADR 0161), règle permanente sans date : l'administration générique des référentiels est une façade fine qui distribue aux

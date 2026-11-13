@@ -1,4 +1,4 @@
-package com.hemodialyse.backend.infrastructure.reporting;
+package com.hemodialyse.backend.contexts.documents.infrastructure.rendu;
 
 import net.sf.jasperreports.engine.JRParameter;
 import net.sf.jasperreports.engine.JasperCompileManager;

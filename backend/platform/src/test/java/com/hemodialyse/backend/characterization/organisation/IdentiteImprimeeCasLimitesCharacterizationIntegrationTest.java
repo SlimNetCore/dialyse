@@ -1,8 +1,8 @@
 package com.hemodialyse.backend.characterization.organisation;
 
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.PapierEnTeteDuCentre;
-import com.hemodialyse.backend.infrastructure.reporting.ModeleDocumentCatalog;
-import com.hemodialyse.backend.infrastructure.reporting.ModeleDocumentProvisioner;
+import com.hemodialyse.backend.contexts.documents.infrastructure.rendu.ModeleDocumentProvisioner;
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.ModeleDocumentCatalog;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

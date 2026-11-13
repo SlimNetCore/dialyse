@@ -1,4 +1,4 @@
-package com.hemodialyse.backend.infrastructure.reporting;
+package com.hemodialyse.backend.contexts.documents.infrastructure.rendu;
 
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.stereotype.Service;
 
 import javax.sql.DataSource;
 import java.io.*;
@@ -29,7 +28,6 @@ import java.util.Map;
  *   2. app.reports.base-dir + chemin (propriété configurable)
  *   3. classpath:/reports/ + nom du fichier
  */
-@Service
 public class JasperReportService {
 
     private static final Logger log = LoggerFactory.getLogger(JasperReportService.class);

@@ -1,10 +1,10 @@
-package com.hemodialyse.backend.infrastructure.reporting;
+package com.hemodialyse.backend.contexts.documents.infrastructure.rendu;
 
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.VerificationDeGabarit;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperReport;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
@@ -15,8 +15,12 @@ import java.util.UUID;
  * La compilation est coûteuse : le résultat est mis en cache par (centre, modèle, version). Les versions
  * étant immuables, aucune éviction n'est nécessaire lors d'une bascule de version active.
  */
-@Component
-public class CustomTemplateCompiler {
+public class CustomTemplateCompiler implements VerificationDeGabarit {
+
+    @Override
+    public void verifierQuIlSeCompile(String xml) throws JRException {
+        compileNoCache(xml);
+    }
 
     public static final String CACHE_NAME = "reporting.customTemplates";
 

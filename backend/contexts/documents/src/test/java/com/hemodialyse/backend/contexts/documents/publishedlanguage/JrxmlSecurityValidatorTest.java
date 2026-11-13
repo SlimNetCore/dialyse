@@ -1,6 +1,6 @@
-package com.hemodialyse.backend.application.reporting;
+package com.hemodialyse.backend.contexts.documents.publishedlanguage;
 
-import com.hemodialyse.backend.application.reporting.JrxmlSecurityValidator.Violation;
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.JrxmlSecurityValidator.Violation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;

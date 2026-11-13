@@ -1,4 +1,4 @@
-package com.hemodialyse.backend.infrastructure.reporting;
+package com.hemodialyse.backend.contexts.documents.publishedlanguage;
 
 import net.sf.jasperreports.engine.util.DefaultFormatFactory;
 

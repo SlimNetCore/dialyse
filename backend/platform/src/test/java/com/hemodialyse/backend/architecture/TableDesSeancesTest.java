@@ -77,7 +77,7 @@ class TableDesSeancesTest {
         lecteur(ressources + "db/schema.sql", "schéma H2 des tests et du poste de développement (CREATE TABLE IF NOT EXISTS seances, volet_paramedical, "
                         + "volet_medical ; SE7f : remplace les entités JPA retirées) ; aucune lecture ni écriture de données",
                 RETRAIT_DU_PILOTAGE_LEGACY);
-        lecteur(ressources + "reports/cahier_dialyse.jrxml", "état Jasper du cahier de dialyse (lecture, jointure séances ; KB-SEA-47, 88) : modèle "
+        lecteur("contexts/documents/src/main/resources/reports/cahier_dialyse.jrxml", "état Jasper du cahier de dialyse (lecture, jointure séances ; KB-SEA-47, 88) : modèle "
                         + "de document PERSONNALISABLE par centre, dont la requête unique est embarquée (ADR 0099, décision 3, résidu E-R3)",
                 CAHIER_PERSONNALISABLE);
         lecteur(ressources + "db/seed.sql", "jeu d'amorçage (écrit des séances ; rejoué à chaque démarrage HORS profil prod : "
@@ -332,14 +332,17 @@ class TableDesSeancesTest {
                         + "le schéma H2, l'état Jasper du cahier (justifié) et 3 scripts de données) : toute entrée ajoutée ou retirée doit être "
                         + "décidée, datée et reportée dans la fiche de la slice et l'annexe 16")
                 .hasSize(6);
-        assertThat(LECTEURS_CONNUS.keySet().stream().filter(c -> c.startsWith("contexts/")).count())
+        // DOC2 (ADR 0162) : l'état Jasper du cahier (déjà justifié) a changé d'emplacement (module Documents) sans changer de nature
+        assertThat(LECTEURS_CONNUS.keySet().stream()
+                .filter(c -> c.startsWith("contexts/") && !c.equals("contexts/documents/src/main/resources/reports/cahier_dialyse.jrxml")).count())
                 .as("dont 0 d'un autre contexte (SE7d)").isZero();
         assertThat(LECTEURS_CONNUS.keySet().stream().filter(c -> c.startsWith("platform/src/main/java/")))
                 .as("dont 1 source Java, l'annulation d'un lot de reprise qui lit les volets (aucun ne touche seances)")
                 .containsExactlyInAnyOrder(
                         "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/migration/MigrationRollbackJdbcAdapter.java");
         assertThat(LECTEURS_CONNUS.keySet().stream().filter(c -> c.startsWith("platform/src/main/resources/")).count())
-                .as("dont 5 ressources SQL (le schéma H2, l'état Jasper et 3 scripts de données)").isEqualTo(5);
+                .as("dont 4 ressources SQL de la plateforme (le schéma H2 et 3 scripts de données ; l'état Jasper du cahier est au module "
+                        + "Documents depuis DOC2, ADR 0162)").isEqualTo(4);
         assertThat(MENTIONS_NON_SQL).as("1 faux positif nommé de la détection des noms calculés").hasSize(1);
         assertThat(LECTEURS_CONNUS.keySet().stream().filter(c -> c.startsWith("contexts/facturation/")).count())
                 .as("dont 0 de la Facturation (SE7c2)").isZero();

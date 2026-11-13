@@ -161,7 +161,7 @@ class CahierDialyseReportIntegrationTest {
 
     private List<String> textes(UUID centre, UUID patientId) throws Exception {
         JasperReport compiled;
-        try (InputStream is = Files.newInputStream(Path.of("src/main/resources/reports/cahier_dialyse.jrxml"))) {
+        try (InputStream is = Files.newInputStream(Path.of("../contexts/documents/src/main/resources/reports/cahier_dialyse.jrxml"))) {
             compiled = JasperCompileManager.compileReport(is);
         }
         Map<String, Object> params = new HashMap<>();
@@ -179,7 +179,7 @@ class CahierDialyseReportIntegrationTest {
 
     private List<Integer> pagesParSeance(UUID centre, UUID patientId) throws Exception {
         JasperReport compiled;
-        try (InputStream is = Files.newInputStream(Path.of("src/main/resources/reports/cahier_dialyse.jrxml"))) {
+        try (InputStream is = Files.newInputStream(Path.of("../contexts/documents/src/main/resources/reports/cahier_dialyse.jrxml"))) {
             compiled = JasperCompileManager.compileReport(is);
         }
         Map<String, Object> params = new HashMap<>();
@@ -263,7 +263,7 @@ class CahierDialyseReportIntegrationTest {
         params.put("DATE_FIN", Date.valueOf(FIN_PAR_DEFAUT));
         params.put("VOLET_MEDICAL_VISIBLE", Boolean.FALSE);
         JasperReport compiled;
-        try (InputStream is = Files.newInputStream(Path.of("src/main/resources/reports/cahier_dialyse.jrxml"))) {
+        try (InputStream is = Files.newInputStream(Path.of("../contexts/documents/src/main/resources/reports/cahier_dialyse.jrxml"))) {
             compiled = JasperCompileManager.compileReport(is);
         }
         try (Connection connection = dataSource.getConnection()) {

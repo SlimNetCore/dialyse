@@ -1,4 +1,4 @@
-package com.hemodialyse.backend.infrastructure.reporting;
+package com.hemodialyse.backend.contexts.documents.publishedlanguage;
 
 import java.util.List;
 import java.util.Locale;
@@ -8,9 +8,12 @@ import java.util.Optional;
  * Catalogue des documents imprimables livrés avec l'application.
  * <p>
  * <b>Règle :</b> tout rapport imprimé par l'application est un modèle de document. Il est déclaré ici (type,
- * libellé, modèle Jasper d'origine), provisionné pour chaque centre ({@link ModeleDocumentProvisioner}) et imprimé
- * via {@link ModeleDocumentPrinter} : le centre peut ainsi le désactiver ou en téléverser une version personnalisée
+ * libellé, modèle Jasper d'origine), provisionné pour chaque centre ({@code ModeleDocumentProvisioner}) et imprimé
+ * via {@link MoteurDeRendu} : le centre peut ainsi le désactiver ou en téléverser une version personnalisée
  * depuis « Modèles de documents ». Un test vérifie que chaque {@code reports/*.jrxml} figure dans ce catalogue.
+ * <p>
+ * DOC2 (ADR 0162) : le catalogue des types livrés est porté par Documents (langage publié) ; les types « pilotés par le front » seront déclarés par
+ * leur contexte propriétaire en DOC4 (ADR 0140 Q6).
  */
 public final class ModeleDocumentCatalog {
 

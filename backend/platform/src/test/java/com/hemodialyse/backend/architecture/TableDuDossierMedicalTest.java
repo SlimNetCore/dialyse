@@ -61,9 +61,9 @@ class TableDuDossierMedicalTest {
         lecteur(ressources + "db/demo/renadial-seed.sql", "jeu de démonstration (écrit des données médicales)", RETRAIT_DU_PILOTAGE_LEGACY);
         lecteur(ressources + "db/demo/renadial-purge.sql", "purge de la démonstration (SUPPRIME des données médicales ; jamais sur une base partagée)",
                 RETRAIT_DU_PILOTAGE_LEGACY);
-        lecteur(ressources + "reports/cahier_dialyse.jrxml", "état imprimé du cahier de dialyse (SE7e, résidu E-R3) : lit dossier_medical_patient "
+        lecteur("contexts/documents/src/main/resources/reports/cahier_dialyse.jrxml", "état imprimé du cahier de dialyse (SE7e, résidu E-R3) : lit dossier_medical_patient "
                 + "(hépatites) et prescriptions_medicales (cibles de séance) en SQL Jasper ; échéance : lecture publiée du Dossier médical", LECTURES_PUBLIEES);
-        lecteur(ressources + "reports/ordonnance.jrxml", "état imprimé d'une ordonnance (RG-MED-055) : lit ordonnances et lignes_ordonnance en SQL "
+        lecteur("contexts/documents/src/main/resources/reports/ordonnance.jrxml", "état imprimé d'une ordonnance (RG-MED-055) : lit ordonnances et lignes_ordonnance en SQL "
                 + "Jasper ; échéance : impression par le module ou lecture publiée", LECTURES_PUBLIEES);
         lecteur("contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/persistence/StatistiquesDesSeancesJdbc.java",
                 "Séance (SE7e, ADR 0099) : poids sec cible en vigueur lu dans prescriptions_medicales pour les statistiques paramédicales ; "
@@ -153,8 +153,11 @@ class TableDuDossierMedicalTest {
             assertThat(lecteur.butoir()).as("butoir de " + chemin).isAfter(REVUE);
         });
         // Un seul lecteur dans un autre contexte (la Séance, poids sec cible : SE7e) ; tout autre contexte passe par dossier-medical.v1.
+        // DOC2 (ADR 0162) : les deux états Jasper (cahier, ordonnance) ont changé d'emplacement (module Documents) sans changer de nature
         assertThat(LECTEURS_CONNUS.keySet().stream().filter(c -> c.startsWith("contexts/")).toList())
-                .containsExactly("contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/persistence/StatistiquesDesSeancesJdbc.java");
+                .containsExactly("contexts/documents/src/main/resources/reports/cahier_dialyse.jrxml",
+                        "contexts/documents/src/main/resources/reports/ordonnance.jrxml",
+                        "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/persistence/StatistiquesDesSeancesJdbc.java");
     }
 
     @Test

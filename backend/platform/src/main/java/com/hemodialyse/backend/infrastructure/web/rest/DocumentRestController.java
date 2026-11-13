@@ -4,7 +4,7 @@ import com.hemodialyse.backend.contexts.documents.publishedlanguage.ReglesDImpre
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.ProfilDeLaSynthese;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseDeFacturation;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SyntheseMensuelle;
-import com.hemodialyse.backend.infrastructure.reporting.ModeleDocumentCatalog;
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.ModeleDocumentCatalog;
 import com.hemodialyse.backend.infrastructure.reporting.ModeleDocumentTemplateService;
 import com.hemodialyse.backend.infrastructure.security.CenterAccessGuard;
 import com.hemodialyse.backend.infrastructure.web.dto.ModeleDocumentDto;

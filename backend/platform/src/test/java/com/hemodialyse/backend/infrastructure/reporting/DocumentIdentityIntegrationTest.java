@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.infrastructure.reporting;
 
+import com.hemodialyse.backend.contexts.documents.infrastructure.rendu.JasperReportService;
 import net.sf.jasperreports.engine.JRPrintElement;
 import net.sf.jasperreports.engine.JRPrintText;
 import net.sf.jasperreports.engine.JasperPrint;

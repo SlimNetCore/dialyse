@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.infrastructure.reporting;
 
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.FrenchFormatFactory;
 import com.hemodialyse.backend.contexts.gmao.application.equipement.EquipementVue;
 import com.hemodialyse.backend.contexts.gmao.application.intervenant.IntervenantVue;
 import com.hemodialyse.backend.contexts.gmao.application.intervention.DonneesDuBon;
@@ -52,7 +53,7 @@ class BonInterventionReportTemplateTest {
     private static final ZoneId ALGER = ZoneId.of("Africa/Algiers");
 
     private static JasperReport compile() throws Exception {
-        try (InputStream is = Files.newInputStream(Path.of("src/main/resources/reports/bon_intervention.jrxml"))) {
+        try (InputStream is = Files.newInputStream(Path.of("../contexts/documents/src/main/resources/reports/bon_intervention.jrxml"))) {
             return JasperCompileManager.compileReport(is);
         }
     }
@@ -187,6 +188,6 @@ class BonInterventionReportTemplateTest {
 
     @Test
     void the_template_uses_only_standard_fonts() throws Exception {
-        assertThat(Files.readString(Path.of("src/main/resources/reports/bon_intervention.jrxml"))).doesNotContain("fontName=");
+        assertThat(Files.readString(Path.of("../contexts/documents/src/main/resources/reports/bon_intervention.jrxml"))).doesNotContain("fontName=");
     }
 }

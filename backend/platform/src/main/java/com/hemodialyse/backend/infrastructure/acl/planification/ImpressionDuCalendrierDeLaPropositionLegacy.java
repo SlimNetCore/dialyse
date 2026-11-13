@@ -1,9 +1,9 @@
 package com.hemodialyse.backend.infrastructure.acl.planification;
 
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.ImpressionDuCalendrierDeLaProposition;
-import com.hemodialyse.backend.application.erreur.BusinessException;
-import com.hemodialyse.backend.infrastructure.reporting.ModeleDocumentCatalog;
-import com.hemodialyse.backend.infrastructure.reporting.ModeleDocumentPrinter;
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.ModeleDocumentCatalog;
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.MoteurDeRendu;
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.RenduRefuse;
 import net.sf.jasperreports.engine.JRParameter;
 import org.springframework.stereotype.Component;
 
@@ -15,16 +15,16 @@ import java.util.UUID;
 /**
  * Fournit au contexte Planification son port consommé {@link ImpressionDuCalendrierDeLaProposition} (ACL vers les modèles de
  * documents et le moteur Jasper du legacy) : le planning calendaire figé d'une proposition, modèle
- * {@value ModeleDocumentCatalog#PLANNING_OPTIMISE}, imprimé via {@link ModeleDocumentPrinter}. Un refus du moteur (modèle désactivé...)
+ * {@value ModeleDocumentCatalog#PLANNING_OPTIMISE}, imprimé via {@link MoteurDeRendu}. Un refus du moteur (modèle désactivé...)
  * est rendu en refus métier du contexte.
  */
 @Component
 public class ImpressionDuCalendrierDeLaPropositionLegacy implements ImpressionDuCalendrierDeLaProposition {
 
-    private final ModeleDocumentPrinter printer;
+    private final MoteurDeRendu moteur;
 
-    public ImpressionDuCalendrierDeLaPropositionLegacy(ModeleDocumentPrinter printer) {
-        this.printer = printer;
+    public ImpressionDuCalendrierDeLaPropositionLegacy(MoteurDeRendu moteur) {
+        this.moteur = moteur;
     }
 
     static Map<String, Object> parametres(UUID execution, String titre, String resume) {
@@ -39,11 +39,11 @@ public class ImpressionDuCalendrierDeLaPropositionLegacy implements ImpressionDu
     @Override
     public Document imprimer(UUID centre, UUID execution, String titre, String resume) {
         try {
-            ModeleDocumentPrinter.Document doc = printer.print(centre, ModeleDocumentCatalog.PLANNING_OPTIMISE,
-                    parametres(execution, titre, resume));
-            return new Document(doc.content(), doc.format());
-        } catch (BusinessException e) {
-            throw new ImpressionRefusee(e.getCode(), e.getMessage());
+            MoteurDeRendu.Rendu doc = moteur.rendreParType(centre, ModeleDocumentCatalog.PLANNING_OPTIMISE,
+                    parametres(execution, titre, resume), null);
+            return new Document(doc.octets(), doc.format());
+        } catch (RenduRefuse e) {
+            throw new ImpressionRefusee(e.code(), e.getMessage());
         }
     }
 }

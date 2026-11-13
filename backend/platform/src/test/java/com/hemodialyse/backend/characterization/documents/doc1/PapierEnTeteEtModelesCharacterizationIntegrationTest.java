@@ -1,8 +1,8 @@
 package com.hemodialyse.backend.characterization.documents.doc1;
 
-import com.hemodialyse.backend.application.erreur.BusinessException;
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.MoteurDeRendu;
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.PapierEnTeteDuCentre;
-import com.hemodialyse.backend.infrastructure.reporting.ModeleDocumentPrinter;
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.RenduRefuse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -26,7 +26,7 @@ class PapierEnTeteEtModelesCharacterizationIntegrationTest extends Doc1Support {
     @Autowired
     private PapierEnTeteDuCentre identite;
     @Autowired
-    private ModeleDocumentPrinter imprimeur;
+    private MoteurDeRendu imprimeur;
 
     private Map<String, Object> parametres(UUID centre) throws Exception {
         Map<String, Object> p = new TreeMap<>(identite.parametresDeLEnTete(centre));
@@ -128,13 +128,13 @@ class PapierEnTeteEtModelesCharacterizationIntegrationTest extends Doc1Support {
     void imprimer_par_type_provisionne_le_modele_du_centre_a_la_premiere_impression() throws Exception {
         Map<String, Object> cas = new LinkedHashMap<>();
         cas.put("modeles avant", modelesDuCentre(CENTRE_D));
-        ModeleDocumentPrinter.Document doc = imprimeur.print(CENTRE_D, "LISTE_PATIENTS", Map.of());
+        MoteurDeRendu.Rendu doc = imprimeur.rendreParType(CENTRE_D, "LISTE_PATIENTS", Map.of(), null);
         cas.put("format du document", doc.format());
-        cas.put("document", pdf(doc.content()));
+        cas.put("document", pdf(doc.octets()));
         cas.put("modeles apres", modelesDuCentre(CENTRE_D));
-        ModeleDocumentPrinter.Document encore = imprimeur.print(CENTRE_D, "liste_patients", Map.of());
+        MoteurDeRendu.Rendu encore = imprimeur.rendreParType(CENTRE_D, "liste_patients", Map.of(), null);
         cas.put("seconde impression (casse differente) : modeles", modelesDuCentre(CENTRE_D).size());
-        cas.put("seconde impression : meme texte", pdf(encore.content()).equals(pdf(doc.content())));
+        cas.put("seconde impression : meme texte", pdf(encore.octets()).equals(pdf(doc.octets())));
         golden("provisionnement", cas);
     }
 
@@ -145,10 +145,10 @@ class PapierEnTeteEtModelesCharacterizationIntegrationTest extends Doc1Support {
         params.put("SOCIETE_NOM", "Usurpation SA");
         params.put("centre_ligne", "Faux");
         params.put("CENTER_ID", CENTRE_E.toString());
-        ModeleDocumentPrinter.Document doc = imprimeur.print(CENTRE_D, "LISTE_PATIENTS", params);
+        MoteurDeRendu.Rendu doc = imprimeur.rendreParType(CENTRE_D, "LISTE_PATIENTS", params, null);
         Map<String, Object> cas = new LinkedHashMap<>();
         cas.put("format", doc.format());
-        cas.put("tableur", xlsx(doc.content()));
+        cas.put("tableur", xlsx(doc.octets()));
         golden("format_du_modele", cas);
     }
 
@@ -167,25 +167,25 @@ class PapierEnTeteEtModelesCharacterizationIntegrationTest extends Doc1Support {
     void imprimer_par_type_enveloppe_l_echec_de_generation_dans_un_code_metier() {
         modele(CENTRE_D, "LISTE_PATIENTS", "reports/inexistant.jrxml");
         Map<String, Object> cas = new LinkedHashMap<>();
-        BusinessException e = null;
+        RenduRefuse e = null;
         try {
-            imprimeur.print(CENTRE_D, "LISTE_PATIENTS", Map.of());
-        } catch (BusinessException ex) {
+            imprimeur.rendreParType(CENTRE_D, "LISTE_PATIENTS", Map.of(), null);
+        } catch (RenduRefuse ex) {
             e = ex;
         } catch (Exception ex) {
             cas.put("exception inattendue", ex.getClass().getSimpleName());
         }
-        cas.put("code", e == null ? null : e.getCode());
+        cas.put("code", e == null ? null : e.code());
         cas.put("debut du message", e == null ? null : e.getMessage().substring(0, Math.min(55, e.getMessage().length())));
         golden("echec_de_generation", cas);
     }
 
     private Map<String, Object> erreur(String type, UUID centre) {
         try {
-            imprimeur.print(centre, type, Map.of());
+            imprimeur.rendreParType(centre, type, Map.of(), null);
             return Map.of("resultat", "document rendu");
-        } catch (BusinessException e) {
-            return Map.of("code", e.getCode(), "message", e.getMessage());
+        } catch (RenduRefuse e) {
+            return Map.of("code", e.code(), "message", e.getMessage());
         } catch (Exception e) {
             return Map.of("exception", e.getClass().getSimpleName());
         }
@@ -193,10 +193,10 @@ class PapierEnTeteEtModelesCharacterizationIntegrationTest extends Doc1Support {
 
     private Map<String, Object> erreurNull() {
         try {
-            imprimeur.print(CENTRE_D, null, Map.of());
+            imprimeur.rendreParType(CENTRE_D, null, Map.of(), null);
             return Map.of("resultat", "document rendu");
-        } catch (BusinessException e) {
-            return Map.of("code", e.getCode(), "message", e.getMessage());
+        } catch (RenduRefuse e) {
+            return Map.of("code", e.code(), "message", e.getMessage());
         } catch (Exception e) {
             return Map.of("exception", e.getClass().getSimpleName());
         }

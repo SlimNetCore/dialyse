@@ -1,0 +1,116 @@
+# Inventaire consolidé et ordonné de ce qui reste dans `backend/platform` (v2, 2026-11-13)
+
+status: proposed | date: 2026-11-13 | sources: 4 scans (contrôleurs REST ; moteur de documents ; persistance/schéma/seed/jobs ; vue d'ensemble PL1-PL11), HEAD `fa1f31c1` + arbre de travail DOC2 non commité.
+Remplace `inventaire-platform-restant.md` (2026-11-11), qui est périmé (voir §5).
+
+Chiffres vérifiés par Grep/wc le 2026-11-13 : 208 fichiers `.java` dans `platform/src/main/java` ; 15 contrôleurs REST + 4 fichiers dans `infrastructure/web` (ApiExceptionHandler, ReferentialAdminExceptionHandler, AutorisationAvantLeCorpsDesReferentiels, DatesIllisiblesDeLaDirectionAdvice) ; 6 entités JPA et 6 dépôts Spring Data ; 3 occurrences de `@Scheduled` ; `schema.sql` 2 503 l. / 109 `CREATE TABLE` ; `seed.sql` 2 443 l. ; 14 `.jrxml` dans `contexts/documents/src/main/resources/reports` (plus de dossier `reports` en platform) ; `git status` : 42 lignes (DOC2 en cours).
+
+## 0. État de départ à connaître
+
+- **DOC2 est dans l'arbre, indexé, non commité** : `JasperReportService`, `ModeleDocumentPrinter` renommé `MoteurDeRenduJasper`, `ModeleDocumentCatalog`, `ModeleDocumentProvisioner`, `CustomTemplateCompiler`, `FrenchFormatFactory`, `JrxmlSecurityValidator` et les 14 gabarits sont déjà sous `contexts/documents`. Ne pas le replanifier : le terminer et le commiter (étape 1). Il ne reste sous `platform/.../reporting` que `ModeleDocumentTemplateService` (273 l.).
+- Les rapports des scans écrits avant ce déplacement décrivent encore DOC2a/DOC2b/DOC2c/DOC3a comme à faire : ces slices sont **absorbées par DOC2 en cours**, sauf les points listés à l'étape 1.
+- DOC1 est livré (routes `/print` et `/print/{modeleId}` dans `contexts/documents`).
+
+## 1. Slices restantes, dans l'ordre d'exécution recommandé
+
+Risque : F faible, M moyen, E élevé. Lignes = ordre de grandeur mesuré ou rapporté. « 0 r. » = aucune route.
+
+| # | Id | Contenu | Contexte cible | Routes / fichiers / lignes | Prérequis | Risque | Échéance |
+|---|---|---|---|---|---|---|---|
+| 1 | DOC2-fin | Commiter DOC2 ; mettre à jour les chemins nominatifs des gardes (`TableDesSeancesTest` : cahier ; `TableDuDossierMedicalTest` : cahier, ordonnance) ; enregistrer le cache `reporting.customTemplates` (`CacheConfig`, 12 h) côté module ; port « connexion de rendu » transitoire ; restreindre la résolution de `.jrxml` au classpath (supprimer chemin absolu, `app.reports.base-dir` et cache `.jasper` disque) | documents | 0 r. / ~7 classes + 14 `.jrxml` / ~1 290 l. + ~6 000 l. de ressources | D1 (décision gabarits SQL), D2 (budget) | M (PDF par texte extrait ; sécurité) | aucune ferme |
+| 2 | DOC3 | Versions de gabarit par centre : `ModeleDocumentTemplateRestController` (5 routes : versions GET/POST, source, activate, reset), `ModeleDocumentTemplateService`, entité `ModeleDocumentVersionJpaEntity` + dépôt, `ModeleDocumentDto`. Écrire d'abord `CREATE TABLE modele_document_version` dans le DDL (créée aujourd'hui par Hibernate) | documents | 5 r. / ~6-8 fichiers / ~620-800 l. | 1 ; D3 (rôles) | E (téléversement JRXML exécuté ; garder rôle ADMIN/SUPERADMIN de classe, validation, compilation à l'essai, borne 512 Ko) | aucune |
+| 3 | DOC4a | CRUD `/modeles` : GET, POST `/search`, POST, PUT `/{id}`, DELETE `/{id}` en SQL direct dans `DocumentRestController` ; port d'écriture `ModelesDeDocument` ; regex `reports/<nom>.jrxml` reprise dans le domaine | documents | 5 r. / 4-5 fichiers / ~400 l. | 2 (suppression des versions) | F-M | aucune |
+| 4 | DOC4b | `GET /api/v1/documents/types` + types déclarés via `TypeDeDocumentDeclare` à la place du catalogue statique ; retrait de `DocumentRestController` pour la partie non-règles | documents | 1 r. / 2-3 fichiers / ~150 l. | 3 | F | aucune |
+| 5 | DOC4c | Règles des types sensibles hébergées dans le contrôleur (`ReglesDImpressionDesTypesSensibles` : garde ordonnance, garde synthèse, totaux serveur) : chaque contexte (facturation, dossier-medical) fournit sa règle ; le contrôleur plateforme disparaît | facturation, dossier-medical (port dans documents) | 0 r. / 4-6 fichiers / ~250 l. | 4 ; D3 | M (garde avant tout accès, KB-MED-18, KB-FAC-52/60) | 2026-12-15 pour la matrice KB-DOC1-3 |
+| 6 | PLN-DOC | ACL d'impression de la planification (`ImpressionDeLaPresenceLegacy` 110 l., `ImpressionDuCalendrierDeLaPropositionLegacy` 49 l.) passent par `RenduDeDocument` ; suppression du SQL `modele_document` (l. 60 et 68) ; option « lecture sans écriture » (KB-PLN-51) ; juger `PapierEnTeteDuCentreParLaPlateforme` (27 l.) | planification, documents | 0 r. / ~4 fichiers / ~300 l. | 1, 4 | M (la présence ne doit pas provisionner) | aucune |
+| 7 | DOC5 | Gabarits à requête SQL embarquée (12 sur 14) : un jeu de données par gabarit, par contexte propriétaire : cahier, bon, inventaire, planning présence, planning optimisé ; 6 gabarits patient ; ordonnance | seance, gmao, stock, planification, patient-couverture, dossier-medical | 0 r. chacun / 4-8 fichiers / 12 slices au plus | **D1 d'abord** ; règle « requête identique » du validateur | E (casse les versions personnalisées stockées ; KB-PL5-4 confidentialité du cahier) | cahier : 2027-06-30 (F-R8) ; décision de principe avant la slice 1 |
+| 8 | RP-KB | Corrections de l'outil de reprise KB-S6a-4, 6, 7 (parseur strict des jours `LegacyValueParser:193`, politique SUPERADMIN `RoleScopeFilter`/`CenterAccessGuard`, départage `MigrationBatchJdbcAdapter:95-97`) | platform (outil de reprise) | 0-3 r. / ~4-6 fichiers / ~300-400 l. | D4 | F-M (S6a-6 = sécurité) | aucune ; avant RP1 pour stabiliser les goldens |
+| 9 | RP1 | Annulation d'un lot : port publié par patient-couverture (suppression `patients`, `assure`, `assure_patient`) ; `MigrationRollbackJdbcAdapter` 186 l. | patient-couverture | 0 r. / ~3 fichiers / ~200 l. | 8 ; filet sur l'annulation | M-E (suppression en bloc) | **2027-03-31** (`TableDuPatientCouvertureTest`, échoue le 2027-04-01) |
+| 10 | RP2 | Annulation : lecture publiée « volet complété » (seance) + écritures dossier médical par ports publiés | seance, dossier-medical | 0 r. / ~3 fichiers / ~200 l. | 9 | M-E | 2027-03-31 (`TableDesSeancesTest`, `TableDuDossierMedicalTest`, `TableDesAnalysesTest`) |
+| 11 | RP3 | Écritures historiques `HistoricalRecordJdbcAdapter` 159 l. + `OpeningBalanceJdbcAdapter` : un port d'import par destinataire (couverture ; dossier médical/analyses ; séance historique) ; sort des colonnes de place (D5) | patient-couverture, dossier-medical, seance | 0 r. / 6-8 fichiers par destinataire / ~700 l. | 9, 10, D5 | E (historique de production, goldens byte-à-byte) | 2027-06-30 (retrait pilotage legacy) |
+| 12 | IDN-lecture | Remplacer les `SELECT` sur `centers`/`societes` par `AnnuaireDesCentres`/`AnnuaireDesSocietes` dans `AuthService` (l. 97-154), `DirectionAccountService`, `SocieteAdminAccountService`, `UserRestController`, `DevSuperAdminBootstrapInitializer`, ACL `SessionLegacy` (pilotage). **Filet de caractérisation d'abord** (`AuthService` et le bootstrap hors `covered.json`) | organisation (consommateur : identité en platform) | 0 r. / ~6 fichiers / ~1 100 l. | D6 ; filet | E (login, sélection centre/société) | **2027-03-31** (`TableDeLOrganisationTest`, 6 entrées) |
+| 13 | IDN-licence | Retirer `CenterJpaEntity`, `SocieteJpaEntity` et leurs dépôts ; licence et `AppUser.centers` lisent via annuaires ; écrire le DDL `centers`/`societes`/`license` | organisation | 0 r. / ~8 fichiers / ~500 l. | 12 ; S-DDL1 | M-E | 2027-03-31 (même garde) |
+| 14 | LEC-PAT | Lectures de `patients` par Séance et Pilotage : (i) lot de patients / programmation d'un mois ; (ii) caisse, forfait, PEC ; (iii) historique des séances + effectif par centre | patient-couverture (langage publié) | 0 r. / 3 slices de ~5 fichiers | aucun côté platform | M-E (argent pour la facturation) | revue 2026-12-15 ; butoir 2027-03-31 (`ForfaitsDeSeanceJdbc` clock-checked) |
+| 15 | LEC-PLN-GMAO | `PlaceDuPatientJdbc` (planification.v1 : déplacement temporaire) ; `GenerateursDesPatientsJdbc` (gmao.v1 avec fabricant) ; poids sec (`StatistiquesDesSeancesJdbc` via dossier-medical.v1) | planification, gmao, dossier-medical | 0 r. / 3 slices de 1-5 fichiers | aucun | F-M | 2027-03-31 pour les entrées datées |
+| 16 | S-DDL1 | Écrire les `CREATE TABLE` manquants : `centers`, `societes`, `license`, `app_user`, `app_role`, `modele_document_version` (créées par Hibernate, `ddl-auto: update`) | par propriétaire | 0 r. / 1-2 fichiers / ~150 l. | prérequis de 2, 13 | M | avant 2 |
+| 17 | S-DDL2/3 | Trancher le propriétaire de `app_settings` (écrit par comptabilité, dossier médical, stock) puis scinder `schema.sql` par contexte (3-4 slices de ≤ 800 l.) | chaque contexte | 0 r. / 3-4 slices | D7 | E (ordre des FK en H2) | 2027-06-30 |
+| 18 | SEED1 | `StockDemoDataSeeder` (132 l.) vers `contexts/stock` | stock | 0 r. / 1 fichier | aucun | F | aucune |
+| 19 | LST | Deux écouteurs `@TransactionalEventListener` (49 + 46 l.) vers `comptabilite/infrastructure/acl/facturation` ; retirer les beans de `DomainServiceConfig` si possible | comptabilite | 0 r. / 2-3 fichiers / ~200 l. | cycle Maven | F-M (KB-CPT-37) | aucune |
+| 20 | ACL | ACL transitoires de `infrastructure/acl/**` (39 fichiers sur 10 sous-dossiers) : (a) planification, (b) stock + facturation, (c) organisation + patientcouverture + absences | consommateurs | 0 r. / 3 slices ≤ 12 fichiers | 6 ; D8 | F-M | résiduels F-R1 à F-R7, M-R1 : 2027-03-31 |
+| 21 | SEED2..n | Découper `seed.sql` (2 443 l.) par propriétaire (`SEED_DATA_LOCATIONS`), puis `renadial-*.sql` (généré, non édité à la main) | chaque contexte | 0 r. / ≥ 3 slices | 17 | E (tous les goldens lisent ce jeu) | **2027-06-30** (F-R8) |
+| 22 | PL16 | Tables mortes : retirer seed/DDL de `user_center_assignment`, `gmao_alertes_maintenance`, `gmao_historique_maintenance`, vérifier `stock_parametres` ; `DROP` Flyway V60 **seulement avec accord écrit** | gmao, stock | 0 r. / 3-4 fichiers | D9 | F code, sensible base | aucune |
+| 23 | HYG | Hygiène : renommer `DatesIllisiblesDeLaDirectionAdvice` (277 l., ne gère plus que les référentiels) ; supprimer les 2 `GEL.md` périmés ; supprimer sur disque journaux et `*.received.json` ignorés | platform | 0 r. / 1-3 fichiers | aucun | F | aucune |
+| 24 | MIG-CTX (optionnel) | Si D10 = déplacer : `MigrationRestController` (11 routes) en 3 slices (lots ; import multipart ; value-mappings) | contexte « reprise de données » | 11 r. / 3 slices | D10 | M-E | aucune |
+| 25 | IDN-HYG (optionnel) | Retirer le SQL en dur des contrôleurs `UserRestController` (239 l., 6 r.) et `RoleRestController` (121 l., 6 r.) vers des services d'identité dans platform | platform | 12 r. / 2 slices | D11 | E (mots de passe) | aucune |
+
+Ordre : 1 → 2 → 3 → 4 → 5 (documents d'abord, chaîne de dépendance) ; 6 après 4 ; 8 → 9 → 10 → 11 (reprise) ; 16 avant 2 et 13 ; 12 → 13 ; 14, 15, 18, 19, 23 sont indépendantes et peuvent aller en parallèle (≤ 4 agents). Au calendrier : les slices à butoir **2027-03-31** (9, 10, 12, 13, 14, 15, 20) doivent être livrées ou reconduites avec raison avant le 2027-04-01 (les tests `TableDeLOrganisationTest`, `TableDesForfaitsTest`, `TableDuPatientCouvertureTest`, `TableDesTransporteursTest` sont liés à l'horloge).
+
+## 2. Décisions à demander à l'utilisateur (avec recommandation)
+
+**Documents**
+- D1. Gabarits à SQL embarqué (12 sur 14 ; contredit ADR 0140 D3, ADR 0144 D1 le tolère pour le cahier) : convertir en jeux de données par contexte ou garder la requête avec un port de connexion en exception documentée ? Reco : port de connexion transitoire maintenant (étape 1), conversion un gabarit à la fois (slice 7), cahier en premier, inventaire en dernier ; règle de transition pour le validateur « requête identique » et test de non-régression sur les versions stockées.
+- D2. DOC2 dépasse le budget de fichiers si les `.jrxml` comptent : les compter comme ressources, ou scinder moteur / gabarits ? Reco : ressources non comptées, une seule slice commitée telle quelle.
+- D3. Matrice rôle x type de document (KB-DOC1-3) : maintenir « tout authentifié imprime » ? Reco : reproduire, confirmer avec les métiers avant 2026-12-15.
+- D12. Polices (KB-PL6-4, PL7-3, PL8-3, PL9-6, glyphes hors police) : traiter en DOC2 ou plus tard ? Reco : reporter après confirmation métier.
+
+**Reprise**
+- D4. KB-S6a-4, 6, 7 : reproduire ou corriger ? Reco : corriger S6a-4 et S6a-7 (sans impact métier), SUPERADMIN (S6a-6) : décision de sécurité explicite, ADR dédié.
+- D5. Colonnes de place écrites par la reprise (ADR 0134, KB-S6a-3) : garder l'écriture directe ou passer par `PlacementDesPatients.placer` (ajoute des refus) ? Reco : garder, tracer dans l'ADR de RP3.
+
+**Identité et organisation**
+- D6. Identité (AuthService, comptes) : faire lire `centers`/`societes` via les annuaires (slices 12-13) ou reconduire avec raison motivée après 2027-03-31 ? Reco : faire, après filet de caractérisation.
+- D7. Propriétaire de `app_settings` (numérotation par centre). Reco : rattacher à comptabilité, avec un port pour dossier médical et stock.
+- D11. Hygiène User/Role : extraire un service d'identité ? Reco : non, remettre à plus tard (risque élevé, gain faible).
+
+**Structure**
+- D8. ACL de cycles Maven : conserver (transitoire, ADR 0008) ou créer des modules `*-api` ? Reco : conserver, mesurer d'abord (slice 20).
+- D9. `DROP` des tables mortes (Flyway V60, irréversible) : accord écrit ? Reco : retirer seulement seed et DDL H2 ; DROP après une période d'observation et sauvegarde.
+- D10. `MigrationRestController` : garder en platform ou créer un contexte « reprise de données » ? Reco : garder (bounded-contexts.md:33), à acter par ADR court.
+- D13. Supervision de la base (pg_stat) conservée sans ADR écrit. Reco : écrire un ADR court la classant générique.
+
+## 3. À confirmer métiers/DPO avant le 2026-12-15 (dédupliqué)
+
+| Sujet | ADR / KB source |
+|---|---|
+| Seuil d'anonymat unique (5, `SeuilDAnonymat`) ; cumul DIRECTION + autres rôles ; dates `from/to` vides ; décimales des montants du rapport PDF ; centre porteur du modèle d'une société multi-centres | ADR 0148, 0150, 0151, 0152 ; KB-PL9, KB-PL10a-5, KB-PL10b-5 |
+| Matrice rôle x type de document ; ordonnance non gardée par modèle ; gabarit introuvable = 500 | ADR 0142 ; KB-DOC1-3 |
+| Matrice rôle x volet médical du cahier (DIRECTION/SUPERADMIN 403) ; modèle de cahier personnalisé sans masque médical | ADR 0144 ; KB-PL5-4, KB-PL5-5 |
+| Glyphes hors police ; modèles personnalisés déjà téléversés gardant l'ancienne mise en page | ADR 0145-0148 ; KB-PL6-4, PL7-3, PL8-3, PL9-6 |
+| Stock : ENTREE/AJUSTEMENT et quantité nette nulle ou négative ; PV d'inventaire (lot sans lot, lots négatifs, 2 décimales, refus de feuille) | ADR 0146 (PL7) |
+| GMAO : clôtures successives de bon d'intervention non dédoublonnées | ADR 0145 (PL6) |
+| Synthèse mensuelle : A4 paysage coupé au-delà de 4 caisses, séparateur de milliers, critère FACTUREE, écart de centimes | ADR 0147 (PL8) |
+| Compteurs : `pecExpiring`/`attestationExpiring` excluent les lignes échues | ADR 0138 ; KB-PL3-3 |
+| Administration des référentiels : réactivation créneau/médecin/salle, capacité effaçable, fermeture de salle sans effet, valeurs nettoyées des médecins, SUPERADMIN 403 ROLE_SCOPE | ADR 0157-0161 ; KB-PL11-7, 13, 14, KB-ORG-07 |
+| Reprise : colonnes de place écrites par la reprise ; recréation sous l'ancien identifiant | ADR 0134 ; KB-S6a-3 |
+| Tableau de bord administratif : DIRECTION/SUPERADMIN 403 | KB-PL3-5 |
+| Tension illisible rendue `null` (infirmiers, sans date) | KB-PL4-3 |
+
+Rappel : l'échéance 2026-12-15 est une obligation de revue humaine ; les tests ne font que vérifier que chaque butoir lui est postérieur. Pas d'échec de test à cette date.
+
+## 4. Reste volontairement en platform (ADR 0140 D7)
+
+- Identité et accès : `AuthRestController`, `MfaRestController`, `InitialSetupRestController`, `UserRestController`, `RoleRestController`, `SocieteDirectionAccountRestController` (5 r.), `SocieteAdminAccountRestController` (6 r.), JWT, MFA, filtres, garde de centre, entités `AppUser`/`AppRole`, tables `app_user*`, `app_role`, `auth_refresh_token`.
+- Licence : `LicenseRestController`, `LicenseService`, `LicenseOnlineCheckJob` (03:15), entité `License`.
+- Audit : `AuditRestController`, `AuditWriter`, `AuditScheduler` (3 s et 03:30), `AuditRequestFilter`.
+- Supervision de la base (`SupervisionBaseRestController`, 5 r.), `SystemRestController` (ping).
+- Façade fine des référentiels (`ReferentialAdminRestController`, 7 r., `TabularFileReader`, handlers) sous les règles permanentes no-SQL de l'ADR 0161 ; ACL de référentiels.
+- Outil de reprise (tables `migration_*`), sauf slices 8-11 ; `MigrationRestController` sauf D10.
+- Transport STOMP derrière `DiffusionEnTempsReel`, chaîne de filtres, config et amorçage dev/prod, `event_publication` (Modulith), `ApiExceptionHandler`.
+- Flyway V1-V59 (historique de production) : intact.
+- Gardes permanentes sans action : `TableDuPilotageTest` (butoir 2099-12-31), `EcrivainsDeLaFactureDesSeancesTest.LiaisonDesSeancesJdbc` (2099-12-31), `TableDesPayeursTest`, `TableDesTransporteursTest`, `FrontieresDesContextesTest`, `TableDesAbsencesDePatientsTest`.
+
+Conséquence : « décommissionner `backend/platform` » signifie le réduire au noyau ci-dessus, pas le supprimer.
+
+## 5. Écarts avec l'inventaire du 2026-11-11
+
+- **Livré depuis** (périmé dans l'ancien) : B1 (rapports métier PL5-PL9), B2 (statistiques patient), B3 (greffe), B4 (tableau de bord), B5 (Direction), B6 (admin générique des référentiels, PL11, ADR 0157-0161), B8 (notifications : `NotificationService` supprimé, ADR 0156), C1 (28 fichiers JPA morts : il ne reste que 6 entités, toutes vivantes), A7 (notifications). Aucun `@Scheduled` métier ne reste.
+- **Nouveau** : DOC1 livré ; DOC2 en cours dans l'arbre ; le moteur Jasper a déjà quitté platform dans l'arbre de travail ; `DocumentRestController` fait 243 l. (495 avant) et `ModeleDocumentTemplateRestController` 152 l. ; `schema.sql` n'a toujours aucun `CREATE TABLE` pour 6 tables (centers, societes, license, app_user, app_role, modele_document_version).
+- **Corrigé** : les 5 revues datées 2026-12-15 ne font pas échouer les tests à cette date (l'ancien l'insinuait) ; seuls les butoirs 2027-03-31 liés à l'horloge échouent le 2027-04-01.
+- **Contradiction entre scans** : un scan compte 13 contrôleurs, un autre 15 puis 18 fichiers ; mesure : 15 contrôleurs + 4 fichiers dans `infrastructure/web` (le « 18 » avançait 3 advices ; en réalité 4 fichiers, dont `DatesIllisiblesDeLaDirectionAdvice` qui contient 3 `@RestControllerAdvice`). `ImpressionDeLaPresenceLegacy` : 110 l. mesurées (un scan dit 114).
+- **Précision** : l'advice `DatesIllisiblesDeLaDirectionAdvice` est limité à `basePackages = infrastructure.web.rest` : à surveiller quand un contrôleur migre.
+- **Absent de l'ancien** : A9 `MigrationRestController` (D10), seed/DDL par propriétaire, tables mortes (PL16), `app_settings` sans propriétaire, lectures de `patients`/planification/GMAO par la Séance (slices 14-15).
+- **Abandonné** : C2 (`PointBiologiqueResponse`, `EntityWriteResponse`) et C6 (5 entrées `covered.json` à retirer avec PL1) : non revérifiés ici, à contrôler avant clôture.
+
+## Limites
+
+Aucun build ni test lancé. Tailles des services de reprise/importeurs non mesurées. Les chiffres de lignes des gabarits `.jrxml` et des ACL viennent des scans (non reverifiés un à un).

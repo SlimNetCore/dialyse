@@ -16,6 +16,14 @@ import com.hemodialyse.backend.contexts.documents.publishedlanguage.PapierEnTete
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.RenduDeDocument;
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.ReglesDImpressionDesTypesSensibles;
 import com.hemodialyse.backend.contexts.organisation.publishedlanguage.IdentiteImprimee;
+import com.hemodialyse.backend.contexts.documents.infrastructure.rendu.CustomTemplateCompiler;
+import com.hemodialyse.backend.contexts.documents.infrastructure.rendu.JasperReportService;
+import com.hemodialyse.backend.contexts.documents.infrastructure.rendu.ModeleDocumentProvisioner;
+import com.hemodialyse.backend.contexts.documents.infrastructure.rendu.MoteurDeRenduJasper;
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.GabaritPersonnaliseDuCentre;
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.VerificationDeGabarit;
+import com.hemodialyse.backend.contexts.organisation.publishedlanguage.AnnuaireDesCentres;
+import javax.sql.DataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -47,6 +55,28 @@ public class DocumentsConfiguration {
     @Bean
     PapierEnTeteDesDocuments papierEnTeteDesDocuments(IdentitesImprimables identites) {
         return new PapierEnTeteDesDocuments(identites);
+    }
+
+    @Bean
+    JasperReportService jasperReportService(DataSource dataSource) {
+        return new JasperReportService(dataSource);
+    }
+
+    @Bean
+    CustomTemplateCompiler customTemplateCompiler() {
+        return new CustomTemplateCompiler();
+    }
+
+    @Bean
+    ModeleDocumentProvisioner modeleDocumentProvisioner(JdbcTemplate jdbc, AnnuaireDesCentres annuaireDesCentres) {
+        return new ModeleDocumentProvisioner(jdbc, annuaireDesCentres);
+    }
+
+    /** Le moteur de rendu (DOC2, ADR 0162) ; les gabarits personnalisés des centres sont fournis par la plateforme jusqu'à DOC3. */
+    @Bean
+    MoteurDeRendu moteurDeRendu(JdbcTemplate jdbc, JasperReportService jasper, GabaritPersonnaliseDuCentre gabarits,
+                                CustomTemplateCompiler compiler, PapierEnTeteDuCentre papier, ModeleDocumentProvisioner provisioner) {
+        return new MoteurDeRenduJasper(jdbc, jasper, gabarits, compiler, papier, provisioner);
     }
 
     @Bean

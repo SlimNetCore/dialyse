@@ -1,11 +1,10 @@
 package com.hemodialyse.backend.infrastructure.acl.planification;
 
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.FrenchFormatFactory;
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.ModeleDocumentCatalog;
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.MoteurDeRendu;
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.PapierEnTeteDuCentre;
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.ImpressionDeLaPresence;
-import com.hemodialyse.backend.infrastructure.reporting.FrenchFormatFactory;
-import com.hemodialyse.backend.infrastructure.reporting.JasperReportService;
-import com.hemodialyse.backend.infrastructure.reporting.ModeleDocumentCatalog;
-import com.hemodialyse.backend.infrastructure.reporting.ModeleDocumentPrinter;
 import net.sf.jasperreports.engine.JRParameter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -22,7 +21,7 @@ import java.util.UUID;
 
 /**
  * Fournit au contexte Planification son port consommé {@link ImpressionDeLaPresence} (ACL vers les modèles de documents et le moteur
- * Jasper du legacy). Contrairement à {@link ModeleDocumentPrinter#print}, elle LIT sans écrire (KB-PLN-51, décision du 27/10/2026) :
+ * Jasper du legacy). Contrairement au rendu par type du moteur de Documents, elle LIT sans écrire (KB-PLN-51, décision du 27/10/2026) :
  * un centre sans modèle « {@value ModeleDocumentCatalog#PLANNING_PRESENCE_INFIRMIERS} » utilise le modèle livré (PDF) en mémoire ;
  * un modèle désactivé refuse l'impression (422 {@code DOCUMENT_MODEL_INACTIVE}). Le modèle lit le roulement, les absences et les
  * remplacements du centre pour les sept dates passées en paramètres. Un format que le contexte ne sert pas n'est pas généré.
@@ -35,15 +34,12 @@ public class ImpressionDeLaPresenceLegacy implements ImpressionDeLaPresence {
     private static final Set<String> SERVIS = Set.of("PDF", "HTML", "EXCEL", "XLS", "XLSX");
 
     private final JdbcTemplate jdbc;
-    private final JasperReportService jasper;
-    private final ModeleDocumentPrinter printer;
+    private final MoteurDeRendu moteur;
     private final PapierEnTeteDuCentre identite;
 
-    public ImpressionDeLaPresenceLegacy(JdbcTemplate jdbc, JasperReportService jasper, ModeleDocumentPrinter printer,
-                                        PapierEnTeteDuCentre identite) {
+    public ImpressionDeLaPresenceLegacy(JdbcTemplate jdbc, MoteurDeRendu moteur, PapierEnTeteDuCentre identite) {
         this.jdbc = jdbc;
-        this.jasper = jasper;
-        this.printer = printer;
+        this.moteur = moteur;
         this.identite = identite;
     }
 
@@ -89,8 +85,8 @@ public class ImpressionDeLaPresenceLegacy implements ImpressionDeLaPresence {
             params.put("CENTER_ID", centre.toString());
             params.putIfAbsent(JRParameter.REPORT_FORMAT_FACTORY, new FrenchFormatFactory());
             params.putAll(identite.parametresDeLEnTete(centre));
-            byte[] contenu = modele != null ? printer.render(modele, centre, chemin, params, format)
-                    : jasper.generateReport(chemin, params, format);
+            byte[] contenu = modele != null ? moteur.rendreParModele(modele, centre, chemin, params, format)
+                    : moteur.rendreSansModele(chemin, params, format);
             return new Document(contenu, format);
         } catch (Exception e) {
             log.warn("[PRESENCE] Génération de « {} » impossible pour le centre {} : {}", entree.libelle(), centre, cause(e), e);

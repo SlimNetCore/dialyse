@@ -1,6 +1,6 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
-import com.hemodialyse.backend.application.reporting.JrxmlSecurityValidator.Violation;
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.JrxmlSecurityValidator.Violation;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
 import com.hemodialyse.backend.infrastructure.reporting.ModeleDocumentTemplateService;
 import com.hemodialyse.backend.infrastructure.reporting.ModeleDocumentTemplateService.ModeleInfo;

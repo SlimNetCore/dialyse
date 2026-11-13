@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.infrastructure.reporting;
 
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.FrenchFormatFactory;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.stock.domain.inventaire.Inventaire;
 import com.hemodialyse.backend.contexts.stock.domain.inventaire.LigneDInventaire;
@@ -47,7 +48,7 @@ class InventaireStockReportTemplateTest {
     private static final OffsetDateTime NOW = OffsetDateTime.of(2026, 9, 30, 10, 0, 0, 0, ZoneOffset.UTC);
 
     private static JasperReport compile() throws Exception {
-        try (InputStream is = Files.newInputStream(Path.of("src/main/resources/reports/inventaire_stock.jrxml"))) {
+        try (InputStream is = Files.newInputStream(Path.of("../contexts/documents/src/main/resources/reports/inventaire_stock.jrxml"))) {
             return JasperCompileManager.compileReport(is);
         }
     }
@@ -149,7 +150,7 @@ class InventaireStockReportTemplateTest {
 
     @Test
     void theTemplateUsesOnlyStandardFonts() throws Exception {
-        String xml = Files.readString(Path.of("src/main/resources/reports/inventaire_stock.jrxml"));
+        String xml = Files.readString(Path.of("../contexts/documents/src/main/resources/reports/inventaire_stock.jrxml"));
         assertThat(xml).doesNotContain("fontName=");
     }
 }
