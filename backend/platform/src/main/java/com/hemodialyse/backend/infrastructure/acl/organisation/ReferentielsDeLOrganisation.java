@@ -16,6 +16,9 @@ public final class ReferentielsDeLOrganisation {
     /** PL11-3 (ADR 0159) : les médecins traitants, décrits par l'Organisation. */
     public static final ReferentialKind MEDECIN = versKind(DescripteursDeLOrganisation.MEDECIN);
 
+    /** PL11-4 (ADR 0160) : les salles, décrites par l'Organisation. */
+    public static final ReferentialKind SALLE = versKind(DescripteursDeLOrganisation.SALLE);
+
     private ReferentielsDeLOrganisation() {
     }
 
@@ -25,7 +28,11 @@ public final class ReferentielsDeLOrganisation {
     }
 
     private static ReferentialField champ(DescripteurDeReferentiel.Champ c) {
-        return ReferentialField.text(c.cle(), c.libelle(), c.obligatoire(), c.longueurMax(), c.exemple(),
-                c.alias().toArray(new String[0]));
+        String[] alias = c.alias().toArray(new String[0]);
+        return switch (c.genre()) {
+            case TEXTE -> ReferentialField.text(c.cle(), c.libelle(), c.obligatoire(), c.longueurMax(), c.exemple(), alias);
+            case CHOIX -> ReferentialField.enumeration(c.cle(), c.libelle(), c.valeursAutorisees(), c.valeurParDefaut(), alias);
+            case ENTIER -> ReferentialField.integer(c.cle(), c.libelle(), c.obligatoire(), c.exemple(), alias);
+        };
     }
 }

@@ -52,14 +52,14 @@ class ReferentialAdminDomainServiceTest {
 
     @Test
     void createNormalizesValuesAndAppliesDefaults() {
-        ReferentialEntry salle = service.create(CENTER, ReferentialKind.SALLE,
+        ReferentialEntry salle = service.create(CENTER, com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE,
                 Map.of("code", "  S1 ", "nom", "Salle principale", "isolement", "oui", "capacite", " 12 "));
 
         assertEquals("S1", salle.values().get("code"));
         assertEquals("OUI", salle.values().get("isolement"));
         assertEquals("12", salle.values().get("capacite"));
 
-        ReferentialEntry autre = service.create(CENTER, ReferentialKind.SALLE, Map.of("code", "S2", "nom", "Salle 2"));
+        ReferentialEntry autre = service.create(CENTER, com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE, Map.of("code", "S2", "nom", "Salle 2"));
         assertEquals("NON", autre.values().get("isolement"));
     }
 
@@ -70,7 +70,7 @@ class ReferentialAdminDomainServiceTest {
         values.put("capacite", "abc");
 
         ReferentialValidationException ex = assertThrows(ReferentialValidationException.class,
-                () -> service.create(CENTER, ReferentialKind.SALLE, values));
+                () -> service.create(CENTER, com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE, values));
 
         assertEquals(List.of("code:TOO_LONG", "nom:REQUIRED", "capacite:INVALID_INTEGER"),
                 ex.getIssues().stream().map(i -> i.field() + ":" + i.code()).toList());
@@ -79,22 +79,22 @@ class ReferentialAdminDomainServiceTest {
 
     @Test
     void codeMustBeUniqueWithinTheCenterOnly() {
-        service.create(CENTER, ReferentialKind.SALLE, Map.of("code", "S1", "nom", "Salle 1"));
+        service.create(CENTER, com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE, Map.of("code", "S1", "nom", "Salle 1"));
 
         ReferentialValidationException ex = assertThrows(ReferentialValidationException.class,
-                () -> service.create(CENTER, ReferentialKind.SALLE, Map.of("code", "s1", "nom", "Autre")));
+                () -> service.create(CENTER, com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE, Map.of("code", "s1", "nom", "Autre")));
         assertEquals("ALREADY_EXISTS", ex.getIssues().getFirst().code());
 
         // Un autre centre peut réutiliser le même code.
-        service.create(OTHER, ReferentialKind.SALLE, Map.of("code", "S1", "nom", "Salle 1"));
-        assertEquals(1, repo.of(OTHER, ReferentialKind.SALLE).size());
+        service.create(OTHER, com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE, Map.of("code", "S1", "nom", "Salle 1"));
+        assertEquals(1, repo.of(OTHER, com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE).size());
     }
 
     @Test
     void updateKeepsItsOwnCode() {
-        ReferentialEntry salle = service.create(CENTER, ReferentialKind.SALLE, Map.of("code", "S1", "nom", "Salle 1"));
+        ReferentialEntry salle = service.create(CENTER, com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE, Map.of("code", "S1", "nom", "Salle 1"));
 
-        ReferentialEntry updated = service.update(CENTER, ReferentialKind.SALLE, salle.id(),
+        ReferentialEntry updated = service.update(CENTER, com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE, salle.id(),
                 Map.of("code", "S1", "nom", "Salle principale"));
 
         assertEquals("Salle principale", updated.values().get("nom"));
@@ -104,31 +104,31 @@ class ReferentialAdminDomainServiceTest {
 
     @Test
     void deleteIsRefusedWhileStillUsed() {
-        UUID salle = repo.seed(CENTER, ReferentialKind.SALLE, Map.of("code", "S1", "nom", "Salle 1"));
+        UUID salle = repo.seed(CENTER, com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE, Map.of("code", "S1", "nom", "Salle 1"));
         repo.usages.put(salle, 2L);
 
         BusinessException ex = assertThrows(BusinessException.class,
-                () -> service.delete(CENTER, ReferentialKind.SALLE, salle));
+                () -> service.delete(CENTER, com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE, salle));
         assertEquals("REFERENTIAL_IN_USE", ex.getCode());
 
         repo.usages.remove(salle);
-        service.delete(CENTER, ReferentialKind.SALLE, salle);
-        assertTrue(repo.of(CENTER, ReferentialKind.SALLE).isEmpty());
+        service.delete(CENTER, com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE, salle);
+        assertTrue(repo.of(CENTER, com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE).isEmpty());
     }
 
     @Test
     void anotherCenterCannotTouchTheRow() {
-        UUID salle = repo.seed(CENTER, ReferentialKind.SALLE, Map.of("code", "S1", "nom", "Salle 1"));
+        UUID salle = repo.seed(CENTER, com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE, Map.of("code", "S1", "nom", "Salle 1"));
 
         BusinessException ex = assertThrows(BusinessException.class,
-                () -> service.delete(OTHER, ReferentialKind.SALLE, salle));
+                () -> service.delete(OTHER, com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE, salle));
         assertEquals("REFERENTIAL_NOT_FOUND", ex.getCode());
-        assertEquals(1, repo.of(CENTER, ReferentialKind.SALLE).size());
+        assertEquals(1, repo.of(CENTER, com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE).size());
     }
 
     @Test
     void importReportsMissingRequiredColumnsAndIgnoredOnes() {
-        ImportReport report = service.importEntries(CENTER, ReferentialKind.SALLE,
+        ImportReport report = service.importEntries(CENTER, com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE,
                 table(List.of("Code", "Couleur"), List.of("S1", "bleu")), false);
 
         assertEquals(List.of("nom"), report.missingColumns());
@@ -140,7 +140,7 @@ class ReferentialAdminDomainServiceTest {
 
     @Test
     void importReportsEachRowErrorWithItsLineNumberAndWritesNothing() {
-        ImportReport report = service.importEntries(CENTER, ReferentialKind.SALLE, table(
+        ImportReport report = service.importEntries(CENTER, com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE, table(
                 List.of("code", "nom", "Capacité (générateurs max.)"),
                 List.of("S1", "Salle 1", "12"),
                 List.of("S2", "", "12"),
@@ -156,9 +156,9 @@ class ReferentialAdminDomainServiceTest {
 
     @Test
     void dryRunCountsCreationsAndUpdatesWithoutWriting() {
-        repo.seed(CENTER, ReferentialKind.SALLE, Map.of("code", "S1", "nom", "Salle 1", "isolement", "NON"));
+        repo.seed(CENTER, com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE, Map.of("code", "S1", "nom", "Salle 1", "isolement", "NON"));
 
-        ImportReport report = service.importEntries(CENTER, ReferentialKind.SALLE, table(
+        ImportReport report = service.importEntries(CENTER, com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE, table(
                 List.of("Code", "Nom"),
                 List.of("S1", "Salle un"),
                 List.of("S2", "Salle deux"),
@@ -174,25 +174,25 @@ class ReferentialAdminDomainServiceTest {
 
     @Test
     void importCreatesAndUpdatesByNaturalKey() {
-        UUID existing = repo.seed(CENTER, ReferentialKind.SALLE, Map.of("code", "S1", "nom", "Salle 1", "isolement", "NON"));
+        UUID existing = repo.seed(CENTER, com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE, Map.of("code", "S1", "nom", "Salle 1", "isolement", "NON"));
 
-        ImportReport report = service.importEntries(CENTER, ReferentialKind.SALLE, table(
+        ImportReport report = service.importEntries(CENTER, com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE, table(
                 List.of("code", "nom"),
                 List.of("s1", "Salle un"),
                 List.of("S2", "Salle deux")), false);
 
         assertTrue(report.applied());
-        assertEquals(2, repo.of(CENTER, ReferentialKind.SALLE).size());
-        assertEquals("Salle un", repo.findById(CENTER, ReferentialKind.SALLE, existing)
+        assertEquals(2, repo.of(CENTER, com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE).size());
+        assertEquals("Salle un", repo.findById(CENTER, com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE, existing)
                 .orElseThrow().values().get("nom"));
     }
 
     @Test
     void importRejectsEmptyFilesAndFilesWithoutData() {
-        ImportReport empty = service.importEntries(CENTER, ReferentialKind.SALLE, new ImportTable(List.of(), List.of()), false);
+        ImportReport empty = service.importEntries(CENTER, com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE, new ImportTable(List.of(), List.of()), false);
         assertEquals("EMPTY_FILE", empty.errors().getFirst().code());
 
-        ImportReport noData = service.importEntries(CENTER, ReferentialKind.SALLE, table(List.of("code", "nom")), false);
+        ImportReport noData = service.importEntries(CENTER, com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE, table(List.of("code", "nom")), false);
         assertEquals("NO_DATA", noData.errors().getFirst().code());
     }
 
@@ -201,7 +201,7 @@ class ReferentialAdminDomainServiceTest {
         List<List<String>> rows = new ArrayList<>();
         for (int i = 0; i <= ReferentialAdminDomainService.MAX_IMPORT_ROWS; i++) rows.add(List.of("T" + i, "Nom " + i));
 
-        ImportReport report = service.importEntries(CENTER, ReferentialKind.SALLE,
+        ImportReport report = service.importEntries(CENTER, com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE,
                 tableOf(List.of("code", "nom"), rows), false);
 
         assertEquals(List.of("TOO_MANY_ROWS"), report.errors().stream().map(ValidationIssue::code).toList());

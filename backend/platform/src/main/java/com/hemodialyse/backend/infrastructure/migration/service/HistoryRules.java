@@ -4,7 +4,7 @@ import com.hemodialyse.backend.infrastructure.migration.model.MigrationEntity;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialEntry;
 import com.hemodialyse.backend.infrastructure.acl.patientcouverture.ReferentielsDePatientCouverture;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ValidationIssue;
-import com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminRepositoryPort;
+import com.hemodialyse.backend.infrastructure.migration.port.AppariementDeReferentiels;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.time.LocalDate;
@@ -32,7 +32,7 @@ public final class HistoryRules {
     /**
      * Toutes les règles, pour le câblage.
      */
-    public static List<RecordRules> all(ReferentialAdminRepositoryPort referentials) {
+    public static List<RecordRules> all(AppariementDeReferentiels referentials) {
         return List.of(new Attestations(), new PrisesEnCharge(referentials), new DossiersMedicaux(), new Antecedents(),
                 new Serologies(), new AbordsVasculaires(), new Analyses(), new Seances());
     }
@@ -85,13 +85,13 @@ public final class HistoryRules {
     // ---- Prises en charge ------------------------------------------------------------------------------------
 
     public static final class PrisesEnCharge implements RecordRules {
-        private final ReferentialAdminRepositoryPort referentials;
+        private final AppariementDeReferentiels referentials;
         /**
          * Codes forfait du centre, chargés par fichier ; propres au thread (la règle est partagée).
          */
         private final ThreadLocal<Map<String, UUID>> forfaits = ThreadLocal.withInitial(HashMap::new);
 
-        public PrisesEnCharge(ReferentialAdminRepositoryPort referentials) {
+        public PrisesEnCharge(AppariementDeReferentiels referentials) {
             this.referentials = referentials;
         }
 
@@ -110,7 +110,7 @@ public final class HistoryRules {
         public void begin(CentreId centerId) {
             Map<String, UUID> codes = forfaits.get();
             codes.clear();
-            for (ReferentialEntry e : referentials.findAllForMatching(centerId, ReferentielsDePatientCouverture.FORFAIT)) {
+            for (ReferentialEntry e : referentials.proposes(centerId, ReferentielsDePatientCouverture.FORFAIT)) {
                 String code = e.values().get("code");
                 if (code != null) codes.putIfAbsent(code.trim().toUpperCase(Locale.ROOT), e.id());
             }

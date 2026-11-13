@@ -157,6 +157,8 @@ minuscules (KB-SEA-86), précision des moyennes close par tolérance (KB-SEA-87)
 absences et la répartition par caisse, centre payeur borné au centre de la fiche, tri des caisses départagé par le code (KB-DIR-05, KB-SEA-83, 84),
 statistiques des séances réalisées seulement, volet borné au centre, compte entier dans le PDF (KB-SEA-85) ; KB-SEA-75, 80, 90, 91 clos sans
 changement de comportement.
+PL11-4 (ADR 0160, 2026-11-13) n'ajoute aucune route : `/api/v1/admin/referentials/salles` est servi par l'Organisation (`GestionDesSalles`) ; salle utilisée désactivée (204), capacité et isolement absents conservés, refus 422 si le contrôle d'usage échoue.
+
 PL11-3 (ADR 0159, 2026-11-13) n'ajoute aucune route : `/api/v1/admin/referentials/medecins` est servi par l'Organisation (`GestionDesMedecins`) ; un médecin utilisé peut être désactivé (204), créer ou réimporter un médecin désactivé de même nom et prénom le réactive, une seule règle d'unicité nom+prénom par centre (administration 400 `ALREADY_EXISTS`, route d'Organisation 422 `MEDECIN_DEJA_EXISTANT`).
 
 PL11-2 (ADR 0158, 2026-11-13) n'ajoute aucune route : `/api/v1/admin/referentials/creneaux` est servi par l'Organisation (`GestionDesCreneaux`), usages comptés par Patient et couverture, Séance et Planification, créneau utilisé désactivé (RG-REF-001).

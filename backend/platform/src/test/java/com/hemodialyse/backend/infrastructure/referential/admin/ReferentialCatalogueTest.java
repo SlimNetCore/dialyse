@@ -69,6 +69,7 @@ class ReferentialCatalogueTest {
 
     private static ReferentialAdminDelegate fournisseurDeLOrganisation() {
         return delegue(List.of(com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.CRENEAU,
+                com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE,
                 com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.MEDECIN));
     }
 
@@ -82,18 +83,17 @@ class ReferentialCatalogueTest {
 
     @Test
     void un_referentiel_se_retrouve_par_son_segment_d_url_sans_egard_a_la_casse_et_un_inconnu_est_refuse_comme_avant() {
-        ReferentialCatalogue catalogue = new ReferentialCatalogue(List.of(fournisseurDePatientCouverture()));
+        ReferentialCatalogue catalogue = new ReferentialCatalogue(List.of(fournisseurDePatientCouverture(), fournisseurDeLOrganisation()));
 
         assertThat(catalogue.fromSlug("Centres-Payeurs")).isEqualTo(ReferentielsDePatientCouverture.CENTRE_PAYEUR);
-        assertThat(catalogue.fromSlug("salles")).isSameAs(ReferentialKind.SALLE);
+        assertThat(catalogue.fromSlug("salles")).isSameAs(com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE);
         assertThatThrownBy(() -> catalogue.fromSlug("generateurs")).isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Référentiel inconnu : generateurs");
     }
 
     @Test
-    void sans_fournisseur_la_facade_ne_connait_que_le_referentiel_encore_direct() {
-        assertThat(new ReferentialCatalogue(List.of()).kinds()).extracting(ReferentialKind::slug)
-                .containsExactly("salles");
+    void sans_fournisseur_la_facade_ne_connait_plus_aucun_referentiel() {
+        assertThat(new ReferentialCatalogue(List.of()).kinds()).isEmpty();
     }
 
     @Test

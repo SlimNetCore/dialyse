@@ -1,10 +1,6 @@
 package com.hemodialyse.backend.infrastructure.persistence.adapter.referential;
 
-import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.ForfaitsDuCentre;
-import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.GestionDesPayeurs;
-import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.Transporteurs;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialEntry;
-import com.hemodialyse.backend.infrastructure.acl.patientcouverture.ReferentielsDePatientCouverture;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
 import com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminRepositoryPort;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.PagedResult;
@@ -36,6 +32,10 @@ import java.util.stream.Collectors;
 /**
  * Adaptateur JDBC des référentiels administrables (tables sans entité JPA).
  * Chaque requête est filtrée sur {@code center_id} ; chaque écriture invalide les caches du centre.
+ * <p>
+ * PL11-1 à PL11-4 : plus aucune table n'est décrite ({@link ReferentialAdminTables}) ; tous les référentiels sont gérés par leur contexte
+ * propriétaire. PL11-5 : l'appariement de la reprise passe par {@code AppariementDeReferentiels}. Cet adaptateur n'a plus de client en
+ * production ; son retrait est l'objet de PL11-6.
  */
 @Component
 public class ReferentialAdminJdbcAdapter implements ReferentialAdminRepositoryPort {
@@ -44,23 +44,10 @@ public class ReferentialAdminJdbcAdapter implements ReferentialAdminRepositoryPo
 
     private final JdbcTemplate jdbc;
     private final ReferentialCacheEvictor cacheEvictor;
-    private final Transporteurs transporteurs;
-    private final ForfaitsDuCentre forfaits;
-    private final GestionDesPayeurs payeurs;
-    private final com.hemodialyse.backend.contexts.organisation.publishedlanguage.GestionDesCreneaux creneaux;
-    private final com.hemodialyse.backend.contexts.organisation.publishedlanguage.GestionDesMedecins medecins;
 
-    public ReferentialAdminJdbcAdapter(JdbcTemplate jdbc, ReferentialCacheEvictor cacheEvictor, Transporteurs transporteurs,
-                                       ForfaitsDuCentre forfaits, GestionDesPayeurs payeurs,
-                                       com.hemodialyse.backend.contexts.organisation.publishedlanguage.GestionDesCreneaux creneaux,
-                                       com.hemodialyse.backend.contexts.organisation.publishedlanguage.GestionDesMedecins medecins) {
+    public ReferentialAdminJdbcAdapter(JdbcTemplate jdbc, ReferentialCacheEvictor cacheEvictor) {
         this.jdbc = jdbc;
-        this.medecins = medecins;
-        this.creneaux = creneaux;
-        this.payeurs = payeurs;
         this.cacheEvictor = cacheEvictor;
-        this.forfaits = forfaits;
-        this.transporteurs = transporteurs;
     }
 
     private static String select(Table table) {
@@ -161,62 +148,6 @@ public class ReferentialAdminJdbcAdapter implements ReferentialAdminRepositoryPo
 
     @Override
     public List<ReferentialEntry> findAllForMatching(CentreId centerId, ReferentialKind kind) {
-        if (kind.equals(com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.CRENEAU)) {
-            // PL11-2 (ADR 0158) : les créneaux appartiennent à l'Organisation ; la reprise des patients les retrouve par leur code
-            // (en attendant l'appariement par lectures publiées, PL11-5).
-            return creneaux.proposes(centerId.valeur()).stream().map(c -> {
-                Map<String, String> valeurs = new LinkedHashMap<>();
-                valeurs.put("code", c.code());
-                valeurs.put("libelle", c.libelle());
-                return new ReferentialEntry(c.id(), valeurs, Map.of());
-            }).toList();
-        }
-        if (kind.equals(com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.MEDECIN)) {
-            // PL11-3 (ADR 0159) : les médecins appartiennent à l'Organisation ; la reprise des patients les retrouve par nom et prénom
-            // (en attendant l'appariement par lectures publiées, PL11-5).
-            return medecins.proposes(centerId.valeur()).stream().map(m -> {
-                Map<String, String> valeurs = new LinkedHashMap<>();
-                valeurs.put("nom", m.nom());
-                valeurs.put("prenom", m.prenom());
-                valeurs.put("specialite", m.specialite());
-                return new ReferentialEntry(m.id(), valeurs, Map.of());
-            }).toList();
-        }
-        if (kind.equals(ReferentielsDePatientCouverture.TRANSPORTEUR)) {
-            // RF1 (ADR 0122) : les transporteurs appartiennent à patient-couverture ; la reprise des patients les retrouve par leur nom.
-            return transporteurs.lister(centerId.valeur()).stream()
-                    .map(t -> new ReferentialEntry(t.id(), java.util.Collections.singletonMap("nom", t.nom()), Map.of())).toList();
-        }
-        if (kind.equals(ReferentielsDePatientCouverture.FORFAIT)) {
-            // RF2 (ADR 0124) : le catalogue de forfaits appartient à patient-couverture ; la reprise de l'historique les retrouve par leur code.
-            return forfaits.lister(centerId.valeur()).stream().map(f -> {
-                Map<String, String> valeurs = new LinkedHashMap<>();
-                valeurs.put("code", f.code());
-                valeurs.put("libelle", f.libelle());
-                valeurs.put("prix", f.prix() == null ? null : f.prix().toPlainString());
-                return new ReferentialEntry(f.id(), valeurs, Map.of());
-            }).toList();
-        }
-        if (ReferentielsDePatientCouverture.PAYEURS.contains(kind)) {
-            // RF3a (ADR 0126) : la chaîne des payeurs appartient à patient-couverture ; la reprise des patients retrouve un payeur par son code.
-            GestionDesPayeurs.Niveau niveau = kind.equals(ReferentielsDePatientCouverture.CAISSE) ? GestionDesPayeurs.Niveau.CAISSE
-                    : kind.equals(ReferentielsDePatientCouverture.AGENCE) ? GestionDesPayeurs.Niveau.AGENCE
-                    : GestionDesPayeurs.Niveau.CENTRE_PAYEUR;
-            return payeurs.toutes(centerId.valeur(), niveau).stream().map(p -> {
-                Map<String, String> valeurs = new LinkedHashMap<>();
-                valeurs.put("code", p.code());
-                valeurs.put("nom", p.nom());
-                if (kind.equals(ReferentielsDePatientCouverture.CAISSE)) valeurs.put("typeCaisse", p.typeCaisse());
-                if (kind.equals(ReferentielsDePatientCouverture.AGENCE)) {
-                    valeurs.put("caisse", p.parent() == null ? null : p.parent().toString());
-                }
-                if (kind.equals(ReferentielsDePatientCouverture.CENTRE_PAYEUR)) {
-                    valeurs.put("adresse", p.adresse());
-                    valeurs.put("agence", p.parent() == null ? null : p.parent().toString());
-                }
-                return new ReferentialEntry(p.id(), valeurs, Map.of());
-            }).toList();
-        }
         Table table = ReferentialAdminTables.of(kind);
         return jdbc.query(select(table) + from(table) + " WHERE t.center_id = ?", mapper(table), centerId.valeur());
     }
@@ -272,4 +203,3 @@ public class ReferentialAdminJdbcAdapter implements ReferentialAdminRepositoryPo
         return total;
     }
 }
-

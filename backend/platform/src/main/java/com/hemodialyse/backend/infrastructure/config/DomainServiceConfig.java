@@ -53,6 +53,26 @@ public class DomainServiceConfig {
         return new com.hemodialyse.backend.infrastructure.acl.organisation.MedecinsParOrganisation(medecins);
     }
 
+    /** PL11-4 (ADR 0160) : les salles sont gérées par l'Organisation ; l'administration générique lui délègue. */
+    @Bean
+    public com.hemodialyse.backend.infrastructure.acl.organisation.SallesParOrganisation sallesParOrganisation(
+            com.hemodialyse.backend.contexts.organisation.publishedlanguage.GestionDesSalles salles) {
+        return new com.hemodialyse.backend.infrastructure.acl.organisation.SallesParOrganisation(salles);
+    }
+
+    /** PL11-5 (ADR 0160) : la reprise de données apparie les référentiels par les lectures publiées des contextes. */
+    @Bean
+    public com.hemodialyse.backend.infrastructure.migration.port.AppariementDeReferentiels appariementDeReferentiels(
+            com.hemodialyse.backend.contexts.organisation.publishedlanguage.GestionDesSalles salles,
+            com.hemodialyse.backend.contexts.organisation.publishedlanguage.GestionDesCreneaux creneaux,
+            com.hemodialyse.backend.contexts.organisation.publishedlanguage.GestionDesMedecins medecins,
+            com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.Transporteurs transporteurs,
+            com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.ForfaitsDuCentre forfaits,
+            com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.GestionDesPayeurs payeurs) {
+        return new com.hemodialyse.backend.infrastructure.acl.reprise.AppariementParLesContextes(salles, creneaux, medecins,
+                transporteurs, forfaits, payeurs);
+    }
+
     /** PL11-1 (ADR 0157) : les fournisseurs de descripteurs et de gestion que la façade distribue. */
     @Bean
     public com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminDelegates referentialAdminDelegates(
@@ -60,9 +80,10 @@ public class DomainServiceConfig {
             com.hemodialyse.backend.infrastructure.acl.patientcouverture.ForfaitsParPatientCouverture forfaits,
             com.hemodialyse.backend.infrastructure.acl.patientcouverture.PayeursParPatientCouverture payeurs,
             com.hemodialyse.backend.infrastructure.acl.organisation.CreneauxParOrganisation creneaux,
-            com.hemodialyse.backend.infrastructure.acl.organisation.MedecinsParOrganisation medecins) {
+            com.hemodialyse.backend.infrastructure.acl.organisation.MedecinsParOrganisation medecins,
+            com.hemodialyse.backend.infrastructure.acl.organisation.SallesParOrganisation salles) {
         return new com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminDelegates(
-                java.util.List.of(transporteurs, forfaits, payeurs, creneaux, medecins));
+                java.util.List.of(transporteurs, forfaits, payeurs, creneaux, medecins, salles));
     }
 
     @Bean

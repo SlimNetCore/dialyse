@@ -111,10 +111,10 @@ class ReferentialAdminDelegationTest {
 
         assemble.create(CENTER, ReferentielsDePatientCouverture.FORFAIT, Map.of("code", "HD", "libelle", "Hémodialyse"));
         assemble.create(CENTER, ReferentielsDePatientCouverture.TRANSPORTEUR, Map.of("nom", "Taxi"));
-        assemble.create(CENTER, ReferentialKind.SALLE, Map.of("code", "S1", "nom", "Salle 1"));
+        assemble.create(CENTER, com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE, Map.of("code", "S1", "nom", "Salle 1"));
 
         assertThat(vus).containsExactly("forfaits", "transporteurs");
-        assertThat(repo.of(CENTER, ReferentialKind.SALLE)).hasSize(1);
+        assertThat(repo.of(CENTER, com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE)).hasSize(1);
         assertThat(repo.of(CENTER, ReferentielsDePatientCouverture.FORFAIT)).isEmpty();
     }
 
@@ -217,10 +217,10 @@ class ReferentialAdminDelegationTest {
 
     @Test
     void les_autres_referentiels_restent_geres_par_le_service_generique() {
-        service.create(CENTER, ReferentialKind.SALLE, Map.of("code", "S1", "nom", "Salle 1"));
+        service.create(CENTER, com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE, Map.of("code", "S1", "nom", "Salle 1"));
 
         assertThat(appels).isEmpty();
-        assertThat(repo.of(CENTER, ReferentialKind.SALLE)).hasSize(1);
+        assertThat(repo.of(CENTER, com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE)).hasSize(1);
     }
 
     private static ImportTable table(List<String> headers, List<List<String>> rows) {

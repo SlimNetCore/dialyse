@@ -184,6 +184,24 @@ public class OrganisationConfiguration {
                 unite, usages.orderedStream().toList());
     }
 
+    /**
+     * Langage publié organisation.v1 (PL11-4, ADR 0160) : la gestion des salles pour l'administration des référentiels. Les propriétaires
+     * des références à une salle (Patient et couverture, Séance, Planification) publient leur compte d'usage par un bean
+     * {@link com.hemodialyse.backend.contexts.organisation.publishedlanguage.UsageDeLaSalle} ; la GMAO, qui ne dépend pas de
+     * l'Organisation, est lue par l'ACL {@code UsageDeLaSalleParLaGmao}.
+     */
+    @Bean
+    public com.hemodialyse.backend.contexts.organisation.publishedlanguage.GestionDesSalles gestionDesSalles(
+            SalleRepository salles,
+            com.hemodialyse.backend.contexts.organisation.application.UniteDeTravail unite,
+            com.hemodialyse.backend.contexts.gmao.publishedlanguage.EquipementsDeLaSalle equipements,
+            org.springframework.beans.factory.ObjectProvider<com.hemodialyse.backend.contexts.organisation.publishedlanguage.UsageDeLaSalle> usages) {
+        java.util.List<com.hemodialyse.backend.contexts.organisation.publishedlanguage.UsageDeLaSalle> tous = new java.util.ArrayList<>(
+                usages.orderedStream().toList());
+        tous.add(new com.hemodialyse.backend.contexts.organisation.infrastructure.acl.gmao.UsageDeLaSalleParLaGmao(equipements));
+        return new com.hemodialyse.backend.contexts.organisation.application.GererLesSalles(salles, java.util.UUID::randomUUID, unite, tous);
+    }
+
     @Bean
     public ReferentielsCommunsUseCases referentielsCommunsUseCases() {
         return new ReferentielsCommunsService();

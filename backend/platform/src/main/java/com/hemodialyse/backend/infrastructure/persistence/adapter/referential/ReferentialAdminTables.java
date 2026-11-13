@@ -22,13 +22,8 @@ final class ReferentialAdminTables {
         // Créneaux : retirés (PL11-2, ADR 0158) ; les créneaux sont gérés par l'Organisation (GestionDesCreneaux), qui publie leur
         // descripteur ; les usages sont additionnés par leurs propriétaires via UsageDuCreneau.
 
-        TABLES.put(ReferentialKind.SALLE, new Table("salle",
-                List.of(text("code", "code"), text("nom", "nom"), text("isolement", "isolement"),
-                        new Column("capacite", "capacite", ColumnType.INTEGER)),
-                List.of(), List.of("t.code", "t.nom"), "t.code",
-                // Les générateurs vivent dans gmao_equipements (module GMAO v2) : l'usage d'une salle y est vérifié.
-                List.of(new Usage("gmao_equipements", "salle_id"), new Usage("patients", "salle_id")),
-                List.of("ref.salles", "ref.generateurs")));
+        // Salles : retirées (PL11-4, ADR 0160) ; la table appartient à l'Organisation (GestionDesSalles) : D3 (tous les usages, ports
+        // UsageDeLaSalle chez chaque propriétaire), D4 (désactivation logique), D8, D10.
 
         // Médecins : retirés (PL11-3, ADR 0159) ; la table appartient à l'Organisation (GestionDesMedecins) : désactivation d'un
         // médecin utilisé autorisée (D5), donc plus de comptage d'usage.

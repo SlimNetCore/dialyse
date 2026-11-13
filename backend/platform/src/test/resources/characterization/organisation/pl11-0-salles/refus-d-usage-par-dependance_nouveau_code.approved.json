@@ -1,0 +1,103 @@
+{
+  "01 salle d'un patient" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "02 salle d'un equipement GMAO" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "03 trois usages (2 patients, 1 equipement) : le compte est dans le message" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "04 usage compte hors du centre (identifiant seul)" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "05 salle d'une affectation d'infirmier : supprimee sans refus" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "06 salle d'un mouvement de patient : supprimee sans refus" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "07 salle d'une case du calendrier : supprimee sans refus" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "08 salle d'une seance : supprimee sans refus" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "09 salles restantes" : {
+    "lignes" : [ {
+      "capacite" : null,
+      "code" : "D1",
+      "isolement" : "NON",
+      "nom" : "Avec patient",
+      "ouverte" : "true"
+    }, {
+      "capacite" : null,
+      "code" : "D2",
+      "isolement" : "NON",
+      "nom" : "Avec equipement GMAO",
+      "ouverte" : "true"
+    }, {
+      "capacite" : null,
+      "code" : "D3",
+      "isolement" : "NON",
+      "nom" : "Patient et equipement",
+      "ouverte" : "true"
+    }, {
+      "capacite" : null,
+      "code" : "D4",
+      "isolement" : "NON",
+      "nom" : "Usage par un patient d'un autre centre",
+      "ouverte" : "true"
+    }, {
+      "capacite" : null,
+      "code" : "D5",
+      "isolement" : "NON",
+      "nom" : "Affectation d'infirmier",
+      "ouverte" : "true"
+    }, {
+      "capacite" : null,
+      "code" : "D6",
+      "isolement" : "NON",
+      "nom" : "Mouvement de patient",
+      "ouverte" : "true"
+    }, {
+      "capacite" : null,
+      "code" : "D7",
+      "isolement" : "NON",
+      "nom" : "Calendrier de planification",
+      "ouverte" : "true"
+    }, {
+      "capacite" : null,
+      "code" : "D8",
+      "isolement" : "NON",
+      "nom" : "Seance",
+      "ouverte" : "true"
+    } ]
+  },
+  "10 affectations orphelines apres suppression" : {
+    "lignes" : [ {
+      "lignes" : "1"
+    } ]
+  },
+  "11 seances orphelines apres suppression" : {
+    "lignes" : [ {
+      "lignes" : "0"
+    } ]
+  }
+}

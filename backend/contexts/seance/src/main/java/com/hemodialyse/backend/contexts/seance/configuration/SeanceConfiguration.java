@@ -737,4 +737,10 @@ public class SeanceConfiguration {
     com.hemodialyse.backend.contexts.organisation.publishedlanguage.UsageDuCreneau usageDuCreneauParLesSeances(JdbcTemplate jdbc) {
         return new com.hemodialyse.backend.contexts.seance.infrastructure.acl.organisation.UsageDuCreneauParLesSeances(jdbc);
     }
+
+    /** PL11-4 (ADR 0160) : ce que les séances retiennent d'une salle de l'Organisation (suppression ou désactivation). */
+    @Bean
+    com.hemodialyse.backend.contexts.organisation.publishedlanguage.UsageDeLaSalle usageDeLaSalleParLesSeances(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.seance.infrastructure.acl.organisation.UsageDeLaSalleParLesSeances(jdbc);
+    }
 }

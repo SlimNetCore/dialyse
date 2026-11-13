@@ -94,7 +94,7 @@ class PayeursParPatientCouvertureTest {
         assertThat(acl.prend(ReferentielsDePatientCouverture.CENTRE_PAYEUR)).isTrue();
         assertThat(acl.prend(ReferentielsDePatientCouverture.FORFAIT)).isFalse();
         assertThat(acl.prend(ReferentielsDePatientCouverture.TRANSPORTEUR)).isFalse();
-        assertThat(acl.prend(ReferentialKind.SALLE)).isFalse();
+        assertThat(acl.prend(com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE)).isFalse();
     }
 
     @Test

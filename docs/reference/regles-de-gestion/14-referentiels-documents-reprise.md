@@ -41,7 +41,10 @@ chaque ligne** avant d'écrire, **n'enregistre rien tant qu'un fichier
   peut être vérifié, la suppression est refusée (`REFERENTIAL_USAGE_UNVERIFIABLE`, 422). **Médecins (PL11-3, ADR 0159)** : un
   médecin, utilisé ou non, est désactivé (204, historique conservé) ; créer ou réimporter le nom et le prénom d'un médecin désactivé
   le réactive ; un nom et un prénom (casse et espaces ignorés) désignent un seul médecin par centre, dans l'administration comme dans
-  la route d'Organisation. Les salles servent aux patients et équipements ; les forfaits aux PEC et séances ; etc.
+  la route d'Organisation. **Salles (PL11-4, ADR 0160)** : une salle référencée par un patient, un mouvement, une séance, un
+  planning, un infirmier ou un équipement est désactivée (204) au lieu d'être supprimée et n'est plus proposée à la
+  planification ; une salle modifiée ou réimportée sans capacité ni isolement les conserve ; si l'usage ne peut être
+  vérifié, la suppression est refusée (`REFERENTIAL_USAGE_UNVERIFIABLE`). Les forfaits aux PEC et séances ; etc.
   Pour un **transporteur**, seuls comptent les patients **du centre du transporteur** (aller ou retour), un patient d'un
   autre centre ne bloque pas la suppression (KB-RF1-03 corrigé, ADR 0123, à confirmer par les métiers avant le
   2026-12-15). Sur les routes d'administration des transporteurs, un corps ou un paramètre illisible répond **400**

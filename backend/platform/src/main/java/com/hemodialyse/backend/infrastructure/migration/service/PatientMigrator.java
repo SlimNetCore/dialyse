@@ -13,7 +13,7 @@ import com.hemodialyse.backend.infrastructure.referential.admin.model.Referentia
 import com.hemodialyse.backend.infrastructure.acl.patientcouverture.ReferentielsDePatientCouverture;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ReferentialKind;
 import com.hemodialyse.backend.infrastructure.referential.admin.model.ValidationIssue;
-import com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminRepositoryPort;
+import com.hemodialyse.backend.infrastructure.migration.port.AppariementDeReferentiels;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import java.time.DayOfWeek;
@@ -43,11 +43,11 @@ public class PatientMigrator implements EntityMigrator {
 
     private final RepriseDesPatients patients;
     private final RepriseDesAssures assures;
-    private final ReferentialAdminRepositoryPort referentials;
+    private final AppariementDeReferentiels referentials;
     private final GenerateursDeReprise generateurs;
 
     public PatientMigrator(RepriseDesPatients patients, RepriseDesAssures assures,
-                           ReferentialAdminRepositoryPort referentials, GenerateursDeReprise generateurs) {
+                           AppariementDeReferentiels referentials, GenerateursDeReprise generateurs) {
         this.patients = patients;
         this.assures = assures;
         this.referentials = referentials;
@@ -272,7 +272,7 @@ public class PatientMigrator implements EntityMigrator {
         }
 
         Refs resolve(Row row, List<ValidationIssue> errors, List<ValidationIssue> warnings) {
-            UUID salle = find(row, "salle", ReferentialKind.SALLE, errors);
+            UUID salle = find(row, "salle", com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE, errors);
             GenerateurRepris generateurEquipement = findGenerateur(row, errors);
             UUID generateur = generateurEquipement == null ? null : generateurEquipement.id();
             if (generateurEquipement != null) {
@@ -344,7 +344,7 @@ public class PatientMigrator implements EntityMigrator {
         private Map<String, ReferentialEntry> index(ReferentialKind kind) {
             return indexes.computeIfAbsent(kind, k -> {
                 Map<String, ReferentialEntry> index = new HashMap<>();
-                for (ReferentialEntry e : referentials.findAllForMatching(center, k)) {
+                for (ReferentialEntry e : referentials.proposes(center, k)) {
                     Map<String, String> v = e.values();
                     List<String> keys = k.equals(com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.MEDECIN)
                             ? List.of(v.get("nom") + " " + nz(v.get("prenom")), nz(v.get("prenom")) + " " + v.get("nom"))

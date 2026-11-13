@@ -49,10 +49,10 @@ class TabularFileReaderTest {
 
     @Test
     void readsTheExcelTemplateItProduces() {
-        ImportTable table = reader.read("modele.xlsx", writer.xlsx(ReferentialKind.SALLE));
+        ImportTable table = reader.read("modele.xlsx", writer.xlsx(com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE));
 
         assertThat(table.headers()).containsExactlyElementsOf(
-                ReferentialKind.SALLE.fields().stream().map(ReferentialField::label).toList());
+                com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE.fields().stream().map(ReferentialField::label).toList());
         assertThat(table.rows()).hasSize(1);
         assertThat(table.rows().getFirst().lineNumber()).isEqualTo(2);
         assertThat(table.rows().getFirst().cells()).startsWith("S1", "Salle 1");

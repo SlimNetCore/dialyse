@@ -339,6 +339,23 @@ class OrganisationServiceTest {
                 com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId centreId) {
             return List.of();
         }
+
+        @Override
+        public List<com.hemodialyse.backend.contexts.organisation.domain.Salle> listerTousParCentre(
+                com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId centreId) {
+            return List.of();
+        }
+
+        @Override
+        public PageDeSalles page(com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId centreId, String recherche, int page,
+                                 int taille) {
+            return new PageDeSalles(List.of(), 0);
+        }
+
+        @Override
+        public void supprimer(com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId centreId,
+                              com.hemodialyse.backend.contexts.organisation.domain.SalleId id) {
+        }
     }
 
     private static class FakeCreneauRepository implements CreneauRepository {

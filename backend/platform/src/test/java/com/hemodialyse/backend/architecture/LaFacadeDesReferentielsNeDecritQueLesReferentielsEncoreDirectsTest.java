@@ -26,9 +26,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class LaFacadeDesReferentielsNeDecritQueLesReferentielsEncoreDirectsTest {
 
-    private static final Set<String> ENCORE_DIRECTS = Set.of("SALLE");
+    private static final Set<String> ENCORE_DIRECTS = Set.of();
     private static final Pattern RETOUR = Pattern.compile(
-            "ReferentialKind\\.(TRANSPORTEUR|FORFAIT|CAISSE|AGENCE|CENTRE_PAYEUR|CRENEAU|MEDECIN)\\b");
+            "ReferentialKind\\.(TRANSPORTEUR|FORFAIT|CAISSE|AGENCE|CENTRE_PAYEUR|CRENEAU|MEDECIN|SALLE)\\b");
 
     @Test
     void les_creneaux_sont_publies_par_l_organisation_et_distribues_par_la_facade() {
@@ -47,14 +47,38 @@ class LaFacadeDesReferentielsNeDecritQueLesReferentielsEncoreDirectsTest {
     }
 
     @Test
-    void la_facade_ne_connait_en_direct_que_salle() {
+    void les_salles_sont_publiees_par_l_organisation_et_distribuees_par_la_facade() {
+        assertThat(com.hemodialyse.backend.contexts.organisation.publishedlanguage.DescripteursDeLOrganisation.SALLE.slug())
+                .isEqualTo("salles");
+        assertThat(com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE.slug())
+                .isEqualTo("salles");
+    }
+
+    /**
+     * PL11-4, garde anti-retour : la table {@code salle} n'est plus écrite ni lue en SQL dynamique par l'administration générique (aucune
+     * table, aucune référence {@code SALLE} de la façade dans ses tables, aucun {@code ReferentialKind.SALLE}).
+     */
+    @Test
+    void l_administration_generique_n_ecrit_ni_ne_lit_plus_la_table_salle() throws IOException {
+        Path base = Path.of("src", "main", "java", "com", "hemodialyse", "backend", "infrastructure", "persistence", "adapter",
+                "referential").toAbsolutePath().normalize();
+        Pattern sqlSalle = Pattern.compile("(?i)\\b(from|update|into|join)\\s+salle\\b|\"salle\"|ReferentialKind\\.SALLE|salle_id");
+        for (String fichier : List.of("ReferentialAdminTables.java", "ReferentialAdminJdbcAdapter.java")) {
+            String source = Files.readString(base.resolve(fichier)).replaceAll("(?m)^\\s*(//|\\*|/\\*).*$", "");
+            assertThat(sqlSalle.matcher(source).find()).as(fichier).isFalse();
+        }
+        assertThat(Files.readString(base.resolve("ReferentialAdminTables.java")).replaceAll("(?m)^\\s*(//|\\*|/\\*).*$", ""))
+                .as("ReferentialAdminTables").doesNotContain("SALLE").doesNotContain("salle");
+    }
+
+    @Test
+    void la_facade_ne_connait_plus_aucun_referentiel_en_direct() {
         Set<String> constantes = Arrays.stream(ReferentialKind.class.getDeclaredFields())
                 .filter(f -> Modifier.isStatic(f.getModifiers()) && Modifier.isPublic(f.getModifiers())
                         && f.getType() == ReferentialKind.class)
                 .map(java.lang.reflect.Field::getName).collect(Collectors.toCollection(TreeSet::new));
         assertThat(constantes).isEqualTo(new TreeSet<>(ENCORE_DIRECTS));
-        assertThat(ReferentialKind.directs()).extracting(ReferentialKind::slug)
-                .containsExactly("salles");
+        assertThat(ReferentialKind.directs()).isEmpty();
     }
 
     @Test

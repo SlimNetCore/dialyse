@@ -315,7 +315,7 @@ final class InMemoryMigrationPorts {
         }
     }
 
-    static final class Referentials implements ReferentialAdminRepositoryPort {
+    static final class Referentials implements com.hemodialyse.backend.infrastructure.migration.port.AppariementDeReferentiels {
         final Map<ReferentialKind, List<ReferentialEntry>> rows = new HashMap<>();
 
         UUID add(ReferentialKind kind, Map<String, String> values) {
@@ -324,32 +324,9 @@ final class InMemoryMigrationPorts {
             return id;
         }
 
-        public PagedResult<ReferentialEntry> findPaged(CentreId c, ReferentialKind k, String s, int p, int size) {
-            throw new UnsupportedOperationException();
-        }
-
-        public Optional<ReferentialEntry> findById(CentreId c, ReferentialKind k, UUID id) {
-            return rows.getOrDefault(k, List.of()).stream().filter(e -> e.id().equals(id)).findFirst();
-        }
-
-        public List<ReferentialEntry> findAllForMatching(CentreId c, ReferentialKind k) {
+        @Override
+        public List<ReferentialEntry> proposes(CentreId c, ReferentialKind k) {
             return rows.getOrDefault(k, List.of());
-        }
-
-        public UUID insert(CentreId c, ReferentialKind k, Map<String, String> v) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void update(CentreId c, ReferentialKind k, UUID id, Map<String, String> v) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void delete(CentreId c, ReferentialKind k, UUID id) {
-            throw new UnsupportedOperationException();
-        }
-
-        public long countUsages(CentreId c, ReferentialKind k, UUID id) {
-            return 0;
         }
     }
 

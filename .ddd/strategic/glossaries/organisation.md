@@ -11,7 +11,7 @@ sources: [.ddd/discovery/glossary.md, .ddd/discovery/event-storming.md §1]
 | Société | Entité juridique regroupant des centres | `Societe` / `SocieteId` (kernel) | `societes` | — | — | proposed |
 | Centre | Établissement de dialyse, unité d'isolement des données | `Centre` / `CentreId` (kernel) | `CenterId`, `center`, `centers` | Center | isolement par centre (RG-TRV-002) | proposed |
 | Transfert de centre | Rattachement d'un centre à une autre société | `Centre.transfererVers()` / `CentreTransfere` | `SocieteDomainService` | — | — | proposed |
-| Salle | Local de dialyse d'un centre (dont salles d'isolement) | `Salle` | `SalleRef` | — | — | proposed |
+| Salle | Local de dialyse d'un centre (dont salles d'isolement) ; une salle utilisée est désactivée et n'est plus proposée (PL11-4, ADR 0160), redevient proposée si son code est ressaisi | `Salle` | `SalleRef` | — | — | proposed |
 | Créneau | Plage horaire de dialyse d'un centre | `Creneau` | `CreneauRef` | — | — | proposed |
 | Créneau désactivé | Créneau encore référencé (patients, mouvements, séances, plannings, affectations d'infirmiers) que l'administration n'efface plus : il n'est plus proposé mais l'historique le conserve ; ressaisir son code le réactive (à confirmer métiers avant le 2026-12-15) | `Creneau.desactiver()` / `reactiver()` | `position_creneau.actif` (V58) | « supprimé » | ADR 0158, D3, D4, D10 | proposed |
 | Médecin désactivé | Médecin traitant que l'administration n'efface jamais (patients, prescriptions, ordonnances, séances le référencent) : il n'est plus proposé ; ressaisir ou réimporter ses nom et prénom le réactive, sans doublon (D5, D6) | `Medecin` (`desactiver`, `reactiver`) | — | — | ADR 0159 | proposed |

@@ -64,7 +64,7 @@ class SallesPl11CharacterizationIntegrationTest extends Pl11FiletSupport {
         traceSql("affectations orphelines apres suppression", "SELECT COUNT(*) AS lignes FROM infirmier_affectation WHERE center_id = ?", CENTRE_A);
         traceSql("seances orphelines apres suppression",
                 "SELECT COUNT(*) AS lignes FROM seances s WHERE s.center_id = ? AND NOT EXISTS (SELECT 1 FROM salle WHERE id = s.salle_id)", CENTRE_A);
-        verrouiller("refus-d-usage-par-dependance");
+        verrouiller("refus-d-usage-par-dependance_nouveau_code"); // PL11-4 (D3, D4)
     }
 
     @Test
@@ -133,7 +133,7 @@ class SallesPl11CharacterizationIntegrationTest extends Pl11FiletSupport {
         trace("modification d'une salle d'un autre centre via le centre A", modifier("salles", b, CENTRE_A, "{'code':'SB','nom':'x'}", admin()));
         traceSql("etat final A", ETAT, CENTRE_A);
         traceSql("etat final B", ETAT, CENTRE_B);
-        verrouiller("modification-remplacement-complet");
+        verrouiller("modification-remplacement-complet_nouveau_code"); // PL11-4 (D8)
     }
 
     @Test
@@ -207,7 +207,7 @@ class SallesPl11CharacterizationIntegrationTest extends Pl11FiletSupport {
         for (int i = 0; i < 5001; i++) gros.append("G").append(i).append(",Salle ").append(i).append('\n');
         trace("5001 lignes", importer("salles", CENTRE_A, false, gros.toString(), admin()));
         traceSql("etat final", ETAT, CENTRE_A);
-        verrouiller("import-des-salles");
+        verrouiller("import-des-salles_nouveau_code"); // PL11-4 (D8)
     }
 
     @Test
@@ -220,19 +220,21 @@ class SallesPl11CharacterizationIntegrationTest extends Pl11FiletSupport {
     }
 
     @Test
-    void une_erreur_du_controle_d_usage_autorise_la_suppression() throws Exception {
+    void une_erreur_du_controle_d_usage_refuse_la_suppression() throws Exception {
         UUID s = salle(CENTRE_A, "S", "S1", "Avec equipement");
         equipement(CENTRE_A, s);
-        trace("controle normal", supprimer("salles", s, CENTRE_A, admin()));
+        trace("controle normal : salle equipee desactivee (D4)", supprimer("salles", s, CENTRE_A, admin()));
+        UUID autre = salle(CENTRE_A, "T", "S2", "Controle en erreur");
         jdbc.execute("ALTER TABLE gmao_equipements RENAME TO gmao_equipements_hors_service");
+        s = autre;
         try {
-            trace("table des equipements indisponible : suppression autorisee", supprimer("salles", s, CENTRE_A, admin()));
+            trace("table des equipements indisponible : suppression refusee (D10)", supprimer("salles", s, CENTRE_A, admin()));
         } finally {
             jdbc.execute("ALTER TABLE gmao_equipements_hors_service RENAME TO gmao_equipements");
         }
         traceSql("salle en base", ETAT, CENTRE_A);
         traceSql("equipement orphelin", "SELECT COUNT(*) AS lignes FROM gmao_equipements WHERE centre_id = ? AND salle_id = ?", CENTRE_A, s);
-        verrouiller("erreur-du-controle-d-usage");
+        verrouiller("erreur-du-controle-d-usage_nouveau_code"); // PL11-4 (D4, D10)
     }
 
     @Test

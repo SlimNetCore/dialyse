@@ -74,7 +74,7 @@ class MigrationDomainServiceTest {
         assures = new InMemoryMigrationPorts.Assures();
         referentials = new InMemoryMigrationPorts.Referentials();
         equipements = new InMemoryMigrationPorts.Generateurs();
-        salle = referentials.add(ReferentialKind.SALLE, Map.of("code", "S1", "nom", "Salle 1"));
+        salle = referentials.add(com.hemodialyse.backend.infrastructure.acl.organisation.ReferentielsDeLOrganisation.SALLE, Map.of("code", "S1", "nom", "Salle 1"));
         generateur = equipements.addGenerateur(CENTER, "G01", salle);
         service = new MigrationDomainService(batches, ids, values, rollback, List.of(
                 new AssureMigrator(assures),

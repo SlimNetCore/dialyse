@@ -340,7 +340,8 @@ CREATE TABLE IF NOT EXISTS salle (
 (
     255
 ) NOT NULL,
-    ouverte BOOLEAN NOT NULL DEFAULT TRUE
+    ouverte BOOLEAN NOT NULL DEFAULT TRUE,
+    actif BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 -- Les générateurs de dialyse sont l'agrégat GMAO Equipement (type GENERATEUR_DIALYSE, table gmao_equipements, gérée

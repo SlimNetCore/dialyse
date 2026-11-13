@@ -539,6 +539,12 @@ public class GmaoConfiguration {
         return new GenerateursDuCentreJpa(equipements);
     }
 
+    /** Langage publié {@code EquipementsDeLaSalle} (PL11-4, ADR 0160) : l'Organisation compte les équipements d'une salle avant de la supprimer. */
+    @Bean
+    com.hemodialyse.backend.contexts.gmao.publishedlanguage.EquipementsDeLaSalle gmaoEquipementsDeLaSalle(EquipementSpringData equipements) {
+        return equipements::compterDeLaSalle;
+    }
+
     /** Langage publié {@code IndisponibilitesDesGenerateurs} : la maintenance des générateurs de la Planification lit les immobilisations. */
     @Bean
     IndisponibilitesDesGenerateurs gmaoIndisponibilitesDesGenerateurs(InterventionSpringData interventions) {

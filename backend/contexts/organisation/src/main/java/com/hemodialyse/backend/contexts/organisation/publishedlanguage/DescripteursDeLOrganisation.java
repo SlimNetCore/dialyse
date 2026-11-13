@@ -21,6 +21,18 @@ public final class DescripteursDeLOrganisation {
                     new DescripteurDeReferentiel.Champ("specialite", "Spécialité", false, 255, "Néphrologue", List.of())),
             List.of("nom", "prenom"));
 
+    /**
+     * PL11-4 (ADR 0160) : les salles. Clé d'unicité : le code. Isolement : NON par défaut ; capacité : entier facultatif (générateurs max.).
+     */
+    public static final DescripteurDeReferentiel SALLE = new DescripteurDeReferentiel("salles", "Salles", 1,
+            List.of(new DescripteurDeReferentiel.Champ("code", "Code", true, 50, "S1", List.of("code salle")),
+                    new DescripteurDeReferentiel.Champ("nom", "Nom", true, 255, "Salle 1", List.of("libelle", "salle")),
+                    new DescripteurDeReferentiel.Champ("isolement", "Salle d'isolement", true, 30, "NON",
+                            List.of("isolement", "salle isolement"), DescripteurDeReferentiel.Genre.CHOIX, List.of("NON", "OUI"), "NON"),
+                    new DescripteurDeReferentiel.Champ("capacite", "Capacité (générateurs max.)", false, 0, "12",
+                            List.of("capacite", "nombre de generateurs"), DescripteurDeReferentiel.Genre.ENTIER, List.of(), null)),
+            List.of("code"));
+
     private DescripteursDeLOrganisation() {
     }
 }

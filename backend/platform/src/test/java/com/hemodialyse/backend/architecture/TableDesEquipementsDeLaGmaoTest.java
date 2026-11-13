@@ -34,10 +34,7 @@ class TableDesEquipementsDeLaGmaoTest {
             "2026-11-07 : ACL de Patient et couverture vers la GMAO (générateurs du centre) ; échéance : lecture publiée de la GMAO",
             "contexts/patient-couverture/src/main/java/com/hemodialyse/backend/contexts/patientcouverture/infrastructure/persistence/"
                     + "LectureDesMouvementsJdbc.java",
-            "2026-11-07 : lecture des mouvements avec le générateur du patient ; échéance : lecture publiée de la GMAO",
-            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/referential/ReferentialAdminTables.java",
-            "2026-11-07 : descripteur « usages » du référentiel d'administration (COUNT avant suppression) ; échéance : reprise du "
-                    + "référentiel d'administration (organisation.v1)");
+            "2026-11-07 : lecture des mouvements avec le générateur du patient ; échéance : lecture publiée de la GMAO");
 
     private static List<String> lecteurs(Path backend) throws IOException {
         try (Stream<Path> fichiers = Files.walk(backend)) {

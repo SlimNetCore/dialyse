@@ -32,20 +32,23 @@ public class SallesEtCreneauxDuCentreJdbc implements SallesEtCreneauxDuCentre {
 
     @Override
     public List<SalleDuCentre> sallesParCode(UUID centre) {
-        return jdbc.query("SELECT " + COLONNES + " FROM salle WHERE center_id = ? ORDER BY code", SALLE, centre);
+        return jdbc.query("SELECT " + COLONNES + " FROM salle WHERE center_id = ? AND actif = TRUE ORDER BY code", SALLE, centre);
     }
 
     @Override
     public PageDeSalles pageDesSalles(UUID centre, int taille, long decalage) {
-        Long total = jdbc.queryForObject("SELECT COUNT(*) FROM salle WHERE center_id = ?", Long.class, centre);
-        List<SalleDuCentre> salles = jdbc.query("SELECT " + COLONNES + " FROM salle WHERE center_id = ? ORDER BY code LIMIT ? OFFSET ?",
+        Long total = jdbc.queryForObject("SELECT COUNT(*) FROM salle WHERE center_id = ? AND actif = TRUE", Long.class, centre);
+        List<SalleDuCentre> salles = jdbc.query(
+                "SELECT " + COLONNES + " FROM salle WHERE center_id = ? AND actif = TRUE ORDER BY code LIMIT ? OFFSET ?",
                 SALLE, centre, taille, decalage);
         return new PageDeSalles(salles, total == null ? 0 : total);
     }
 
+    /** PL11-4 (D4) : une salle désactivée n'est plus proposée (ni placement, ni lecture de la salle). */
     @Override
     public Optional<SalleDuCentre> salleDuCentre(UUID centre, UUID salle) {
-        return jdbc.query("SELECT " + COLONNES + " FROM salle WHERE center_id = ? AND id = ?", SALLE, centre, salle).stream().findFirst();
+        return jdbc.query("SELECT " + COLONNES + " FROM salle WHERE center_id = ? AND id = ? AND actif = TRUE", SALLE, centre, salle)
+                .stream().findFirst();
     }
 
     @Override

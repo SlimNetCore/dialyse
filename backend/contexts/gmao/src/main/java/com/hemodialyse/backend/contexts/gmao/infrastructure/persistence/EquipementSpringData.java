@@ -48,6 +48,10 @@ public interface EquipementSpringData extends JpaRepository<EquipementJpa, UUID>
             + "AND e.type = 'GENERATEUR_DIALYSE' AND e.deletedAt IS NULL ORDER BY e.code")
     List<Object[]> generateursDuCentre(@Param("centreId") UUID centreId);
 
+    /** Nombre d'équipements rattachés à une salle, supprimés compris (ils référencent encore la salle). */
+    @Query("SELECT COUNT(e) FROM EquipementJpa e WHERE e.salleId = :salle")
+    long compterDeLaSalle(@Param("salle") UUID salle);
+
     @Query("SELECT COUNT(e) FROM EquipementJpa e WHERE e.centreId = :centreId AND e.code = :code AND e.deletedAt IS NULL")
     long compterCodeNonSupprime(@Param("centreId") UUID centreId, @Param("code") String code);
 }

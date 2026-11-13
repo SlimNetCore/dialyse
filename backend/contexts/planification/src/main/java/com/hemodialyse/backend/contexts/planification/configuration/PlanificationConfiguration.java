@@ -839,4 +839,10 @@ public class PlanificationConfiguration {
     com.hemodialyse.backend.contexts.organisation.publishedlanguage.UsageDuCreneau usageDuCreneauParLaPlanification(JdbcTemplate jdbc) {
         return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.organisation.UsageDuCreneauParLaPlanification(jdbc);
     }
+
+    /** PL11-4 (ADR 0160) : ce que la Planification retient d'une salle de l'Organisation (suppression ou désactivation). */
+    @Bean
+    com.hemodialyse.backend.contexts.organisation.publishedlanguage.UsageDeLaSalle usageDeLaSalleParLaPlanification(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.organisation.UsageDeLaSalleParLaPlanification(jdbc);
+    }
 }

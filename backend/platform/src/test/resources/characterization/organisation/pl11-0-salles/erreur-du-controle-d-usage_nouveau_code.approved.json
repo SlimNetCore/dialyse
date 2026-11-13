@@ -1,0 +1,38 @@
+{
+  "01 controle normal : salle equipee desactivee (D4)" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "02 table des equipements indisponible : suppression refusee (D10)" : {
+    "body" : {
+      "code" : "REFERENTIAL_USAGE_UNVERIFIABLE",
+      "detail" : "Suppression impossible : l'usage de cet élément de « Salles » n'a pas pu être vérifié. Réessayez plus tard.",
+      "instance" : "/api/v1/admin/referentials/salles/<T>",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "03 salle en base" : {
+    "lignes" : [ {
+      "capacite" : null,
+      "code" : "S1",
+      "isolement" : "NON",
+      "nom" : "Avec equipement",
+      "ouverte" : "true"
+    }, {
+      "capacite" : null,
+      "code" : "S2",
+      "isolement" : "NON",
+      "nom" : "Controle en erreur",
+      "ouverte" : "true"
+    } ]
+  },
+  "04 equipement orphelin" : {
+    "lignes" : [ {
+      "lignes" : "0"
+    } ]
+  }
+}

@@ -1,0 +1,138 @@
+{
+  "01 avant" : {
+    "lignes" : [ {
+      "capacite" : "12",
+      "code" : "S1",
+      "isolement" : "OUI",
+      "nom" : "Salle une",
+      "ouverte" : "false"
+    } ]
+  },
+  "02 modification sans capacite ni isolement" : {
+    "body" : {
+      "id" : "<S>",
+      "references" : { },
+      "values" : {
+        "capacite" : "12",
+        "code" : "S1",
+        "isolement" : "OUI",
+        "nom" : "Renommee"
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "03 apres : capacite effacee, isolement remis a NON, ouverte conservee" : {
+    "lignes" : [ {
+      "capacite" : "12",
+      "code" : "S1",
+      "isolement" : "OUI",
+      "nom" : "Renommee",
+      "ouverte" : "false"
+    } ]
+  },
+  "04 remise d'une capacite" : {
+    "body" : {
+      "id" : "<S>",
+      "references" : { },
+      "values" : {
+        "capacite" : "8",
+        "code" : "S1",
+        "isolement" : "OUI",
+        "nom" : "Renommee"
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "05 capacite nulle explicite" : {
+    "body" : {
+      "id" : "<S>",
+      "references" : { },
+      "values" : {
+        "capacite" : "8",
+        "code" : "S1",
+        "isolement" : "OUI",
+        "nom" : "Renommee"
+      }
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "06 apres capacite nulle" : {
+    "lignes" : [ {
+      "capacite" : "8",
+      "code" : "S1",
+      "isolement" : "OUI",
+      "nom" : "Renommee",
+      "ouverte" : "false"
+    } ]
+  },
+  "07 modification invalide : rien n'est ecrit" : {
+    "body" : {
+      "code" : "REFERENTIAL_VALIDATION",
+      "detail" : "« Nom » est obligatoire. « Capacité (générateurs max.) » doit être compris entre 1 et 999.",
+      "instance" : "/api/v1/admin/referentials/salles/<S>",
+      "issues" : [ {
+        "code" : "REQUIRED",
+        "field" : "nom",
+        "message" : "« Nom » est obligatoire.",
+        "params" : { },
+        "row" : 0
+      }, {
+        "code" : "INTEGER_OUT_OF_RANGE",
+        "field" : "capacite",
+        "message" : "« Capacité (générateurs max.) » doit être compris entre 1 et 999.",
+        "params" : {
+          "max" : "999",
+          "value" : "0"
+        },
+        "row" : 0
+      } ],
+      "status" : 422,
+      "title" : "Saisie invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "08 modification d'une salle inconnue" : {
+    "body" : {
+      "code" : "REFERENTIAL_NOT_FOUND",
+      "detail" : "Élément introuvable dans « Salles » pour ce centre.",
+      "instance" : "/api/v1/admin/referentials/salles/<UUID_GENERE_1>",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "09 modification d'une salle d'un autre centre via le centre A" : {
+    "body" : {
+      "code" : "REFERENTIAL_NOT_FOUND",
+      "detail" : "Élément introuvable dans « Salles » pour ce centre.",
+      "instance" : "/api/v1/admin/referentials/salles/<B>",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "10 etat final A" : {
+    "lignes" : [ {
+      "capacite" : "8",
+      "code" : "S1",
+      "isolement" : "OUI",
+      "nom" : "Renommee",
+      "ouverte" : "false"
+    } ]
+  },
+  "11 etat final B" : {
+    "lignes" : [ {
+      "capacite" : null,
+      "code" : "SB",
+      "isolement" : "NON",
+      "nom" : "Salle B",
+      "ouverte" : "true"
+    } ]
+  }
+}

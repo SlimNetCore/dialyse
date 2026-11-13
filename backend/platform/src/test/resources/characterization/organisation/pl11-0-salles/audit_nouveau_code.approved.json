@@ -52,15 +52,9 @@
     "status" : 200
   },
   "04 suppression refusee" : {
-    "body" : {
-      "code" : "REFERENTIAL_IN_USE",
-      "detail" : "Suppression impossible : cet élément de « Salles » est encore utilisé (1 référence(s) : patients, prises en charge, séances ou autres référentiels).",
-      "instance" : "/api/v1/admin/referentials/salles/<U>",
-      "status" : 422,
-      "title" : "Regle metier violee"
-    },
-    "contentType" : "application/problem+json",
-    "status" : 422
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
   },
   "05 suppression" : {
     "body" : null,
@@ -111,15 +105,6 @@
   "09 lecture" : {
     "body" : {
       "items" : [ {
-        "id" : "<U>",
-        "references" : { },
-        "values" : {
-          "capacite" : null,
-          "code" : "S2",
-          "isolement" : "NON",
-          "nom" : "Utilisee"
-        }
-      }, {
         "id" : "<UUID_GENERE_1>",
         "references" : { },
         "values" : {
@@ -140,7 +125,7 @@
       } ],
       "page" : 0,
       "size" : 20,
-      "total" : 3
+      "total" : 2
     },
     "contentType" : "application/json",
     "status" : 200
@@ -229,16 +214,16 @@
       "status_code" : "204"
     }, {
       "action_code" : "ADMIN_SUPPRESSION",
-      "entity_id" : "<UUID_GENERE_2>",
+      "entity_id" : "<U>",
       "entity_type" : "admin",
       "http_method" : "DELETE",
       "nombre" : "1",
       "roles" : "ROLE_ADMIN",
       "route_template" : "/api/v1/admin/referentials/{kind}/{id}",
-      "status_code" : "422"
+      "status_code" : "204"
     }, {
       "action_code" : "ADMIN_SUPPRESSION",
-      "entity_id" : "<U>",
+      "entity_id" : "<UUID_GENERE_2>",
       "entity_type" : "admin",
       "http_method" : "DELETE",
       "nombre" : "1",

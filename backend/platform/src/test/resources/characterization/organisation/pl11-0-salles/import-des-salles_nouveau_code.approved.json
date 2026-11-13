@@ -1,0 +1,267 @@
+{
+  "01 verification par defaut" : {
+    "body" : {
+      "applied" : false,
+      "created" : 1,
+      "errors" : [ ],
+      "ignoredColumns" : [ ],
+      "kind" : "salles",
+      "missingColumns" : [ ],
+      "totalRows" : 2,
+      "updated" : 1,
+      "valid" : true
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "02 rien d'ecrit" : {
+    "lignes" : [ {
+      "capacite" : "12",
+      "code" : "S1",
+      "isolement" : "OUI",
+      "nom" : "Existante",
+      "ouverte" : "false"
+    } ]
+  },
+  "03 import reel" : {
+    "body" : {
+      "applied" : true,
+      "created" : 1,
+      "errors" : [ ],
+      "ignoredColumns" : [ ],
+      "kind" : "salles",
+      "missingColumns" : [ ],
+      "totalRows" : 2,
+      "updated" : 1,
+      "valid" : true
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "04 etat apres import : capacite de S1 effacee, ouverte conservee" : {
+    "lignes" : [ {
+      "capacite" : "12",
+      "code" : "S1",
+      "isolement" : "NON",
+      "nom" : "Renommee",
+      "ouverte" : "false"
+    }, {
+      "capacite" : "6",
+      "code" : "S2",
+      "isolement" : "OUI",
+      "nom" : "Deux",
+      "ouverte" : "true"
+    } ]
+  },
+  "05 en-tetes par alias" : {
+    "body" : {
+      "applied" : true,
+      "created" : 1,
+      "errors" : [ ],
+      "ignoredColumns" : [ ],
+      "kind" : "salles",
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : true
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "06 sans les colonnes facultatives : isolement et capacite remis a zero" : {
+    "body" : {
+      "applied" : true,
+      "created" : 0,
+      "errors" : [ ],
+      "ignoredColumns" : [ ],
+      "kind" : "salles",
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 1,
+      "valid" : true
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "07 etat" : {
+    "lignes" : [ {
+      "capacite" : "12",
+      "code" : "S1",
+      "isolement" : "NON",
+      "nom" : "Renommee",
+      "ouverte" : "false"
+    }, {
+      "capacite" : "6",
+      "code" : "S2",
+      "isolement" : "OUI",
+      "nom" : "Deux bis",
+      "ouverte" : "true"
+    }, {
+      "capacite" : "4",
+      "code" : "S3",
+      "isolement" : "OUI",
+      "nom" : "Trois",
+      "ouverte" : "true"
+    } ]
+  },
+  "08 capacite invalide, isolement invalide, doublon dans le fichier" : {
+    "body" : {
+      "applied" : false,
+      "created" : 1,
+      "errors" : [ {
+        "code" : "INVALID_VALUE",
+        "field" : "isolement",
+        "message" : "« Salle d'isolement » : « PEUT » n'est pas une valeur autorisée (NON, OUI).",
+        "params" : {
+          "allowed" : "NON, OUI",
+          "value" : "PEUT"
+        },
+        "row" : 2
+      }, {
+        "code" : "INTEGER_OUT_OF_RANGE",
+        "field" : "capacite",
+        "message" : "« Capacité (générateurs max.) » doit être compris entre 1 et 999.",
+        "params" : {
+          "max" : "999",
+          "value" : "0"
+        },
+        "row" : 3
+      }, {
+        "code" : "INVALID_INTEGER",
+        "field" : "capacite",
+        "message" : "« Capacité (générateurs max.) » : « x » n'est pas un nombre entier (ex. 12).",
+        "params" : {
+          "value" : "x"
+        },
+        "row" : 4
+      }, {
+        "code" : "DUPLICATE_IN_FILE",
+        "field" : "code",
+        "message" : "Doublon : même code qu'à la ligne 5.",
+        "params" : {
+          "firstRow" : "5"
+        },
+        "row" : 6
+      } ],
+      "ignoredColumns" : [ ],
+      "kind" : "salles",
+      "missingColumns" : [ ],
+      "totalRows" : 5,
+      "updated" : 0,
+      "valid" : false
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "09 colonne inconnue ignoree" : {
+    "body" : {
+      "applied" : false,
+      "created" : 1,
+      "errors" : [ ],
+      "ignoredColumns" : [ "couleur" ],
+      "kind" : "salles",
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : true
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "10 fichier sans ligne de donnees" : {
+    "body" : {
+      "applied" : false,
+      "created" : 0,
+      "errors" : [ {
+        "code" : "NO_DATA",
+        "field" : null,
+        "message" : "Le fichier ne contient aucune ligne de données sous les en-têtes.",
+        "params" : { },
+        "row" : 0
+      } ],
+      "ignoredColumns" : [ ],
+      "kind" : "salles",
+      "missingColumns" : [ ],
+      "totalRows" : 0,
+      "updated" : 0,
+      "valid" : false
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "11 colonne obligatoire absente (nom)" : {
+    "body" : {
+      "applied" : false,
+      "created" : 0,
+      "errors" : [ ],
+      "ignoredColumns" : [ ],
+      "kind" : "salles",
+      "missingColumns" : [ "nom" ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : false
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "12 lignes blanches ignorees" : {
+    "body" : {
+      "applied" : false,
+      "created" : 1,
+      "errors" : [ ],
+      "ignoredColumns" : [ ],
+      "kind" : "salles",
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : true
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "13 5001 lignes" : {
+    "body" : {
+      "applied" : false,
+      "created" : 0,
+      "errors" : [ {
+        "code" : "TOO_MANY_ROWS",
+        "field" : null,
+        "message" : "Le fichier contient 5001 lignes : le maximum est 5000 par import. Découpez-le en plusieurs fichiers.",
+        "params" : {
+          "count" : "5001",
+          "max" : "5000"
+        },
+        "row" : 0
+      } ],
+      "ignoredColumns" : [ ],
+      "kind" : "salles",
+      "missingColumns" : [ ],
+      "totalRows" : 5001,
+      "updated" : 0,
+      "valid" : false
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "14 etat final" : {
+    "lignes" : [ {
+      "capacite" : "12",
+      "code" : "S1",
+      "isolement" : "NON",
+      "nom" : "Renommee",
+      "ouverte" : "false"
+    }, {
+      "capacite" : "6",
+      "code" : "S2",
+      "isolement" : "OUI",
+      "nom" : "Deux bis",
+      "ouverte" : "true"
+    }, {
+      "capacite" : "4",
+      "code" : "S3",
+      "isolement" : "OUI",
+      "nom" : "Trois",
+      "ouverte" : "true"
+    } ]
+  }
+}

@@ -19,7 +19,7 @@ import com.hemodialyse.backend.infrastructure.migration.service.MigrationDomainS
 import com.hemodialyse.backend.infrastructure.migration.service.OpeningBalanceMigrator;
 import com.hemodialyse.backend.infrastructure.migration.service.PatientMigrator;
 import com.hemodialyse.backend.infrastructure.migration.service.PatientRecordMigrator;
-import com.hemodialyse.backend.infrastructure.referential.admin.port.ReferentialAdminRepositoryPort;
+import com.hemodialyse.backend.infrastructure.migration.port.AppariementDeReferentiels;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -39,7 +39,7 @@ public class MigrationConfig {
                                                          ValueMappingPort values, MigrationRollbackPort rollback,
                                                          RepriseDesPatients reprisePatients, RepriseDesAssures assures,
                                                          RepriseDesAffectations repriseAffectations,
-                                                         ReferentialAdminRepositoryPort referentials,
+                                                         AppariementDeReferentiels referentials,
                                                          GenerateursDuCentre generateurs,
                                                          HistoricalRecordPort records, OpeningBalancePort balances) {
         List<EntityMigrator> migrators = new ArrayList<>(List.of(

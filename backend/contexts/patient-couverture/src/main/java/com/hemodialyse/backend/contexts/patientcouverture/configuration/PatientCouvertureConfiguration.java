@@ -472,4 +472,10 @@ public class PatientCouvertureConfiguration {
     public com.hemodialyse.backend.contexts.organisation.publishedlanguage.UsageDuCreneau usageDuCreneauParLesPatients(JdbcTemplate jdbc) {
         return new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.UsageDuCreneauParLesPatients(jdbc);
     }
+
+    /** PL11-4 (ADR 0160) : ce que les patients et leurs mouvements retiennent d'une salle de l'Organisation (suppression ou désactivation). */
+    @Bean
+    public com.hemodialyse.backend.contexts.organisation.publishedlanguage.UsageDeLaSalle usageDeLaSalleParLesPatients(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.UsageDeLaSalleParLesPatients(jdbc);
+    }
 }
