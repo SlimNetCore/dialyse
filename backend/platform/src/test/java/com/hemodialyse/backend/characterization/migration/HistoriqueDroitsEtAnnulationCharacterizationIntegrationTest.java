@@ -73,6 +73,31 @@ class HistoriqueDroitsEtAnnulationCharacterizationIntegrationTest extends Histor
         golden("droits_et_garde_de_centre", r);
     }
 
+    /** KB-S6a-7 corrige (RP-KB, ADR 0168) : deux executions d'une meme donnee de meme horodatage ne donnent qu'un compte rendu. */
+    @Test
+    void le_lot_ne_liste_qu_un_compte_rendu_par_donnee_meme_a_horodatage_egal() throws Exception {
+        UUID lot = ouvrirLot(adminA());
+        java.time.OffsetDateTime meme = java.time.OffsetDateTime.parse("2026-01-01T10:00:00Z");
+        for (String fichier : new String[]{"premier.csv", "second.csv"}) {
+            String rapport = "{\"entity\":\"patients\",\"fileName\":\"" + fichier + "\",\"totalRows\":1,\"created\":1,\"updated\":0,"
+                    + "\"missingColumns\":[],\"ignoredColumns\":[],\"errors\":[],\"warnings\":[],\"dryRun\":false,\"applied\":true,"
+                    + "\"executedBy\":\"u\",\"executedAt\":null}";
+            jdbc.update("INSERT INTO migration_entity_run (id, batch_id, center_id, entity, file_name, dry_run, applied, total_rows, "
+                            + "created_count, updated_count, error_count, warning_count, report_json, executed_by, executed_at) "
+                            + "VALUES (?, ?, ?, 'patients', ?, false, true, 1, 1, 0, 0, 0, ?, 'u', ?)",
+                    UUID.randomUUID(), lot, CENTRE_A, fichier, rapport, meme);
+        }
+        String premiere = null;
+        for (int i = 0; i < 3; i++) {
+            String corps = envoyer(get(BASE + "/batches/{id}", lot), adminA()).raw();
+            int nb = (corps.contains("premier.csv") ? 1 : 0) + (corps.contains("second.csv") ? 1 : 0);
+            org.junit.jupiter.api.Assertions.assertEquals(1, nb, corps);
+            String retenu = corps.contains("premier.csv") ? "premier" : "second";
+            if (premiere == null) premiere = retenu;
+            org.junit.jupiter.api.Assertions.assertEquals(premiere, retenu);
+        }
+    }
+
     @Test
     void l_annulation_supprime_ce_que_le_lot_a_cree_et_conserve_ce_qu_il_a_seulement_mis_a_jour() throws Exception {
         UUID lot = ouvrirLot(adminA());

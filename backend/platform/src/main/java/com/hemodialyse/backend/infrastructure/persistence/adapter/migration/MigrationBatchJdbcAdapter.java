@@ -94,8 +94,11 @@ public class MigrationBatchJdbcAdapter implements MigrationBatchRepositoryPort {
     @Override
     public List<EntityRun> findLatestRuns(CentreId centerId, UUID batchId) {
         return jdbc.query("SELECT r.report_json FROM migration_entity_run r WHERE r.batch_id = ? AND r.center_id = ? "
-                        + "AND r.executed_at = (SELECT MAX(x.executed_at) FROM migration_entity_run x "
-                        + "WHERE x.batch_id = r.batch_id AND x.entity = r.entity) ORDER BY r.executed_at",
+                        // KB-S6a-7 (RP-KB, ADR 0168) : une seule exécution par entité, départagée par l'identifiant
+                        // quand deux exécutions portent le même executed_at.
+                        + "AND NOT EXISTS (SELECT 1 FROM migration_entity_run x WHERE x.batch_id = r.batch_id "
+                        + "AND x.entity = r.entity AND (x.executed_at > r.executed_at "
+                        + "OR (x.executed_at = r.executed_at AND x.id > r.id))) ORDER BY r.executed_at, r.id",
                 (rs, i) -> json.readValue(rs.getString("report_json"), StoredRun.class).toDomain(), batchId, centerId.valeur());
     }
 

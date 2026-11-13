@@ -26,6 +26,9 @@ public final class LegacyValueParser {
      * Ordre de {@code JoursDialyse} : dimanche → samedi.
      */
     public static final List<String> DAY_CODES = List.of("DIM", "LUN", "MAR", "MER", "JEU", "VEN", "SAM");
+
+    private static final Map<String, String> FULL_DAY_NAMES = Map.of("DIMANCHE", "DIM", "LUNDI", "LUN", "MARDI", "MAR",
+            "MERCREDI", "MER", "JEUDI", "JEU", "VENDREDI", "VEN", "SAMEDI", "SAM");
     private static final List<DateTimeFormatter> DATE_FORMATS = List.of(
             DateTimeFormatter.ofPattern("uuuu-MM-dd").withResolverStyle(ResolverStyle.STRICT),
             DateTimeFormatter.ofPattern("d/M/uuuu").withResolverStyle(ResolverStyle.STRICT),
@@ -188,7 +191,8 @@ public final class LegacyValueParser {
         Set<String> days = new LinkedHashSet<>();
         for (String token : toCode(value).split("_+")) {
             if (token.isEmpty() || token.equals("ET")) continue;
-            String day = token.length() >= 3 ? token.substring(0, 3) : "";
+            // KB-S6a-4 (RP-KB, ADR 0168) : le code (« LUN ») ou le nom complet (« Lundi ») — plus « Lunch ».
+            String day = DAY_CODES.contains(token) ? token : FULL_DAY_NAMES.getOrDefault(token, "");
             if (!DAY_CODES.contains(day)) {
                 issues.add(issue(column, "INVALID_DAYS", "« " + column.label() + " » : « " + value
                         + " » — jours attendus : Lun, Mar, Mer, Jeu, Ven, Sam, Dim.", Map.of("value", value)));

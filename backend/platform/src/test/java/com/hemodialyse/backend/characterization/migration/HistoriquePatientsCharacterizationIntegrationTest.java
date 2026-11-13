@@ -129,7 +129,8 @@ class HistoriquePatientsCharacterizationIntegrationTest extends HistoriquePatien
                 "P2;ZF201;N;P;M;1950-01-01;2018-01-01;;Enfant;ZX-INCONNU",
                 "P3;ZF202;N;P;M;1950-01-01;2018-01-01;;Conjoint;ZX-B"), false)));
         r.set("2_etat", etat());
-        golden("patients_formats_invalides_et_assures_manquants", r);
+        // KB-S6a-4 corrige (RP-KB, ADR 0168) : « Lunch » est refuse (ancien golden : _ecarts-legacy/patients).
+        golden("patients_formats_invalides_et_assures_manquants_nouveau_code", r);
     }
 
     @Test

@@ -181,8 +181,10 @@ chaque ligne** avant d'écrire, **n'enregistre rien tant qu'un fichier
   (`MIGRATION_LABEL_REQUIRED`), système d'origine facultatif, **date de début de reprise** facultative
   non future (`MIGRATION_START_IN_FUTURE`) qui borne les données historiques (les lignes antérieures sont ignorées avec
   avertissement `OUT_OF_PERIOD`). **Un seul lot actif par centre**
-  (`MIGRATION_BATCH_ALREADY_OPEN`) ; lot inconnu : `MIGRATION_BATCH_NOT_FOUND`. Réservé à `ADMIN` (son centre) et
-  `SUPERADMIN`.
+  (`MIGRATION_BATCH_ALREADY_OPEN`) ; lot inconnu : `MIGRATION_BATCH_NOT_FOUND`. Réservé à `ADMIN` (son centre). Le
+  `SUPERADMIN` est **refusé** (`403 ROLE_SCOPE`, filtre de portée des rôles : il n'accède à aucune donnée d'un centre) ;
+  maintenu par l'ADR 0168 (KB-S6a-6), **à confirmer métiers/DPO ≤ 2026-12-15**. Le détail d'un lot liste **une seule**
+  exécution (la dernière) par donnée, y compris à horodatage égal (KB-S6a-7).
 - **RG-MIG-002** — Statuts d'un lot : `EN_COURS` (fichiers importables **autant de fois que nécessaire**, la reprise est
   rejouable), `TERMINE`, `ANNULE` ; passé `TERMINE` ou `ANNULE`, plus aucun import (`MIGRATION_BATCH_CLOSED`).
 - **RG-MIG-003** — **Ordre des données** : 1 assurés, 2 patients, 3 affectations assuré↔patient, 4 attestations, 5
@@ -208,7 +210,10 @@ chaque ligne** avant d'écrire, **n'enregistre rien tant qu'un fichier
   est refusé (`CODE_ALREADY_USED`), un homonyme probable est signalé (`POSSIBLE_DUPLICATE`) ; un patient ayant droit
   exige le n° de l'assuré (`REQUIRED`) qui doit exister (`ASSURE_NOT_FOUND`). Une reprise **n'efface jamais** une donnée
   déjà saisie : seules les valeurs
-  renseignées sont reportées. Un générateur situé dans une autre salle est signalé (`GENERATEUR_OTHER_ROOM`).
+  renseignées sont reportées. Un générateur situé dans une autre salle est signalé (`GENERATEUR_OTHER_ROOM`). Les
+  **jours de dialyse** s'écrivent par leur code (Lun, Mar, Mer, Jeu, Ven, Sam, Dim) ou leur nom complet (Lundi…
+  Dimanche), séparés par une virgule, « et » ou un blanc ; tout autre mot est refusé (`INVALID_DAYS`) — « Lunch » n'est
+  plus accepté (KB-S6a-4, ADR 0168).
 - **RG-MIG-007** — **Affectations assuré↔patient** : patient et assuré repris (`PATIENT_NOT_MIGRATED`,
   `ASSURE_NOT_FOUND`), fin non antérieure au début, une affectation principale ne peut être terminée (`PRIMARY_ENDED`)
   et il n'y a **qu'une affectation principale** par patient (`DUPLICATE_PRIMARY`).
