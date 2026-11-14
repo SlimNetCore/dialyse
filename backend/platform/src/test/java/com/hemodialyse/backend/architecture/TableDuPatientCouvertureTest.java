@@ -86,10 +86,8 @@ class TableDuPatientCouvertureTest {
                     + "dans un GROUP BY : la découper changerait le résultat) et prescriptions d'EPO / de fer, agrégats anonymes de la Direction, "
                     + "requêtes reprises mot pour mot ; échéance : lecture publiée de l'effectif par le Patient, revue au plus tard le 2026-12-15, "
                     + "butoir 2027-03-31",
-            "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/acl/legacypatient/PlanningDesPatientsJdbc.java",
-            "2026-11-08 (déplacée de platform/.../persistence/adapter/SeancePlanningJdbcAdapter, SE7f, ADR 0100) : jours de dialyse, sommeil, état et "
-                    + "dates de la fiche AU CENTRE pour le scan (requête reprise mot pour mot ; KB-SEA-95) ; " + PLACE + " (jours de dialyse) ; "
-                    + "échéance : lecture publiée du Patient (programmation et situation d'une fiche), revue au plus tard le 2026-12-15, butoir 2027-03-31",
+            // PlanningDesPatientsJdbc, PatientsDuJourJdbc, PatientsDuTableauDeBordJdbc : entrées SOLDÉES par LEC-PAT (i) (2026-11-14, ADR 0176),
+            // lecture par ProgrammationDesPatients et LotsDePatients ; leurs butoirs (2027-03-31) ne sont pas reportés.
             // MigrationRollbackJdbcAdapter : entrée SOLDÉE par RP1 (2026-11-13, ADR 0169), l'annulation passe par AnnulationDeLaReprise.
             // ---- accès que la première version de la garde ne voyait pas (SQL construit, JPA), ajoutés par la revue du 2026-11-05
             // HistoricalRecordJdbcAdapter : entrée SOLDÉE par RP3a (2026-11-13, ADR 0171), attestations et prises en charge passent par
@@ -98,15 +96,6 @@ class TableDuPatientCouvertureTest {
             "2026-11-08 (déplacée de platform/.../acl/seance/HistoriqueFourniLegacy, SE7f, ADR 0100) : historique des séances (SE1, ADR 0088) : jointure "
                     + "séances-patients avec filtre, tri et pagination en SQL (la découper changerait le résultat), requête reprise mot pour mot ; "
                     + "échéance : lecture publiée jointe du Patient, revue au plus tard le 2026-12-15, butoir 2027-03-31",
-            "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/acl/legacypatient/PatientsDuJourJdbc.java",
-            "2026-11-08 : journal du jour (SE7a, ADR 0094, résidu R2) : jointure séances-patients (code, nom, prénom) avec tri nom/prénom en SQL (la "
-                    + "découper changerait l'ordre rendu : collation de la base), reprise à l'identique de SeanceRestController (parité) ; "
-                    + "échéance : lecture publiée du Patient (code, nom, prénom d'un lot de patients), revue au plus tard le 2026-12-15, butoir 2027-03-31",
-            "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/acl/legacypatient/PatientsDuTableauDeBordJdbc.java",
-            "2026-11-08 : tableau de bord mensuel des séances (SE7b, ADR 0095, résidu R1) : programmation hebdomadaire, état et sommeil des patients du "
-                    + "centre, jointure séances-patients des présents (sans filtre du centre du patient : KB-SEA-64, reproduit), identités du détail "
-                    + "nominatif (KB-SEA-66) ; reprise à l'identique de SeanceRestController (parité) ; échéance : lecture publiée du Patient (effectif "
-                    + "et programmation d'un mois), revue au plus tard le 2026-12-15, butoir 2027-03-31",
             "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/persistence/ForfaitsDeSeanceJdbc.java",
             "2026-11-08 (déplacée de platform/.../acl/seance/ForfaitsFournisLegacy, SE7f, ADR 0100) : forfait courant d'une séance (SE1, ADR 0088) : "
                     + "prise en charge couvrant le jour, requête reprise mot pour mot ; échéance : lecture publiée de la couverture "
@@ -242,6 +231,29 @@ class TableDuPatientCouvertureTest {
         assertThat(JALONS).doesNotContainKey(adapter);
         assertThat(sourcesFautives(backend, racinesHorsDuContexte(backend))).doesNotContain(adapter);
         assertThat(Files.readString(backend.resolve(adapter))).contains("RepriseDeLHistoriqueDeCouverture");
+    }
+
+    /**
+     * LEC-PAT (i) (2026-11-14, ADR 0176) : la Séance lit la programmation des patients, le journal du jour et le tableau de bord mensuel
+     * par {@code ProgrammationDesPatients} et {@code LotsDePatients} ; les trois jalons sont SOLDÉS (entrées supprimées, jamais
+     * reportées). Verrou : aucun de ces trois adaptateurs ne revient dans la liste ni dans les lecteurs SQL des tables du contexte.
+     */
+    @Test
+    void la_programmation_le_journal_et_le_tableau_de_bord_de_la_seance_ne_lisent_plus_les_tables_du_patient_couverture() throws IOException {
+        String acl = "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/acl/patientcouverture/";
+        Path backend = backend();
+        Set<String> lecteurs = sourcesFautives(backend, racinesHorsDuContexte(backend));
+
+        for (String adapter : List.of(acl + "PlanningDesPatientsParLaFiche.java", acl + "PatientsDuJourParLaFiche.java",
+                acl + "PatientsDuTableauDeBordParLaFiche.java")) {
+            assertThat(JALONS).doesNotContainKey(adapter);
+            assertThat(lecteurs).doesNotContain(adapter);
+            assertThat(Files.exists(backend.resolve(adapter))).isTrue();
+        }
+        for (String ancien : List.of("PlanningDesPatientsJdbc", "PatientsDuJourJdbc", "PatientsDuTableauDeBordJdbc")) {
+            assertThat(Files.exists(backend.resolve("contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/acl/legacypatient/"
+                    + ancien + ".java"))).isFalse();
+        }
     }
 
     @Test

@@ -73,7 +73,7 @@ abstract class LecturesReprisesDeLaPlateformeContrat {
             j.execute("DROP TABLE IF EXISTS " + t);
         }
         j.execute("CREATE TABLE patients (id uuid PRIMARY KEY, center_id uuid, nom varchar(100), prenom varchar(100), code_patient varchar(50), "
-                + "en_sommeil boolean, etat_patient varchar(30), date_evenement_etat date, date_admission date, jour_dimanche boolean, "
+                + "sexe varchar(10), date_naissance date, en_sommeil boolean, etat_patient varchar(30), date_evenement_etat date, date_admission date, jour_dimanche boolean, "
                 + "jour_lundi boolean, jour_mardi boolean, jour_mercredi boolean, jour_jeudi boolean, jour_vendredi boolean, jour_samedi boolean)");
         j.execute("CREATE TABLE seances (id uuid PRIMARY KEY, center_id uuid, patient_id uuid, date_seance date, statut varchar(20), "
                 + "created_at timestamp with time zone, validated_at timestamp with time zone, signed_infirmier_at timestamp with time zone, "

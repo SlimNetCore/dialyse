@@ -52,6 +52,48 @@ class LeJournalDuJourCharacterizationIntegrationTest extends Se7Characterization
         arbre("contenu", m);
     }
 
+    /**
+     * LEC-PAT (i) : cas limites du tri et de la jointure, posés AVANT de remplacer la lecture SQL de {@code patients} par le langage publié
+     * de Patient et couverture. Homonymes (même nom, prénoms différents ; mêmes nom et prénom : départage par l'identifiant de séance),
+     * patient transféré, patient d'un autre centre ayant une séance dans ce centre (jointure sur l'identifiant seul, reproduit).
+     */
+    @Test
+    void le_journal_depart_les_homonymes_par_prenom_puis_identifiant_de_seance_et_garde_les_patients_sortis_ou_d_un_autre_centre() throws Exception {
+        UUID marie = patientCouvert(CENTRE_A, "HOM_MARIE");
+        UUID anne = patientCouvert(CENTRE_A, "HOM_ANNE");
+        UUID jumeau1 = patientCouvert(CENTRE_A, "HOM_JUMEAU1");
+        UUID jumeau2 = patientCouvert(CENTRE_A, "HOM_JUMEAU2");
+        UUID jumeau3 = patientCouvert(CENTRE_A, "HOM_JUMEAU3");
+        UUID transfere = patientCouvert(CENTRE_A, "HOM_TRANSFERE");
+        UUID autreCentre = patientCouvert(CENTRE_B, "HOM_AUTRE_CENTRE");
+        UUID zed = patientCouvert(CENTRE_A, "HOM_ZED");
+        nommer(marie, "Dupont", "Marie");
+        nommer(anne, "Dupont", "Anne");
+        nommer(jumeau1, "Martin", "Paul");
+        nommer(jumeau2, "Martin", "Paul");
+        nommer(jumeau3, "Martin", "Paul");
+        nommer(transfere, "Bernard", "Luc");
+        nommer(autreCentre, "Aubert", "Eve");
+        nommer(zed, "Zed", "");
+        jdbc.update("UPDATE patients SET etat_patient = 'TRANSFERE', date_evenement_etat = ? WHERE id = ?", java.sql.Date.valueOf(jour(-30)), transfere);
+        seanceValidee(CENTRE_A, marie, "S_HOM_MARIE", jour(0), "VALIDEE");
+        seanceValidee(CENTRE_A, anne, "S_HOM_ANNE", jour(0), "SIGNEE");
+        seanceValidee(CENTRE_A, jumeau3, "S_HOM_JUMEAU3", jour(0), "CREE");
+        seanceValidee(CENTRE_A, jumeau1, "S_HOM_JUMEAU1", jour(0), "FACTUREE");
+        seanceValidee(CENTRE_A, jumeau2, "S_HOM_JUMEAU2", jour(0), "VALIDEE");
+        seanceValidee(CENTRE_A, transfere, "S_HOM_TRANSFERE", jour(0), "VALIDEE");
+        seanceValidee(CENTRE_A, autreCentre, "S_HOM_AUTRE_CENTRE", jour(0), "VALIDEE");
+        seanceValidee(CENTRE_A, zed, "S_HOM_ZED", jour(0), "VALIDEE");
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("01 journal du centre A", reponse(journal(CENTRE_A, jour(0), infirmierA())));
+        m.put("02 journal du centre B : la seance du patient B est dans le centre A", reponse(journal(CENTRE_B, jour(0), infirmierB())));
+        arbre("homonymes_et_patients_sortis", m);
+    }
+
+    private void nommer(UUID patient, String nom, String prenom) {
+        jdbc.update("UPDATE patients SET nom = ?, prenom = ? WHERE id = ?", nom, prenom, patient);
+    }
+
     @Test
     void les_parametres_du_journal_manquants_ou_illisibles() throws Exception {
         Map<String, Object> m = new LinkedHashMap<>();

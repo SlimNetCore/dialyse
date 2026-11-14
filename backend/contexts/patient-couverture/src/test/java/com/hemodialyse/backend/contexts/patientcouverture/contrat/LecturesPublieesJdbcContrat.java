@@ -1,12 +1,15 @@
 package com.hemodialyse.backend.contexts.patientcouverture.contrat;
 
 import com.hemodialyse.backend.contexts.patientcouverture.domain.Attestations;
+import com.hemodialyse.backend.contexts.patientcouverture.domain.Patient;
 import com.hemodialyse.backend.contexts.patientcouverture.domain.PatientRepository;
 import com.hemodialyse.backend.contexts.patientcouverture.domain.PrisesEnCharge;
 import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.AttestationsJdbc;
 import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.CompteursDeCouvertureJdbc;
 import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.CouvertureDesPatientsJdbc;
 import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.FichesPublieesJdbc;
+import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.LotsDePatientsJdbc;
+import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.ProgrammationPublieeJdbc;
 import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.PatientsJdbc;
 import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.PrisesEnChargeJdbc;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.CompteursDeCouverture;
@@ -40,6 +43,13 @@ abstract class LecturesPublieesJdbcContrat extends LecturesPublieesContrat {
     }
 
     @Override
+    protected void poserLesJours(Patient patient, com.hemodialyse.backend.contexts.patientcouverture.domain.Affectation.Jours jours) {
+        jdbc().update("UPDATE patients SET jour_dimanche = ?, jour_lundi = ?, jour_mardi = ?, jour_mercredi = ?, jour_jeudi = ?, "
+                        + "jour_vendredi = ?, jour_samedi = ? WHERE id = ?", jours.dimanche(), jours.lundi(), jours.mardi(), jours.mercredi(),
+                jours.jeudi(), jours.vendredi(), jours.samedi(), patient.id().valeur());
+    }
+
+    @Override
     protected PrisesEnCharge pecs() {
         return new PrisesEnChargeJdbc(jdbc());
     }
@@ -70,5 +80,15 @@ abstract class LecturesPublieesJdbcContrat extends LecturesPublieesContrat {
     @Override
     protected CompteursDeCouverture compteurs() {
         return new CompteursDeCouvertureJdbc(jdbc());
+    }
+
+    @Override
+    protected com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.ProgrammationDesPatients programmation() {
+        return new ProgrammationPublieeJdbc(jdbc());
+    }
+
+    @Override
+    protected com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.LotsDePatients lots() {
+        return new LotsDePatientsJdbc(jdbc());
     }
 }

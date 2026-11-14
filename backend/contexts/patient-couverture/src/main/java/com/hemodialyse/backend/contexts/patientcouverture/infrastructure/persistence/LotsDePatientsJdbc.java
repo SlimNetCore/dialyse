@@ -1,0 +1,87 @@
+package com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence;
+
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.FichesDesPatients.NomDuPatient;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.LotsDePatients;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+import java.sql.Date;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
+
+/**
+ * Adapter du port publié {@link LotsDePatients} sur la table {@code patients} : les lectures que la Séance faisait par jointure
+ * {@code seances x patients} (journal du jour, présents du mois, identités du détail nominatif), reprises à l'identique. La jointure se
+ * fait sur l'identifiant seul (KB-SEA-61, KB-SEA-64) ; le tri est celui de la base ({@code ORDER BY nom ASC, prenom ASC}).
+ */
+public class LotsDePatientsJdbc implements LotsDePatients {
+
+    private final JdbcTemplate jdbc;
+
+    public LotsDePatientsJdbc(JdbcTemplate jdbc) {
+        this.jdbc = jdbc;
+    }
+
+    @Override
+    public Map<UUID, NomDuPatient> identitesDuCentre(UUID centre) {
+        Map<UUID, NomDuPatient> identites = new LinkedHashMap<>();
+        jdbc.query("SELECT id, nom, prenom FROM patients WHERE center_id = ?",
+                (rs, i) -> identites.put(rs.getObject("id", UUID.class), new NomDuPatient(rs.getString("prenom"), rs.getString("nom"))),
+                centre);
+        return identites;
+    }
+
+    @Override
+    public List<EtatCivilDuPatient> etatCivil(Collection<UUID> patients) {
+        Set<UUID> demandes = new LinkedHashSet<>(patients);
+        if (demandes.isEmpty()) return List.of();
+        Map<UUID, EtatCivilDuPatient> lus = new LinkedHashMap<>();
+        jdbc.query("SELECT id, sexe, date_naissance FROM patients WHERE id IN (" + marques(demandes.size()) + ")",
+                (rs, i) -> lus.put(rs.getObject("id", UUID.class), new EtatCivilDuPatient(rs.getObject("id", UUID.class),
+                        rs.getString("sexe"), date(rs.getObject("date_naissance")))),
+                demandes.toArray());
+        List<EtatCivilDuPatient> rendus = new ArrayList<>();
+        for (UUID id : demandes) {
+            EtatCivilDuPatient lu = lus.get(id);
+            if (lu != null) rendus.add(lu);
+        }
+        return rendus;
+    }
+
+    @Override
+    public List<PatientDuLot> parNomPuisPrenom(Collection<UUID> patients) {
+        Set<UUID> demandes = new LinkedHashSet<>(patients);
+        if (demandes.isEmpty()) return List.of();
+        List<PatientDuLot> rendus = new ArrayList<>();
+        int[] rang = {0};
+        String[] precedent = {null, null};
+        jdbc.query("SELECT id, code_patient, nom, prenom FROM patients WHERE id IN (" + marques(demandes.size())
+                        + ") ORDER BY nom ASC, prenom ASC",
+                rs -> {
+                    String nom = rs.getString("nom");
+                    String prenom = rs.getString("prenom");
+                    if (rang[0] == 0 || !Objects.equals(nom, precedent[0]) || !Objects.equals(prenom, precedent[1])) rang[0]++;
+                    precedent[0] = nom;
+                    precedent[1] = prenom;
+                    rendus.add(new PatientDuLot(rs.getObject("id", UUID.class), rs.getString("code_patient"), nom, prenom, rang[0]));
+                }, demandes.toArray());
+        return rendus;
+    }
+
+    private static String marques(int nombre) {
+        return String.join(",", java.util.Collections.nCopies(nombre, "?"));
+    }
+
+    private static LocalDate date(Object valeur) {
+        if (valeur instanceof LocalDate d) return d;
+        if (valeur instanceof Date d) return d.toLocalDate();
+        return null;
+    }
+}

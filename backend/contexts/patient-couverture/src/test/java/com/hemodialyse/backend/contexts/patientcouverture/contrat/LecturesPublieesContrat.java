@@ -1,5 +1,9 @@
 package com.hemodialyse.backend.contexts.patientcouverture.contrat;
 
+import com.hemodialyse.backend.contexts.patientcouverture.domain.Identite;
+import com.hemodialyse.backend.contexts.patientcouverture.domain.SuiviMedical;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.LotsDePatients;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.ProgrammationDesPatients;
 import com.hemodialyse.backend.contexts.patientcouverture.domain.Affectation;
 import com.hemodialyse.backend.contexts.patientcouverture.domain.AttestationDroit;
 import com.hemodialyse.backend.contexts.patientcouverture.domain.Attestations;
@@ -235,6 +239,132 @@ public abstract class LecturesPublieesContrat {
         var duTiers = references.stream().filter(r -> r.patient().equals(tiers.id().valeur())).findFirst().orElseThrow();
         assertThat(duTiers.numeroAssuranceDeLAssure()).isEqualTo("AS-9");
         assertThat(fiches().references(UUID.randomUUID())).isEmpty();
+    }
+
+    // ---- ProgrammationDesPatients et LotsDePatients (LEC-PAT i, ADR 0176)
+
+    protected abstract ProgrammationDesPatients programmation();
+
+    protected abstract LotsDePatients lots();
+
+    private static final LocalDate NAISSANCE = LocalDate.of(1970, 5, 17);
+
+    private Patient patientProgramme(CentreId centre, String nom, String prenom, String sexe, boolean sommeil, Affectation.Jours jours,
+                                     EtatDuPatient etat, LocalDate evenement) {
+        Fiche base = Fiches.avec("LP-" + SEQUENCE.incrementAndGet(), etat, evenement, Fiches.ADMISSION, NAISSANCE);
+        Fiche fiche = new Fiche(Identite.saisie("M", nom, prenom, sexe, "O+", 2, NAISSANCE, "Alger", "MARIE"), base.coordonnees(),
+                new SuiviMedical(false, false, null, false, null, sommeil, null, null), base.couverture(),
+                new Affectation(null, null, null, null, null, null, null, jours), Fiches.ADMISSION, etat, evenement);
+        Patient p = Patient.admettre(new PatientId(UUID.randomUUID()), "PAT-" + String.format("%08X", SEQUENCE.incrementAndGet()), centre,
+                fiche, JOUR, T0, UUID::randomUUID);
+        patients().enregistrer(p);
+        poserLesJours(p, jours);
+        return p;
+    }
+
+    /**
+     * Les colonnes de PLACE ({@code jour_*}) sont écrites par la Planification, jamais par le dépôt de la fiche (ADR 0052) : le double
+     * en mémoire les porte déjà dans la fiche, les tables réelles les reçoivent ici.
+     */
+    protected void poserLesJours(Patient patient, Affectation.Jours jours) {
+    }
+
+    private Patient patientNomme(CentreId centre, String nom, String prenom) {
+        return patientProgramme(centre, nom, prenom, "F", false, Affectation.Jours.aucun(), EtatDuPatient.PERMANENT, null);
+    }
+
+    @Test
+    void should_rendre_la_programmation_de_tous_les_patients_du_centre_endormis_et_sortis_compris() {
+        Patient suivi = patientProgramme(CENTRE, "Benali", "Karim", "M", false,
+                new Affectation.Jours(false, true, false, false, true, false, false), EtatDuPatient.PERMANENT, null);
+        Patient parti = patientProgramme(CENTRE, "Amrani", "Sara", "F", true,
+                new Affectation.Jours(true, false, false, false, false, false, false), EtatDuPatient.TRANSFERE, LocalDate.of(2026, 10, 1));
+        Patient autreCentre = patientNomme(AUTRE, "Ailleurs", "Eve");
+
+        var liste = programmation().duCentre(CENTRE.valeur());
+
+        assertThat(liste).extracting(ProgrammationDesPatients.ProgrammationDuPatient::patient)
+                .containsExactlyInAnyOrder(suivi.id().valeur(), parti.id().valeur()).doesNotContain(autreCentre.id().valeur());
+        var deSuivi = liste.stream().filter(l -> l.patient().equals(suivi.id().valeur())).findFirst().orElseThrow();
+        assertThat(deSuivi.sexe()).isEqualTo("M");
+        assertThat(deSuivi.dateNaissance()).isEqualTo(NAISSANCE);
+        assertThat(deSuivi.dateAdmission()).isEqualTo(Fiches.ADMISSION);
+        assertThat(deSuivi.enSommeil()).isFalse();
+        assertThat(deSuivi.etat()).isEqualTo("PERMANENT");
+        assertThat(deSuivi.dateEvenement()).isNull();
+        assertThat(deSuivi.joursDeDialyse()).containsExactlyInAnyOrder(java.time.DayOfWeek.MONDAY, java.time.DayOfWeek.THURSDAY);
+        var dePartie = liste.stream().filter(l -> l.patient().equals(parti.id().valeur())).findFirst().orElseThrow();
+        assertThat(dePartie.enSommeil()).isTrue();
+        assertThat(dePartie.etat()).isEqualTo("TRANSFERE");
+        assertThat(dePartie.dateEvenement()).isEqualTo(LocalDate.of(2026, 10, 1));
+        assertThat(dePartie.joursDeDialyse()).containsExactly(java.time.DayOfWeek.SUNDAY);
+        assertThat(programmation().duCentre(UUID.randomUUID())).isEmpty();
+    }
+
+    @Test
+    void should_rendre_la_programmation_du_patient_du_centre_seulement() {
+        Patient p = patientProgramme(CENTRE, "Benali", "Karim", "M", false,
+                new Affectation.Jours(false, false, true, false, false, false, true), EtatDuPatient.PERMANENT, null);
+        Patient autreCentre = patientNomme(AUTRE, "Ailleurs", "Eve");
+
+        var lue = programmation().duPatient(CENTRE.valeur(), p.id().valeur());
+
+        assertThat(lue).isPresent();
+        assertThat(lue.get().joursDeDialyse()).containsExactlyInAnyOrder(java.time.DayOfWeek.TUESDAY, java.time.DayOfWeek.SATURDAY);
+        assertThat(programmation().duPatient(CENTRE.valeur(), autreCentre.id().valeur())).as("patient d'un autre centre").isEmpty();
+        assertThat(programmation().duPatient(AUTRE.valeur(), p.id().valeur())).isEmpty();
+        assertThat(programmation().duPatient(CENTRE.valeur(), UUID.randomUUID())).isEmpty();
+    }
+
+    @Test
+    void should_rendre_les_identites_de_tous_les_patients_du_centre_seulement() {
+        Patient p = patientNomme(CENTRE, "Benali", "Karim");
+        Patient autreCentre = patientNomme(AUTRE, "Ailleurs", "Eve");
+
+        var identites = lots().identitesDuCentre(CENTRE.valeur());
+
+        assertThat(identites).containsOnlyKeys(p.id().valeur());
+        assertThat(identites.get(p.id().valeur()).nom()).isEqualTo("Benali");
+        assertThat(identites.get(p.id().valeur()).prenom()).isEqualTo("Karim");
+        assertThat(identites).doesNotContainKey(autreCentre.id().valeur());
+    }
+
+    @Test
+    void should_rendre_le_sexe_et_la_naissance_du_lot_dans_l_ordre_de_la_demande_sans_borne_de_centre() {
+        Patient lui = patientNomme(CENTRE, "Benali", "Karim");
+        Patient autreCentre = patientNomme(AUTRE, "Ailleurs", "Eve");
+        UUID inconnu = UUID.randomUUID();
+
+        var lot = lots().etatCivil(List.of(autreCentre.id().valeur(), inconnu, lui.id().valeur(), autreCentre.id().valeur()));
+
+        assertThat(lot).extracting(LotsDePatients.EtatCivilDuPatient::patient)
+                .as("un patient d'un autre centre est rendu (KB-SEA-64), l'inconnu est absent, chacun une fois")
+                .containsExactly(autreCentre.id().valeur(), lui.id().valeur());
+        assertThat(lot.get(1).sexe()).isEqualTo("F");
+        assertThat(lot.get(1).dateNaissance()).isEqualTo(NAISSANCE);
+        assertThat(lots().etatCivil(List.of())).isEmpty();
+    }
+
+    @Test
+    void should_trier_le_lot_par_nom_puis_prenom_et_ranger_les_homonymes_au_meme_rang() {
+        Patient martin1 = patientNomme(CENTRE, "Martin", "Paul");
+        Patient dupont = patientNomme(CENTRE, "Dupont", "Anne");
+        Patient martin2 = patientNomme(CENTRE, "Martin", "Paul");
+        Patient aubert = patientNomme(AUTRE, "Aubert", "Eve");
+        Patient dupontMarie = patientNomme(CENTRE, "Dupont", "Marie");
+
+        var lot = lots().parNomPuisPrenom(List.of(martin1.id().valeur(), dupont.id().valeur(), martin2.id().valeur(),
+                aubert.id().valeur(), dupontMarie.id().valeur(), UUID.randomUUID(), martin1.id().valeur()));
+
+        assertThat(lot).extracting(LotsDePatients.PatientDuLot::nom).containsExactly("Aubert", "Dupont", "Dupont", "Martin", "Martin");
+        assertThat(lot).extracting(LotsDePatients.PatientDuLot::prenom).containsExactly("Eve", "Anne", "Marie", "Paul", "Paul");
+        assertThat(lot).extracting(LotsDePatients.PatientDuLot::rang).as("rangs des couples (nom, prénom) distincts")
+                .containsExactly(1, 2, 3, 4, 4);
+        assertThat(lot.get(0).patient()).as("patient d'un autre centre, rendu (KB-SEA-61)").isEqualTo(aubert.id().valeur());
+        assertThat(lot.get(0).code()).isEqualTo(aubert.code());
+        assertThat(lot.stream().skip(3).map(LotsDePatients.PatientDuLot::patient).toList())
+                .containsExactlyInAnyOrder(martin1.id().valeur(), martin2.id().valeur());
+        assertThat(lots().parNomPuisPrenom(List.of())).isEmpty();
     }
 
     // ---- CouvertureDesPatients : forfait applicable

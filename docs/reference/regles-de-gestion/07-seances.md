@@ -235,6 +235,12 @@
   de `expectedByWeekday` restent à 0, les comptes sont sur les clés anglaises. **Écart décidé, à confirmer** — les absences sont bornées
   au jour du fuseau de chaque centre (et non plus du fuseau par défaut). **Reproduits sans alerte** — (KB-SEA-67) tri du détail
   sensible à la casse, droits, libellés. Un échec de lecture du calendrier est avalé avec un WARN portant le seul identifiant du centre.
+  **LEC-PAT (i), 2026-11-14, ADR 0176 : source des données, comportement inchangé** — la programmation hebdomadaire (jours de dialyse,
+  état, sommeil, admission), le sexe et la naissance des présents, les identités du détail nominatif, les patients du journal du jour
+  (code, nom, prénom) et le planning d'un scan ne sont plus lus par la Séance en SQL sur la table des patients mais par les lectures
+  publiées de Patient et couverture (`ProgrammationDesPatients`, `LotsDePatients`) ; le tri nom puis prénom du journal reste celui de la
+  base de Patient et couverture, les homonymes sont départagés par l'identifiant de séance. Les deux lectures par lot ne sont pas bornées
+  au centre du patient : KB-SEA-61 et KB-SEA-64 restent reproduits, à confirmer métiers/DPO avant le 2026-12-15.
   *Source :* `ConsulterLeTableauDeBord`, `ConsulterLeDetailDuTableauDeBord`, `ExporterLeTableauDeBord`, `MoisDuTableauDeBord`,
   `SeancesAttendues`, `EffectifDuMois`, `FinDeLaPriseEnCharge`, `TrancheDAge`, `LigneDuDetail`, `FormatDExport`, `SeancesRealiseesJdbc`,
   `PatientsDuTableauDeBordJdbc`, `AbsencesDuCentreParLePilotage`, `ExportsDuTableauDeBordCsvPdfXlsx`, `TableauDeBordDesSeancesControleur`,

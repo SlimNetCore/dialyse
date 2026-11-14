@@ -26,7 +26,9 @@ import java.util.function.Supplier;
  * Double en mémoire du langage publié {@code patientcouverture.v1} (PC5) : mêmes règles que les requêtes SQL des adapters, sur les
  * agrégats du domaine. Le contrat {@link LecturesPublieesContrat} prouve sa fidélité aux tables réelles.
  */
-class LecturesPublieesEnMemoire implements FichesDesPatients, CouvertureDesPatients, CompteursDeCouverture {
+class LecturesPublieesEnMemoire implements FichesDesPatients, CouvertureDesPatients, CompteursDeCouverture,
+        com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.ProgrammationDesPatients,
+        com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.LotsDePatients {
 
     record Forfait(UUID centre, String libelle, BigDecimal prix) {
     }
@@ -87,7 +89,7 @@ class LecturesPublieesEnMemoire implements FichesDesPatients, CouvertureDesPatie
 
     private static final Comparator<Patient> PAR_IDENTIFIANT = Comparator.comparing((Patient p) -> p.id().valeur().toString());
 
-    private List<Patient> duCentre(UUID centre) {
+    private List<Patient> patientsDuCentre(UUID centre) {
         return patients.get().stream().filter(p -> p.centre().valeur().equals(centre)).sorted(PAR_IDENTIFIANT).toList();
     }
 
@@ -97,18 +99,18 @@ class LecturesPublieesEnMemoire implements FichesDesPatients, CouvertureDesPatie
 
     @Override
     public Optional<UUID> parCode(UUID centre, String code) {
-        return duCentre(centre).stream().filter(p -> p.code() != null && p.code().equals(code)).map(p -> p.id().valeur()).findFirst();
+        return patientsDuCentre(centre).stream().filter(p -> p.code() != null && p.code().equals(code)).map(p -> p.id().valeur()).findFirst();
     }
 
     @Override
     public Optional<UUID> parNumeroDAssurance(UUID centre, String numero) {
-        return duCentre(centre).stream().filter(p -> numeroDe(p) != null && numeroDe(p).equals(numero)).map(p -> p.id().valeur())
+        return patientsDuCentre(centre).stream().filter(p -> numeroDe(p) != null && numeroDe(p).equals(numero)).map(p -> p.id().valeur())
                 .findFirst();
     }
 
     @Override
     public List<ReferencesDuPatient> references(UUID centre) {
-        return duCentre(centre).stream().map(p -> new ReferencesDuPatient(p.id().valeur(), p.code(), numeroDe(p),
+        return patientsDuCentre(centre).stream().map(p -> new ReferencesDuPatient(p.id().valeur(), p.code(), numeroDe(p),
                 p.fiche().couverture().assureNumeroAssurance())).toList();
     }
 
@@ -116,6 +118,72 @@ class LecturesPublieesEnMemoire implements FichesDesPatients, CouvertureDesPatie
     public Situation situation(UUID centre, UUID patient) {
         return patient(centre, patient).map(p -> p.etat().sortie() ? Situation.SORTI : Situation.EN_SUIVI)
                 .orElse(Situation.INTROUVABLE);
+    }
+
+    // ---- ProgrammationDesPatients
+
+    private static ProgrammationDuPatient programmationDe(Patient p) {
+        var jours = p.fiche().affectation().jours();
+        java.util.EnumSet<java.time.DayOfWeek> dialyse = java.util.EnumSet.noneOf(java.time.DayOfWeek.class);
+        if (jours.lundi()) dialyse.add(java.time.DayOfWeek.MONDAY);
+        if (jours.mardi()) dialyse.add(java.time.DayOfWeek.TUESDAY);
+        if (jours.mercredi()) dialyse.add(java.time.DayOfWeek.WEDNESDAY);
+        if (jours.jeudi()) dialyse.add(java.time.DayOfWeek.THURSDAY);
+        if (jours.vendredi()) dialyse.add(java.time.DayOfWeek.FRIDAY);
+        if (jours.samedi()) dialyse.add(java.time.DayOfWeek.SATURDAY);
+        if (jours.dimanche()) dialyse.add(java.time.DayOfWeek.SUNDAY);
+        return new ProgrammationDuPatient(p.id().valeur(), p.fiche().identite().sexe(), p.fiche().identite().dateNaissance(),
+                p.fiche().dateAdmission(), p.fiche().suivi().enSommeil(), p.etat() == null ? null : p.etat().name(),
+                p.fiche().dateEvenement(), dialyse);
+    }
+
+    @Override
+    public List<ProgrammationDuPatient> duCentre(UUID centre) {
+        return patientsDuCentre(centre).stream().map(LecturesPublieesEnMemoire::programmationDe).toList();
+    }
+
+    @Override
+    public Optional<ProgrammationDuPatient> duPatient(UUID centre, UUID patient) {
+        return patient(centre, patient).map(LecturesPublieesEnMemoire::programmationDe);
+    }
+
+    // ---- LotsDePatients
+
+    private Optional<Patient> patientSansBorne(UUID id) {
+        return patients.get().stream().filter(p -> p.id().valeur().equals(id)).findFirst();
+    }
+
+    @Override
+    public Map<UUID, NomDuPatient> identitesDuCentre(UUID centre) {
+        Map<UUID, NomDuPatient> identites = new java.util.LinkedHashMap<>();
+        patientsDuCentre(centre).forEach(p -> identites.put(p.id().valeur(),
+                new NomDuPatient(p.fiche().identite().prenom(), p.fiche().identite().nom())));
+        return identites;
+    }
+
+    @Override
+    public List<EtatCivilDuPatient> etatCivil(Collection<UUID> demandes) {
+        return demandes.stream().distinct().map(this::patientSansBorne).flatMap(Optional::stream)
+                .map(p -> new EtatCivilDuPatient(p.id().valeur(), p.fiche().identite().sexe(), p.fiche().identite().dateNaissance()))
+                .toList();
+    }
+
+    @Override
+    public List<PatientDuLot> parNomPuisPrenom(Collection<UUID> demandes) {
+        List<Patient> tries = demandes.stream().distinct().map(this::patientSansBorne).flatMap(Optional::stream)
+                .sorted(Comparator.comparing((Patient p) -> p.fiche().identite().nom(), Comparator.nullsLast(Comparator.naturalOrder()))
+                        .thenComparing(p -> p.fiche().identite().prenom(), Comparator.nullsLast(Comparator.naturalOrder())))
+                .toList();
+        List<PatientDuLot> lot = new java.util.ArrayList<>();
+        int rang = 0;
+        Patient precedent = null;
+        for (Patient p : tries) {
+            if (precedent == null || !java.util.Objects.equals(precedent.fiche().identite().nom(), p.fiche().identite().nom())
+                    || !java.util.Objects.equals(precedent.fiche().identite().prenom(), p.fiche().identite().prenom())) rang++;
+            lot.add(new PatientDuLot(p.id().valeur(), p.code(), p.fiche().identite().nom(), p.fiche().identite().prenom(), rang));
+            precedent = p;
+        }
+        return lot;
     }
 
     // ---- CouvertureDesPatients
@@ -132,7 +200,7 @@ class LecturesPublieesEnMemoire implements FichesDesPatients, CouvertureDesPatie
         return couvre(p.accordDebut(), p.accordFin(), jour) || couvre(p.demandeDebut(), p.demandeFin(), jour);
     }
 
-    private List<PriseEnCharge> duPatient(UUID centre, UUID patient) {
+    private List<PriseEnCharge> pecsDuPatient(UUID centre, UUID patient) {
         return pecs.get().stream().filter(p -> p.centre().valeur().equals(centre) && p.patient().valeur().equals(patient)).toList();
     }
 
@@ -142,7 +210,7 @@ class LecturesPublieesEnMemoire implements FichesDesPatients, CouvertureDesPatie
 
     @Override
     public Optional<ForfaitApplicable> forfaitApplicable(UUID centre, UUID patient, LocalDate date) {
-        List<PriseEnCharge> avecForfait = duPatient(centre, patient).stream()
+        List<PriseEnCharge> avecForfait = pecsDuPatient(centre, patient).stream()
                 .filter(p -> forfaitDe(p) != null && forfaits.containsKey(forfaitDe(p))
                         && forfaits.get(forfaitDe(p)).centre().equals(centre)).sorted(ORDRE).toList();
         Optional<PriseEnCharge> choisie = avecForfait.stream().filter(p -> periodeCouvre(p, date)).findFirst();
@@ -155,7 +223,7 @@ class LecturesPublieesEnMemoire implements FichesDesPatients, CouvertureDesPatie
 
     @Override
     public List<PriseEnChargeTarifee> prisesEnChargeTarifees(UUID centre, UUID patient) {
-        return duPatient(centre, patient).stream()
+        return pecsDuPatient(centre, patient).stream()
                 .filter(p -> forfaitDe(p) != null && forfaits.containsKey(forfaitDe(p)) && forfaits.get(forfaitDe(p)).centre().equals(centre))
                 .map(p -> {
                     Forfait f = forfaits.get(forfaitDe(p));
@@ -166,7 +234,7 @@ class LecturesPublieesEnMemoire implements FichesDesPatients, CouvertureDesPatie
 
     @Override
     public Optional<CauseDeNonFacturation> causeDeNonFacturation(UUID centre, UUID patient, LocalDate jour) {
-        List<PriseEnCharge> couvrantes = duPatient(centre, patient).stream()
+        List<PriseEnCharge> couvrantes = pecsDuPatient(centre, patient).stream()
                 .filter(p -> forfaitDe(p) != null && periodeCouvre(p, jour)).toList();
         if (couvrantes.isEmpty()) return Optional.of(CauseDeNonFacturation.AUCUNE_PEC_COUVRANTE);
         List<PriseEnCharge> validees = couvrantes.stream().filter(p -> p.statut() == StatutPec.VALIDEE).toList();

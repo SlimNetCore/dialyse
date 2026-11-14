@@ -151,4 +151,14 @@ class LecturesPublieesEnMemoireContratTest extends LecturesPublieesContrat {
     protected CompteursDeCouverture compteurs() {
         return lectures;
     }
+
+    @Override
+    protected com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.ProgrammationDesPatients programmation() {
+        return lectures;
+    }
+
+    @Override
+    protected com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.LotsDePatients lots() {
+        return lectures;
+    }
 }

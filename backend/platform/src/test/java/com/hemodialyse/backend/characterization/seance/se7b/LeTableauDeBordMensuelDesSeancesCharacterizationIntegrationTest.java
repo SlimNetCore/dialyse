@@ -68,6 +68,30 @@ class LeTableauDeBordMensuelDesSeancesCharacterizationIntegrationTest extends Se
         arbre("compteurs", m);
     }
 
+    /**
+     * LEC-PAT (i) : la jointure des présents ne filtre pas le centre du patient (KB-SEA-64, reproduit) ; un patient transféré ou
+     * endormi garde sa programmation ; un patient présent compte une seule fois malgré plusieurs séances. Posé AVANT de remplacer la
+     * lecture SQL de {@code patients} par le langage publié de Patient et couverture.
+     */
+    @Test
+    void les_presents_d_un_autre_centre_comptent_et_chaque_present_est_compte_une_fois() throws Exception {
+        UUID local = patientTb(CENTRE_A, "L1", "Nom L1", "Pre L1", "F", LocalDate.of(1970, 1, 1), ANCIEN, "PERMANENT", null, false, "lundi,jeudi");
+        UUID parti = patientTb(CENTRE_A, "L2", "Nom L2", "Pre L2", "M", LocalDate.of(1950, 1, 1), ANCIEN, "TRANSFERE", fixe(-20), false, "lundi");
+        UUID endormi = patientTb(CENTRE_A, "L3", "Nom L3", "Pre L3", "M", LocalDate.of(1990, 1, 1), ANCIEN, "PERMANENT", null, true, "jeudi");
+        UUID etranger = patientTb(CENTRE_B, "L4", "Nom L4", "Pre L4", "F", LocalDate.of(1985, 1, 1), ANCIEN, "PERMANENT", null, false, "lundi");
+        seanceTb(CENTRE_A, local, fixe(1), "VALIDEE");
+        seanceTb(CENTRE_A, local, fixe(2), "SIGNEE");
+        seanceTb(CENTRE_A, parti, fixe(1), "SIGNEE");
+        seanceTb(CENTRE_A, endormi, fixe(3), "FACTUREE");
+        seanceTb(CENTRE_A, etranger, fixe(1), "VALIDEE");
+        fixe(0);
+        fixe(30);
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("01 tableau du centre A", reponse(tableau(CENTRE_A, 2026, 1, adminA())));
+        m.put("02 detail des presents du centre A", reponse(details(CENTRE_A, 2026, 1, "presence", adminA())));
+        arbre("presents_d_un_autre_centre", m);
+    }
+
     @Test
     void les_jours_feries_et_les_fermetures_du_centre_retirent_les_seances_attendues_sans_double_compte() throws Exception {
         patientTb(CENTRE_A, "T1", "Nom T1", "Pre T1", "M", LocalDate.of(1970, 1, 1), ANCIEN, "PERMANENT", null, false, TOUS_LES_JOURS);

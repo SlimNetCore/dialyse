@@ -11,7 +11,11 @@ import com.hemodialyse.backend.contexts.seance.application.JoursBloques;
 import com.hemodialyse.backend.contexts.seance.application.PatientsDuTableauDeBord;
 import com.hemodialyse.backend.contexts.seance.application.SeancesRealisees;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.absencespatients.AbsencesDuCentreParLePilotage;
-import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacypatient.PatientsDuTableauDeBordJdbc;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.LotsDePatients;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.ProgrammationDesPatients;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture.PatientsDuJourParLaFiche;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture.PatientsDuTableauDeBordParLaFiche;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture.PlanningDesPatientsParLaFiche;
 import com.hemodialyse.backend.contexts.seance.infrastructure.export.ExportsDuTableauDeBordCsvPdfXlsx;
 import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.JoursBloquesDuCalendrier;
 import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.SeancesRealiseesJdbc;
@@ -25,7 +29,6 @@ import com.hemodialyse.backend.contexts.seance.application.RetirerUnJourDuCalend
 import com.hemodialyse.backend.contexts.seance.application.SortiesDuJour;
 import com.hemodialyse.backend.contexts.seance.domain.CalendrierDuCentre;
 import com.hemodialyse.backend.contexts.seance.domain.VoletsMedicaux;
-import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacypatient.PatientsDuJourJdbc;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.stock.SortiesDuJourDuStock;
 import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.CalendrierDuCentreJdbc;
 import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.VoletsMedicauxJdbc;
@@ -44,7 +47,6 @@ import com.hemodialyse.backend.contexts.seance.domain.VoletsParamedicaux;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacygmao.GenerateursDesPatientsJdbc;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.organisation.JourDuCentrePublie;
 import com.hemodialyse.backend.contexts.organisation.publishedlanguage.AnnuaireDesCentres;
-import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacypatient.PlanningDesPatientsJdbc;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyplanification.PlaceDuPatientJdbc;
 import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.ForfaitsDeSeanceJdbc;
 import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.HistoriqueDesSeancesJdbc;
@@ -266,9 +268,10 @@ public class SeanceConfiguration {
 
     // ---- Lectures tenues par la Séance depuis SE7f (ADR 0100 : requêtes des anciens fournisseurs de la plateforme, reprises mot pour mot)
 
+    /** LEC-PAT (i), ADR 0176 : jours de dialyse, sommeil, état et dates lus par la programmation publiée de Patient et couverture. */
     @Bean
-    PlanningDesPatients planningDesPatientsDeLaSeance(JdbcTemplate jdbc) {
-        return new PlanningDesPatientsJdbc(jdbc);
+    PlanningDesPatients planningDesPatientsDeLaSeance(JdbcTemplate jdbc, ProgrammationDesPatients programmation) {
+        return new PlanningDesPatientsParLaFiche(jdbc, programmation);
     }
 
     @Bean
@@ -524,8 +527,8 @@ public class SeanceConfiguration {
     }
 
     @Bean
-    PatientsDuJour patientsDuJourDeLaSeance(JdbcTemplate jdbc) {
-        return new PatientsDuJourJdbc(jdbc);
+    PatientsDuJour patientsDuJourDeLaSeance(JdbcTemplate jdbc, LotsDePatients lots) {
+        return new PatientsDuJourParLaFiche(jdbc, lots);
     }
 
     @Bean
@@ -585,8 +588,9 @@ public class SeanceConfiguration {
     }
 
     @Bean
-    PatientsDuTableauDeBord patientsDuTableauDeBordDeLaSeance(JdbcTemplate jdbc) {
-        return new PatientsDuTableauDeBordJdbc(jdbc);
+    PatientsDuTableauDeBord patientsDuTableauDeBordDeLaSeance(JdbcTemplate jdbc, ProgrammationDesPatients programmation,
+                                                              LotsDePatients lots) {
+        return new PatientsDuTableauDeBordParLaFiche(jdbc, programmation, lots);
     }
 
     @Bean

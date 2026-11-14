@@ -178,6 +178,18 @@ public class PatientCouvertureConfiguration {
         return new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.FichesPublieesJdbc(jdbc);
     }
 
+    /** LEC-PAT (i), ADR 0176 : programmation des patients (jours de dialyse, état, sommeil) lue par la Séance. */
+    @Bean
+    com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.ProgrammationDesPatients programmationDesPatients(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.ProgrammationPublieeJdbc(jdbc);
+    }
+
+    /** LEC-PAT (i), ADR 0176 : lots de patients par identifiant (journal du jour, présents du mois, identités du détail nominatif). */
+    @Bean
+    com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.LotsDePatients lotsDePatients(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.LotsDePatientsJdbc(jdbc);
+    }
+
     @Bean
     com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.CouvertureDesPatients couvertureDesPatients(JdbcTemplate jdbc) {
         return new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.CouvertureDesPatientsJdbc(jdbc);

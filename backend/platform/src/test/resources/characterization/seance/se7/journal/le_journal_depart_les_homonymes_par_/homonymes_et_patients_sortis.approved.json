@@ -1,0 +1,82 @@
+{
+  "01 journal du centre A" : {
+    "corps" : {
+      "dateSeance" : "<J>",
+      "patients" : [ {
+        "dateSeance" : "<J>",
+        "patientCode" : "SE1-HOM_AUTRE_CENTRE",
+        "patientId" : "<HOM_AUTRE_CENTRE>",
+        "patientNom" : "Aubert",
+        "patientPrenom" : "Eve",
+        "seanceId" : "<S_HOM_AUTRE_CENTRE>",
+        "status" : "VALIDEE"
+      }, {
+        "dateSeance" : "<J>",
+        "patientCode" : "SE1-HOM_TRANSFERE",
+        "patientId" : "<HOM_TRANSFERE>",
+        "patientNom" : "Bernard",
+        "patientPrenom" : "Luc",
+        "seanceId" : "<S_HOM_TRANSFERE>",
+        "status" : "VALIDEE"
+      }, {
+        "dateSeance" : "<J>",
+        "patientCode" : "SE1-HOM_ANNE",
+        "patientId" : "<HOM_ANNE>",
+        "patientNom" : "Dupont",
+        "patientPrenom" : "Anne",
+        "seanceId" : "<S_HOM_ANNE>",
+        "status" : "SIGNEE"
+      }, {
+        "dateSeance" : "<J>",
+        "patientCode" : "SE1-HOM_MARIE",
+        "patientId" : "<HOM_MARIE>",
+        "patientNom" : "Dupont",
+        "patientPrenom" : "Marie",
+        "seanceId" : "<S_HOM_MARIE>",
+        "status" : "VALIDEE"
+      }, {
+        "dateSeance" : "<J>",
+        "patientCode" : "SE1-HOM_JUMEAU2",
+        "patientId" : "<HOM_JUMEAU2>",
+        "patientNom" : "Martin",
+        "patientPrenom" : "Paul",
+        "seanceId" : "<S_HOM_JUMEAU2>",
+        "status" : "VALIDEE"
+      }, {
+        "dateSeance" : "<J>",
+        "patientCode" : "SE1-HOM_JUMEAU1",
+        "patientId" : "<HOM_JUMEAU1>",
+        "patientNom" : "Martin",
+        "patientPrenom" : "Paul",
+        "seanceId" : "<S_HOM_JUMEAU1>",
+        "status" : "FACTUREE"
+      }, {
+        "dateSeance" : "<J>",
+        "patientCode" : "SE1-HOM_JUMEAU3",
+        "patientId" : "<HOM_JUMEAU3>",
+        "patientNom" : "Martin",
+        "patientPrenom" : "Paul",
+        "seanceId" : "<S_HOM_JUMEAU3>",
+        "status" : "CREE"
+      }, {
+        "dateSeance" : "<J>",
+        "patientCode" : "SE1-HOM_ZED",
+        "patientId" : "<HOM_ZED>",
+        "patientNom" : "Zed",
+        "patientPrenom" : "",
+        "seanceId" : "<S_HOM_ZED>",
+        "status" : "VALIDEE"
+      } ],
+      "sortiesArticles" : [ ]
+    },
+    "status" : 200
+  },
+  "02 journal du centre B : la seance du patient B est dans le centre A" : {
+    "corps" : {
+      "dateSeance" : "<J>",
+      "patients" : [ ],
+      "sortiesArticles" : [ ]
+    },
+    "status" : 200
+  }
+}

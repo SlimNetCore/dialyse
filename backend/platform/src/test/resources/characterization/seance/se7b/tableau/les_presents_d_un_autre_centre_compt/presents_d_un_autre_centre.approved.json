@@ -1,0 +1,93 @@
+{
+  "01 tableau du centre A" : {
+    "corps" : {
+      "absenceCount" : 0,
+      "absenceDetails" : {
+        "absenceCount" : 0,
+        "blockedDays" : 0,
+        "expectedByWeekday" : {
+          "DIMANCHE" : 0,
+          "JEUDI" : 0,
+          "LUNDI" : 0,
+          "MARDI" : 0,
+          "MERCREDI" : 0,
+          "MONDAY" : 4,
+          "SAMEDI" : 0,
+          "THURSDAY" : 5,
+          "VENDREDI" : 0
+        },
+        "expectedFromSchedule" : 9,
+        "formula" : "absences = absences du suivi (declarees ou detectees, hors annulees) ; presences = seances realisees",
+        "patientsConsidered" : 1,
+        "periodEnd" : "<D+30>",
+        "periodStart" : "<D+0>",
+        "presenceCount" : 5
+      },
+      "ageDistribution" : {
+        "0-17" : 0,
+        "18-39" : 1,
+        "40-59" : 2,
+        "60+" : 1,
+        "INCONNU" : 0
+      },
+      "effectifPatients" : 4,
+      "expectedSeances" : 9,
+      "month" : 1,
+      "presenceCount" : 5,
+      "sexeDistribution" : {
+        "AUTRE" : 0,
+        "F" : 2,
+        "M" : 2
+      },
+      "totalSeances" : 5,
+      "year" : 2026
+    },
+    "status" : 200
+  },
+  "02 detail des presents du centre A" : {
+    "corps" : {
+      "items" : [ {
+        "dateSeance" : "<D+1>",
+        "patientId" : "<L1>",
+        "patientNom" : "Nom L1",
+        "patientPrenom" : "Pre L1",
+        "present" : true,
+        "scheduled" : true,
+        "status" : "VALIDEE",
+        "weekday" : "FRIDAY"
+      }, {
+        "dateSeance" : "<D+1>",
+        "patientId" : "<L2>",
+        "patientNom" : "Nom L2",
+        "patientPrenom" : "Pre L2",
+        "present" : true,
+        "scheduled" : true,
+        "status" : "SIGNEE",
+        "weekday" : "FRIDAY"
+      }, {
+        "dateSeance" : "<D+2>",
+        "patientId" : "<L1>",
+        "patientNom" : "Nom L1",
+        "patientPrenom" : "Pre L1",
+        "present" : true,
+        "scheduled" : true,
+        "status" : "SIGNEE",
+        "weekday" : "SATURDAY"
+      }, {
+        "dateSeance" : "<D+3>",
+        "patientId" : "<L3>",
+        "patientNom" : "Nom L3",
+        "patientPrenom" : "Pre L3",
+        "present" : true,
+        "scheduled" : true,
+        "status" : "FACTUREE",
+        "weekday" : "SUNDAY"
+      } ],
+      "kind" : "presence",
+      "month" : 1,
+      "total" : 4,
+      "year" : 2026
+    },
+    "status" : 200
+  }
+}

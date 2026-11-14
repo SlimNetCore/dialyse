@@ -2,7 +2,7 @@ package com.hemodialyse.backend.contexts.seance.infrastructure.acl;
 
 import com.hemodialyse.backend.contexts.seance.domain.MoisDuTableauDeBord;
 import com.hemodialyse.backend.contexts.seance.domain.PatientId;
-import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacypatient.PatientsDuTableauDeBordJdbc;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture.PatientsDuTableauDeBordParLaFiche;
 import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.SeancesRealiseesJdbc;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,7 +23,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  * présents (sans filtre du centre du patient : KB-SEA-64), identités. Lecture seule. Sur PostgreSQL 16 réel, les mêmes requêtes sont
  * exécutées par {@code backend/scripts/seance-se7b-pg16-rejeu.sh} (SELECT seule).
  */
-class LecturesDuTableauDeBordJdbcTest {
+class LecturesDuTableauDeBordParLaFicheTest {
+
+    private PatientsDuTableauDeBordParLaFiche patients() {
+        return new PatientsDuTableauDeBordParLaFiche(jdbc,
+                new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.ProgrammationPublieeJdbc(jdbc),
+                new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.LotsDePatientsJdbc(jdbc));
+    }
 
     private static final CentreId A = new CentreId(new UUID(0, 0xA));
     private static final CentreId B = new CentreId(new UUID(0, 0xB));
@@ -63,7 +69,7 @@ class LecturesDuTableauDeBordJdbcTest {
         patient(2, A, "Beta", "M", true, false, true);
         patient(3, B, "Gamma", "M", false, true, true);
 
-        var patients = new PatientsDuTableauDeBordJdbc(jdbc).duCentre(A);
+        var patients = patients().duCentre(A);
 
         assertThat(patients).hasSize(2);
         var alpha = patients.stream().filter(p -> p.id().equals(new PatientId(new UUID(1, 1)))).findFirst().orElseThrow();
@@ -105,7 +111,7 @@ class LecturesDuTableauDeBordJdbcTest {
         seance(3, A, 2, "2026-01-07", "SIGNEE");
         seance(4, A, 99, "2026-01-07", "SIGNEE");
 
-        var presents = new PatientsDuTableauDeBordJdbc(jdbc).presentsDuMois(A, JANVIER);
+        var presents = patients().presentsDuMois(A, JANVIER);
 
         assertThat(presents).extracting(d -> d.patient().valeur()).containsExactlyInAnyOrder(new UUID(1, 1), new UUID(1, 2));
     }
@@ -115,7 +121,7 @@ class LecturesDuTableauDeBordJdbcTest {
         patient(1, A, "Alpha", "F", false, true, false);
         patient(2, B, "Etranger", "M", false, true, false);
 
-        var identites = new PatientsDuTableauDeBordJdbc(jdbc).identites(A);
+        var identites = patients().identites(A);
 
         assertThat(identites).containsOnlyKeys(new PatientId(new UUID(1, 1)));
         assertThat(identites.get(new PatientId(new UUID(1, 1))).nom()).isEqualTo("Alpha");

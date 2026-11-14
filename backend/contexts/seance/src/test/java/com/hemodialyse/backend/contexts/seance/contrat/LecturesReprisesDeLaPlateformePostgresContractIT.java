@@ -8,7 +8,7 @@ import com.hemodialyse.backend.contexts.seance.application.PlaceDuPatient;
 import com.hemodialyse.backend.contexts.seance.application.PlanningDesPatients;
 import com.hemodialyse.backend.contexts.seance.domain.ForfaitsDuCentre;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacygmao.GenerateursDesPatientsJdbc;
-import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacypatient.PlanningDesPatientsJdbc;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture.PlanningDesPatientsParLaFiche;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyplanification.PlaceDuPatientJdbc;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture.ForfaitsDuCentreParLeCatalogue;
 import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.ForfaitsDeSeanceJdbc;
@@ -73,7 +73,8 @@ class LecturesReprisesDeLaPlateformePostgresContractIT extends LecturesReprisesD
 
     @Override
     PlanningDesPatients planning() {
-        return new PlanningDesPatientsJdbc(connexion());
+        return new PlanningDesPatientsParLaFiche(connexion(),
+                new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.ProgrammationPublieeJdbc(connexion()));
     }
 
     @Override

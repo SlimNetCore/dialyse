@@ -1,7 +1,8 @@
 package com.hemodialyse.backend.contexts.seance.infrastructure.acl;
 
+import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.LotsDePatientsJdbc;
 import com.hemodialyse.backend.contexts.seance.application.PatientsDuJour;
-import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacypatient.PatientsDuJourJdbc;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture.PatientsDuJourParLaFiche;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,14 +15,21 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/** ACL des patients du jour sur H2 (mode PostgreSQL) : jointure interne, tri par nom puis prénom, tous statuts, lecture seule. */
-class PatientsDuJourJdbcTest {
+/**
+ * ACL des patients du jour sur H2 (mode PostgreSQL), par le langage publié de Patient et couverture (LEC-PAT i, ADR 0176) : jointure
+ * interne, tri par nom puis prénom puis identifiant de séance, tous statuts, lecture seule.
+ */
+class PatientsDuJourParLaFicheTest {
 
     private static final CentreId A = new CentreId(new UUID(0, 0xA));
     private static final CentreId B = new CentreId(new UUID(0, 0xB));
     private static final LocalDate J = LocalDate.of(2026, 6, 15);
 
     private JdbcTemplate jdbc;
+
+    private PatientsDuJour acl() {
+        return new PatientsDuJourParLaFiche(jdbc, new LotsDePatientsJdbc(jdbc));
+    }
 
     @BeforeEach
     void avant() {
@@ -51,7 +59,7 @@ class PatientsDuJourJdbcTest {
         seance(2, A, 2, J, "CREE");
         seance(3, A, 3, J, "ABSENT");
 
-        var lignes = new PatientsDuJourJdbc(jdbc).deLaJournee(A, J);
+        var lignes = acl().deLaJournee(A, J);
 
         assertThat(lignes).extracting(PatientsDuJour.PatientDuJour::code).containsExactly("P3", "P2", "P1");
         assertThat(lignes).extracting(PatientsDuJour.PatientDuJour::statut).containsExactly("ABSENT", "CREE", "SIGNEE");
@@ -63,6 +71,22 @@ class PatientsDuJourJdbcTest {
     }
 
     @Test
+    void should_break_ties_between_namesakes_by_session_identifier_across_patients() {
+        patient(1, "P1", "Martin", "Paul");
+        patient(2, "P2", "Martin", "Paul");
+        patient(3, "P3", "Aubert", "Eve");
+        seance(10, A, 2, J, "SIGNEE");
+        seance(11, A, 1, J, "SIGNEE");
+        seance(12, A, 3, J, "SIGNEE");
+        seance(13, A, 2, J.plusDays(1), "SIGNEE");
+
+        var lignes = acl().deLaJournee(A, J);
+
+        assertThat(lignes).extracting(l -> l.seance().valeur()).containsExactly(new UUID(2, 12), new UUID(2, 10), new UUID(2, 11));
+        assertThat(lignes).extracting(PatientsDuJour.PatientDuJour::code).containsExactly("P3", "P2", "P1");
+    }
+
+    @Test
     void should_exclude_other_days_other_centres_and_sessions_whose_patient_no_longer_exists() {
         patient(1, "P1", "Alpha", "Ada");
         seance(1, A, 1, J, "SIGNEE");
@@ -70,8 +94,8 @@ class PatientsDuJourJdbcTest {
         seance(3, B, 1, J, "SIGNEE");
         seance(4, A, 99, J, "SIGNEE");
 
-        assertThat(new PatientsDuJourJdbc(jdbc).deLaJournee(A, J)).extracting(l -> l.seance().valeur()).containsExactly(new UUID(2, 1));
-        assertThat(new PatientsDuJourJdbc(jdbc).deLaJournee(B, J.plusDays(1))).isEmpty();
+        assertThat(acl().deLaJournee(A, J)).extracting(l -> l.seance().valeur()).containsExactly(new UUID(2, 1));
+        assertThat(acl().deLaJournee(B, J.plusDays(1))).isEmpty();
     }
 
     @Test
@@ -79,7 +103,7 @@ class PatientsDuJourJdbcTest {
         patient(1, "P1", "Alpha", "Ada");
         seance(1, A, 1, J, "SIGNEE");
 
-        new PatientsDuJourJdbc(jdbc).deLaJournee(A, J);
+        acl().deLaJournee(A, J);
 
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM seances", Integer.class)).isEqualTo(1);
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM patients", Integer.class)).isEqualTo(1);
