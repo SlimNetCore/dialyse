@@ -222,7 +222,11 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
 - **RG-REG-002** — **Situation d'une facture** = lecture calculée de la **somme signée** des règlements contre le total
   TTC figé : `NON_REGLEE` (somme nulle, reste = total), `PARTIELLEMENT_REGLEE` (reste > 0), `REGLEE` (soldée ;
   si le réglé dépasse le facturé, la situation est « trop-perçu » et le montant excédentaire est affiché : le
-  **trop-perçu est accepté**). Les montants sont arrondis au centime.
+  **trop-perçu est accepté**). Les montants sont arrondis au centime. *(Lecture des factures, LEC-PAT-GMAO, ADR 0181, 2026-11-14, KB-FAC-49,
+  à confirmer par les métiers et le DPO avant le 2026-12-15 :)* la liste est triée par date de facturation décroissante, puis numéro de
+  facture décroissant, puis identifiant de la facture (aucun ordre observable ne change : le numéro est unique dans un centre) ; le numéro
+  d'assurance, le nom, le prénom et le centre payeur courant du patient sont lus dans la fiche **du centre de la facture** (un patient d'un
+  autre centre ou inconnu n'est pas lu : l'instantané de la facture s'applique, ou « - »).
 - **RG-REG-005** — **Remboursement** (à valider par le métier) : un règlement négatif ne peut pas dépasser le **total déjà
   réglé** de la facture (somme signée, trop-perçu compris) : refus **422** `REMBOURSEMENT_SUPERIEUR_AU_TOTAL_REGLE`. Il est
   comptabilisé par l'écriture de **sens inverse** de l'encaissement (débit du compte client, crédit de la banque ou de la

@@ -43,7 +43,8 @@ public abstract class ReglementsJdbcContrat extends ReglementsContrat {
     @Override
     protected SituationsDesFactures situations() {
         return new SituationsDesFacturesJdbc(jdbc(),
-                new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.PayeursDuCentreJdbc(jdbc()));
+                new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.PayeursDuCentreJdbc(jdbc()),
+                new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.LotsDePatientsJdbc(jdbc()));
     }
 
     @Override
@@ -153,6 +154,51 @@ public abstract class ReglementsJdbcContrat extends ReglementsContrat {
             assertThat(l.agence()).isEqualTo("Agence AG-A");
         });
         assertThat(lignes).filteredOn(l -> l.factureId().equals(F1)).singleElement().satisfies(l -> assertThat(l.agenceId()).isNull());    }
+
+    /** LEC-PAT-GMAO (3), KB-FAC-49 : la fiche vient de Patient et couverture, bornée au centre ; sinon l'instantané de la facture. */
+    @Test
+    void should_read_the_patient_card_only_when_the_patient_belongs_to_the_centre_of_the_invoice_otherwise_the_snapshot() {
+        viderLeReferentielDesPayeurs();
+        poserLesFactures();
+        UUID cnas = caisse(CENTRE_A, "CNAS");
+        UUID agence = agence(CENTRE_A, cnas, "AG-CNAS");
+        UUID payeur = centrePayeur(CENTRE_A, agence, "CP1");
+        UUID duCentre = UUID.randomUUID();
+        UUID autreCentre = UUID.randomUUID();
+        String colonnes = "INSERT INTO patients (id, center_id, code_patient, nom, prenom, sexe, date_admission, numero_assurance, "
+                + "type_patient, etat_patient, centre_payeur_id, created_at) VALUES (?,?,?,?,?,'F',?,?,'NON_VACANCIER','PERMANENT',?,"
+                + "CURRENT_TIMESTAMP)";
+        jdbc().update(colonnes, duCentre, CENTRE_A.valeur(), "LEC-1", "Amrani", "Lina", Date.valueOf("2025-01-10"), "ASS-1", payeur);
+        jdbc().update(colonnes, autreCentre, CENTRE_B.valeur(), "LEC-B", "Zerrouki", "Rania", Date.valueOf("2025-01-10"), "ASS-B", payeur);
+        jdbc().update("UPDATE factures SET patient_id = ?, numero_immatriculation_snapshot = 'SNAP-1', patient_full_name = 'Instantane' "
+                + "WHERE id = ?", duCentre, F1);
+        jdbc().update("UPDATE factures SET patient_id = ?, numero_immatriculation_snapshot = 'SNAP-2', patient_full_name = 'Instantane 2' "
+                + "WHERE id = ?", autreCentre, F2);
+        try {
+            var lignes = situations().toutes(new CriteresDeSituation(CENTRE_A, 2026, null, null, null, null));
+
+            assertThat(lignes).filteredOn(l -> l.factureId().equals(F1)).singleElement().satisfies(l -> {
+                assertThat(l.numeroAssurance()).isEqualTo("ASS-1");
+                assertThat(l.patientNom()).isEqualTo("Amrani");
+                assertThat(l.patientPrenom()).isEqualTo("Lina");
+                assertThat(l.centrePayeurId()).as("payeur courant du patient").isEqualTo(payeur);
+            });
+            assertThat(lignes).filteredOn(l -> l.factureId().equals(F2)).singleElement().satisfies(l -> {
+                assertThat(l.numeroAssurance()).as("patient d'un autre centre : instantané").isEqualTo("SNAP-2");
+                assertThat(l.patientNom()).isEqualTo("Instantane 2");
+                assertThat(l.patientPrenom()).isEmpty();
+                assertThat(l.centrePayeurId()).isNull();
+            });
+            assertThat(lignes).filteredOn(l -> l.factureId().equals(F3)).singleElement().satisfies(l -> {
+                assertThat(l.numeroAssurance()).as("patient inconnu, sans instantané").isEqualTo("-");
+                assertThat(l.patientNom()).isEqualTo("-");
+            });
+            assertThat(situations().deLaFacture(CENTRE_A, F1).orElseThrow().patientNom()).isEqualTo("Amrani");
+            assertThat(situations().deLaFacture(CENTRE_A, F2).orElseThrow().patientNom()).isEqualTo("Instantane 2");
+        } finally {
+            jdbc().update("DELETE FROM patients WHERE id IN (?, ?)", duCentre, autreCentre);
+        }
+    }
 
     @Test
     void should_refuse_a_second_payment_under_the_same_key_for_the_same_invoice() {

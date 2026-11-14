@@ -115,6 +115,18 @@ class ConsultationEtRechercheDesPatientsCharacterizationIntegrationTest extends 
         lecture("fiche_generateur_supprime", lireLaFiche(id, CENTRE_A, adminA()));
     }
 
+    @Test
+    void la_fiche_d_un_patient_dont_le_generateur_est_d_un_autre_centre_ou_inconnu_est_sans_generateur() throws Exception {
+        decorDePlacement();
+        UUID autreCentre = generateur(CENTRE_B, "G-AUTRE-CENTRE", null, "EN_SERVICE");
+        UUID id = place(CENTRE_A, "PLACE", salle1, matin, g1a, semaineLundiMercredi());
+        jdbc.update("UPDATE patients SET date_admission = ? WHERE id = ?", java.sql.Date.valueOf(jour(-400)), id);
+        jdbc.update("UPDATE patients SET generateur_id = ? WHERE id = ?", autreCentre, id);
+        lecture("fiche_generateur_d_un_autre_centre", lireLaFiche(id, CENTRE_A, adminA()));
+        jdbc.update("UPDATE patients SET generateur_id = ? WHERE id = ?", UUID.nameUUIDFromBytes("generateur-inconnu".getBytes()), id);
+        lecture("fiche_generateur_inconnu", lireLaFiche(id, CENTRE_A, adminA()));
+    }
+
     private com.hemodialyse.backend.characterization.planification.JourSemaine[] semaineLundiMercredi() {
         return new com.hemodialyse.backend.characterization.planification.JourSemaine[]{
                 com.hemodialyse.backend.characterization.planification.JourSemaine.LUNDI,

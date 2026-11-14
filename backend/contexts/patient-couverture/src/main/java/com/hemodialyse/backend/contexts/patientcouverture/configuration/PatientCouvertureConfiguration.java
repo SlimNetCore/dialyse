@@ -42,7 +42,7 @@ import com.hemodialyse.backend.contexts.patientcouverture.domain.MouvementsDesPa
 import com.hemodialyse.backend.contexts.patientcouverture.domain.PatientRepository;
 import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.acl.organisation.HorlogeDesCentresPublies;
 import com.hemodialyse.backend.contexts.organisation.publishedlanguage.AnnuaireDesCentres;
-import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.acl.legacygmao.GenerateursDuCentreJdbc;
+import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.acl.gmao.GenerateursDuCentreParLaGmao;
 import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.acl.legacyidentite.SessionLegacy;
 import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.acl.planification.PlaceDeLaFicheParLaPlanification;
 import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.identifiants.IdentifiantsAleatoires;
@@ -123,8 +123,9 @@ public class PatientCouvertureConfiguration {
 
     @Bean
     LectureDesMouvements lectureDesMouvements(JdbcTemplate jdbc,
-            com.hemodialyse.backend.contexts.organisation.publishedlanguage.LibellesDeLOrganisation libelles) {
-        return new LectureDesMouvementsJdbc(jdbc, libelles);
+            com.hemodialyse.backend.contexts.organisation.publishedlanguage.LibellesDeLOrganisation libelles,
+            com.hemodialyse.backend.contexts.gmao.publishedlanguage.DescriptionsDesEquipements equipements) {
+        return new LectureDesMouvementsJdbc(jdbc, libelles, equipements);
     }
 
     @Bean
@@ -138,8 +139,9 @@ public class PatientCouvertureConfiguration {
     }
 
     @Bean
-    GenerateursDuCentre generateursDeLaFiche(JdbcTemplate jdbc) {
-        return new GenerateursDuCentreJdbc(jdbc);
+    GenerateursDuCentre generateursDeLaFiche(
+            com.hemodialyse.backend.contexts.gmao.publishedlanguage.DescriptionsDesEquipements equipements) {
+        return new GenerateursDuCentreParLaGmao(equipements);
     }
 
     @Bean

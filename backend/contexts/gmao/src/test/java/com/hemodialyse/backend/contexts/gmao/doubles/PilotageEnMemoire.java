@@ -28,7 +28,8 @@ import java.util.function.Predicate;
  * Les plans, que le double ne tient pas, sont posés par le test.
  */
 public class PilotageEnMemoire implements LectureDesComptages, LectureDesCouts, GenerateursDuCentre,
-        IndisponibilitesDesGenerateurs, com.hemodialyse.backend.contexts.gmao.publishedlanguage.FichesDesGenerateurs {
+        IndisponibilitesDesGenerateurs, com.hemodialyse.backend.contexts.gmao.publishedlanguage.FichesDesGenerateurs,
+        com.hemodialyse.backend.contexts.gmao.publishedlanguage.DescriptionsDesEquipements {
 
     private static final Instant DEPUIS_TOUJOURS = Instant.parse("1970-01-01T00:00:00Z");
     private static final Instant SANS_LIMITE = Instant.parse("9999-01-01T00:00:00Z");
@@ -114,6 +115,14 @@ public class PilotageEnMemoire implements LectureDesComptages, LectureDesCouts, 
     public java.util.Optional<FicheDuGenerateur> duCentre(UUID centre, UUID equipement) {
         return parc.parcDuCentre(new CentreId(centre)).stream().filter(e -> e.id().equals(equipement))
                 .map(e -> new FicheDuGenerateur(e.id(), e.code(), e.fabricant(), e.statut().name())).findFirst();
+    }
+
+    @Override
+    public Map<UUID, DescriptionDeLEquipement> duCentre(UUID centre, Collection<UUID> equipements) {
+        Map<UUID, DescriptionDeLEquipement> descriptions = new HashMap<>();
+        parc.toutLeParcDuCentre(new CentreId(centre)).stream().filter(e -> equipements.contains(e.id()))
+                .forEach(e -> descriptions.put(e.id(), new DescriptionDeLEquipement(e.id(), e.code(), e.fabricant(), e.statut().name())));
+        return descriptions;
     }
 
     @Override

@@ -72,7 +72,8 @@ public abstract class ReglementsConcurrentsContrat {
 
     private EnregistrerUnReglement cas(PublicationDesReglements publication) {
         return new EnregistrerUnReglement(new ReglementsJdbc(jdbc()), new SituationsDesFacturesJdbc(jdbc(),
-                new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.PayeursDuCentreJdbc(jdbc())), publication,
+                new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.PayeursDuCentreJdbc(jdbc()),
+                new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.LotsDePatientsJdbc(jdbc())), publication,
                 new UniteDeTravailSpring(new TransactionTemplate(transactionManager())), Clock.systemDefaultZone(), UUID::randomUUID);
     }
 

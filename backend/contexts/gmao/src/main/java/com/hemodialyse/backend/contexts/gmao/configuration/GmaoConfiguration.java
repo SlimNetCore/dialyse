@@ -545,6 +545,13 @@ public class GmaoConfiguration {
         return new com.hemodialyse.backend.contexts.gmao.infrastructure.persistence.FichesDesGenerateursJpa(equipements);
     }
 
+    /** Langage publié {@code DescriptionsDesEquipements} (LEC-PAT-GMAO, ADR 0181) : Patient et couverture décrit le générateur d'un patient, supprimés compris. */
+    @Bean
+    com.hemodialyse.backend.contexts.gmao.publishedlanguage.DescriptionsDesEquipements gmaoDescriptionsDesEquipements(
+            EquipementSpringData equipements) {
+        return new com.hemodialyse.backend.contexts.gmao.infrastructure.persistence.DescriptionsDesEquipementsJpa(equipements);
+    }
+
     /** Langage publié {@code EquipementsDeLaSalle} (PL11-4, ADR 0160) : l'Organisation compte les équipements d'une salle avant de la supprimer. */
     @Bean
     com.hemodialyse.backend.contexts.gmao.publishedlanguage.EquipementsDeLaSalle gmaoEquipementsDeLaSalle(EquipementSpringData equipements) {

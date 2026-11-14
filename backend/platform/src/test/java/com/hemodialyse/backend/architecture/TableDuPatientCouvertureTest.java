@@ -51,8 +51,6 @@ class TableDuPatientCouvertureTest {
             + "échéance : inversion de la propriété de la place, hors périmètre (aucune échéance)";
     private static final String CYCLE = "2026-11-04 : dépendance Maven CIRCULAIRE (contexts-patient-couverture dépend de "
             + "contexts-planification) ; échéance : extraction des interfaces publiées dans un module d'API partagé (le port est prêt)";
-    private static final String JOINTURE ="2026-11-04 : jointure avec les tables du contexte consommateur dans un GROUP BY / un tri "
-            + "(la découper changerait le résultat) ; échéance : reprise du contexte consommateur";
 
     /** Lecteurs et écrivains restants hors du contexte (chemin depuis {@code backend/}) : jalons acceptés le 2026-11-04. */
     private static final Map<String, String> JALONS = jalons(
@@ -68,8 +66,8 @@ class TableDuPatientCouvertureTest {
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacypatient/ContraintesDesPatientsJdbc.java",
             "2026-11-04 : lecture de la fiche par la Planification (transporteurs, date de naissance : règle des 18 ans, RG-PLN-097), pas une lecture de fiche publiée ; les abords vasculaires viennent de dossier-medical.v1 depuis DM9 (ADR 0101) ; échéance : langage publié du Patient",
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacypatient/NomsDesPatientsJdbc.java", CYCLE + " (port FichesDesPatients.noms)",
-            "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacypatient/PatientsDuCentreJdbc.java", CYCLE + " (port FichesDesPatients.situation)",
-            // PatientsDesCentresJdbc (Pilotage direction) et HistoriqueDesSeancesJdbc (Séance) : entrées SOLDÉES par LEC-PAT (iii) (2026-11-14,
+            "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacypatient/PatientsDuCentreJdbc.java", CYCLE + " (port FichesDesPatients.situation)");
+    // PatientsDesCentresJdbc (Pilotage direction) et HistoriqueDesSeancesJdbc (Séance) : entrées SOLDÉES par LEC-PAT (iii) (2026-11-14,
             // ADR 0178), lecture par EffectifDesPatients et LotsDePatients.rechercherDuCentre ; leurs butoirs (2027-03-31) ne sont pas reportés.
             // PlanningDesPatientsJdbc, PatientsDuJourJdbc, PatientsDuTableauDeBordJdbc : entrées SOLDÉES par LEC-PAT (i) (2026-11-14, ADR 0176),
             // lecture par ProgrammationDesPatients et LotsDePatients ; leurs butoirs (2027-03-31) ne sont pas reportés.
@@ -77,10 +75,9 @@ class TableDuPatientCouvertureTest {
             // ---- accès que la première version de la garde ne voyait pas (SQL construit, JPA), ajoutés par la revue du 2026-11-05
             // HistoricalRecordJdbcAdapter : entrée SOLDÉE par RP3a (2026-11-13, ADR 0171), attestations et prises en charge passent par
             // RepriseDeLHistoriqueDeCouverture ; le butoir (2027-03-31 / 2027-06-30 des lecteurs de la reprise) n'est pas reporté.
-            // SituationsDesFacturesJdbc : conservée, LEC-PAT (iii) (2026-11-14, ADR 0178) a établi que la lecture de patients n'est PAS isolable
-            // sans changer le résultat (tri sans départage sur une jointure dans un GROUP BY, KB-FAC-49).
-            "contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/SituationsDesFacturesJdbc.java",
-            JOINTURE + " : six tables de Facturation, KB-FAC-49");
+            // SituationsDesFacturesJdbc : entrée JOINTURE (KB-FAC-49) SOLDÉE par LEC-PAT-GMAO (3) (2026-11-14, ADR 0181) : la fiche du patient est
+            // lue par LotsDePatients.aFacturerDuCentre (bornée au centre) et appliquée en mémoire, le tri est départagé par l'identifiant de la
+            // facture. Butoir 2027-03-31 non reporté. La liste blanche ne contient plus que PLACE et CYCLE (propriété de la Planification).
 
     private static Map<String, String> jalons(String... couples) {
         Map<String, String> m = new TreeMap<>();
@@ -261,7 +258,7 @@ class TableDuPatientCouvertureTest {
      * LEC-PAT (iii) (2026-11-14, ADR 0178) : l'historique des séances lit la fiche par {@code LotsDePatients.rechercherDuCentre} et l'effectif
      * du Pilotage direction par {@code EffectifDesPatients} ; les deux jalons (butoir 2027-03-31) sont SOLDÉS (entrées supprimées, jamais
      * reportées). Verrou : {@code HistoriqueDesSeancesJdbc} ne revient ni dans la liste ni dans les lecteurs SQL, et le lecteur SQL de
-     * l'effectif du Pilotage est supprimé. {@code SituationsDesFacturesJdbc} (KB-FAC-49) RESTE : sa lecture de patients n'est pas isolable.
+     * l'effectif du Pilotage est supprimé. {@code SituationsDesFacturesJdbc} (KB-FAC-49) est SOLDÉ par LEC-PAT-GMAO (3) : voir le test suivant.
      */
     @Test
     void l_historique_des_seances_et_l_effectif_du_pilotage_ne_lisent_plus_les_tables_du_patient_couverture() throws IOException {
@@ -275,7 +272,24 @@ class TableDuPatientCouvertureTest {
         assertThat(lecteurs).doesNotContain(historique).doesNotContain(ancienLecteurDuPilotage);
         assertThat(Files.exists(backend.resolve(historique))).isTrue();
         assertThat(Files.exists(backend.resolve(ancienLecteurDuPilotage))).isFalse();
-        assertThat(JALONS).containsKey("contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/SituationsDesFacturesJdbc.java");
+    }
+
+    /**
+     * LEC-PAT-GMAO (3) (2026-11-14, ADR 0181) : la lecture des situations de règlement des factures lit la fiche du patient par
+     * {@code LotsDePatients.aFacturerDuCentre} (bornée au centre, appliquée en mémoire) ; le jalon JOINTURE de {@code SituationsDesFacturesJdbc}
+     * (KB-FAC-49, butoir 2027-03-31) est SOLDÉ (entrée supprimée, jamais reportée). Verrou : le lecteur ne figure plus dans la liste ni dans
+     * les lecteurs SQL des tables du contexte ; il lit encore {@code factures} (il existe) et la liste blanche ne garde que PLACE et CYCLE.
+     */
+    @Test
+    void les_situations_de_reglement_des_factures_ne_lisent_plus_les_tables_du_patient_couverture() throws IOException {
+        String lecteur = "contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/SituationsDesFacturesJdbc.java";
+        Path backend = backend();
+
+        assertThat(JALONS).doesNotContainKey(lecteur);
+        assertThat(sourcesFautives(backend, racinesHorsDuContexte(backend))).doesNotContain(lecteur);
+        assertThat(Files.exists(backend.resolve(lecteur))).isTrue();
+        assertThat(Files.readString(backend.resolve(lecteur))).contains("LotsDePatients").doesNotContain("JOIN patients");
+        assertThat(JALONS.keySet()).allMatch(c -> c.startsWith("contexts/planification/"));
     }
 
     @Test

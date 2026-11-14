@@ -146,6 +146,11 @@ class PilotagePostgresContractIT extends PilotageContrat {
     }
 
     @Override
+    protected com.hemodialyse.backend.contexts.gmao.publishedlanguage.DescriptionsDesEquipements descriptionsDesEquipements() {
+        return new com.hemodialyse.backend.contexts.gmao.infrastructure.persistence.DescriptionsDesEquipementsJpa(equipements);
+    }
+
+    @Override
     protected com.hemodialyse.backend.contexts.gmao.publishedlanguage.IndisponibilitesDesGenerateurs indisponibilites() {
         return new com.hemodialyse.backend.contexts.gmao.infrastructure.persistence.IndisponibilitesDesGenerateursJpa(interventions);
     }

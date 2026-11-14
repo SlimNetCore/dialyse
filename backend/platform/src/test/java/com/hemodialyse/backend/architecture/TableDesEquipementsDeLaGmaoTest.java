@@ -26,13 +26,10 @@ class TableDesEquipementsDeLaGmaoTest {
 
     // GenerateursDesPatientsJdbc (Séance) : entrée SOLDÉE par LEC-PLN-GMAO (2026-11-14, ADR 0179) ; le générateur du patient est lu par
     // FichesDesGenerateurs (gmao.v1, fabricant compris). Butoir 2027-03-31 supprimé, aucun report. Verrou : voir le test dédié ci-dessous.
-    private static final Map<String, String> JALONS = Map.of(
-            "contexts/patient-couverture/src/main/java/com/hemodialyse/backend/contexts/patientcouverture/infrastructure/acl/legacygmao/"
-                    + "GenerateursDuCentreJdbc.java",
-            "2026-11-07 : ACL de Patient et couverture vers la GMAO (générateurs du centre) ; échéance : lecture publiée de la GMAO",
-            "contexts/patient-couverture/src/main/java/com/hemodialyse/backend/contexts/patientcouverture/infrastructure/persistence/"
-                    + "LectureDesMouvementsJdbc.java",
-            "2026-11-07 : lecture des mouvements avec le générateur du patient ; échéance : lecture publiée de la GMAO");
+    // GenerateursDuCentreJdbc et LectureDesMouvementsJdbc (Patient et couverture) : entrées SOLDÉES par LEC-PAT-GMAO (2026-11-14, ADR 0181) ;
+    // les deux lisent DescriptionsDesEquipements (gmao.v1, lecture par lot bornée au centre, supprimés compris). Aucun report. La liste
+    // blanche est VIDE : tout lecteur de gmao_equipements hors du contexte GMAO fait échouer le test.
+    private static final Map<String, String> JALONS = Map.of();
 
     private static List<String> lecteurs(Path backend) throws IOException {
         try (Stream<Path> fichiers = Files.walk(backend)) {
@@ -78,6 +75,13 @@ class TableDesEquipementsDeLaGmaoTest {
         String adapter = "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/acl/legacygmao/GenerateursDesPatientsJdbc.java";
         assertThat(JALONS).doesNotContainKey(adapter);
         assertThat(lecteurs(Path.of("..").toAbsolutePath().normalize())).noneMatch(c -> c.startsWith("contexts/seance/"));
+    }
+
+    /** LEC-PAT-GMAO (ADR 0181) : plus aucun lecteur hors GMAO ; la liste blanche est vide et les deux anciens lecteurs n'y figurent plus. */
+    @Test
+    void patient_et_couverture_ne_lit_plus_les_equipements_de_la_gmao() throws IOException {
+        assertThat(JALONS).isEmpty();
+        assertThat(lecteurs(Path.of("..").toAbsolutePath().normalize())).isEmpty();
     }
 
     @Test

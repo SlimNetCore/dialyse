@@ -1,0 +1,7 @@
+{
+  "<J-20> REPRISE Test Patient A" : "\"G1A\"",
+  "<J-21> ADMISSION Test Patient A" : "null",
+  "<J-22> ADMISSION Test Patient B" : "\"G-SUPPRIME\"",
+  "<J-23> ADMISSION Test Patient C" : "null",
+  "<J-24> GREFFE Test Patient C" : "null"
+}

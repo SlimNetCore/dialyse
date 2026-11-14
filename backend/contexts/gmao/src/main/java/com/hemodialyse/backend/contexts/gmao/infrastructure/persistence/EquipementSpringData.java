@@ -53,6 +53,10 @@ public interface EquipementSpringData extends JpaRepository<EquipementJpa, UUID>
             + "AND e.deletedAt IS NULL")
     List<Object[]> ficheDuCentre(@Param("centreId") UUID centreId, @Param("id") UUID id);
 
+    /** Lignes (id, code, fabricant, statut) des équipements d'un centre parmi {@code ids}, tout type, supprimés COMPRIS (LEC-PAT-GMAO). */
+    @Query("SELECT e.id, e.code, e.fabricant, e.statut FROM EquipementJpa e WHERE e.centreId = :centreId AND e.id IN :ids")
+    List<Object[]> descriptionsDuCentre(@Param("centreId") UUID centreId, @Param("ids") Collection<UUID> ids);
+
     /** Nombre d'équipements rattachés à une salle, supprimés compris (ils référencent encore la salle). */
     @Query("SELECT COUNT(e) FROM EquipementJpa e WHERE e.salleId = :salle")
     long compterDeLaSalle(@Param("salle") UUID salle);

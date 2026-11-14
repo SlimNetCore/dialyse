@@ -209,8 +209,9 @@ public class FacturationContexteConfiguration {
 
     @Bean
     SituationsDesFactures facturationSituationsDesFactures(JdbcTemplate jdbc,
-            com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.PayeursDuCentre annuaire) {
-        return new SituationsDesFacturesJdbc(jdbc, annuaire);
+            com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.PayeursDuCentre annuaire,
+            com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.LotsDePatients patients) {
+        return new SituationsDesFacturesJdbc(jdbc, annuaire, patients);
     }
 
     @Bean

@@ -164,6 +164,30 @@ class MouvementsDesPatientsCharacterizationIntegrationTest extends PatientCouver
     }
 
     @Test
+    void le_generateur_d_un_mouvement_est_decrit_par_la_gmao_du_centre_du_mouvement() throws Exception {
+        decorDePlacement();
+        patientSansPlace("A");
+        patientSansPlace("B");
+        patientSansPlace("C");
+        UUID autreCentre = generateur(CENTRE_B, "G-AUTRE-CENTRE", null, "EN_SERVICE");
+        UUID supprime = generateur(CENTRE_A, "G-SUPPRIME", salle1, "EN_SERVICE");
+        jdbc.update("UPDATE gmao_equipements SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?", supprime);
+        mouvement("A", "REPRISE", -20, "OCCASIONNEL", "PERMANENT", salle1, matin, g1a, "LUNDI", false, 1);
+        mouvement("A", "ADMISSION", -21, null, "PERMANENT", null, null, autreCentre, "LUNDI", false, 2);
+        mouvement("B", "ADMISSION", -22, null, "PERMANENT", null, null, supprime, "MARDI", false, 3);
+        mouvement("C", "ADMISSION", -23, null, "PERMANENT", null, null, UUID.nameUUIDFromBytes("generateur-inconnu".getBytes()), "", false, 4);
+        mouvement("C", "GREFFE", -24, "PERMANENT", "GREFFE", null, null, null, "", false, 5);
+        Map<String, Object> m = new LinkedHashMap<>();
+        for (JsonNode i : corps(doGet(MOUVEMENTS, adminA())).path("items")) {
+            m.put(i.path("dateEffet").asString() + " " + i.path("type").asString() + " " + i.path("patientNom").asString(),
+                    i.path("generateur").toString());
+        }
+        // LEC-PAT-GMAO (ADR 0181, décision 2026-11-14) : la lecture publiée de la GMAO est bornée au centre ; un générateur d'un autre centre
+        // n'est plus décrit (avant : « G-AUTRE-CENTRE », voir _ecarts-legacy/.../generateur_d_un_autre_centre_avant_lec_pat_gmao.legacy.json).
+        arbre("generateur_d_un_autre_centre_nouveau_code", m);
+    }
+
+    @Test
     void un_type_de_mouvement_inconnu_en_base_fait_echouer_toute_la_liste() throws Exception {
         jeuComplet();
         mouvement("A", "TYPE_HERITE", -50, null, "PERMANENT", null, null, null, "", false, 1);

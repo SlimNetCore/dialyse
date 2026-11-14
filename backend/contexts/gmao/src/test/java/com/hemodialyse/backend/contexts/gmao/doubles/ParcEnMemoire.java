@@ -87,6 +87,11 @@ public class ParcEnMemoire implements EquipementRepository, LectureEquipements, 
                 .map(EquipementVue::depuis).toList();
     }
 
+    /** Tout le parc du centre, supprimés logiquement COMPRIS (la lecture par lot des descriptions, LEC-PAT-GMAO). */
+    public List<EquipementVue> toutLeParcDuCentre(CentreId centre) {
+        return equipements.values().stream().filter(e -> e.centreId().equals(centre)).map(EquipementVue::depuis).toList();
+    }
+
     /** Ce que la base sait faire et le domaine non : poser {@code deleted_at}. */
     public void supprimerLogiquement(EquipementId id) {
         supprimes.add(id);

@@ -45,7 +45,8 @@ class ReglementsJdbcContratTest extends ReglementsJdbcContrat {
         jdbc.execute("CREATE UNIQUE INDEX IF NOT EXISTS ux_facture_reglements_cle_idempotence "
                 + "ON facture_reglements (center_id, facture_id, cle_idempotence)");
         jdbc.execute("CREATE TABLE IF NOT EXISTS patients (id UUID PRIMARY KEY, center_id UUID NOT NULL, numero_assurance VARCHAR(255), "
-                + "nom VARCHAR(255), prenom VARCHAR(255), centre_payeur_id UUID)");
+                + "nom VARCHAR(255), prenom VARCHAR(255), centre_payeur_id UUID, code_patient VARCHAR(50), etat_patient VARCHAR(30), "
+                + "sexe VARCHAR(5), date_admission DATE, type_patient VARCHAR(30), created_at TIMESTAMP WITH TIME ZONE)");
         // PL8b : les colonnes lues par l'annuaire des payeurs (code, adresse, type_caisse) en plus du nom
         jdbc.execute("CREATE TABLE IF NOT EXISTS centre_payeur (id UUID PRIMARY KEY, center_id UUID NOT NULL, code VARCHAR(255), "
                 + "nom VARCHAR(255), adresse VARCHAR(255), agence_id UUID)");

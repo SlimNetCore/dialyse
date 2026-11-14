@@ -619,7 +619,7 @@ abstract class PatientsJdbcContrat extends PatientsContrat {
         p.retirerLesMouvements().forEach(mouvements::ajouter);
         depot().enregistrer(p);
 
-        var lues = new LectureDesMouvementsJdbc(jdbc(), new LibellesDeLOrganisationJdbc(jdbc())).lister(CENTRE,
+        var lues = new LectureDesMouvementsJdbc(jdbc(), new LibellesDeLOrganisationJdbc(jdbc()), new EquipementsEnMemoire()).lister(CENTRE,
                 new LectureDesMouvements.Filtre(p.id().valeur(), null, null, null), 0, 20);
 
         assertThat(lues.total()).isEqualTo(2);
@@ -627,10 +627,38 @@ abstract class PatientsJdbcContrat extends PatientsContrat {
                 .containsExactly(TypeDeMouvement.GUERISON, TypeDeMouvement.ADMISSION);
         assertThat(lues.items().get(0).etatPrecedent()).isEqualTo("PERMANENT");
         assertThat(lues.items().get(0).patientNom()).isEqualTo("Karim Benali");
-        var filtrees = new LectureDesMouvementsJdbc(jdbc(), new LibellesDeLOrganisationJdbc(jdbc())).lister(CENTRE,
+        var filtrees = new LectureDesMouvementsJdbc(jdbc(), new LibellesDeLOrganisationJdbc(jdbc()), new EquipementsEnMemoire()).lister(CENTRE,
                 new LectureDesMouvements.Filtre(null, TypeDeMouvement.GUERISON, null, null), 0, 20);
         assertThat(filtrees.items()).extracting(LectureDesMouvements.Ligne::patientId).contains(p.id().valeur());
-        assertThat(new LectureDesMouvementsJdbc(jdbc(), new LibellesDeLOrganisationJdbc(jdbc())).lister(AUTRE, new LectureDesMouvements.Filtre(null, null, null, null), 0, 20)
+        assertThat(new LectureDesMouvementsJdbc(jdbc(), new LibellesDeLOrganisationJdbc(jdbc()), new EquipementsEnMemoire()).lister(AUTRE, new LectureDesMouvements.Filtre(null, null, null, null), 0, 20)
                 .items()).isEmpty();
+    }
+
+    /** LEC-PAT-GMAO (ADR 0181) : le code du générateur vient de la GMAO, borné au centre du mouvement, supprimé compris. */
+    @Test
+    void should_decrire_le_generateur_du_mouvement_par_la_gmao_du_centre_du_mouvement() {
+        Patient p = admis(CENTRE, Fiches.nominale("JD-GEN", null, null));
+        depot().enregistrer(p);
+        UUID duCentre = UUID.randomUUID();
+        UUID supprime = UUID.randomUUID();
+        UUID autreCentre = UUID.randomUUID();
+        UUID inconnu = UUID.randomUUID();
+        var equipements = new EquipementsEnMemoire().equipement(CENTRE.valeur(), duCentre, "G-01", "Fresenius", "EN_SERVICE")
+                .equipement(CENTRE.valeur(), supprime, "G-SUP", "Fresenius", "REFORME")
+                .equipement(AUTRE.valeur(), autreCentre, "G-AUTRE", "Fresenius", "EN_SERVICE");
+        int minute = 0;
+        for (UUID generateur : new UUID[]{duCentre, supprime, autreCentre, inconnu, null}) {
+            jdbc().update("INSERT INTO mouvement_patient (id, center_id, patient_id, type, date_effet, etat_nouveau, generateur_id, automatique, cree_le) "
+                    + "VALUES (?,?,?,?,?,?,?,?,?)", UUID.randomUUID(), CENTRE.valeur(), p.id().valeur(), "REPRISE",
+                    java.sql.Date.valueOf(LocalDate.of(2026, 10, 1).plusDays(minute)), "PERMANENT", generateur, false,
+                    java.sql.Timestamp.from(T0.plusSeconds(60L * minute)));
+            minute++;
+        }
+
+        var lues = new LectureDesMouvementsJdbc(jdbc(), new LibellesDeLOrganisationJdbc(jdbc()), equipements).lister(CENTRE,
+                new LectureDesMouvements.Filtre(p.id().valeur(), TypeDeMouvement.REPRISE, null, null), 0, 20);
+
+        assertThat(lues.items()).extracting(LectureDesMouvements.Ligne::generateur)
+                .containsExactly(null, null, null, "G-SUP", "G-01");
     }
 }

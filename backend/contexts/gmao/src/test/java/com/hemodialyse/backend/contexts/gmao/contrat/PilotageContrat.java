@@ -75,6 +75,8 @@ public abstract class PilotageContrat {
 
     protected abstract com.hemodialyse.backend.contexts.gmao.publishedlanguage.FichesDesGenerateurs fichesDesGenerateurs();
 
+    protected abstract com.hemodialyse.backend.contexts.gmao.publishedlanguage.DescriptionsDesEquipements descriptionsDesEquipements();
+
     protected abstract IndisponibilitesDesGenerateurs indisponibilites();
 
     /** La base sait poser {@code deleted_at} ; aucune commande du domaine ne le fait. */
@@ -334,6 +336,33 @@ public abstract class PilotageContrat {
         assertThat(fiches.duCentre(CENTRE_A.valeur(), supprime.id().valeur())).as("supprimé").isEmpty();
         assertThat(fiches.duCentre(CENTRE_A.valeur(), autreCentre.id().valeur())).as("autre centre").isEmpty();
         assertThat(fiches.duCentre(CENTRE_A.valeur(), UUID.randomUUID())).as("inconnu").isEmpty();
+    }
+
+    @Test
+    void should_describe_by_batch_the_equipment_of_the_centre_including_the_deleted_but_not_the_foreign_or_unknown_ones() {
+        Equipement g1 = generateur(CENTRE_A, "G-01");
+        Equipement osmoseur = equipement(CENTRE_A, "OSMOSEUR", TypeEquipement.AUTRE, INSTALLATION);
+        Equipement supprime = generateur(CENTRE_A, "G-SUP");
+        supprimerLogiquementEquipement(supprime.id());
+        Equipement autreCentre = generateur(CENTRE_B, "G-B");
+        Equipement maintenance = generateur(CENTRE_A, "G-02");
+        reconstituerAuStatut(maintenance, StatutEquipement.EN_MAINTENANCE);
+        UUID inconnu = UUID.randomUUID();
+
+        var descriptions = descriptionsDesEquipements().duCentre(CENTRE_A.valeur(), java.util.Arrays.asList(g1.id().valeur(),
+                osmoseur.id().valeur(), supprime.id().valeur(), autreCentre.id().valeur(), maintenance.id().valeur(), inconnu, null,
+                g1.id().valeur()));
+
+        assertThat(descriptions).containsOnlyKeys(g1.id().valeur(), osmoseur.id().valeur(), supprime.id().valeur(),
+                maintenance.id().valeur());
+        assertThat(descriptions.get(g1.id().valeur())).isEqualTo(
+                new com.hemodialyse.backend.contexts.gmao.publishedlanguage.DescriptionsDesEquipements.DescriptionDeLEquipement(
+                        g1.id().valeur(), "G-01", "Fresenius", "EN_SERVICE"));
+        assertThat(descriptions.get(supprime.id().valeur()).code()).as("supprimé : toujours décrit").isEqualTo("G-SUP");
+        assertThat(descriptions.get(osmoseur.id().valeur()).code()).as("tout type").isEqualTo("OSMOSEUR");
+        assertThat(descriptions.get(maintenance.id().valeur()).statut()).isEqualTo("EN_MAINTENANCE");
+        assertThat(descriptionsDesEquipements().duCentre(CENTRE_B.valeur(), java.util.List.of(g1.id().valeur()))).as("autre centre").isEmpty();
+        assertThat(descriptionsDesEquipements().duCentre(CENTRE_A.valeur(), java.util.List.of())).as("lot vide").isEmpty();
     }
 
     // ------------------------------------------------------------------ indisponibilités des générateurs

@@ -97,6 +97,12 @@
             <artifactId>contexts-planification</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!-- Langage publié de la GMAO (gmao.v1 : DescriptionsDesEquipements, LEC-PAT-GMAO, ADR 0181) : seul point d'entrée (ArchUnit) -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-gmao</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <!-- Reprise sur place (ADR 0024, GEL.md) : les sources gelées d'avant la reprise (Assure, Pec, Attestation, services,

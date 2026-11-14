@@ -71,7 +71,6 @@ class PatientsJdbcContratTest extends PatientsJdbcContrat {
                 + "center_id UUID NOT NULL, date_debut DATE, date_fin DATE, created_at TIMESTAMP WITH TIME ZONE)");
         jdbc.execute("CREATE TABLE IF NOT EXISTS salle (id UUID PRIMARY KEY, nom VARCHAR(255))");
         jdbc.execute("CREATE TABLE IF NOT EXISTS position_creneau (id UUID PRIMARY KEY, libelle VARCHAR(255))");
-        jdbc.execute("CREATE TABLE IF NOT EXISTS gmao_equipements (id UUID PRIMARY KEY, code VARCHAR(255))");
     }
 
     @Override

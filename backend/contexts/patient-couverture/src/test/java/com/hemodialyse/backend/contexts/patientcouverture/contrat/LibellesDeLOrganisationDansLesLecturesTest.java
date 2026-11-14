@@ -93,7 +93,7 @@ class LibellesDeLOrganisationDansLesLecturesTest {
     }
 
     private LectureDesMouvementsJdbc mouvements() {
-        return new LectureDesMouvementsJdbc(jdbc, new LibellesDeLOrganisationJdbc(jdbc));
+        return new LectureDesMouvementsJdbc(jdbc, new LibellesDeLOrganisationJdbc(jdbc), new EquipementsEnMemoire());
     }
 
     // ------------------------------------------------------------------ libellés des patients

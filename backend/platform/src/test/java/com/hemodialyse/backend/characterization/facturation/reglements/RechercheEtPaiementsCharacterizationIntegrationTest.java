@@ -184,6 +184,36 @@ class RechercheEtPaiementsCharacterizationIntegrationTest extends ReglementsChar
                 doGet("?centerId=" + CENTRE_B + "&year=2026", adminA()));
     }
 
+    /**
+     * LEC-PAT-GMAO (3), KB-FAC-49 : la fiche du patient (numéro d'assurance, nom, prénom, payeur courant) n'est lue que si le patient est du
+     * centre de la facture ; un patient d'un autre centre ou inconnu retombe sur l'instantané de la facture (numéro d'immatriculation, nom
+     * complet, payeur figé) ou sur « - » / « Non renseigne ».
+     */
+    @Test
+    void la_fiche_d_un_patient_d_un_autre_centre_ou_inconnu_n_est_pas_lue_et_l_instantane_de_la_facture_s_applique() throws Exception {
+        facture(CENTRE_A, P_AMRANI, "FAC-P-01", "2026-04-10", "100.00", PAYEUR_1, AGENCE_1);
+        facture(CENTRE_A, P_CENTRE_B, "FAC-P-02", "2026-04-09", "200.00", null, null);
+        facture(CENTRE_A, P_CENTRE_B, "FAC-P-03", "2026-04-08", "300.00", PAYEUR_2, AGENCE_2);
+        facture(CENTRE_A, UUID.randomUUID(), "FAC-P-04", "2026-04-07", "400.00", null, null);
+        jdbc.update("UPDATE patients SET prenom = '' WHERE id = ?", P_BELKACEM);
+        facture(CENTRE_A, P_BELKACEM, "FAC-P-05", "2026-04-06", "500.00", null, null);
+
+        golden("patient_d_un_autre_centre_ou_inconnu", doGet(q("year=2026&month=4"), adminA()));
+        goldenCompact("patient_d_un_autre_centre_ou_inconnu_compact", doGet(q("year=2026&month=4&centrePayeurId=" + PAYEUR_2), adminA()));
+    }
+
+    /** KB-FAC-49 : le tri date puis numéro n'a jamais d'égalité dans un centre, la base refuse deux fois le même numéro au même centre. */
+    @Test
+    void la_base_refuse_deux_factures_de_meme_numero_dans_un_centre_donc_le_tri_date_numero_est_total() throws Exception {
+        facture(CENTRE_A, P_AMRANI, "FAC-EGAL", "2026-04-10", "100.00", PAYEUR_1, AGENCE_1);
+
+        org.junit.jupiter.api.Assertions.assertThrows(org.springframework.dao.DuplicateKeyException.class,
+                () -> facture(CENTRE_A, P_BELKACEM, "FAC-EGAL", "2026-04-10", "200.00", PAYEUR_1, AGENCE_1));
+        // le même numéro est permis dans un AUTRE centre, que la recherche d'un centre ne voit pas
+        facture(CENTRE_B, P_CENTRE_B, "FAC-EGAL", "2026-04-10", "300.00", PAYEUR_B, AGENCE_B);
+        assertEquals(1, json(doGet(q("year=2026&month=4"), adminA())).path("items").size());
+    }
+
     @Test
     void le_dernier_code_de_reglement_est_celui_du_reglement_cree_en_dernier() throws Exception {
         UUID facture = factureMille();
