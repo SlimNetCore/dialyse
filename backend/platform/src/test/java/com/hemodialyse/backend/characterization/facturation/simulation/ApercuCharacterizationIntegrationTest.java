@@ -49,6 +49,40 @@ class ApercuCharacterizationIntegrationTest extends SimulationCharacterizationSu
         golden("forfaits_une_facture_par_forfait_200", doPost("/preview", mois(CENTRE_A, "2026-08", false), adminA()));
     }
 
+    /**
+     * LEC-PAT (ii), ARGENT : l'ordre des séances à facturer est celui du nom puis du prénom de la fiche (homonymes départagés par la date),
+     * une séance du centre posée sur une fiche d'un autre centre n'est pas facturable, un patient transféré l'est, un patient sans prise
+     * en charge est facturé sur un forfait non défini. Posé AVANT de remplacer la lecture SQL de {@code patients} par le langage publié.
+     */
+    @Test
+    void l_ordre_des_seances_a_facturer_suit_le_nom_puis_le_prenom_de_la_fiche_du_centre() throws Exception {
+        UUID h1 = UUID.fromString("99997000-0000-0000-0000-00000000a0e1");
+        UUID h2 = UUID.fromString("99997000-0000-0000-0000-00000000a0e2");
+        UUID h3 = UUID.fromString("99997000-0000-0000-0000-00000000a0e3");
+        UUID h4 = UUID.fromString("99997000-0000-0000-0000-00000000a0e4");
+        nommer(h1, "<H1_BENALI_KARIM>");
+        nommer(h2, "<H2_BENALI_KARIM>");
+        nommer(h3, "<H3_AOUAD_TRANSFERE>");
+        nommer(h4, "<H4_BENALI_AMEL>");
+        patient(h1, CENTRE_A, "SIM-H1", "Benali", "Karim");
+        patient(h2, CENTRE_A, "SIM-H2", "Benali", "Karim");
+        patient(h3, CENTRE_A, "SIM-H3", "Aouad", "Zied");
+        patient(h4, CENTRE_A, "SIM-H4", "Benali", "Amel");
+        jdbc.update("UPDATE patients SET etat_patient = 'TRANSFERE' WHERE id = ?", h3);
+        pec(h1, CENTRE_A, "2026-01-01", "2026-12-31", "2026-01-01", "2026-12-31", FORFAIT_PREMIUM, FORFAIT_HD, 1);
+        pec(h2, CENTRE_A, "2026-01-01", "2026-12-31", null, null, FORFAIT_PREMIUM, null, 1);
+        pec(h4, CENTRE_A, "2026-01-01", "2026-06-30", "2026-01-01", "2026-06-30", FORFAIT_HD, FORFAIT_HD, 1);
+        seance("H1_05", h1, CENTRE_A, "2026-08-05", "VALIDEE");
+        seance("H2_03", h2, CENTRE_A, "2026-08-03", "SIGNEE");
+        seance("H2_07", h2, CENTRE_A, "2026-08-07", "VALIDEE");
+        seance("H3_09", h3, CENTRE_A, "2026-08-09", "VALIDEE");
+        seance("H4_02", h4, CENTRE_A, "2026-08-02", "VALIDEE");
+        seance("EFFECTIF_06", P_EFFECTIF, CENTRE_A, "2026-08-06", "VALIDEE");
+        seance("FICHE_AU_CENTRE_B_04", P_CENTRE_B, CENTRE_A, "2026-08-04", "VALIDEE");
+        golden("ordre_nom_prenom_homonymes_fiche_autre_centre_regroupement_200", doPost("/preview", mois(CENTRE_A, "2026-08", true), adminA()));
+        golden("ordre_nom_prenom_homonymes_fiche_autre_centre_par_forfait_200", doPost("/preview", mois(CENTRE_A, "2026-08", false), adminA()));
+    }
+
     @Test
     void sans_type_de_tva_actif_le_taux_est_nul() throws Exception {
         jdbc.update("DELETE FROM tva_types WHERE center_id = ?", CENTRE_A);

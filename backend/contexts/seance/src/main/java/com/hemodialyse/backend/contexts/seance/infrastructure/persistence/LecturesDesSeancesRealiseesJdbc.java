@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.contexts.seance.infrastructure.persistence;
 
+import com.hemodialyse.backend.contexts.seance.domain.FichesDesPatientsDuCentre;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.LiensDExclusionPublies;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesRealiseesAvecLeurPlacePubliees;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesRealiseesPubliees;
@@ -7,7 +8,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -26,9 +29,11 @@ public class LecturesDesSeancesRealiseesJdbc implements SeancesRealiseesPubliees
     private static final String REALISEE = "s.statut IN ('VALIDEE', 'SIGNEE', 'FACTUREE')";
 
     private final JdbcTemplate jdbc;
+    private final FichesDesPatientsDuCentre fichesDesPatients;
 
-    public LecturesDesSeancesRealiseesJdbc(JdbcTemplate jdbc) {
+    public LecturesDesSeancesRealiseesJdbc(JdbcTemplate jdbc, FichesDesPatientsDuCentre fichesDesPatients) {
         this.jdbc = jdbc;
+        this.fichesDesPatients = fichesDesPatients;
     }
 
     // ---- Absences de patients (A1 à A3, A5)
@@ -74,14 +79,22 @@ public class LecturesDesSeancesRealiseesJdbc implements SeancesRealiseesPubliees
 
     @Override
     public List<SeanceRealiseeAvecPlacePubliee> duCentre(UUID centre, LocalDate du, LocalDate au) {
-        return jdbc.query("SELECT s.patient_id, s.date_seance, s.salle_id, s.creneau_id, s.generateur_id, p.nom, p.prenom "
-                        + "FROM seances s JOIN patients p ON p.id = s.patient_id AND p.center_id = s.center_id "
+        // LEC-PAT (ii) (ADR 0177) : la jointure de la fiche au centre de la séance (KB-SEA-80, reproduit) est faite par la fiche de Patient et
+        // couverture, bornée au centre : une séance dont le patient n'est pas une fiche du centre est écartée, comme l'ancienne jointure interne.
+        Map<UUID, FichesDesPatientsDuCentre.NomDuPatient> noms = fichesDesPatients.noms(centre);
+        List<SeanceRealiseeAvecPlacePubliee> seances = new ArrayList<>();
+        jdbc.query("SELECT s.patient_id, s.date_seance, s.salle_id, s.creneau_id, s.generateur_id FROM seances s "
                         + "WHERE s.center_id = ? AND s.date_seance BETWEEN ? AND ? AND s.statut IN ('VALIDEE', 'SIGNEE', 'FACTUREE') "
                         + "ORDER BY s.date_seance, s.created_at NULLS LAST, s.id",
-                (rs, i) -> new SeanceRealiseeAvecPlacePubliee(rs.getObject("patient_id", UUID.class),
-                        rs.getDate("date_seance").toLocalDate(), rs.getObject("salle_id", UUID.class),
-                        rs.getObject("creneau_id", UUID.class), rs.getObject("generateur_id", UUID.class), rs.getString("nom"),
-                        rs.getString("prenom")),
+                rs -> {
+                    UUID patient = rs.getObject("patient_id", UUID.class);
+                    FichesDesPatientsDuCentre.NomDuPatient nom = noms.get(patient);
+                    if (nom == null) return;
+                    seances.add(new SeanceRealiseeAvecPlacePubliee(patient, rs.getDate("date_seance").toLocalDate(),
+                            rs.getObject("salle_id", UUID.class), rs.getObject("creneau_id", UUID.class),
+                            rs.getObject("generateur_id", UUID.class), nom.nom(), nom.prenom()));
+                },
                 centre, Date.valueOf(du), Date.valueOf(au));
+        return seances;
     }
 }

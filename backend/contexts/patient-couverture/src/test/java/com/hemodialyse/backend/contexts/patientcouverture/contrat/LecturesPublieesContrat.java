@@ -367,6 +367,63 @@ public abstract class LecturesPublieesContrat {
         assertThat(lots().parNomPuisPrenom(List.of())).isEmpty();
     }
 
+    // ---- LotsDePatients : fiche de facturation et centre payeur (LEC-PAT ii, ADR 0177), BORNÉS au centre
+
+    private Patient patientPayeur(CentreId centre, String nom, String prenom, UUID centrePayeur, EtatDuPatient etat) {
+        Fiche base = Fiches.avec("LP-" + SEQUENCE.incrementAndGet(), etat, etat == null ? null : LocalDate.of(2026, 10, 1),
+                Fiches.ADMISSION, NAISSANCE);
+        Fiche fiche = new Fiche(Identite.saisie("M", nom, prenom, "F", "O+", 2, NAISSANCE, "Alger", "MARIE"), base.coordonnees(),
+                base.suivi(), new com.hemodialyse.backend.contexts.patientcouverture.domain.Couverture(
+                        base.couverture().numeroAssurance(), base.couverture().qualiteAssure(), centrePayeur, null, null, null, null),
+                base.affectation(), Fiches.ADMISSION, etat, etat == null ? null : LocalDate.of(2026, 10, 1));
+        Patient p = Patient.admettre(new PatientId(UUID.randomUUID()), "PAT-" + String.format("%08X", SEQUENCE.incrementAndGet()), centre,
+                fiche, JOUR, T0, UUID::randomUUID);
+        patients().enregistrer(p);
+        return p;
+    }
+
+    @Test
+    void should_rendre_la_fiche_de_facturation_du_centre_seulement_triee_par_nom_puis_prenom_avec_les_rangs() {
+        UUID payeur = UUID.randomUUID();
+        Patient martin1 = patientPayeur(CENTRE, "Martin", "Paul", payeur, EtatDuPatient.PERMANENT);
+        Patient dupont = patientPayeur(CENTRE, "Dupont", "Anne", null, EtatDuPatient.TRANSFERE);
+        Patient martin2 = patientPayeur(CENTRE, "Martin", "Paul", null, null);
+        Patient etranger = patientPayeur(AUTRE, "Aubert", "Eve", null, EtatDuPatient.PERMANENT);
+
+        var lot = lots().aFacturerDuCentre(CENTRE.valeur(), List.of(martin1.id().valeur(), dupont.id().valeur(), martin2.id().valeur(),
+                etranger.id().valeur(), UUID.randomUUID(), dupont.id().valeur()));
+
+        assertThat(lot).extracting(LotsDePatients.PatientAFacturer::nom).as("le patient d'un autre centre et l'inconnu sont absents")
+                .containsExactly("Dupont", "Martin", "Martin");
+        assertThat(lot).extracting(LotsDePatients.PatientAFacturer::rang).containsExactly(1, 2, 2);
+        var deDupont = lot.get(0);
+        assertThat(deDupont.patient()).isEqualTo(dupont.id().valeur());
+        assertThat(deDupont.code()).isEqualTo(dupont.code());
+        assertThat(deDupont.prenom()).isEqualTo("Anne");
+        assertThat(deDupont.etat()).isEqualTo("TRANSFERE");
+        assertThat(deDupont.numeroAssurance()).isEqualTo(dupont.fiche().couverture().numeroAssurance().valeur());
+        assertThat(deDupont.centrePayeur()).isNull();
+        var deMartin = lot.stream().filter(l -> l.patient().equals(martin1.id().valeur())).findFirst().orElseThrow();
+        assertThat(deMartin.centrePayeur()).isEqualTo(payeur);
+        assertThat(deMartin.etat()).isEqualTo("PERMANENT");
+        assertThat(lots().aFacturerDuCentre(AUTRE.valeur(), List.of(martin1.id().valeur()))).as("borne de centre").isEmpty();
+        assertThat(lots().aFacturerDuCentre(CENTRE.valeur(), List.of())).isEmpty();
+    }
+
+    @Test
+    void should_rendre_le_centre_payeur_des_patients_du_centre_qui_en_ont_un() {
+        UUID payeur = UUID.randomUUID();
+        Patient avec = patientPayeur(CENTRE, "Martin", "Paul", payeur, EtatDuPatient.PERMANENT);
+        Patient sans = patientPayeur(CENTRE, "Dupont", "Anne", null, EtatDuPatient.PERMANENT);
+        Patient etranger = patientPayeur(AUTRE, "Aubert", "Eve", UUID.randomUUID(), EtatDuPatient.PERMANENT);
+
+        var payeurs = lots().centresPayeursDuCentre(CENTRE.valeur(),
+                List.of(avec.id().valeur(), sans.id().valeur(), etranger.id().valeur(), UUID.randomUUID()));
+
+        assertThat(payeurs).containsOnlyKeys(avec.id().valeur()).containsEntry(avec.id().valeur(), payeur);
+        assertThat(lots().centresPayeursDuCentre(CENTRE.valeur(), List.of())).isEmpty();
+    }
+
     // ---- CouvertureDesPatients : forfait applicable
 
     @Test
@@ -379,6 +436,7 @@ public abstract class LecturesPublieesContrat {
 
         assertThat(applicable.id()).isEqualTo(f1);
         assertThat(applicable.libelle()).isEqualTo("HD3");
+        assertThat(applicable.code()).isEqualTo("F-" + f1.toString().substring(0, 8));
         assertThat(applicable.prix()).isEqualByComparingTo("9500.00");
     }
 

@@ -1,6 +1,6 @@
 # LEC-PAT : lectures de la table des patients hors Patient et couverture (ligne 14 de l'inventaire v2)
 
-status: sous-slice (i) livrée, (ii) et (iii) non commencées | date: 2026-11-14 | ADR 0176 | refactoring sur place (ADR 0024)
+status: sous-slices (i) et (ii) livrées, (iii) non commencée | date: 2026-11-14 | ADR 0176 (i), 0177 (ii) | refactoring sur place (ADR 0024)
 
 ## 1. Inventaire (Grep des SQL citant `patients`, `assure`, `assure_patient` hors patient-couverture, `src/main/java`)
 
@@ -9,10 +9,10 @@ status: sous-slice (i) livrée, (ii) et (iii) non commencées | date: 2026-11-14
 | Séance | `PatientsDuJourJdbc` | journal du jour : jointure séances x patients, tri nom/prénom | (i) | SOLDÉ (supprimé) |
 | Séance | `PatientsDuTableauDeBordJdbc` | programmation, présents du mois, identités | (i) | SOLDÉ (supprimé) |
 | Séance | `PlanningDesPatientsJdbc` | jour de dialyse, sommeil, état, dates d'un patient (scan) | (i) | SOLDÉ (supprimé) |
-| Séance | `ForfaitsDeSeanceJdbc` | forfait courant d'une séance (PEC couvrant le jour), ARGENT, butoir 2027-03-31 clock-checked | (ii) | à faire |
-| Séance | `FacturationDesSeancesJdbc` | séances à facturer, tri nom/prénom, payeur, ARGENT | (ii) | à faire |
-| Séance | `SeancesRealiseesDesCentresJdbc` | séances par caisse, chaîne payeur / agence / caisse dans un GROUP BY, pilotage | (ii) | à faire |
-| Séance | `LecturesDesSeancesRealiseesJdbc` | séances réalisées avec nom/prénom de la fiche, publiées à la Planification (KB-SEA-80) | (ii)/(iii) | à faire |
+| Séance | `ForfaitsDeSeanceJdbc` | forfait courant d'une séance (PEC couvrant le jour), ARGENT, butoir 2027-03-31 clock-checked | (ii) | SOLDÉ (ADR 0177, entrées des deux gardes supprimées) |
+| Séance | `FacturationDesSeancesJdbc` | séances à facturer, tri nom/prénom, payeur, ARGENT | (ii) | SOLDÉ (ADR 0177) |
+| Séance | `SeancesRealiseesDesCentresJdbc` | séances par caisse, chaîne payeur / agence / caisse dans un GROUP BY, pilotage | (ii) | SOLDÉ (ADR 0177) |
+| Séance | `LecturesDesSeancesRealiseesJdbc` | séances réalisées avec nom/prénom de la fiche, publiées à la Planification (KB-SEA-80) | (ii) | SOLDÉ (ADR 0177) |
 | Séance | `HistoriqueDesSeancesJdbc` | historique : jointure, filtre, tri et pagination en SQL | (iii) | à faire |
 | Pilotage | `PatientsDesCentresJdbc` | effectif de période (RG-PAT-032), sexe/naissance, patients par caisse, EPO/fer | (iii) | à faire |
 | Facturation | `SituationsDesFacturesJdbc` | jointure à six tables, entrée JOINTURE (KB-FAC-49), hors LEC-PAT | hors ligne 14 | reste |
@@ -38,7 +38,12 @@ Gardes : 3 entrées de `TableDuPatientCouvertureTest` supprimées (sans report) 
 - Tri : rang des couples (nom, prénom) calculé côté Patient et couverture ; départage par identifiant de séance côté Séance (ordre de la base de la Séance), équivalent à `ORDER BY nom, prenom, s.id`.
 - Ordre de `duCentre` non garanti (comme le legacy sans `ORDER BY`).
 
-## 5. Reste (non commencé, périmètre dépasserait ~12 fichiers de production)
-- (ii) argent : ports `CouvertureDesPatients` existants à étendre pour `ForfaitsDeSeanceJdbc` (forfait courant, déjà proche de `forfaitApplicable`) ; `FacturationDesSeancesJdbc` (tri nom/prénom + payeur : réutiliser `LotsDePatients.parNomPuisPrenom` + lecture du payeur de la fiche) ; `SeancesRealiseesDesCentresJdbc` (caisse de la fiche : lecture publiée « caisse du patient » + chaîne payeur déjà publiée par `PayeursDuCentre`). Goldens byte-à-byte (facturation, pilotage), approbation un par un.
+## 5. Livré : (ii) argent (ADR 0177, 2026-11-14)
+Production : patient-couverture : `CouvertureDesPatients.ForfaitApplicable` + `code`, `LotsDePatients.aFacturerDuCentre` / `centresPayeursDuCentre` (+ `LotsDePatientsJdbc`) ; seance : port `FichesDesPatientsDuCentre` (domaine), `ForfaitDeLaPriseEnCharge` (application), ACL `FichesDesPatientsDuCentreParLaFiche` et `ForfaitDeLaPriseEnChargeParLaCouverture`, les quatre lecteurs modifiés (plus aucun SQL sur `patients`, `prise_en_charge`, `forfait`), `SeanceConfiguration`.
+Gardes : 4 entrées de `TableDuPatientCouvertureTest` et l'entrée de `TableDesForfaitsTest` (butoir 2027-03-31) supprimées, sans report ; tests verrou ; `seamAllowed` = [].
+Filet ajouté AVANT (approuvé un par un depuis `.received`, sur le code d'avant) : `facturation/simulation/apercu/ordre_nom_prenom_homonymes_fiche_autre_centre_{regroupement,par_forfait}_200`. Parité : goldens existants (forfait courant, aperçu, émission, exclusion/forfait, pilotage Direction, séances lues par la Planification) inchangés, verts. Écarts : 0 ; aucun `_nouveau_code`, aucune archive, aucune entrée KB « CORRIGÉ ». Reproduits : KB-SEA-80, KB-SEA-83, KB-PAT-25, à confirmer métiers/DPO <= 2026-12-15.
+`SituationsDesFacturesJdbc` (jointure à six tables dans un GROUP BY, KB-FAC-49) n'est pas touchée : entrée JOINTURE conservée.
+
+## 6. Reste (non commencé)
 - (iii) `HistoriqueDesSeancesJdbc` : filtre, tri, pagination sur patient (nom, code, état) : exige un port « recherche de patients » rendant un ensemble ordonné d'identifiants, la pagination restant côté Séance ou déléguée selon ADR ; `PatientsDesCentresJdbc` : effectif (prédicat RG-PAT-032 déjà publié par `CompteursDeCouverture.patientsPresentsLe`), sexe/naissance par centre, patients par caisse, prescriptions EPO/fer (jointure avec les données médicales : à scinder avec Dossier médical).
 - Butoir 2027-03-31 conservé pour ces entrées ; aucun report décidé.

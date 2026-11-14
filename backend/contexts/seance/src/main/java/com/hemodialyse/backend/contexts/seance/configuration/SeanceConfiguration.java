@@ -163,8 +163,20 @@ public class SeanceConfiguration {
      */
     @Bean
     FacturationDesSeancesJdbc facturationDesSeances(JdbcTemplate jdbc,
-            com.hemodialyse.backend.contexts.seance.domain.ChaineDesPayeursDuCentre payeurs) {
-        return new FacturationDesSeancesJdbc(jdbc, payeurs);
+            com.hemodialyse.backend.contexts.seance.domain.ChaineDesPayeursDuCentre payeurs,
+            com.hemodialyse.backend.contexts.seance.domain.FichesDesPatientsDuCentre fiches) {
+        return new FacturationDesSeancesJdbc(jdbc, payeurs, fiches);
+    }
+
+    /** LEC-PAT (ii), ARGENT (ADR 0177) : la fiche des patients (facturation, centre payeur, identité) vient du langage publié de Patient et couverture. */
+    @Bean
+    com.hemodialyse.backend.contexts.seance.domain.FichesDesPatientsDuCentre fichesDesPatientsDuCentreDeLaSeance(LotsDePatients lots) {
+        return new com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture.FichesDesPatientsDuCentreParLaFiche(lots);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.seance.application.ForfaitDeLaPriseEnCharge forfaitDeLaPriseEnChargeDeLaSeance(CouvertureDesPatients couverture) {
+        return new com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture.ForfaitDeLaPriseEnChargeParLaCouverture(couverture);
     }
 
     @Bean
@@ -178,8 +190,8 @@ public class SeanceConfiguration {
      */
     @Bean
     com.hemodialyse.backend.contexts.seance.infrastructure.persistence.LecturesDesSeancesRealiseesJdbc lecturesDesSeancesRealiseesPubliees(
-            JdbcTemplate jdbc) {
-        return new com.hemodialyse.backend.contexts.seance.infrastructure.persistence.LecturesDesSeancesRealiseesJdbc(jdbc);
+            JdbcTemplate jdbc, com.hemodialyse.backend.contexts.seance.domain.FichesDesPatientsDuCentre fiches) {
+        return new com.hemodialyse.backend.contexts.seance.infrastructure.persistence.LecturesDesSeancesRealiseesJdbc(jdbc, fiches);
     }
 
     /** Lecture publiée des constantes des séances pour le Dossier médical (SE7d, ADR 0098). Lecture seule. */
@@ -194,8 +206,9 @@ public class SeanceConfiguration {
      */
     @Bean
     com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesRealiseesDesCentresPubliees seancesRealiseesDesCentresPubliees(
-            JdbcTemplate jdbc, com.hemodialyse.backend.contexts.seance.domain.ChaineDesPayeursDuCentre payeurs) {
-        return new com.hemodialyse.backend.contexts.seance.infrastructure.persistence.SeancesRealiseesDesCentresJdbc(jdbc, payeurs);
+            JdbcTemplate jdbc, com.hemodialyse.backend.contexts.seance.domain.ChaineDesPayeursDuCentre payeurs,
+            com.hemodialyse.backend.contexts.seance.domain.FichesDesPatientsDuCentre fiches) {
+        return new com.hemodialyse.backend.contexts.seance.infrastructure.persistence.SeancesRealiseesDesCentresJdbc(jdbc, payeurs, fiches);
     }
 
     /** RF3b (ADR 0127) : la chaîne des payeurs est lue dans l'annuaire de Patient et couverture, plus par jointure SQL. */
@@ -291,8 +304,9 @@ public class SeanceConfiguration {
     }
 
     @Bean
-    ForfaitsDeSeance forfaitsDeLaSeance(JdbcTemplate jdbc) {
-        return new ForfaitsDeSeanceJdbc(jdbc);
+    ForfaitsDeSeance forfaitsDeLaSeance(JdbcTemplate jdbc,
+            com.hemodialyse.backend.contexts.seance.application.ForfaitDeLaPriseEnCharge priseEnCharge) {
+        return new ForfaitsDeSeanceJdbc(jdbc, priseEnCharge);
     }
 
     @Bean

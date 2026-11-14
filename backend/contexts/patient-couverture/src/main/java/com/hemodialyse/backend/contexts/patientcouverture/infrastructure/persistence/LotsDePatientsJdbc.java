@@ -75,6 +75,46 @@ public class LotsDePatientsJdbc implements LotsDePatients {
         return rendus;
     }
 
+    @Override
+    public List<PatientAFacturer> aFacturerDuCentre(UUID centre, Collection<UUID> patients) {
+        Set<UUID> demandes = new LinkedHashSet<>(patients);
+        if (demandes.isEmpty()) return List.of();
+        List<PatientAFacturer> rendus = new ArrayList<>();
+        int[] rang = {0};
+        String[] precedent = {null, null};
+        List<Object> criteres = new ArrayList<>();
+        criteres.add(centre);
+        criteres.addAll(demandes);
+        jdbc.query("SELECT id, code_patient, nom, prenom, etat_patient, numero_assurance, centre_payeur_id FROM patients "
+                        + "WHERE center_id = ? AND id IN (" + marques(demandes.size()) + ") ORDER BY nom ASC, prenom ASC",
+                rs -> {
+                    String nom = rs.getString("nom");
+                    String prenom = rs.getString("prenom");
+                    if (rang[0] == 0 || !Objects.equals(nom, precedent[0]) || !Objects.equals(prenom, precedent[1])) rang[0]++;
+                    precedent[0] = nom;
+                    precedent[1] = prenom;
+                    rendus.add(new PatientAFacturer(rs.getObject("id", UUID.class), rs.getString("code_patient"), nom, prenom,
+                            rs.getString("etat_patient"), rs.getString("numero_assurance"),
+                            rs.getObject("centre_payeur_id", UUID.class), rang[0]));
+                }, criteres.toArray());
+        return rendus;
+    }
+
+    @Override
+    public Map<UUID, UUID> centresPayeursDuCentre(UUID centre, Collection<UUID> patients) {
+        Set<UUID> demandes = new LinkedHashSet<>(patients);
+        if (demandes.isEmpty()) return Map.of();
+        Map<UUID, UUID> payeurs = new LinkedHashMap<>();
+        List<Object> criteres = new ArrayList<>();
+        criteres.add(centre);
+        criteres.addAll(demandes);
+        jdbc.query("SELECT id, centre_payeur_id FROM patients WHERE center_id = ? AND centre_payeur_id IS NOT NULL AND id IN ("
+                        + marques(demandes.size()) + ")",
+                (rs, i) -> payeurs.put(rs.getObject("id", UUID.class), rs.getObject("centre_payeur_id", UUID.class)),
+                criteres.toArray());
+        return payeurs;
+    }
+
     private static String marques(int nombre) {
         return String.join(",", java.util.Collections.nCopies(nombre, "?"));
     }

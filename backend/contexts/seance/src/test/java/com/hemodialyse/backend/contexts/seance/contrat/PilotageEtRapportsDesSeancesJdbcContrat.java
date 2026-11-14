@@ -66,7 +66,9 @@ abstract class PilotageEtRapportsDesSeancesJdbcContrat extends PilotageEtRapport
     protected SeancesRealiseesDesCentresPubliees pilotage() {
         return new SeancesRealiseesDesCentresJdbc(jdbc(), new com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture
                 .ChaineDesPayeursParLAnnuaire(new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence
-                .PayeursDuCentreJdbc(jdbc())));
+                .PayeursDuCentreJdbc(jdbc())),
+                new com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture.FichesDesPatientsDuCentreParLaFiche(
+                        new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.LotsDePatientsJdbc(jdbc())));
     }
 
     @Override

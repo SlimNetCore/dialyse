@@ -1,0 +1,152 @@
+{
+  "status" : 200,
+  "contentType" : "application/json",
+  "body" : {
+    "centerId" : "<CENTRE_A>",
+    "generatedAt" : "<HORODATAGE>",
+    "invoices" : [ {
+      "lines" : [ {
+        "forfaitId" : "<FORFAIT_HD>",
+        "forfaitLabel" : "Forfait HD",
+        "lineHt" : 3500.0,
+        "seanceCount" : 1,
+        "unitPriceHt" : 3500.0
+      } ],
+      "numeroFacture" : "SIM-0042",
+      "patientCode" : "SIM-001",
+      "patientFullName" : "Amrani Lina",
+      "patientId" : "<P_EFFECTIF>",
+      "patientStatusSnapshot" : "PERMANENT",
+      "previewKey" : "<P_EFFECTIF>::<FORFAIT_HD>",
+      "seanceIds" : [ "<S_EFFECTIF_06>" ],
+      "seances" : [ {
+        "forfaitId" : "<FORFAIT_HD>",
+        "forfaitLabel" : "Forfait HD",
+        "forfaitPrixHt" : 3500.0,
+        "seanceDate" : "2026-08-06",
+        "seanceId" : "<S_EFFECTIF_06>",
+        "seanceStatus" : "VALIDEE"
+      } ],
+      "totalHt" : 3500.0,
+      "totalTtc" : 3815.0,
+      "totalTva" : 315.0
+    }, {
+      "lines" : [ {
+        "forfaitId" : null,
+        "forfaitLabel" : "Forfait non defini",
+        "lineHt" : 0.0,
+        "seanceCount" : 1,
+        "unitPriceHt" : 0
+      } ],
+      "numeroFacture" : "SIM-0043",
+      "patientCode" : "SIM-H3",
+      "patientFullName" : "Aouad Zied",
+      "patientId" : "<H3_AOUAD_TRANSFERE>",
+      "patientStatusSnapshot" : "TRANSFERE",
+      "previewKey" : "<H3_AOUAD_TRANSFERE>::NO_FORFAIT",
+      "seanceIds" : [ "<S_H3_09>" ],
+      "seances" : [ {
+        "forfaitId" : null,
+        "forfaitLabel" : "Forfait non defini",
+        "forfaitPrixHt" : 0.0,
+        "seanceDate" : "2026-08-09",
+        "seanceId" : "<S_H3_09>",
+        "seanceStatus" : "VALIDEE"
+      } ],
+      "totalHt" : 0.0,
+      "totalTtc" : 0.0,
+      "totalTva" : 0.0
+    }, {
+      "lines" : [ {
+        "forfaitId" : "<FORFAIT_HD>",
+        "forfaitLabel" : "Forfait HD",
+        "lineHt" : 3500.0,
+        "seanceCount" : 1,
+        "unitPriceHt" : 3500.0
+      } ],
+      "numeroFacture" : "SIM-0044",
+      "patientCode" : "SIM-H4",
+      "patientFullName" : "Benali Amel",
+      "patientId" : "<H4_BENALI_AMEL>",
+      "patientStatusSnapshot" : "PERMANENT",
+      "previewKey" : "<H4_BENALI_AMEL>::<FORFAIT_HD>",
+      "seanceIds" : [ "<S_H4_02>" ],
+      "seances" : [ {
+        "forfaitId" : "<FORFAIT_HD>",
+        "forfaitLabel" : "Forfait HD",
+        "forfaitPrixHt" : 3500.0,
+        "seanceDate" : "2026-08-02",
+        "seanceId" : "<S_H4_02>",
+        "seanceStatus" : "VALIDEE"
+      } ],
+      "totalHt" : 3500.0,
+      "totalTtc" : 3815.0,
+      "totalTva" : 315.0
+    }, {
+      "lines" : [ {
+        "forfaitId" : "<FORFAIT_PREMIUM>",
+        "forfaitLabel" : "Forfait HD Premium",
+        "lineHt" : 10400.0,
+        "seanceCount" : 2,
+        "unitPriceHt" : 5200.0
+      } ],
+      "numeroFacture" : "SIM-0045",
+      "patientCode" : "SIM-H2",
+      "patientFullName" : "Benali Karim",
+      "patientId" : "<H2_BENALI_KARIM>",
+      "patientStatusSnapshot" : "PERMANENT",
+      "previewKey" : "<H2_BENALI_KARIM>::<FORFAIT_PREMIUM>",
+      "seanceIds" : [ "<S_H2_03>", "<S_H2_07>" ],
+      "seances" : [ {
+        "forfaitId" : "<FORFAIT_PREMIUM>",
+        "forfaitLabel" : "Forfait HD Premium",
+        "forfaitPrixHt" : 5200.0,
+        "seanceDate" : "2026-08-03",
+        "seanceId" : "<S_H2_03>",
+        "seanceStatus" : "SIGNEE"
+      }, {
+        "forfaitId" : "<FORFAIT_PREMIUM>",
+        "forfaitLabel" : "Forfait HD Premium",
+        "forfaitPrixHt" : 5200.0,
+        "seanceDate" : "2026-08-07",
+        "seanceId" : "<S_H2_07>",
+        "seanceStatus" : "VALIDEE"
+      } ],
+      "totalHt" : 10400.0,
+      "totalTtc" : 11336.0,
+      "totalTva" : 936.0
+    }, {
+      "lines" : [ {
+        "forfaitId" : "<FORFAIT_HD>",
+        "forfaitLabel" : "Forfait HD",
+        "lineHt" : 3500.0,
+        "seanceCount" : 1,
+        "unitPriceHt" : 3500.0
+      } ],
+      "numeroFacture" : "SIM-0046",
+      "patientCode" : "SIM-H1",
+      "patientFullName" : "Benali Karim",
+      "patientId" : "<H1_BENALI_KARIM>",
+      "patientStatusSnapshot" : "PERMANENT",
+      "previewKey" : "<H1_BENALI_KARIM>::<FORFAIT_HD>",
+      "seanceIds" : [ "<S_H1_05>" ],
+      "seances" : [ {
+        "forfaitId" : "<FORFAIT_HD>",
+        "forfaitLabel" : "Forfait HD",
+        "forfaitPrixHt" : 3500.0,
+        "seanceDate" : "2026-08-05",
+        "seanceId" : "<S_H1_05>",
+        "seanceStatus" : "VALIDEE"
+      } ],
+      "totalHt" : 3500.0,
+      "totalTtc" : 3815.0,
+      "totalTva" : 315.0
+    } ],
+    "periodEnd" : "2026-08-31",
+    "periodStart" : "2026-08-01",
+    "totalFactures" : 5,
+    "totalHt" : 20900.0,
+    "totalTtc" : 22781.0,
+    "totalTva" : 1881.0
+  }
+}

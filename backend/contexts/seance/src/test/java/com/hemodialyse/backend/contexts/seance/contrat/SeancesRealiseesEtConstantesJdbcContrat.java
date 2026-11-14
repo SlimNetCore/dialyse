@@ -43,19 +43,26 @@ abstract class SeancesRealiseesEtConstantesJdbcContrat extends SeancesRealiseesE
         }
     }
 
+    /** LEC-PAT (ii), ADR 0177 : la fiche (nom, prénom) est lue dans le langage publié de Patient et couverture, sur les mêmes tables. */
+    private LecturesDesSeancesRealiseesJdbc lecture() {
+        return new LecturesDesSeancesRealiseesJdbc(jdbc(),
+                new com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture.FichesDesPatientsDuCentreParLaFiche(
+                        new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.LotsDePatientsJdbc(jdbc())));
+    }
+
     @Override
     protected SeancesRealiseesPubliees realisees() {
-        return new LecturesDesSeancesRealiseesJdbc(jdbc());
+        return lecture();
     }
 
     @Override
     protected LiensDExclusionPublies liens() {
-        return new LecturesDesSeancesRealiseesJdbc(jdbc());
+        return lecture();
     }
 
     @Override
     protected SeancesRealiseesAvecLeurPlacePubliees avecPlace() {
-        return new LecturesDesSeancesRealiseesJdbc(jdbc());
+        return lecture();
     }
 
     @Override

@@ -50,7 +50,7 @@ class ForfaitsDesPatientsJdbcTest {
 
     @BeforeEach
     void preparer() {
-        jdbc.execute("CREATE TABLE IF NOT EXISTS forfait (id UUID PRIMARY KEY, center_id UUID NOT NULL, libelle VARCHAR(255), prix DECIMAL(10,2))");
+        jdbc.execute("CREATE TABLE IF NOT EXISTS forfait (id UUID PRIMARY KEY, center_id UUID NOT NULL, code VARCHAR(50), libelle VARCHAR(255), prix DECIMAL(10,2))");
         jdbc.execute("CREATE TABLE IF NOT EXISTS prise_en_charge (id UUID PRIMARY KEY, center_id UUID NOT NULL, patient_id UUID NOT NULL, "
                 + "date_debut_demande DATE, date_fin_demande DATE, date_debut_effectif DATE, date_fin_effectif DATE, "
                 + "forfait_demande_id UUID, forfait_effectif_id UUID, created_at TIMESTAMP)");

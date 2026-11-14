@@ -40,7 +40,8 @@ public interface CouvertureDesPatients {
     /** Cette PEC, de ce patient et de ce centre, est-elle au statut {@code VALIDEE} ? */
     boolean pecValidee(UUID centre, UUID patient, UUID pec);
 
-    record ForfaitApplicable(UUID id, String libelle, BigDecimal prix) {
+    /** {@code code} : le code du forfait au catalogue du centre (LEC-PAT ii, ADR 0177 : la Séance l'expose avec le forfait courant). */
+    record ForfaitApplicable(UUID id, String code, String libelle, BigDecimal prix) {
     }
 
     /**

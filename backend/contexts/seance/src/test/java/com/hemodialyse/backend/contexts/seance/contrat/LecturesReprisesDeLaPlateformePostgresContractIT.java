@@ -62,7 +62,9 @@ class LecturesReprisesDeLaPlateformePostgresContractIT extends LecturesReprisesD
 
     @Override
     ForfaitsDeSeance forfaits() {
-        return new ForfaitsDeSeanceJdbc(connexion());
+        return new ForfaitsDeSeanceJdbc(connexion(), new com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture
+                .ForfaitDeLaPriseEnChargeParLaCouverture(new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence
+                .CouvertureDesPatientsJdbc(connexion())));
     }
 
     @Override

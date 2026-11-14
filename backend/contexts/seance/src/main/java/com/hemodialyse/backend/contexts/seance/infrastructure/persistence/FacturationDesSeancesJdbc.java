@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.contexts.seance.infrastructure.persistence;
 
 import com.hemodialyse.backend.contexts.seance.domain.ChaineDesPayeursDuCentre;
+import com.hemodialyse.backend.contexts.seance.domain.FichesDesPatientsDuCentre;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.ExclusionsEtForfaitsDesSeancesPublies;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesAFacturerPubliees;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesDesFacturesPubliees;
@@ -27,7 +28,7 @@ import java.util.UUID;
  * l'appelant (une seule transaction d'émission). ÉCARTS DÉCIDÉS : KB-SEA-71 (ADR 0097) : {@code lierALAbsence} porte la garde
  * {@code facture_id IS NULL}, comme {@code reinclure} ; lot L3 (ADR 0114, corrections demandées) : KB-SEA-72 (une seule définition de
  * « mémoire présente », {@code MEMOIRE_PRESENTE}, lue et écrite) et KB-SEA-73 ({@code exclure} n'accepte qu'une séance exactement validée
- * ou signée), qui remplacent le « mot pour mot » ci-dessus pour ces points. La jointure {@code patients} / {@code centre_payeur} d'origine (résidu C2-R6) est remplacée en RF3b (ADR 0127) par l'annuaire des payeurs.
+ * ou signée), qui remplacent le « mot pour mot » ci-dessus pour ces points. La jointure {@code patients} / {@code centre_payeur} d'origine (résidu C2-R6) est remplacée en RF3b (ADR 0127) par l'annuaire des payeurs, puis la lecture de {@code patients} par {@link FichesDesPatientsDuCentre} (LEC-PAT ii, ADR 0177 : plus aucun SQL sur les tables de Patient et couverture).
  */
 public class FacturationDesSeancesJdbc implements SeancesAFacturerPubliees, ExclusionsEtForfaitsDesSeancesPublies, SeancesDesFacturesPubliees {
 
@@ -37,10 +38,12 @@ public class FacturationDesSeancesJdbc implements SeancesAFacturerPubliees, Excl
 
     private final JdbcTemplate jdbc;
     private final ChaineDesPayeursDuCentre payeurs;
+    private final FichesDesPatientsDuCentre fichesDesPatients;
 
-    public FacturationDesSeancesJdbc(JdbcTemplate jdbc, ChaineDesPayeursDuCentre payeurs) {
+    public FacturationDesSeancesJdbc(JdbcTemplate jdbc, ChaineDesPayeursDuCentre payeurs, FichesDesPatientsDuCentre fichesDesPatients) {
         this.jdbc = jdbc;
         this.payeurs = payeurs;
+        this.fichesDesPatients = fichesDesPatients;
     }
 
     // ---- séances à facturer
@@ -49,28 +52,40 @@ public class FacturationDesSeancesJdbc implements SeancesAFacturerPubliees, Excl
     public List<SeanceAFacturerPubliee> dansLaPeriode(UUID centre, LocalDate debut, LocalDate fin) {
         // RF3b (ADR 0127) : l'agence du centre payeur vient de l'annuaire des payeurs (bornée au centre de la fiche), une lecture par centre payeur.
         Map<UUID, Optional<UUID>> agences = new HashMap<>();
-        return jdbc.query("""
+        // LEC-PAT (ii), ARGENT (ADR 0177) : les séances sont lues dans la table de la Séance (ordre date puis identifiant) ; la fiche du
+        // patient (code, nom, prénom, état, numéro d'assurance, centre payeur) vient de Patient et couverture, bornée au centre : une séance
+        // dont la fiche n'est pas du centre est écartée (comme l'ancienne jointure interne). Le tri nom puis prénom est le rang rendu par la
+        // fiche ; le tri est stable, donc l'ordre d'avant (nom, prénom, date, identifiant) est conservé à l'identique.
+        record Lue(UUID seance, UUID patient, LocalDate date, String statut, UUID forfait, String forfaitNom, BigDecimal forfaitPrix) {
+        }
+        List<Lue> lues = jdbc.query("""
                         SELECT s.id AS seance_id, s.patient_id, s.date_seance, s.statut,
-                               s.forfait_override_id, s.forfait_override_nom, s.forfait_override_prix,
-                               p.code_patient, p.nom, p.prenom, p.etat_patient,
-                               p.numero_assurance, p.centre_payeur_id
+                               s.forfait_override_id, s.forfait_override_nom, s.forfait_override_prix
                         FROM seances s
-                        INNER JOIN patients p ON p.id = s.patient_id AND p.center_id = s.center_id
                         WHERE s.center_id = ?
                           AND s.date_seance BETWEEN ? AND ?
                           AND s.statut IN ('VALIDEE', 'SIGNEE')
                           AND s.facture_id IS NULL
-                        ORDER BY p.nom, p.prenom, s.date_seance, s.id
+                        ORDER BY s.date_seance, s.id
                         """,
-                (rs, ligne) -> new SeanceAFacturerPubliee(rs.getObject("seance_id", UUID.class),
+                (rs, ligne) -> new Lue(rs.getObject("seance_id", UUID.class), rs.getObject("patient_id", UUID.class),
                         rs.getDate("date_seance").toLocalDate(), rs.getString("statut"),
                         rs.getObject("forfait_override_id", UUID.class), rs.getString("forfait_override_nom"),
-                        rs.getBigDecimal("forfait_override_prix"),
-                        new PatientDeLaSeancePublie(rs.getObject("patient_id", UUID.class), rs.getString("code_patient"),
-                                rs.getString("nom"), rs.getString("prenom"), rs.getString("etat_patient"),
-                                rs.getString("numero_assurance"), rs.getObject("centre_payeur_id", UUID.class),
-                                agenceDuCentrePayeur(centre, rs.getObject("centre_payeur_id", UUID.class), agences))),
+                        rs.getBigDecimal("forfait_override_prix")),
                 centre, Date.valueOf(debut), Date.valueOf(fin));
+        Map<UUID, FichesDesPatientsDuCentre.PatientAFacturer> fiches = new HashMap<>();
+        fichesDesPatients.aFacturer(centre, lues.stream().map(Lue::patient).distinct().toList())
+                .forEach(f -> fiches.put(f.patient(), f));
+        List<Lue> retenues = new ArrayList<>(lues.stream().filter(l -> fiches.containsKey(l.patient())).toList());
+        retenues.sort(java.util.Comparator.comparingInt(l -> fiches.get(l.patient()).rang()));
+        List<SeanceAFacturerPubliee> seances = new ArrayList<>();
+        for (Lue l : retenues) {
+            FichesDesPatientsDuCentre.PatientAFacturer f = fiches.get(l.patient());
+            seances.add(new SeanceAFacturerPubliee(l.seance(), l.date(), l.statut(), l.forfait(), l.forfaitNom(), l.forfaitPrix(),
+                    new PatientDeLaSeancePublie(l.patient(), f.code(), f.nom(), f.prenom(), f.etat(), f.numeroAssurance(),
+                            f.centrePayeur(), agenceDuCentrePayeur(centre, f.centrePayeur(), agences))));
+        }
+        return seances;
     }
 
     private UUID agenceDuCentrePayeur(UUID centre, UUID centrePayeur, Map<UUID, Optional<UUID>> dejaLues) {

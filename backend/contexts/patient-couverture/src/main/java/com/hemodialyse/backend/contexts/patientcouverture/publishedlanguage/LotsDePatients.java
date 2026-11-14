@@ -32,6 +32,24 @@ public interface LotsDePatients {
      */
     List<PatientDuLot> parNomPuisPrenom(Collection<UUID> patients);
 
+    /**
+     * LEC-PAT (ii), ARGENT (ADR 0177) : la fiche de facturation de ceux des patients demandés QUI SONT DU CENTRE (un patient d'un autre
+     * centre ou inconnu est absent : la séance qui le référence n'est pas facturable), triés par nom puis prénom (collation de la base) ;
+     * {@code rang} numérote les couples (nom, prénom) distincts dans cet ordre, à partir de 1. Valeurs telles que saisies (peuvent
+     * être nulles) ; {@code etat} est l'état du patient (nul si non renseigné).
+     */
+    List<PatientAFacturer> aFacturerDuCentre(UUID centre, Collection<UUID> patients);
+
+    /**
+     * Le centre payeur de ceux des patients demandés qui sont du centre ET en ont un ; les autres (inconnu, d'un autre centre, sans
+     * centre payeur) sont absents de la table. Lecture bornée au centre : la Séance en tire la caisse de chaque patient.
+     */
+    Map<UUID, UUID> centresPayeursDuCentre(UUID centre, Collection<UUID> patients);
+
+    record PatientAFacturer(UUID patient, String code, String nom, String prenom, String etat, String numeroAssurance, UUID centrePayeur,
+                            int rang) {
+    }
+
     record EtatCivilDuPatient(UUID patient, String sexe, LocalDate dateNaissance) {
     }
 

@@ -37,15 +37,8 @@ class TableDesForfaitsTest {
     /** Lecteurs connus hors du contexte patient-couverture (chemin depuis {@code backend/}) : un seul depuis RF2 (2026-11-10). */
     private static final Map<String, String> LECTEURS_CONNUS = new TreeMap<>();
 
-    static {
-        LECTEURS_CONNUS.put(
-                "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/persistence/ForfaitsDeSeanceJdbc.java",
-                "2026-11-10 (RF2-R2) : le forfait courant d'une séance suit la prise en charge qui couvre le jour ; la jointure "
-                        + "prise_en_charge -> forfait (même centre) est reprise MOT POUR MOT du legacy (SE7f, ADR 0100). C'est une lecture de la "
-                        + "prise en charge (déjà inscrite dans TableDuPatientCouvertureTest), pas un accès au catalogue : à porter dans le langage "
-                        + "publié de la couverture quand la Séance cessera de lire prise_en_charge. "
-                        + "Butoir : revue de l'ADR 0124 au 2027-03-31 (sinon reconduction motivée).");
-    }
+    // ForfaitsDeSeanceJdbc : entrée SOLDÉE par LEC-PAT (ii) (2026-11-14, ADR 0177), le forfait de la prise en charge est lu par
+    // CouvertureDesPatients.forfaitApplicable ; son butoir (2027-03-31) n'est pas reporté. Plus aucun lecteur connu hors patient-couverture.
 
     /** Aucune entité JPA connue ne porte la table {@code forfait} : l'exclusion nominative est vide (RF4, constat 3 de la revue). */
     private static final Set<String> ENTITES_JPA_CONNUES = Set.of();
@@ -124,15 +117,16 @@ class TableDesForfaitsTest {
 
     @Test
     void l_effectif_des_lecteurs_connus_est_asserte() {
-        assertThat(LECTEURS_CONNUS).as("RF2 : 1 lecteur hors patient-couverture (RF2-R2)").hasSize(1);
+        assertThat(LECTEURS_CONNUS).as("LEC-PAT (ii) : le dernier lecteur (RF2-R2, ForfaitsDeSeanceJdbc) est soldé").isEmpty();
     }
 
     @Test
-    void le_butoir_du_lecteur_connu_est_une_date_lue_et_comparee_a_l_horloge() {
-        assertThat(ButoirsDesGardesDeTables.butoirsAbsentsOuDepasses(LECTEURS_CONNUS, LocalDate.now()))
-                .as("butoir (2027-03-31) dépassé : reconduire avec une raison motivée et une nouvelle date, ou porter la lecture dans le langage publié")
-                .isEmpty();
-        assertThat(ButoirsDesGardesDeTables.butoirsAbsentsOuDepasses(LECTEURS_CONNUS, LocalDate.of(2027, 4, 1))).isEqualTo(LECTEURS_CONNUS.keySet());
+    void le_butoir_2027_03_31_du_dernier_lecteur_est_solde_et_non_reporte() throws IOException {
+        Path ancien = backend().resolve(
+                "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/persistence/ForfaitsDeSeanceJdbc.java");
+        assertThat(LECTEURS_CONNUS).isEmpty();
+        assertThat(nommeLaTableDesForfaits(ancien)).as("ForfaitsDeSeanceJdbc ne nomme plus la table forfait").isFalse();
+        assertThat(ButoirsDesGardesDeTables.butoirsAbsentsOuDepasses(LECTEURS_CONNUS, LocalDate.of(2027, 4, 1))).isEmpty();
     }
 
     @Test

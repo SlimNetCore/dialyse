@@ -34,7 +34,9 @@ class LecturesReprisesDeLaPlateformeH2ContratTest extends LecturesReprisesDeLaPl
 
     @Override
     ForfaitsDeSeance forfaits() {
-        return new ForfaitsDeSeanceJdbc(jdbc);
+        return new ForfaitsDeSeanceJdbc(jdbc, new com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture
+                .ForfaitDeLaPriseEnChargeParLaCouverture(new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence
+                .CouvertureDesPatientsJdbc(jdbc)));
     }
 
     @Override

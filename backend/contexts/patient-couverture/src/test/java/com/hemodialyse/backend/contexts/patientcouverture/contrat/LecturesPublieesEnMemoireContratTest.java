@@ -133,7 +133,7 @@ class LecturesPublieesEnMemoireContratTest extends LecturesPublieesContrat {
     @Override
     protected UUID forfait(CentreId centre, String libelle, BigDecimal prix) {
         UUID id = UUID.randomUUID();
-        lignesForfaits.put(id, new LecturesPublieesEnMemoire.Forfait(centre.valeur(), libelle, prix));
+        lignesForfaits.put(id, new LecturesPublieesEnMemoire.Forfait(centre.valeur(), "F-" + id.toString().substring(0, 8), libelle, prix));
         return id;
     }
 

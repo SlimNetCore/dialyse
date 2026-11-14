@@ -61,24 +61,14 @@ class TableDuPatientCouvertureTest {
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacypatient/MouvementsDesPatientsJdbc.java", PLACE + " ; ÉCRIT le mouvement PLACE_LIBEREE",
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacypatient/PlanningDesPlacesDuCentreJdbc.java", PLACE,
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacypatient/SejoursDesPatientsJdbc.java", PLACE,
-            "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/persistence/LecturesDesSeancesRealiseesJdbc.java",
-            "2026-11-08 (déplacée de planification/.../legacyseance/SeancesRealiseesJdbc, ADR 0098, SE7d) : jointure séances x patients sur "
-                    + "l'identifiant ET le centre (KB-SEA-80, reproduit) publiée à la Planification avec le nom et le prénom de la fiche ; "
-                    + "échéance : résidu D-R3, langage publié du Patient, revue au plus tard le 2026-12-15, butoir 2027-03-31",
-            "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/persistence/SeancesRealiseesDesCentresJdbc.java",
-            "2026-11-08 (déplacée de platform/.../DirectionBreakdownQueryService.loadCaisseSeances, ADR 0099, SE7e) : séances réalisées par "
-                    + "caisse, jointure séances x patients sur l'identifiant ET le centre (KB-SEA-83, reproduit) et chaîne payeur / agence / caisse "
-                    + "sans centre (KB-SEA-84) dans un GROUP BY (la découper changerait le résultat), publiée au pilotage de la Direction ; "
-                    + "échéance : résidu E-R2, langage publié du Patient (caisse de la fiche), revue au plus tard le 2026-12-15, butoir 2027-03-31",
+            // LecturesDesSeancesRealiseesJdbc, SeancesRealiseesDesCentresJdbc, FacturationDesSeancesJdbc, ForfaitsDeSeanceJdbc : entrées SOLDÉES
+            // par LEC-PAT (ii) (2026-11-14, ADR 0177), lecture par LotsDePatients et CouvertureDesPatients ; leurs butoirs (2027-03-31) ne sont
+            // pas reportés.
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/persistence/LectureDesPreferencesJdbc.java", PLACE,
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacypatient/ContraintesDesPatientsJdbc.java",
             "2026-11-04 : lecture de la fiche par la Planification (transporteurs, date de naissance : règle des 18 ans, RG-PLN-097), pas une lecture de fiche publiée ; les abords vasculaires viennent de dossier-medical.v1 depuis DM9 (ADR 0101) ; échéance : langage publié du Patient",
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacypatient/NomsDesPatientsJdbc.java", CYCLE + " (port FichesDesPatients.noms)",
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacypatient/PatientsDuCentreJdbc.java", CYCLE + " (port FichesDesPatients.situation)",
-            "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/persistence/FacturationDesSeancesJdbc.java",
-            "2026-11-08 (déplacée de SeancesFacturablesJdbc, ADR 0097, SE7c2) : jointure séances x patients dans un tri nom/prénom et la lecture "
-                    + "du payeur, publiées à la Facturation (la découper changerait l'ordre) ; la partie PEC passe déjà par le langage publié ; "
-                    + "échéance : résidu C2-R6, langage publié du Patient, revue au plus tard le 2026-12-15, butoir 2027-03-31",
             "contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/SituationsDesFacturesJdbc.java", JOINTURE + " : six tables de Facturation, KB-FAC-49",
             "contexts/pilotage-direction/src/main/java/com/hemodialyse/backend/contexts/pilotagedirection/infrastructure/persistence/PatientsDesCentresJdbc.java",
             "2026-11-09 (déplacée de platform/.../DirectionDashboardQueryService et DirectionBreakdownQueryService, PD1, ADR 0102) : effectif de "
@@ -95,11 +85,7 @@ class TableDuPatientCouvertureTest {
             "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/persistence/HistoriqueDesSeancesJdbc.java",
             "2026-11-08 (déplacée de platform/.../acl/seance/HistoriqueFourniLegacy, SE7f, ADR 0100) : historique des séances (SE1, ADR 0088) : jointure "
                     + "séances-patients avec filtre, tri et pagination en SQL (la découper changerait le résultat), requête reprise mot pour mot ; "
-                    + "échéance : lecture publiée jointe du Patient, revue au plus tard le 2026-12-15, butoir 2027-03-31",
-            "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/persistence/ForfaitsDeSeanceJdbc.java",
-            "2026-11-08 (déplacée de platform/.../acl/seance/ForfaitsFournisLegacy, SE7f, ADR 0100) : forfait courant d'une séance (SE1, ADR 0088) : "
-                    + "prise en charge couvrant le jour, requête reprise mot pour mot ; échéance : lecture publiée de la couverture "
-                    + "(CouvertureDesPatients), revue au plus tard le 2026-12-15, butoir 2027-03-31");
+                    + "échéance : lecture publiée jointe du Patient, revue au plus tard le 2026-12-15, butoir 2027-03-31");
 
     private static Map<String, String> jalons(String... couples) {
         Map<String, String> m = new TreeMap<>();
@@ -253,6 +239,26 @@ class TableDuPatientCouvertureTest {
         for (String ancien : List.of("PlanningDesPatientsJdbc", "PatientsDuJourJdbc", "PatientsDuTableauDeBordJdbc")) {
             assertThat(Files.exists(backend.resolve("contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/acl/legacypatient/"
                     + ancien + ".java"))).isFalse();
+        }
+    }
+
+    /**
+     * LEC-PAT (ii) (2026-11-14, ADR 0177) : les séances à facturer, les séances par caisse, les séances réalisées publiées à la Planification
+     * et le forfait courant lisent la fiche et la couverture par {@code LotsDePatients} et {@code CouvertureDesPatients} ; les quatre jalons
+     * sont SOLDÉS (entrées supprimées, jamais reportées). Verrou : aucun de ces quatre lecteurs ne revient dans la liste ni dans les
+     * lecteurs SQL des tables du contexte.
+     */
+    @Test
+    void les_lectures_d_argent_de_la_seance_ne_lisent_plus_les_tables_du_patient_couverture() throws IOException {
+        String persistance = "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/persistence/";
+        Path backend = backend();
+        Set<String> lecteurs = sourcesFautives(backend, racinesHorsDuContexte(backend));
+
+        for (String lecteur : List.of(persistance + "FacturationDesSeancesJdbc.java", persistance + "SeancesRealiseesDesCentresJdbc.java",
+                persistance + "LecturesDesSeancesRealiseesJdbc.java", persistance + "ForfaitsDeSeanceJdbc.java")) {
+            assertThat(JALONS).doesNotContainKey(lecteur);
+            assertThat(lecteurs).doesNotContain(lecteur);
+            assertThat(Files.exists(backend.resolve(lecteur))).isTrue();
         }
     }
 

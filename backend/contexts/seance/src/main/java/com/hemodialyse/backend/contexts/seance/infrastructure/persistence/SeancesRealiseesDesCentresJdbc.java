@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.contexts.seance.infrastructure.persistence;
 
 import com.hemodialyse.backend.contexts.seance.domain.ChaineDesPayeursDuCentre;
+import com.hemodialyse.backend.contexts.seance.domain.FichesDesPatientsDuCentre;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesRealiseesDesCentresPubliees;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -28,11 +29,13 @@ public class SeancesRealiseesDesCentresJdbc implements SeancesRealiseesDesCentre
 
     private final JdbcTemplate jdbc;
     private final ChaineDesPayeursDuCentre payeurs;
+    private final FichesDesPatientsDuCentre fichesDesPatients;
 
     /** {@code payeurs} : la chaîne des payeurs de Patient et couverture (borne du centre payeur au centre de la fiche : KB-SEA-84, ADR 0118). */
-    public SeancesRealiseesDesCentresJdbc(JdbcTemplate jdbc, ChaineDesPayeursDuCentre payeurs) {
+    public SeancesRealiseesDesCentresJdbc(JdbcTemplate jdbc, ChaineDesPayeursDuCentre payeurs, FichesDesPatientsDuCentre fichesDesPatients) {
         this.jdbc = jdbc;
         this.payeurs = payeurs;
+        this.fichesDesPatients = fichesDesPatients;
     }
 
     private static String placeholders(int n) {
@@ -93,15 +96,22 @@ public class SeancesRealiseesDesCentresJdbc implements SeancesRealiseesDesCentre
     public List<CaisseRealiseePubliee> parCaisse(List<UUID> centres, LocalDate du, LocalDate au) {
         record Cle(UUID centre, String code) {
         }
-        List<Object[]> lignes = new ArrayList<>();
-        jdbc.query("SELECT s.center_id, p.centre_payeur_id, COUNT(*) AS n "
-                        + "FROM seances s LEFT JOIN patients p ON p.id = s.patient_id AND p.center_id = s.center_id "
+        // LEC-PAT (ii), ARGENT de pilotage (ADR 0177) : séances comptées par (centre, patient) dans la table de la Séance ; le centre payeur de
+        // chaque patient vient de Patient et couverture, borné au centre de la séance (fiche d'un autre centre ou absente : caisse vide,
+        // KB-SEA-83). Les compteurs sont ensuite additionnés par caisse, comme avant (le GROUP BY sur le centre payeur n'ordonnait rien).
+        Map<UUID, Map<UUID, Long>> parPatient = new LinkedHashMap<>();
+        jdbc.query("SELECT s.center_id, s.patient_id, COUNT(*) AS n FROM seances s "
                         + "WHERE s.center_id IN (" + placeholders(centres.size()) + ") AND s.date_seance BETWEEN ? AND ? "
-                        + "AND s.statut IN ('VALIDEE','SIGNEE','FACTUREE') GROUP BY s.center_id, p.centre_payeur_id",
+                        + "AND s.statut IN ('VALIDEE','SIGNEE','FACTUREE') GROUP BY s.center_id, s.patient_id",
                 rs -> {
-                    lignes.add(new Object[]{rs.getObject("center_id", UUID.class), rs.getObject("centre_payeur_id", UUID.class),
-                            rs.getLong("n")});
+                    parPatient.computeIfAbsent(rs.getObject("center_id", UUID.class), c -> new LinkedHashMap<>())
+                            .put(rs.getObject("patient_id", UUID.class), rs.getLong("n"));
                 }, params(centres, du, au));
+        List<Object[]> lignes = new ArrayList<>();
+        parPatient.forEach((centre, patients) -> {
+            Map<UUID, UUID> payeursDesPatients = fichesDesPatients.centresPayeurs(centre, patients.keySet());
+            patients.forEach((patient, n) -> lignes.add(new Object[]{centre, payeursDesPatients.get(patient), n}));
+        });
         Map<UUID, Map<UUID, ChaineDesPayeursDuCentre.CaisseDuPayeur>> caissesParCentre = new HashMap<>();
         Map<Cle, long[]> nombres = new LinkedHashMap<>();
         Map<Cle, String> noms = new HashMap<>();

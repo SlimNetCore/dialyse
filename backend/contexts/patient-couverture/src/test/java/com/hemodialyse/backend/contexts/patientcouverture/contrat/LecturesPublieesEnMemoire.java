@@ -30,7 +30,7 @@ class LecturesPublieesEnMemoire implements FichesDesPatients, CouvertureDesPatie
         com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.ProgrammationDesPatients,
         com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.LotsDePatients {
 
-    record Forfait(UUID centre, String libelle, BigDecimal prix) {
+    record Forfait(UUID centre, String code, String libelle, BigDecimal prix) {
     }
 
     private final Supplier<Collection<Patient>> patients;
@@ -186,6 +186,34 @@ class LecturesPublieesEnMemoire implements FichesDesPatients, CouvertureDesPatie
         return lot;
     }
 
+    @Override
+    public List<PatientAFacturer> aFacturerDuCentre(UUID centre, Collection<UUID> demandes) {
+        List<Patient> tries = demandes.stream().distinct().map(id -> patient(centre, id)).flatMap(Optional::stream)
+                .sorted(Comparator.comparing((Patient p) -> p.fiche().identite().nom(), Comparator.nullsLast(Comparator.naturalOrder()))
+                        .thenComparing(p -> p.fiche().identite().prenom(), Comparator.nullsLast(Comparator.naturalOrder())))
+                .toList();
+        List<PatientAFacturer> lot = new java.util.ArrayList<>();
+        int rang = 0;
+        Patient precedent = null;
+        for (Patient p : tries) {
+            if (precedent == null || !java.util.Objects.equals(precedent.fiche().identite().nom(), p.fiche().identite().nom())
+                    || !java.util.Objects.equals(precedent.fiche().identite().prenom(), p.fiche().identite().prenom())) rang++;
+            lot.add(new PatientAFacturer(p.id().valeur(), p.code(), p.fiche().identite().nom(), p.fiche().identite().prenom(),
+                    p.etat() == null ? null : p.etat().name(), numeroDe(p), p.fiche().couverture().centrePayeurId(), rang));
+            precedent = p;
+        }
+        return lot;
+    }
+
+    @Override
+    public Map<UUID, UUID> centresPayeursDuCentre(UUID centre, Collection<UUID> demandes) {
+        Map<UUID, UUID> payeurs = new java.util.LinkedHashMap<>();
+        demandes.stream().distinct().map(id -> patient(centre, id)).flatMap(Optional::stream)
+                .filter(p -> p.fiche().couverture().centrePayeurId() != null)
+                .forEach(p -> payeurs.put(p.id().valeur(), p.fiche().couverture().centrePayeurId()));
+        return payeurs;
+    }
+
     // ---- CouvertureDesPatients
 
     private static UUID forfaitDe(PriseEnCharge p) {
@@ -217,7 +245,7 @@ class LecturesPublieesEnMemoire implements FichesDesPatients, CouvertureDesPatie
         if (choisie.isEmpty()) choisie = avecForfait.stream().findFirst();
         return choisie.map(p -> {
             Forfait f = forfaits.get(forfaitDe(p));
-            return new ForfaitApplicable(forfaitDe(p), f.libelle(), f.prix());
+            return new ForfaitApplicable(forfaitDe(p), f.code(), f.libelle(), f.prix());
         });
     }
 

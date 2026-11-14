@@ -77,7 +77,9 @@ abstract class FacturationDesSeancesJdbcContrat extends FacturationDesSeancesCon
     private FacturationDesSeancesJdbc lecture() {
         return new FacturationDesSeancesJdbc(jdbc(), new com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture
                 .ChaineDesPayeursParLAnnuaire(new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence
-                .PayeursDuCentreJdbc(jdbc())));
+                .PayeursDuCentreJdbc(jdbc())),
+                new com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture.FichesDesPatientsDuCentreParLaFiche(
+                        new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.LotsDePatientsJdbc(jdbc())));
     }
 
     @Override

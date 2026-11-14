@@ -241,6 +241,15 @@
   publiées de Patient et couverture (`ProgrammationDesPatients`, `LotsDePatients`) ; le tri nom puis prénom du journal reste celui de la
   base de Patient et couverture, les homonymes sont départagés par l'identifiant de séance. Les deux lectures par lot ne sont pas bornées
   au centre du patient : KB-SEA-61 et KB-SEA-64 restent reproduits, à confirmer métiers/DPO avant le 2026-12-15.
+  **LEC-PAT (ii), 2026-11-14, ADR 0177 : source des données (ARGENT), comportement inchangé, montants identiques à l'unité près** — le
+  forfait courant d'une séance (le forfait imposé sur la séance prime, sinon celui de la prise en charge qui couvre le jour : effectif
+  d'abord, sinon demandé, la plus récente d'abord ; à défaut la plus récente qui porte un forfait, le statut de la prise en charge n'étant
+  jamais regardé), les séances à facturer (fiche du centre : code, nom, prénom, état, numéro d'assurance, centre payeur ; ordre nom puis
+  prénom, homonymes par date puis identifiant de séance ; une séance dont la fiche n'est pas du centre n'est pas facturable), la répartition
+  des séances par caisse (centre payeur de la fiche du centre, caisse vide sinon : KB-SEA-83, KB-SEA-84) et les séances réalisées publiées
+  à la Planification avec le nom et le prénom de la fiche du centre (KB-SEA-80) ne sont plus lus en SQL sur les tables du patient, de la
+  prise en charge et du forfait, mais par `LotsDePatients` et `CouvertureDesPatients` (langage publié `patientcouverture.v1`). Aucun
+  écart de parité (goldens existants inchangés, un golden d'ordre de facturation ajouté avant le changement).
   *Source :* `ConsulterLeTableauDeBord`, `ConsulterLeDetailDuTableauDeBord`, `ExporterLeTableauDeBord`, `MoisDuTableauDeBord`,
   `SeancesAttendues`, `EffectifDuMois`, `FinDeLaPriseEnCharge`, `TrancheDAge`, `LigneDuDetail`, `FormatDExport`, `SeancesRealiseesJdbc`,
   `PatientsDuTableauDeBordJdbc`, `AbsencesDuCentreParLePilotage`, `ExportsDuTableauDeBordCsvPdfXlsx`, `TableauDeBordDesSeancesControleur`,
