@@ -113,8 +113,9 @@ public class StockContexteConfiguration {
     // ------------------------------------------------------------------ slice S3 : bons de commande
 
     @Bean
-    BonsDeCommande stockBonsDeCommande(JdbcTemplate jdbc, PlatformTransactionManager transactions) {
-        return new BonsDeCommandeJdbc(jdbc, new TransactionTemplate(transactions));
+    BonsDeCommande stockBonsDeCommande(JdbcTemplate jdbc, PlatformTransactionManager transactions,
+                                       com.hemodialyse.backend.contexts.stock.publishedlanguage.NumerotationDesPiecesFournie numerotation) {
+        return new BonsDeCommandeJdbc(jdbc, new TransactionTemplate(transactions), numerotation);
     }
 
     @Bean
@@ -159,9 +160,10 @@ public class StockContexteConfiguration {
 
     @Bean
     com.hemodialyse.backend.contexts.stock.domain.reception.BonsDeReception stockBonsDeReception(JdbcTemplate jdbc,
-                                                                                                 PlatformTransactionManager transactions) {
+                                                                                                 PlatformTransactionManager transactions,
+                                                                                                 com.hemodialyse.backend.contexts.stock.publishedlanguage.NumerotationDesPiecesFournie numerotation) {
         return new com.hemodialyse.backend.contexts.stock.infrastructure.persistence.BonsDeReceptionJdbc(jdbc,
-                new TransactionTemplate(transactions));
+                new TransactionTemplate(transactions), numerotation);
     }
 
     @Bean
@@ -193,9 +195,10 @@ public class StockContexteConfiguration {
 
     @Bean
     com.hemodialyse.backend.contexts.stock.domain.sortie.BonsDeSortie stockBonsDeSortie(JdbcTemplate jdbc,
-                                                                                        PlatformTransactionManager transactions) {
+                                                                                        PlatformTransactionManager transactions,
+                                                                                        com.hemodialyse.backend.contexts.stock.publishedlanguage.NumerotationDesPiecesFournie numerotation) {
         return new com.hemodialyse.backend.contexts.stock.infrastructure.persistence.BonsDeSortieJdbc(jdbc,
-                new TransactionTemplate(transactions));
+                new TransactionTemplate(transactions), numerotation);
     }
 
     @Bean
@@ -223,9 +226,10 @@ public class StockContexteConfiguration {
 
     @Bean
     com.hemodialyse.backend.contexts.stock.domain.sortieseances.SortiesPourSeances stockSortiesPourSeances(JdbcTemplate jdbc,
-                                                                                                           PlatformTransactionManager transactions) {
+                                                                                                           PlatformTransactionManager transactions,
+                                                                                                           com.hemodialyse.backend.contexts.stock.publishedlanguage.NumerotationDesPiecesFournie numerotation) {
         return new com.hemodialyse.backend.contexts.stock.infrastructure.persistence.SortiesPourSeancesJdbc(jdbc,
-                new TransactionTemplate(transactions));
+                new TransactionTemplate(transactions), numerotation);
     }
 
     @Bean
@@ -307,9 +311,10 @@ public class StockContexteConfiguration {
     @Bean
     com.hemodialyse.backend.contexts.stock.domain.inventaire.Inventaires stockInventaires(JdbcTemplate jdbc,
                                                                                           PlatformTransactionManager transactions,
-                                                                                          com.hemodialyse.backend.contexts.stock.publishedlanguage.VerrouDuCentreFourni verrou) {
+                                                                                          com.hemodialyse.backend.contexts.stock.publishedlanguage.VerrouDuCentreFourni verrou,
+                                                                                          com.hemodialyse.backend.contexts.stock.publishedlanguage.NumerotationDesPiecesFournie numerotation) {
         return new com.hemodialyse.backend.contexts.stock.infrastructure.persistence.InventairesJdbc(jdbc,
-                new TransactionTemplate(transactions), verrou);
+                new TransactionTemplate(transactions), verrou, numerotation);
     }
 
     @Bean

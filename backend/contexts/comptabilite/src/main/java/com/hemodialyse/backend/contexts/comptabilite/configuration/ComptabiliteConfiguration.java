@@ -309,6 +309,20 @@ public class ComptabiliteConfiguration {
         return new SequenceDesNumerosDePiecesJdbc(jdbc);
     }
 
+    // S-DDL2 (ADR 0185, D7) : la Comptabilité possède les compteurs de numérotation par centre (app_settings).
+    @Bean
+    com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.NumerotationDesDocuments comptabiliteNumerotationDesDocuments(
+            JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.comptabilite.infrastructure.persistence.NumerotationDesDocumentsJdbc(jdbc);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.stock.publishedlanguage.NumerotationDesPiecesFournie comptabiliteNumerotationDesPiecesDuStock(
+            com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.NumerotationDesDocuments numerotation) {
+        return new com.hemodialyse.backend.contexts.comptabilite.infrastructure.acl.stock.NumerotationDesPiecesDuStockParLaComptabilite(
+                numerotation);
+    }
+
     @Bean
     GererLesModelesEtPieces comptabiliteGererLesModelesEtPieces(ModeleDePieceRepository modeles,
                                                                 EcritureComptableRepository ecritures,

@@ -34,6 +34,12 @@ sources: [.ddd/discovery/glossary.md, .ddd/discovery/event-storming.md §7, .ddd
 | Règle de TVA comptable ⚠    | Taux de TVA d'un type de prestation à partir d'une date ; intervalle [début, fin] bornes incluses, fin absente = règle ouverte                                     | `RegleTva` (taux : `TauxDeTva`)                             | `RegleTVA`, table `tva_types`                    | —                               | même table que le *Type de TVA* de Facturation : propriétaire à trancher avec la Facturation ; une règle ne peut ni finir avant son début ni chevaucher une règle active du même centre et du même type (C2) ; les règles s'ajoutent seulement | validated |
 | Reconstruction des écritures | Rejeu des écritures de ventes et de règlements d'une période, sans doublon                                                                                         | cas d'usage `ReconstruireLesEcritures`                      | `/rebuild`                                       | rebuild                         | RG-CPT-007                                                                                                                                                                                                                                     | validated |
 
+**Numérotation des documents** (S-DDL2, ADR 0185, 2026-11-14, `proposed`) : la Comptabilité possède les compteurs par centre et par
+type de document (table `app_settings`, colonnes `center_id`, `cle` = type, `prefixe`, `dernier_compteur`). Langage publié
+`comptabilite.v1` `NumerotationDesDocuments.suivant(centre, type, préfixe par défaut)` : préfixe enregistré + compteur sur cinq
+chiffres, réservé dans la transaction de l'appelant. Types : `SEQ_BC`, `SEQ_BR`, `SEQ_BS`, `INV`, `SEQ_SPS` (Stock, par un port
+fourni), `SEQ_ORD` (Dossier médical) ; `SEQ_ECRITURE_<journal>_<année>` et `SEQ_SOURCE_<id>` servent de verrous internes.
+
 Homonymes : *Compte comptable* ≠ *Compte d'article* (Stock, donne un compte au mapping) ≠ *Compte utilisateur*
 (Identité & accès). *Payeur* (Comptabilité : un identifiant et un compte client) ≠ *Centre payeur* (Facturation /
 Patient & couverture : l'organisme complet).

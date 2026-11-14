@@ -117,6 +117,8 @@ class ArchitectureHexagonaleTest {
                             .and(not(resideInAPackage("com.hemodialyse.backend.contexts.seance.publishedlanguage..")))
                             .or(resideInAnyPackage(
                                     "com.hemodialyse.backend.contexts.absencespatients..",
-                                    "com.hemodialyse.backend.contexts.facturation..",
-                                    "com.hemodialyse.backend.contexts.comptabilite..")));
+                                    "com.hemodialyse.backend.contexts.facturation..")
+                                    // S-DDL2 (ADR 0185) : la Comptabilité n'est lisible que par son langage publié (numérotation).
+                                    .or(resideInAPackage("com.hemodialyse.backend.contexts.comptabilite..")
+                                            .and(not(resideInAPackage("com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.."))))));
 }

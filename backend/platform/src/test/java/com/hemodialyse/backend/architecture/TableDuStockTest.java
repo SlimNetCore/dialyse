@@ -44,7 +44,8 @@ class TableDuStockTest {
      * centres et horloge, séances et salles, réglages applicatifs.
      */
     private static final Set<String> TABLES_LUES_AILLEURS = Set.of(
-            "app_settings", "centers", "position_creneau", "salle", "seances");
+            // S-DDL2 (2026-11-14, ADR 0185) : « app_settings » SOLDÉ (retiré, jamais reporté) : les compteurs sont à la Comptabilité.
+            "centers", "position_creneau", "salle", "seances");
 
     /**
      * Mots-clés SQL en majuscules : le code de production écrit ses requêtes en majuscules, alors que la prose française contient

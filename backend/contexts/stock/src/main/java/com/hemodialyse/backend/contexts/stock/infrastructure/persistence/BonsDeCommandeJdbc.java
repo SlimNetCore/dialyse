@@ -5,7 +5,6 @@ import com.hemodialyse.backend.contexts.stock.domain.commandes.BonDeCommande;
 import com.hemodialyse.backend.contexts.stock.domain.commandes.BonsDeCommande;
 import com.hemodialyse.backend.contexts.stock.domain.commandes.LigneDeBon;
 import com.hemodialyse.backend.contexts.stock.domain.commandes.StatutDuBon;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -18,8 +17,8 @@ import java.util.function.UnaryOperator;
 
 /**
  * Tables {@code bons_commande} et {@code bons_commande_lignes} (même schéma que le legacy, que la réception legacy lit et
- * marque {@code RECU} jusqu'à la slice S5). La référence vient du compteur {@code SEQ_BC} d'{@code app_settings} (préfixe
- * {@code BC-}, cinq chiffres), incrémenté dans la transaction du bon : un refus ne consomme rien. Une modification verrouille
+ * marque {@code RECU} jusqu'à la slice S5). La référence vient du compteur {@code SEQ_BC} de la Comptabilité (port fourni
+ * {@code NumerotationDesPiecesFournie}, S-DDL2 ; préfixe {@code BC-}, cinq chiffres), incrémenté dans la transaction du bon : un refus ne consomme rien. Une modification verrouille
  * la ligne du bon ({@code FOR UPDATE}).
  */
 public class BonsDeCommandeJdbc implements BonsDeCommande {
@@ -29,30 +28,17 @@ public class BonsDeCommandeJdbc implements BonsDeCommande {
 
     private final JdbcTemplate jdbc;
     private final TransactionTemplate transaction;
+    private final com.hemodialyse.backend.contexts.stock.publishedlanguage.NumerotationDesPiecesFournie numerotation;
 
-    public BonsDeCommandeJdbc(JdbcTemplate jdbc, TransactionTemplate transaction) {
+    public BonsDeCommandeJdbc(JdbcTemplate jdbc, TransactionTemplate transaction,
+                              com.hemodialyse.backend.contexts.stock.publishedlanguage.NumerotationDesPiecesFournie numerotation) {
         this.jdbc = jdbc;
         this.transaction = transaction;
+        this.numerotation = numerotation;
     }
 
     private String referenceSuivante(CentreId centre) {
-        int modifies = incrementer(centre);
-        if (modifies == 0) {
-            try {
-                jdbc.update("INSERT INTO app_settings (center_id, cle, prefixe, dernier_compteur) VALUES (?, ?, ?, 1)",
-                        centre.valeur(), CLE_SEQUENCE, PREFIXE_PAR_DEFAUT);
-            } catch (DuplicateKeyException concurrent) {
-                incrementer(centre);
-            }
-        }
-        return jdbc.queryForObject("SELECT prefixe, dernier_compteur FROM app_settings WHERE center_id = ? AND cle = ?",
-                (rs, i) -> (rs.getString("prefixe") == null ? PREFIXE_PAR_DEFAUT : rs.getString("prefixe"))
-                        + String.format("%05d", rs.getLong("dernier_compteur")), centre.valeur(), CLE_SEQUENCE);
-    }
-
-    private int incrementer(CentreId centre) {
-        return jdbc.update("UPDATE app_settings SET dernier_compteur = dernier_compteur + 1 WHERE center_id = ? AND cle = ?",
-                centre.valeur(), CLE_SEQUENCE);
+        return numerotation.suivante(centre.valeur(), CLE_SEQUENCE, PREFIXE_PAR_DEFAUT);
     }
 
     private void insererLeBon(BonDeCommande bon) {

@@ -30,15 +30,16 @@ public class InventairesJdbc implements Inventaires {
 
     private final JdbcTemplate jdbc;
     private final TransactionTemplate transaction;
-    private final SequenceDesPiecesJdbc sequence;
+    private final com.hemodialyse.backend.contexts.stock.publishedlanguage.NumerotationDesPiecesFournie sequence;
 
     private final VerrouDuCentreFourni verrouDuCentre;
 
-    public InventairesJdbc(JdbcTemplate jdbc, TransactionTemplate transaction, VerrouDuCentreFourni verrouDuCentre) {
+    public InventairesJdbc(JdbcTemplate jdbc, TransactionTemplate transaction, VerrouDuCentreFourni verrouDuCentre,
+                           com.hemodialyse.backend.contexts.stock.publishedlanguage.NumerotationDesPiecesFournie numerotation) {
         this.jdbc = jdbc;
         this.transaction = transaction;
         this.verrouDuCentre = verrouDuCentre;
-        this.sequence = new SequenceDesPiecesJdbc(jdbc);
+        this.sequence = numerotation;
     }
 
     /**

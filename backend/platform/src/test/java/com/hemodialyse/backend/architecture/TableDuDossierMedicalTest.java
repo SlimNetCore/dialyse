@@ -221,7 +221,7 @@ class TableDuDossierMedicalTest {
             }
         }
         ecrites.remove("resultats_analyses"); // gardée par TableDesAnalysesTest
-        ecrites.remove("app_settings"); // séquence des numéros d'ordonnance (SEQ_ORD), table de la plateforme (RG-MED-052)
+        // S-DDL2 (2026-11-14, ADR 0185) : l'exception « app_settings » est SOLDÉE ; les numéros d'ordonnance viennent de la Comptabilité.
         assertThat(TABLES).as("toute table écrite en SQL par le contexte dossier-medical doit être gardée ici").containsAll(ecrites);
     }
 }

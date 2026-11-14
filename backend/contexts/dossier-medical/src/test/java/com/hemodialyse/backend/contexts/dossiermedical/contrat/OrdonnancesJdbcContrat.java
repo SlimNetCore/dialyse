@@ -2,7 +2,8 @@ package com.hemodialyse.backend.contexts.dossiermedical.contrat;
 
 import com.hemodialyse.backend.contexts.dossiermedical.application.NumerotationDesOrdonnances;
 import com.hemodialyse.backend.contexts.dossiermedical.domain.Ordonnances;
-import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.persistence.NumerotationDesOrdonnancesJdbc;
+import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.acl.comptabilite.NumerotationDesOrdonnancesParLaComptabilite;
+import com.hemodialyse.backend.contexts.comptabilite.infrastructure.persistence.NumerotationDesDocumentsJdbc;
 import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.persistence.OrdonnancesJdbc;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -66,7 +67,8 @@ abstract class OrdonnancesJdbcContrat extends OrdonnancesContrat {
 
     @Test
     void la_numerotation_est_sequentielle_par_centre_sur_la_ligne_seq_ord() {
-        NumerotationDesOrdonnances numerotation = new NumerotationDesOrdonnancesJdbc(jdbc());
+        NumerotationDesOrdonnances numerotation = new NumerotationDesOrdonnancesParLaComptabilite(
+                new NumerotationDesDocumentsJdbc(jdbc()));
         assertThat(numerotation.suivant(CENTRE_A)).isEqualTo("ORD-00001");
         assertThat(numerotation.suivant(CENTRE_A)).isEqualTo("ORD-00002");
         assertThat(numerotation.suivant(CENTRE_B)).isEqualTo("ORD-00001");

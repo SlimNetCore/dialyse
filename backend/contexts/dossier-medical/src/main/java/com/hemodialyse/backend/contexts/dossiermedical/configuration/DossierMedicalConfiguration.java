@@ -99,7 +99,6 @@ import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.acl.legacy
 import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.acl.patientcouverture.PatientsDuCentreDeLaFiche;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.FichesDesPatients;
 import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.identifiants.GenerateurDIdentifiantsAleatoires;
-import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.persistence.NumerotationDesOrdonnancesJdbc;
 import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.persistence.OrdonnancesJdbc;
 import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.transaction.UniteDeTravailSpring;
 import com.hemodialyse.backend.contexts.dossiermedical.interfaces.http.ConstantesControleur;
@@ -270,8 +269,10 @@ public class DossierMedicalConfiguration {
     }
 
     @Bean
-    NumerotationDesOrdonnances numerotationDesOrdonnances(JdbcTemplate jdbc) {
-        return new NumerotationDesOrdonnancesJdbc(jdbc);
+    NumerotationDesOrdonnances numerotationDesOrdonnances(
+            com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.NumerotationDesDocuments numerotation) {
+        return new com.hemodialyse.backend.contexts.dossiermedical.infrastructure.acl.comptabilite.NumerotationDesOrdonnancesParLaComptabilite(
+                numerotation);
     }
 
     @Bean

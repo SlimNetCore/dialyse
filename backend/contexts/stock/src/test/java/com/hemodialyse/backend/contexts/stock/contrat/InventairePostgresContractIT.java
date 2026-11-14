@@ -96,7 +96,6 @@ class InventairePostgresContractIT {
         jdbc.update("DELETE FROM stock_movements WHERE center_id = ?", ID_CENTRE);
         jdbc.update("DELETE FROM lots WHERE center_id = ?", ID_CENTRE);
         jdbc.update("DELETE FROM articles WHERE center_id = ?", ID_CENTRE);
-        jdbc.update("DELETE FROM app_settings WHERE center_id = ?", ID_CENTRE);
         jdbc.update("DELETE FROM centers WHERE id = ?", ID_CENTRE);
     }
 
@@ -111,8 +110,8 @@ class InventairePostgresContractIT {
         lotSansDate = lot(a1, "L-SANS-DATE", null, "5");
         EcrituresDuStockJdbc ecritures = new EcrituresDuStockJdbc(jdbc);
         TransactionTemplate tt = transaction();
-        gestion = new GestionDesInventaires(new InventairesJdbc(jdbc, tt, new CentresFournisSurJdbcDeTest(jdbc)), new StockInventorieJdbc(jdbc), new ArticlesJdbc(jdbc), ecritures,
-                new RejeuDuPmp(new LecturesDuStockJdbc(jdbc), ecritures), new SortiesPourSeancesJdbc(jdbc, tt), centre -> false,
+        gestion = new GestionDesInventaires(new InventairesJdbc(jdbc, tt, new CentresFournisSurJdbcDeTest(jdbc), new NumerotationDesPiecesEnMemoire()), new StockInventorieJdbc(jdbc), new ArticlesJdbc(jdbc), ecritures,
+                new RejeuDuPmp(new LecturesDuStockJdbc(jdbc), ecritures), new SortiesPourSeancesJdbc(jdbc, tt, new NumerotationDesPiecesEnMemoire()), centre -> false,
                 new UniteDeTravailSpring(tt), (centre, statut, reference, date, par) -> {
         }, HorlogeDesCentres.uniforme(Clock.systemUTC()), UUID::randomUUID);
     }

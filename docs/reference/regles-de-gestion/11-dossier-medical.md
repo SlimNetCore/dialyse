@@ -247,7 +247,8 @@ en isolement** un patient devenu à risque et **alerte** le médecin.
 - **RG-MED-052** — Le numéro `ORD-nnnnn` est une séquence par centre, attribuée **dans l'ordre des signatures**. Un refus de
   signature (ordonnance annulée, déjà signée…) **consomme un numéro** : la séquence peut avoir des trous (reproduit du legacy,
   ADR 0081, KB-MED-20, à confirmer avec les métiers). Une ordonnance introuvable n'en consomme pas. La date de prescription par
-  défaut est le **jour du centre** (fuseau Africa/Algiers), pas celui du serveur.
+  défaut est le **jour du centre** (fuseau Africa/Algiers), pas celui du serveur. Le compteur (`SEQ_ORD`) appartient à la
+  Comptabilité : le Dossier médical le réserve par sa numérotation des documents (S-DDL2, ADR 0185), comportement inchangé.
 - **RG-MED-053** — Une ordonnance ou une prescription ne se rédige que pour un patient **du centre de la session** : patient
   inconnu ou d'un autre centre = refus 404 `PATIENT_INTROUVABLE` (ADR 0081, KB-MED-19). Une saisie illisible (corps, date,
   identifiant, code sans nomenclature, ligne vide, texte trop long) est refusée en 400 `BAD_REQUEST`. Les lignes d'ordonnance sont

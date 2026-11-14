@@ -88,7 +88,8 @@ class CentresDuStockParOrganisationTest {
     @Test
     void le_verrou_de_periode_d_un_inventaire_passe_par_organisation_pour_un_centre_connu_ou_inconnu() {
         var inventaires = new InventairesJdbc(jdbc, new TransactionTemplate(transactions),
-                new VerrouDuCentreDuStockParOrganisation(new VerrouDuCentreJdbc(jdbc)));
+                new VerrouDuCentreDuStockParOrganisation(new VerrouDuCentreJdbc(jdbc)),
+                (centre, cle, prefixe) -> prefixe + "00001");
         new TransactionTemplate(transactions).executeWithoutResult(statut -> {
             assertThatCode(() -> inventaires.verrouillerLaPeriode(new CentreId(ACTIF))).doesNotThrowAnyException();
             assertThatCode(() -> inventaires.verrouillerLaPeriode(new CentreId(UUID.randomUUID()))).doesNotThrowAnyException();

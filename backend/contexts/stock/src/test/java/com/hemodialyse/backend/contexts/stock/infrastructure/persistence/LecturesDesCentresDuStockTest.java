@@ -64,6 +64,7 @@ class LecturesDesCentresDuStockTest {
     }
 
     private com.hemodialyse.backend.contexts.stock.domain.inventaire.Inventaires inventaires() {
-        return new InventairesJdbc(jdbc, new TransactionTemplate(transactions), new CentresFournisSurJdbcDeTest(jdbc));
+        return new InventairesJdbc(jdbc, new TransactionTemplate(transactions), new CentresFournisSurJdbcDeTest(jdbc),
+                new com.hemodialyse.backend.contexts.stock.contrat.NumerotationDesPiecesEnMemoire());
     }
 }

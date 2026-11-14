@@ -33,12 +33,13 @@ public class SortiesPourSeancesJdbc implements SortiesPourSeances {
 
     private final JdbcTemplate jdbc;
     private final TransactionTemplate transaction;
-    private final SequenceDesPiecesJdbc sequence;
+    private final com.hemodialyse.backend.contexts.stock.publishedlanguage.NumerotationDesPiecesFournie sequence;
 
-    public SortiesPourSeancesJdbc(JdbcTemplate jdbc, TransactionTemplate transaction) {
+    public SortiesPourSeancesJdbc(JdbcTemplate jdbc, TransactionTemplate transaction,
+                                  com.hemodialyse.backend.contexts.stock.publishedlanguage.NumerotationDesPiecesFournie numerotation) {
         this.jdbc = jdbc;
         this.transaction = transaction;
-        this.sequence = new SequenceDesPiecesJdbc(jdbc);
+        this.sequence = numerotation;
     }
 
     private void inserer(SortiePourSeances p) {

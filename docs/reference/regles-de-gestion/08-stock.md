@@ -68,7 +68,8 @@
   autre que celui de la session est refusé (403, sauf `SUPERADMIN`) ; sans centre, celui de la session s'applique.
   *Source :* `SessionLegacy` (contexte `stock`).
 - **RG-STK-005** — Les références de pièces sont générées par séquence de centre : `BC` (bon de commande), `BR`
-  (réception), `BS` (sortie), `INV` (inventaire).
+  (réception), `BS` (sortie), `INV` (inventaire). Les compteurs appartiennent à la Comptabilité (numérotation des documents,
+  S-DDL2, ADR 0185) : le Stock les réserve par un port, dans la transaction de la pièce ; comportement inchangé.
 
 ## 8.2 Bons de commande
 

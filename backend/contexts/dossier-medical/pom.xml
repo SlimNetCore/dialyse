@@ -127,6 +127,13 @@
             <artifactId>contexts-seance</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!-- Langage publie de la Comptabilite : NumerotationDesDocuments (numeros d'ordonnance, S-DDL2, ADR 0185). Deja sur le classpath par
+             transitivite (contexts-seance) ; la Comptabilite ne depend pas du Dossier medical : aucun cycle. -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-comptabilite</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <!-- Export PDF du dossier de greffe (PL2, ADR 0138) : meme bibliotheque et meme version que la plateforme et la Seance. -->
         <dependency>
             <groupId>com.openhtmltopdf</groupId>
