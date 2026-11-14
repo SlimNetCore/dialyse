@@ -41,8 +41,12 @@ spring:
         classpath:db/h2/dossier-medical-schema.sql
       # Jeu(x) de données rejoués à chaque démarrage. Le profil "demo-renadial" y ajoute le jeu de test RENADIAL
       # (17 centres, 12 mois de données — voir db/demo/README.md) sans toucher au comportement par défaut.
-      # SEED_DATA_LOCATIONS REMPLACE cette liste (db/h2/comptabilite-seed.sql : compteurs app_settings, S-DDL2b).
-      data-locations: ${SEED_DATA_LOCATIONS:classpath:db/seed.sql,classpath:db/h2/comptabilite-seed.sql}
+      # SEED_DATA_LOCATIONS REMPLACE cette liste ENTIÈRE (SEED2, ADR 0188) : un script d'amorçage par contexte propriétaire
+      # (contexts/<contexte>/src/main/resources/db/h2/<contexte>-seed.sql), db/seed.sql ne garde que l'identité (rôles, utilisateurs,
+      # rattachements aux centres) et ce qui n'est pas encore réparti. Ordre = dépendances de données : l'Organisation (sociétés, centres,
+      # salles, médecins, créneaux) AVANT tout (app_user_center -> centers est une clé étrangère ; tout le reste référence les centres),
+      # puis db/seed.sql, puis les contextes qui référencent l'Organisation. Vérifié par SeedH2DesScriptsParContexteTest.
+      data-locations: ${SEED_DATA_LOCATIONS:classpath:db/h2/organisation-seed.sql,classpath:db/seed.sql,classpath:db/h2/gmao-seed.sql,classpath:db/h2/documents-seed.sql,classpath:db/h2/comptabilite-seed.sql}
   h2:
     console:
       enabled: true

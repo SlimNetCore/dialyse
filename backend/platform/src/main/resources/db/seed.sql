@@ -1,43 +1,7 @@
 -- Seed data for local development (H2)
--- Sociétés (une société chapeaute un ou plusieurs centres ; au moins un centre par société)
-MERGE INTO societes (id, code, raison_sociale, nif, adresse, ville, wilaya, telephone, email, site_web, actif, created_at)
-    KEY (id)
-    VALUES ('51000001-0000-0000-0000-000000000001', 'GHNE', 'Groupe Hémodialyse Nord-Est', '099823000123456',
-    '12 boulevard de la Révolution', 'Annaba', 'Annaba', '038 00 00 00', 'contact@ghne.example.dz',
-    'https://www.ghne.example.dz', TRUE, CURRENT_TIMESTAMP);
-
-MERGE INTO societes (id, code, raison_sociale, nif, adresse, ville, wilaya, telephone, email, site_web, actif, created_at)
-    KEY (id)
-    VALUES ('51000001-0000-0000-0000-000000000002', 'CLR', 'Clinique de Rouiba', '099816000654321',
-    '3 rue des Frères Bouchama', 'Rouiba', 'Alger', '023 00 00 00', 'contact@clinique-rouiba.example.dz',
-    'https://www.clinique-rouiba.example.dz', TRUE, CURRENT_TIMESTAMP);
-
--- Centers (chaque centre appartient à exactement une société)
-MERGE INTO centers (id, code, name, societe_id, adresse, ville, wilaya, telephone, email, site_web, actif) KEY (id)
-    VALUES ('11111111-1111-1111-1111-111111111111', 'CTR-DAKAR-01', 'ANNABA 1',
-    '51000001-0000-0000-0000-000000000001', '12 boulevard de la Révolution', 'Annaba', 'Annaba',
-    '038 00 00 01', 'annaba1@ghne.example.dz', 'https://www.ghne.example.dz/annaba-1', TRUE);
-
-MERGE INTO centers (id, code, name, societe_id, adresse, ville, wilaya, telephone, email, site_web, actif) KEY (id)
-    VALUES ('22222222-2222-2222-2222-222222222222', 'CTR-SAINTLOUIS-01', 'ROUIBA',
-    '51000001-0000-0000-0000-000000000002', '3 rue des Frères Bouchama', 'Rouiba', 'Alger',
-    '023 00 00 01', 'dialyse@clinique-rouiba.example.dz', 'https://www.clinique-rouiba.example.dz', TRUE);
-
--- Calendrier centre (jours fériés / fermetures exceptionnelles)
-MERGE INTO center_holiday (id, center_id, day_date, label) KEY (id)
-    VALUES ('91000001-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111', DATE '2026-06-05',
-            'Férié local');
-MERGE INTO center_holiday (id, center_id, day_date, label) KEY (id)
-    VALUES ('91000001-0000-0000-0000-000000000002', '22222222-2222-2222-2222-222222222222', DATE '2026-06-05',
-            'Férié local');
-
-MERGE INTO center_closure_day (id, center_id, day_date, reason) KEY (id)
-    VALUES ('92000001-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111', DATE '2026-06-20',
-            'Maintenance clinique');
-MERGE INTO center_closure_day (id, center_id, day_date, reason) KEY (id)
-    VALUES ('92000001-0000-0000-0000-000000000002', '22222222-2222-2222-2222-222222222222', DATE '2026-06-21',
-            'Fermeture exceptionnelle');
-
+-- SEED2 (ADR 0188) : ce script ne garde que l'identité (rôles, utilisateurs, rattachements) et le reste du jeu non encore réparti ;
+-- les sociétés, centres, calendrier, médecins, salles et créneaux sont dans contexts/organisation (db/h2/organisation-seed.sql, chargé
+-- avant), les générateurs dans contexts/gmao (gmao-seed.sql), les modèles de documents dans contexts/documents (documents-seed.sql).
 -- ═══ REFERENTIAL SEED DATA ═══
 
 -- Caisse d'assurance
@@ -63,53 +27,6 @@ MERGE INTO centre_payeur (id, center_id, agence_id, code, nom, adresse) KEY (id)
 VALUES ('c1000001-0000-0000-0000-000000000002', '11111111-1111-1111-1111-111111111111', 'a0000001-0000-0000-0000-000000000001', '12309', 'El Bouni', 'Boulevard 1er Nov, El Bouni');
 MERGE INTO centre_payeur (id, center_id, agence_id, code, nom, adresse) KEY (id)
 VALUES ('c1000001-0000-0000-0000-000000000003', '11111111-1111-1111-1111-111111111111', 'a0000001-0000-0000-0000-000000000002', '16001', 'Bab El Oued', 'Rue de la Liberté, Alger');
-
--- Medecin (replaced m -> e1 for valid hex)
-MERGE INTO medecin (id, center_id, nom, prenom, specialite) KEY (id)
-VALUES ('e1000001-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111', 'NOURI', 'Ahmed', 'Néphrologue');
-MERGE INTO medecin (id, center_id, nom, prenom, specialite) KEY (id)
-VALUES ('e1000001-0000-0000-0000-000000000002', '11111111-1111-1111-1111-111111111111', 'BENALI', 'Fatima', 'Néphrologue');
-MERGE INTO medecin (id, center_id, nom, prenom, specialite) KEY (id)
-VALUES ('e1000001-0000-0000-0000-000000000003', '11111111-1111-1111-1111-111111111111', 'KACI', 'Mohamed', 'Médecin généraliste');
-
--- Salle (replaced s -> 50 for valid hex)
-MERGE INTO salle (id, center_id, code, nom) KEY (id)
-VALUES ('50000001-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111', 'S01', 'Salle A');
-MERGE INTO salle (id, center_id, code, nom) KEY (id)
-VALUES ('50000001-0000-0000-0000-000000000002', '11111111-1111-1111-1111-111111111111', 'S02', 'Salle B');
-MERGE INTO salle (id, center_id, code, nom) KEY (id)
-VALUES ('50000001-0000-0000-0000-000000000003', '11111111-1111-1111-1111-111111111111', 'S03', 'Salle ISO');
-
--- Générateurs de dialyse (démo) — centre 1 — module GMAO v2 : Equipement (type GENERATEUR_DIALYSE)
--- est la source de vérité unique.
-MERGE INTO gmao_equipements
-    (id, code, designation, type, fabricant, modele, date_installation, centre_id, statut,
-    salle_id, date_creation, cree_par) KEY (id)
-    VALUES ('a1000001-0000-0000-0000-000000000001', 'G01', 'Générateur G01', 'GENERATEUR_DIALYSE',
-    'Fresenius', '5008S', CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111', 'EN_SERVICE',
-    '50000001-0000-0000-0000-000000000001', CURRENT_TIMESTAMP, '00000000-0000-0000-0000-000000000000');
-MERGE INTO gmao_equipements
-    (id, code, designation, type, fabricant, modele, date_installation, centre_id, statut,
-    salle_id, date_creation, cree_par) KEY (id)
-    VALUES ('a1000001-0000-0000-0000-000000000002', 'G02', 'Générateur G02', 'GENERATEUR_DIALYSE',
-    'B.Braun', 'Dialog+', CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111', 'HORS_SERVICE',
-    '50000001-0000-0000-0000-000000000002', CURRENT_TIMESTAMP, '00000000-0000-0000-0000-000000000000');
-MERGE INTO gmao_equipements
-    (id, code, designation, type, fabricant, modele, date_installation, centre_id, statut,
-    salle_id, date_creation, cree_par) KEY (id)
-    VALUES ('a1000001-0000-0000-0000-000000000003', 'G03', 'Générateur G03', 'GENERATEUR_DIALYSE',
-    'Nipro', 'SURDIAL-55plus', CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111', 'EN_MAINTENANCE',
-    '50000001-0000-0000-0000-000000000003', CURRENT_TIMESTAMP, '00000000-0000-0000-0000-000000000000');
-
--- Position / Créneau (replaced p -> d0 for valid hex)
-MERGE INTO position_creneau (id, center_id, code, libelle) KEY (id)
-VALUES ('d0000001-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111', 'CR001', 'Matin 1 (06h-10h)');
-MERGE INTO position_creneau (id, center_id, code, libelle) KEY (id)
-VALUES ('d0000001-0000-0000-0000-000000000002', '11111111-1111-1111-1111-111111111111', 'CR002', 'Matin 2 (10h-14h)');
-MERGE INTO position_creneau (id, center_id, code, libelle) KEY (id)
-VALUES ('d0000001-0000-0000-0000-000000000003', '11111111-1111-1111-1111-111111111111', 'CR003', 'Après-midi (14h-18h)');
-MERGE INTO position_creneau (id, center_id, code, libelle) KEY (id)
-VALUES ('d0000001-0000-0000-0000-000000000004', '11111111-1111-1111-1111-111111111111', 'CR004', 'Nuit (18h-22h)');
 
 -- Transporteur (replaced t -> e2 for valid hex)
 MERGE INTO transporteur (id, center_id, nom, telephone) KEY (id)
@@ -224,94 +141,6 @@ MERGE INTO app_user_center (user_id, center_id) KEY (user_id, center_id)
 MERGE INTO app_user_center (user_id, center_id) KEY (user_id, center_id)
     VALUES ('b0b00001-0000-0000-0000-000000000006', '22222222-2222-2222-2222-222222222222');
 
--- ═══ MODELES DE DOCUMENTS (Jasper) ═══
-MERGE INTO modele_document (id, center_id, code, libelle, type_document, chemin_jrxml, format_impression, description) KEY (id)
-VALUES ('d0d00001-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111',
-        'FICHE_PATIENT', 'Fiche signalétique patient', 'FICHE_PATIENT',
-        'reports/fiche_patient.jrxml', 'PDF', 'Fiche complète du patient avec ses informations personnelles et médicales');
-
-MERGE INTO modele_document (id, center_id, code, libelle, type_document, chemin_jrxml, format_impression, description) KEY (id)
-VALUES ('d0d00001-0000-0000-0000-000000000002', '11111111-1111-1111-1111-111111111111',
-        'ATTESTATION', 'Attestation d''ouverture de droit', 'ATTESTATION',
-        'reports/attestation.jrxml', 'PDF', 'Attestation d''ouverture de droit du patient');
-
-MERGE INTO modele_document (id, center_id, code, libelle, type_document, chemin_jrxml, format_impression, description) KEY (id)
-VALUES ('d0d00001-0000-0000-0000-000000000003', '11111111-1111-1111-1111-111111111111',
-        'PEC', 'Prise en charge', 'PEC',
-        'reports/prise_en_charge.jrxml', 'PDF', 'Document de prise en charge pour la caisse d''assurance');
-
-MERGE INTO modele_document (id, center_id, code, libelle, type_document, chemin_jrxml, format_impression, description) KEY (id)
-VALUES ('d0d00001-0000-0000-0000-000000000004', '11111111-1111-1111-1111-111111111111',
-        'LISTE_PATIENTS', 'Liste des patients', 'LISTE_PATIENTS',
-        'reports/liste_patients.jrxml', 'PDF', 'Liste complète des patients du centre');
-
-MERGE INTO modele_document (id, center_id, code, libelle, type_document, chemin_jrxml, format_impression, description) KEY (id)
-VALUES ('d0d00001-0000-0000-0000-000000000005', '11111111-1111-1111-1111-111111111111',
-        'LISTE_PEC', 'Liste des prises en charge', 'LISTE_PEC',
-        'reports/liste_pec.jrxml', 'PDF', 'Liste de toutes les prises en charge du centre');
-
-MERGE INTO modele_document (id, center_id, code, libelle, type_document, chemin_jrxml, format_impression, description) KEY (id)
-VALUES ('d0d00001-0000-0000-0000-000000000006', '11111111-1111-1111-1111-111111111111',
-        'LISTE_ATTESTATIONS', 'Liste des attestations', 'LISTE_ATTESTATIONS',
-        'reports/liste_attestations.jrxml', 'PDF', 'Liste de toutes les attestations du centre');
-
-MERGE INTO modele_document (id, center_id, code, libelle, type_document, chemin_jrxml, format_impression,
-                            description) KEY (id)
-    VALUES ('d0d00001-0000-0000-0000-000000000007', '11111111-1111-1111-1111-111111111111',
-            'SYNTHESE_FACTURATION_MENSUELLE', 'Synthese mensuelle facturation', 'SYNTHESE_FACTURATION_MENSUELLE',
-            'reports/synthese_mensuelle_facturation.jrxml', 'PDF',
-            'Tableau croise facturation par forfait/caisse avec repartition graphique');
-
-MERGE INTO modele_document (id, center_id, code, libelle, type_document, chemin_jrxml, format_impression,
-                            description) KEY (id)
-    VALUES ('d0d00001-0000-0000-0000-000000000008', '11111111-1111-1111-1111-111111111111',
-            'ORDONNANCE', 'Ordonnance médicamenteuse', 'ORDONNANCE',
-            'reports/ordonnance.jrxml', 'PDF', 'Ordonnance signée par le médecin, imprimable pour le patient');
-
--- Modèles par défaut pour le centre 2 (multi-centre)
-MERGE INTO modele_document (id, center_id, code, libelle, type_document, chemin_jrxml, format_impression, description) KEY (id)
-VALUES ('d0d00002-0000-0000-0000-000000000001', '22222222-2222-2222-2222-222222222222',
-        'FICHE_PATIENT', 'Fiche signalétique patient', 'FICHE_PATIENT',
-        'reports/fiche_patient.jrxml', 'PDF', 'Fiche complète du patient avec ses informations personnelles et médicales');
-
-MERGE INTO modele_document (id, center_id, code, libelle, type_document, chemin_jrxml, format_impression, description) KEY (id)
-VALUES ('d0d00002-0000-0000-0000-000000000002', '22222222-2222-2222-2222-222222222222',
-        'ATTESTATION', 'Attestation d''ouverture de droit', 'ATTESTATION',
-        'reports/attestation.jrxml', 'PDF', 'Attestation d''ouverture de droit du patient');
-
-MERGE INTO modele_document (id, center_id, code, libelle, type_document, chemin_jrxml, format_impression, description) KEY (id)
-VALUES ('d0d00002-0000-0000-0000-000000000003', '22222222-2222-2222-2222-222222222222',
-        'PEC', 'Prise en charge', 'PEC',
-        'reports/prise_en_charge.jrxml', 'PDF', 'Document de prise en charge pour la caisse d''assurance');
-
-MERGE INTO modele_document (id, center_id, code, libelle, type_document, chemin_jrxml, format_impression, description) KEY (id)
-VALUES ('d0d00002-0000-0000-0000-000000000004', '22222222-2222-2222-2222-222222222222',
-        'LISTE_PATIENTS', 'Liste des patients', 'LISTE_PATIENTS',
-        'reports/liste_patients.jrxml', 'PDF', 'Liste complète des patients du centre');
-
-MERGE INTO modele_document (id, center_id, code, libelle, type_document, chemin_jrxml, format_impression, description) KEY (id)
-VALUES ('d0d00002-0000-0000-0000-000000000005', '22222222-2222-2222-2222-222222222222',
-        'LISTE_PEC', 'Liste des prises en charge', 'LISTE_PEC',
-        'reports/liste_pec.jrxml', 'PDF', 'Liste de toutes les prises en charge du centre');
-
-MERGE INTO modele_document (id, center_id, code, libelle, type_document, chemin_jrxml, format_impression, description) KEY (id)
-VALUES ('d0d00002-0000-0000-0000-000000000006', '22222222-2222-2222-2222-222222222222',
-        'LISTE_ATTESTATIONS', 'Liste des attestations', 'LISTE_ATTESTATIONS',
-        'reports/liste_attestations.jrxml', 'PDF', 'Liste de toutes les attestations du centre');
-
-MERGE INTO modele_document (id, center_id, code, libelle, type_document, chemin_jrxml, format_impression,
-                            description) KEY (id)
-    VALUES ('d0d00002-0000-0000-0000-000000000007', '22222222-2222-2222-2222-222222222222',
-            'SYNTHESE_FACTURATION_MENSUELLE', 'Synthese mensuelle facturation', 'SYNTHESE_FACTURATION_MENSUELLE',
-            'reports/synthese_mensuelle_facturation.jrxml', 'PDF',
-            'Tableau croise facturation par forfait/caisse avec repartition graphique');
-
-MERGE INTO modele_document (id, center_id, code, libelle, type_document, chemin_jrxml, format_impression,
-                            description) KEY (id)
-    VALUES ('d0d00002-0000-0000-0000-000000000008', '22222222-2222-2222-2222-222222222222',
-            'ORDONNANCE', 'Ordonnance médicamenteuse', 'ORDONNANCE',
-            'reports/ordonnance.jrxml', 'PDF', 'Ordonnance signée par le médecin, imprimable pour le patient');
-
 -- ═══ REFERENTIELS - CENTRE 2 ═══
 
 MERGE INTO caisse_assurance (id, center_id, code, nom, type_caisse) KEY (id)
@@ -337,38 +166,6 @@ MERGE INTO centre_payeur (id, center_id, agence_id, code, nom, adresse) KEY (id)
 MERGE INTO centre_payeur (id, center_id, agence_id, code, nom, adresse) KEY (id)
     VALUES ('c1000002-0000-0000-0000-000000000003', '22222222-2222-2222-2222-222222222222',
             'a0000002-0000-0000-0000-000000000002', '22999', 'Centre Payeur Vacancier', 'Front de mer, Saint-Louis');
-
-MERGE INTO medecin (id, center_id, nom, prenom, specialite) KEY (id)
-    VALUES ('e1000002-0000-0000-0000-000000000001', '22222222-2222-2222-2222-222222222222', 'DIOP', 'Mamadou',
-            'Néphrologue');
-MERGE INTO medecin (id, center_id, nom, prenom, specialite) KEY (id)
-    VALUES ('e1000002-0000-0000-0000-000000000002', '22222222-2222-2222-2222-222222222222', 'SOW', 'Aissatou',
-            'Néphrologue');
-
-MERGE INTO salle (id, center_id, code, nom) KEY (id)
-    VALUES ('50000002-0000-0000-0000-000000000001', '22222222-2222-2222-2222-222222222222', 'SL-S1', 'Salle Bleu');
-MERGE INTO salle (id, center_id, code, nom) KEY (id)
-    VALUES ('50000002-0000-0000-0000-000000000002', '22222222-2222-2222-2222-222222222222', 'SL-S2', 'Salle Vert');
-
-MERGE INTO gmao_equipements
-    (id, code, designation, type, fabricant, modele, date_installation, centre_id, statut,
-    salle_id, date_creation, cree_par) KEY (id)
-    VALUES ('a1000002-0000-0000-0000-000000000001', 'G10', 'Générateur G10', 'GENERATEUR_DIALYSE',
-    'Fresenius', '5008S', CURRENT_TIMESTAMP, '22222222-2222-2222-2222-222222222222', 'EN_SERVICE',
-    '50000002-0000-0000-0000-000000000001', CURRENT_TIMESTAMP, '00000000-0000-0000-0000-000000000000');
-MERGE INTO gmao_equipements
-    (id, code, designation, type, fabricant, modele, date_installation, centre_id, statut,
-    salle_id, date_creation, cree_par) KEY (id)
-    VALUES ('a1000002-0000-0000-0000-000000000002', 'G11', 'Générateur G11', 'GENERATEUR_DIALYSE',
-    'B.Braun', 'Dialog+', CURRENT_TIMESTAMP, '22222222-2222-2222-2222-222222222222', 'REFORME',
-    '50000002-0000-0000-0000-000000000002', CURRENT_TIMESTAMP, '00000000-0000-0000-0000-000000000000');
-
-MERGE INTO position_creneau (id, center_id, code, libelle) KEY (id)
-    VALUES ('d0000002-0000-0000-0000-000000000001', '22222222-2222-2222-2222-222222222222', 'SL-CR1',
-            'Matin (07h-11h)');
-MERGE INTO position_creneau (id, center_id, code, libelle) KEY (id)
-    VALUES ('d0000002-0000-0000-0000-000000000002', '22222222-2222-2222-2222-222222222222', 'SL-CR2',
-            'Après-midi (13h-17h)');
 
 MERGE INTO transporteur (id, center_id, nom, telephone) KEY (id)
     VALUES ('e2000002-0000-0000-0000-000000000001', '22222222-2222-2222-2222-222222222222', 'Ambulance SL',
