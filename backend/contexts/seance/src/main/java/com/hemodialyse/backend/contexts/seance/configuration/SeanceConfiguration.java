@@ -44,10 +44,12 @@ import com.hemodialyse.backend.contexts.seance.publishedlanguage.SaisiesDeSeance
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.PlacesDesPatients;
 import com.hemodialyse.backend.contexts.seance.application.RenseignerLeVoletParamedical;
 import com.hemodialyse.backend.contexts.seance.domain.VoletsParamedicaux;
-import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacygmao.GenerateursDesPatientsJdbc;
+import com.hemodialyse.backend.contexts.gmao.publishedlanguage.FichesDesGenerateurs;
+import com.hemodialyse.backend.contexts.planification.publishedlanguage.DeplacementsDuJourDesPatients;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.gmao.GenerateursDesPatientsParLaGmao;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.organisation.JourDuCentrePublie;
 import com.hemodialyse.backend.contexts.organisation.publishedlanguage.AnnuaireDesCentres;
-import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyplanification.PlaceDuPatientJdbc;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.planification.PlaceDuPatientParLaPlanification;
 import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.ForfaitsDeSeanceJdbc;
 import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.HistoriqueDesSeancesJdbc;
 import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.VoletsDeLaSeanceJdbc;
@@ -288,8 +290,9 @@ public class SeanceConfiguration {
     }
 
     @Bean
-    GenerateursDesPatients generateursDesPatientsDeLaSeance(JdbcTemplate jdbc) {
-        return new GenerateursDesPatientsJdbc(jdbc);
+    GenerateursDesPatients generateursDesPatientsDeLaSeance(FichesDesGenerateurs fiches) {
+        // LEC-PLN-GMAO (ADR 0179) : fiche du générateur (fabricant compris) lue par le langage publié gmao.v1
+        return new GenerateursDesPatientsParLaGmao(fiches);
     }
 
     @Bean
@@ -316,10 +319,10 @@ public class SeanceConfiguration {
                 new com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture.PatientsDeLHistoriqueParLaFiche(lots));
     }
 
-    /** Place habituelle par le langage publié de la Planification ; déplacement temporaire du jour lu par la Séance (transitoire). */
+    /** LEC-PLN-GMAO (ADR 0179) : place habituelle et déplacement temporaire du jour lus par les langages publiés de la Planification. */
     @Bean
-    PlaceDuPatient placeDuPatientDeLaSeance(JdbcTemplate jdbc, PlacesDesPatients places) {
-        return new PlaceDuPatientJdbc(jdbc, places);
+    PlaceDuPatient placeDuPatientDeLaSeance(DeplacementsDuJourDesPatients deplacements, PlacesDesPatients places) {
+        return new PlaceDuPatientParLaPlanification(deplacements, places);
     }
 
     // ---- ACL du legacy : traduisent les langages publiés encore fournis par la plateforme (ADR 0088, 0100 : fiches, diffusions, rappels)

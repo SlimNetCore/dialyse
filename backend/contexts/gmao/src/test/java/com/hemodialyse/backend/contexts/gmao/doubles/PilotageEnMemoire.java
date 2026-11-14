@@ -28,7 +28,7 @@ import java.util.function.Predicate;
  * Les plans, que le double ne tient pas, sont posés par le test.
  */
 public class PilotageEnMemoire implements LectureDesComptages, LectureDesCouts, GenerateursDuCentre,
-        IndisponibilitesDesGenerateurs {
+        IndisponibilitesDesGenerateurs, com.hemodialyse.backend.contexts.gmao.publishedlanguage.FichesDesGenerateurs {
 
     private static final Instant DEPUIS_TOUJOURS = Instant.parse("1970-01-01T00:00:00Z");
     private static final Instant SANS_LIMITE = Instant.parse("9999-01-01T00:00:00Z");
@@ -108,6 +108,12 @@ public class PilotageEnMemoire implements LectureDesComptages, LectureDesCouts, 
                 .map(e -> new Generateur(e.id(), e.code(), e.designation(), e.salleId(),
                         e.statut().name(), centreId))
                 .toList();
+    }
+
+    @Override
+    public java.util.Optional<FicheDuGenerateur> duCentre(UUID centre, UUID equipement) {
+        return parc.parcDuCentre(new CentreId(centre)).stream().filter(e -> e.id().equals(equipement))
+                .map(e -> new FicheDuGenerateur(e.id(), e.code(), e.fabricant(), e.statut().name())).findFirst();
     }
 
     @Override

@@ -44,12 +44,9 @@ class TableDeLaPlanificationTest {
      * fichiers) ne désignait aucun lecteur réel ; elle est vide. Une entrée n'est admise que si elle correspond à un lecteur réel
      * (test {@code chaque_entree_de_la_liste_blanche_est_un_lecteur_reel}) et se retire avec son jalon.
      */
-    private static final Set<String> LISTE_BLANCHE = Set.of(
-            // 2026-11-08, SE7f (ADR 0100) : déplacement temporaire du jour d'un patient (deplacement_temporaire), lu par la Séance à la
-            // validation pour figer la place (SE2, RG-SEA-049) ; requête reprise mot pour mot de platform/.../SeancePlaceJdbcAdapter (retiré),
-            // dont la concaténation (« FROM » + saut de ligne) échappait à cette garde. La place habituelle passe déjà par PlacesDesPatients.
-            // RETRAIT : lecture publiée du déplacement du jour par la Planification, revue au plus tard le 2026-12-15, butoir 2027-03-31.
-            "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/acl/legacyplanification/PlaceDuPatientJdbc.java");
+    // LEC-PLN-GMAO (2026-11-14, ADR 0179) : l'entrée de PlaceDuPatientJdbc (Séance, déplacement temporaire du jour, butoir 2027-03-31) est
+    // SOLDÉE, supprimée sans report ; la Séance lit DeplacementsDuJourDesPatients (planification.v1). La liste blanche est vide.
+    private static final Set<String> LISTE_BLANCHE = Set.of();
 
     private static final Pattern LECTURE_SQL = Pattern.compile(
             "\\b(FROM|JOIN|INTO|UPDATE|TABLE)\\s+([A-Za-z_][A-Za-z0-9_]*)");
@@ -122,6 +119,14 @@ class TableDeLaPlanificationTest {
         List<String> lecteurs = sourcesFautives(backend, racinesHorsContexte(backend));
         assertThat(lecteurs).as("une entrée de la liste blanche qui ne lit aucune table de la Planification est morte : la retirer")
                 .containsAll(LISTE_BLANCHE);
+    }
+
+    /** LEC-PLN-GMAO (ADR 0179) : plus aucun lecteur hors contexte, la liste blanche reste vide (jamais de report). */
+    @Test
+    void la_liste_blanche_est_vide_et_aucun_lecteur_ne_subsiste() throws IOException {
+        Path backend = Path.of("..").toAbsolutePath().normalize();
+        assertThat(LISTE_BLANCHE).isEmpty();
+        assertThat(sourcesFautives(backend, racinesHorsContexte(backend))).isEmpty();
     }
 
     @Test

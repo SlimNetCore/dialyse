@@ -16,7 +16,11 @@ import com.hemodialyse.backend.contexts.seance.domain.RechercheDeSeances;
 import com.hemodialyse.backend.contexts.seance.domain.SeanceId;
 import com.hemodialyse.backend.contexts.seance.domain.StatutDeSeance;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
+import com.hemodialyse.backend.contexts.planification.publishedlanguage.DeplacementsDuJourDesPatients;
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.PlacesDesPatients;
+import com.hemodialyse.backend.contexts.gmao.publishedlanguage.FichesDesGenerateurs;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.gmao.GenerateursDesPatientsParLaGmao;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.planification.PlaceDuPatientParLaPlanification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -60,9 +64,7 @@ abstract class LecturesReprisesDeLaPlateformeContrat {
 
     abstract PlanningDesPatients planning();
 
-    abstract GenerateursDesPatients generateurs();
-
-    /** La place habituelle publiée par la Planification est un double : la Séance ne lit que le déplacement temporaire. */
+    /** La place habituelle publiée par la Planification est un double ; le déplacement du jour passe par l'adapter réel de la Planification. */
     abstract PlaceDuPatient place(PlacesDesPatients places);
 
     @BeforeEach
@@ -86,10 +88,10 @@ abstract class LecturesReprisesDeLaPlateformeContrat {
                 + "created_at timestamp with time zone)");
         j.execute("CREATE TABLE center_holiday (id uuid PRIMARY KEY, center_id uuid, day_date date, label varchar(255))");
         j.execute("CREATE TABLE center_closure_day (id uuid PRIMARY KEY, center_id uuid, day_date date, reason varchar(255))");
-        j.execute("CREATE TABLE deplacement_temporaire (id uuid PRIMARY KEY, center_id uuid, patient_id uuid, date_seance date, salle_id uuid, "
-                + "creneau_id uuid, generateur_id uuid)");
-        j.execute("CREATE TABLE gmao_equipements (id uuid PRIMARY KEY, centre_id uuid, code varchar(50), fabricant varchar(100), statut varchar(30), "
-                + "deleted_at timestamp with time zone)");
+        // colonnes du schéma réel (NOT NULL) : le déplacement est lu par la Planification (ADR 0179), la Séance ne l'écrit que pour ce contrat
+        j.execute("CREATE TABLE deplacement_temporaire (id uuid PRIMARY KEY, center_id uuid NOT NULL, patient_id uuid NOT NULL, "
+                + "date_seance date NOT NULL, salle_id uuid NOT NULL, creneau_id uuid NOT NULL, generateur_id uuid NOT NULL, motif varchar(255), "
+                + "cree_le timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP)");
         patient(CENTRE, ALPHA, "Alpha", "Anne", "SE1-ALPHA");
         patient(CENTRE, BRAVO, "Bravo", "Paul", "SE1-BRAVO");
     }
@@ -427,7 +429,7 @@ abstract class LecturesReprisesDeLaPlateformeContrat {
         jdbc().update("INSERT INTO deplacement_temporaire (id, center_id, patient_id, date_seance, salle_id, creneau_id, generateur_id) VALUES (?,?,?,?,?,?,?)",
                 UUID.randomUUID(), CENTRE.valeur(), ALPHA.valeur(), Date.valueOf(JOUR), salle, creneau, new UUID(5, 1));
         jdbc().update("INSERT INTO deplacement_temporaire (id, center_id, patient_id, date_seance, salle_id, creneau_id, generateur_id) VALUES (?,?,?,?,?,?,?)",
-                UUID.randomUUID(), AUTRE_CENTRE.valeur(), ALPHA.valeur(), Date.valueOf(JOUR.plusDays(1)), salle, creneau, null);
+                UUID.randomUUID(), AUTRE_CENTRE.valeur(), ALPHA.valeur(), Date.valueOf(JOUR.plusDays(1)), salle, creneau, new UUID(5, 2));
         PlacesDesPatients fiche = placesDeLaFiche(Optional.of(new PlacesDesPatients.PlaceDuPatient(ALPHA.valeur(), new UUID(3, 9), new UUID(4, 9), null, Set.of())));
 
         assertThat(place(fiche).placeLe(CENTRE, ALPHA, JOUR)).contains(new PlaceDeSeance(salle, creneau, new UUID(5, 1)));
@@ -440,9 +442,6 @@ abstract class LecturesReprisesDeLaPlateformeContrat {
         assertThat(place(placesDeLaFiche(Optional.of(new PlacesDesPatients.PlaceDuPatient(ALPHA.valeur(), new UUID(3, 9), null, null, Set.of()))))
                 .placeLe(CENTRE, ALPHA, JOUR)).isEmpty();
         assertThat(place(placesDeLaFiche(Optional.empty())).placeLe(CENTRE, ALPHA, JOUR)).isEmpty();
-        jdbc().update("INSERT INTO deplacement_temporaire (id, center_id, patient_id, date_seance, salle_id, creneau_id, generateur_id) VALUES (?,?,?,?,?,?,?)",
-                UUID.randomUUID(), CENTRE.valeur(), ALPHA.valeur(), Date.valueOf(JOUR), new UUID(3, 1), null, null);
-        assertThat(place(placesDeLaFiche(Optional.empty())).placeLe(CENTRE, ALPHA, JOUR)).as("deplacement sans creneau").isEmpty();
     }
 
     private static PlacesDesPatients placesDeLaFiche(Optional<PlacesDesPatients.PlaceDuPatient> place) {
@@ -459,22 +458,28 @@ abstract class LecturesReprisesDeLaPlateformeContrat {
         };
     }
 
-    // ---- générateur du patient (GMAO)
+    @Test
+    void un_deplacement_incomplet_publie_est_ignore_au_profit_de_la_place_de_la_fiche() {
+        UUID salle = new UUID(3, 1);
+        DeplacementsDuJourDesPatients incomplet = (centre, patient, le) -> Optional.of(
+                new DeplacementsDuJourDesPatients.DeplacementDuJour(salle, null, new UUID(5, 1)));
+        PlacesDesPatients fiche = placesDeLaFiche(Optional.of(new PlacesDesPatients.PlaceDuPatient(ALPHA.valeur(), new UUID(3, 9), new UUID(4, 9), null, Set.of())));
+
+        assertThat(new PlaceDuPatientParLaPlanification(incomplet, fiche).placeLe(CENTRE, ALPHA, JOUR))
+                .contains(new PlaceDeSeance(new UUID(3, 9), new UUID(4, 9), null));
+    }
+
+    // ---- générateur du patient (GMAO : traduction de la fiche publiée ; l'adapter réel est couvert par le contrat de la GMAO)
 
     @Test
-    void le_generateur_est_lu_au_centre_hors_equipement_supprime() {
+    void le_generateur_est_traduit_depuis_la_fiche_publiee_de_la_gmao() {
         UUID g = UUID.randomUUID();
-        UUID supprime = UUID.randomUUID();
-        UUID ailleurs = UUID.randomUUID();
-        jdbc().update("INSERT INTO gmao_equipements (id, centre_id, code, fabricant, statut, deleted_at) VALUES (?,?,?,?,?,NULL)", g, CENTRE.valeur(),
-                "G1", "Fresenius", "EN_SERVICE");
-        jdbc().update("INSERT INTO gmao_equipements (id, centre_id, code, fabricant, statut, deleted_at) VALUES (?,?,?,?,?,?)", supprime,
-                CENTRE.valeur(), "G2", "Baxter", "REFORME", T0);
-        jdbc().update("INSERT INTO gmao_equipements (id, centre_id, code, fabricant, statut, deleted_at) VALUES (?,?,?,?,?,NULL)", ailleurs,
-                AUTRE_CENTRE.valeur(), "G3", "Nipro", "EN_SERVICE");
+        FichesDesGenerateurs gmao = (centre, equipement) -> centre.equals(CENTRE.valeur()) && equipement.equals(g)
+                ? Optional.of(new FichesDesGenerateurs.FicheDuGenerateur(g, "G1", "Fresenius", "EN_SERVICE")) : Optional.empty();
+        GenerateursDesPatients generateurs = new GenerateursDesPatientsParLaGmao(gmao);
 
-        assertThat(generateurs().duCentre(CENTRE, g)).contains(new GenerateursDesPatients.Generateur(g, "G1", "Fresenius", "EN_SERVICE"));
-        assertThat(generateurs().duCentre(CENTRE, supprime)).isEmpty();
-        assertThat(generateurs().duCentre(CENTRE, ailleurs)).isEmpty();
+        assertThat(generateurs.duCentre(CENTRE, g)).contains(new GenerateursDesPatients.Generateur(g, "G1", "Fresenius", "EN_SERVICE"));
+        assertThat(generateurs.duCentre(CENTRE, UUID.randomUUID())).isEmpty();
+        assertThat(generateurs.duCentre(AUTRE_CENTRE, g)).isEmpty();
     }
 }

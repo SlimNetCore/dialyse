@@ -443,8 +443,9 @@
   hors supprimé), le référentiel des forfaits du centre et le **jour du centre** (fuseau `centers.fuseau_horaire`, défaut de la plateforme)
   sont lus par la Séance elle-même, requêtes **reprises mot pour mot** des fournisseurs retirés de la plateforme. Restent fournis par la
   plateforme : les fiches des patients, les diffusions, le rappel de régularisation et l'effacement des administrations de traitement.
-  *Source :* `PlanningDesPatientsJdbc`, `PlaceDuPatientJdbc`, `ForfaitsDeSeanceJdbc`, `HistoriqueDesSeancesJdbc`, `GenerateursDesPatientsJdbc`,
-  `ForfaitsDuCentreJdbc`, `JourDuCentreJdbc`, `SaisiesParLeLegacy`.
+  *Source :* `PlanningDesPatientsJdbc`, `PlaceDuPatientParLaPlanification` (déplacement du jour et place de la fiche par les langages publiés de
+  la Planification, LEC-PLN-GMAO, ADR 0179), `ForfaitsDeSeanceJdbc`, `HistoriqueDesSeancesJdbc`, `GenerateursDesPatientsParLaGmao` (fiche du
+  générateur par `FichesDesGenerateurs`, gmao.v1, ADR 0179), `ForfaitsDuCentreJdbc`, `JourDuCentreJdbc`, `SaisiesParLeLegacy`.
 
 - **RG-SEA-071** — **Retrait du module legacy `bc-seance` et gardes des tables de la Séance** (slice SE7f, ADR 0100). Le module Maven
   `backend/bc-seance` et ses dix-sept utilisateurs de la plateforme sont retirés ; la **dernière créatinine** de l'évaluation KDIGO est lue

@@ -24,11 +24,9 @@ class TableDesEquipementsDeLaGmaoTest {
 
     private static final Pattern TABLE = Pattern.compile("\\bgmao_equipements\\b", Pattern.CASE_INSENSITIVE);
 
+    // GenerateursDesPatientsJdbc (Séance) : entrée SOLDÉE par LEC-PLN-GMAO (2026-11-14, ADR 0179) ; le générateur du patient est lu par
+    // FichesDesGenerateurs (gmao.v1, fabricant compris). Butoir 2027-03-31 supprimé, aucun report. Verrou : voir le test dédié ci-dessous.
     private static final Map<String, String> JALONS = Map.of(
-            "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/acl/legacygmao/GenerateursDesPatientsJdbc.java",
-            "2026-11-08 (déplacée de platform acl/seance/GenerateursFournisLegacy, SE7f, ADR 0100) : générateur du patient d'une séance (SE1, "
-                    + "ADR 0088), lecture d'une ligne par identifiant et centre, reprise à l'identique ; échéance : lecture publiée de la GMAO portant "
-                    + "le fabricant (GenerateursDuCentre ne le porte pas), revue au plus tard le 2026-12-15, butoir 2027-03-31",
             "contexts/patient-couverture/src/main/java/com/hemodialyse/backend/contexts/patientcouverture/infrastructure/acl/legacygmao/"
                     + "GenerateursDuCentreJdbc.java",
             "2026-11-07 : ACL de Patient et couverture vers la GMAO (générateurs du centre) ; échéance : lecture publiée de la GMAO",
@@ -72,6 +70,14 @@ class TableDesEquipementsDeLaGmaoTest {
         Set<String> mortes = new TreeSet<>(JALONS.keySet());
         mortes.removeAll(lecteurs(backend));
         assertThat(mortes).as("jalons dont le fichier ne lit plus gmao_equipements : les retirer").isEmpty();
+    }
+
+    /** LEC-PLN-GMAO (ADR 0179) : la Séance ne lit plus la table des équipements ; ni jalon, ni lecteur. */
+    @Test
+    void la_seance_ne_lit_plus_les_equipements_de_la_gmao() throws IOException {
+        String adapter = "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/acl/legacygmao/GenerateursDesPatientsJdbc.java";
+        assertThat(JALONS).doesNotContainKey(adapter);
+        assertThat(lecteurs(Path.of("..").toAbsolutePath().normalize())).noneMatch(c -> c.startsWith("contexts/seance/"));
     }
 
     @Test

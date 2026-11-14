@@ -110,6 +110,12 @@
             <artifactId>contexts-planification</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!-- Langage publié de la GMAO : FichesDesGenerateurs (générateur du patient, fabricant compris), LEC-PLN-GMAO, ADR 0179. -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-gmao</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <!-- Langage publié de Notifications (notifications.v1 : NotifierEnDeuxTemps, DiffusionEnTempsReel), PL13b, ADR 0154. -->
         <dependency>
             <groupId>com.hemodialyse</groupId>

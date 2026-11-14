@@ -73,6 +73,8 @@ public abstract class PilotageContrat {
 
     protected abstract GenerateursDuCentre generateursDuCentre();
 
+    protected abstract com.hemodialyse.backend.contexts.gmao.publishedlanguage.FichesDesGenerateurs fichesDesGenerateurs();
+
     protected abstract IndisponibilitesDesGenerateurs indisponibilites();
 
     /** La base sait poser {@code deleted_at} ; aucune commande du domaine ne le fait. */
@@ -309,6 +311,29 @@ public abstract class PilotageContrat {
         assertThat(generateurs.get(1).salleId()).isEqualTo(salle);
         assertThat(generateurs).allMatch(g -> g.centreId().equals(CENTRE_A.valeur()));
         assertThat(generateursDuCentre().duCentre(UUID.randomUUID())).isEmpty();
+    }
+
+    @Test
+    void should_read_the_sheet_of_a_generator_of_the_centre_with_its_maker_and_status_without_the_deleted_or_foreign_ones() {
+        Equipement g1 = generateur(CENTRE_A, "G-01");
+        Equipement maintenance = generateur(CENTRE_A, "G-02");
+        reconstituerAuStatut(maintenance, StatutEquipement.EN_MAINTENANCE);
+        Equipement supprime = generateur(CENTRE_A, "G-SUP");
+        supprimerLogiquementEquipement(supprime.id());
+        Equipement autreCentre = generateur(CENTRE_B, "G-B");
+
+        var fiches = fichesDesGenerateurs();
+
+        assertThat(fiches.duCentre(CENTRE_A.valeur(), g1.id().valeur()))
+                .contains(new com.hemodialyse.backend.contexts.gmao.publishedlanguage.FichesDesGenerateurs.FicheDuGenerateur(
+                        g1.id().valeur(), "G-01", "Fresenius", "EN_SERVICE"));
+        assertThat(fiches.duCentre(CENTRE_A.valeur(), maintenance.id().valeur())).hasValueSatisfying(f -> {
+            assertThat(f.statut()).isEqualTo("EN_MAINTENANCE");
+            assertThat(f.fabricant()).isEqualTo("Fresenius");
+        });
+        assertThat(fiches.duCentre(CENTRE_A.valeur(), supprime.id().valeur())).as("supprimé").isEmpty();
+        assertThat(fiches.duCentre(CENTRE_A.valeur(), autreCentre.id().valeur())).as("autre centre").isEmpty();
+        assertThat(fiches.duCentre(CENTRE_A.valeur(), UUID.randomUUID())).as("inconnu").isEmpty();
     }
 
     // ------------------------------------------------------------------ indisponibilités des générateurs

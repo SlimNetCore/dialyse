@@ -2,14 +2,12 @@ package com.hemodialyse.backend.contexts.seance.contrat;
 
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.PlacesDesPatients;
 import com.hemodialyse.backend.contexts.seance.application.ForfaitsDeSeance;
-import com.hemodialyse.backend.contexts.seance.application.GenerateursDesPatients;
 import com.hemodialyse.backend.contexts.seance.application.HistoriqueDesSeances;
 import com.hemodialyse.backend.contexts.seance.application.PlaceDuPatient;
 import com.hemodialyse.backend.contexts.seance.application.PlanningDesPatients;
 import com.hemodialyse.backend.contexts.seance.domain.ForfaitsDuCentre;
-import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacygmao.GenerateursDesPatientsJdbc;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture.PlanningDesPatientsParLaFiche;
-import com.hemodialyse.backend.contexts.seance.infrastructure.acl.legacyplanification.PlaceDuPatientJdbc;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.planification.PlaceDuPatientParLaPlanification;
 import com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture.ForfaitsDuCentreParLeCatalogue;
 import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.ForfaitsDeSeanceJdbc;
 import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.HistoriqueDesSeancesJdbc;
@@ -54,12 +52,8 @@ class LecturesReprisesDeLaPlateformeH2ContratTest extends LecturesReprisesDeLaPl
     }
 
     @Override
-    GenerateursDesPatients generateurs() {
-        return new GenerateursDesPatientsJdbc(jdbc);
-    }
-
-    @Override
     PlaceDuPatient place(PlacesDesPatients places) {
-        return new PlaceDuPatientJdbc(jdbc, places);
+        return new PlaceDuPatientParLaPlanification(new com.hemodialyse.backend.contexts.planification.application.ConsulterLesDeplacementsDuJour(
+                new com.hemodialyse.backend.contexts.planification.infrastructure.persistence.DeplacementsTemporairesJdbc(jdbc)), places);
     }
 }

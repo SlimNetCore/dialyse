@@ -64,6 +64,11 @@ class PilotageEnMemoireContratTest extends PilotageContrat {
     }
 
     @Override
+    protected com.hemodialyse.backend.contexts.gmao.publishedlanguage.FichesDesGenerateurs fichesDesGenerateurs() {
+        return pilotage;
+    }
+
+    @Override
     protected com.hemodialyse.backend.contexts.gmao.publishedlanguage.IndisponibilitesDesGenerateurs indisponibilites() {
         return pilotage;
     }

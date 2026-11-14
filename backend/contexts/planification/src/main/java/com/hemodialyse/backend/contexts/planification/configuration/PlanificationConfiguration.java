@@ -749,6 +749,13 @@ public class PlanificationConfiguration {
         return new com.hemodialyse.backend.contexts.planification.application.ConsulterLesPlacesDesPatients(places);
     }
 
+    /** LEC-PLN-GMAO (ADR 0179) : le déplacement temporaire du jour d'un patient, lu par la Séance à la validation. */
+    @Bean
+    com.hemodialyse.backend.contexts.planification.publishedlanguage.DeplacementsDuJourDesPatients planificationDeplacementsDuJour(
+            com.hemodialyse.backend.contexts.planification.domain.DeplacementsTemporairesRepository deplacements) {
+        return new com.hemodialyse.backend.contexts.planification.application.ConsulterLesDeplacementsDuJour(deplacements);
+    }
+
     @Bean
     com.hemodialyse.backend.contexts.planification.publishedlanguage.CapaciteDesCentres planificationCapaciteDesCentres(
             UniteDeTravail unite, com.hemodialyse.backend.contexts.planification.domain.PlacesDuCentreRepository places,

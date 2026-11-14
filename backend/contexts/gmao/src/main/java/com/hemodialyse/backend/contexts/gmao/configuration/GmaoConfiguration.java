@@ -539,6 +539,12 @@ public class GmaoConfiguration {
         return new GenerateursDuCentreJpa(equipements);
     }
 
+    /** Langage publié {@code FichesDesGenerateurs} (LEC-PLN-GMAO, ADR 0179) : la Séance lit la fiche du générateur du patient, fabricant compris. */
+    @Bean
+    com.hemodialyse.backend.contexts.gmao.publishedlanguage.FichesDesGenerateurs gmaoFichesDesGenerateurs(EquipementSpringData equipements) {
+        return new com.hemodialyse.backend.contexts.gmao.infrastructure.persistence.FichesDesGenerateursJpa(equipements);
+    }
+
     /** Langage publié {@code EquipementsDeLaSalle} (PL11-4, ADR 0160) : l'Organisation compte les équipements d'une salle avant de la supprimer. */
     @Bean
     com.hemodialyse.backend.contexts.gmao.publishedlanguage.EquipementsDeLaSalle gmaoEquipementsDeLaSalle(EquipementSpringData equipements) {

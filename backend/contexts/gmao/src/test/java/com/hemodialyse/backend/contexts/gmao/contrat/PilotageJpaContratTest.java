@@ -133,6 +133,11 @@ class PilotageJpaContratTest extends PilotageContrat {
     }
 
     @Override
+    protected com.hemodialyse.backend.contexts.gmao.publishedlanguage.FichesDesGenerateurs fichesDesGenerateurs() {
+        return new com.hemodialyse.backend.contexts.gmao.infrastructure.persistence.FichesDesGenerateursJpa(equipements);
+    }
+
+    @Override
     protected com.hemodialyse.backend.contexts.gmao.publishedlanguage.IndisponibilitesDesGenerateurs indisponibilites() {
         return new com.hemodialyse.backend.contexts.gmao.infrastructure.persistence.IndisponibilitesDesGenerateursJpa(interventions);
     }
