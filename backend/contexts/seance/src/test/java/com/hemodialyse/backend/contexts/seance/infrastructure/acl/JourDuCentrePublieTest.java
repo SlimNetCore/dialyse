@@ -45,6 +45,16 @@ class JourDuCentrePublieTest {
         }
 
         @Override
+        public List<CentreNomme> tousAvecNom() {
+            return List.of();
+        }
+
+        @Override
+        public Optional<String> nomDuCentre(UUID centre) {
+            return Optional.empty();
+        }
+
+        @Override
         public Optional<ZoneId> fuseauHoraireDe(UUID centre) {
             String identifiant = FUSEAUX.get(centre);
             if (identifiant == null || identifiant.isBlank()) return Optional.empty();

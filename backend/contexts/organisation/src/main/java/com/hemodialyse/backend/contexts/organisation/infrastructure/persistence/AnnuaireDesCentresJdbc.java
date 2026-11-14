@@ -34,6 +34,18 @@ public class AnnuaireDesCentresJdbc implements AnnuaireDesCentres {
     }
 
     @Override
+    public List<CentreNomme> tousAvecNom() {
+        return jdbc.query("SELECT id, name FROM centers ORDER BY name",
+                (rs, i) -> new CentreNomme(rs.getObject("id", UUID.class), rs.getString("name")));
+    }
+
+    @Override
+    public Optional<String> nomDuCentre(UUID centre) {
+        var lignes = jdbc.queryForList("SELECT name FROM centers WHERE id = ?", String.class, centre);
+        return lignes.isEmpty() ? Optional.empty() : Optional.ofNullable(lignes.get(0));
+    }
+
+    @Override
     public Optional<ZoneId> fuseauHoraireDe(UUID centre) {
         String identifiant = jdbc.queryForList("SELECT fuseau_horaire FROM centers WHERE id = ?", String.class, centre)
                 .stream().filter(f -> f != null && !f.isBlank()).findFirst().orElse(null);

@@ -26,6 +26,15 @@ public class AnnuaireDesSocietesJdbc implements AnnuaireDesSocietes {
     }
 
     @Override
+    public List<SocieteNommee> societesAvecUnCentreActif() {
+        return jdbc.query(
+                "SELECT s.id, s.raison_sociale FROM societes s WHERE s.actif = TRUE AND EXISTS ("
+                        + "SELECT 1 FROM centers c WHERE c.societe_id = s.id AND COALESCE(c.actif, TRUE) = TRUE) "
+                        + "ORDER BY s.raison_sociale",
+                (rs, i) -> new SocieteNommee(rs.getObject("id", UUID.class), rs.getString("raison_sociale")));
+    }
+
+    @Override
     public Optional<UUID> societeDuCentre(UUID centre) {
         var lignes = jdbc.queryForList("SELECT societe_id FROM centers WHERE id = ?", UUID.class, centre);
         return lignes.isEmpty() ? Optional.empty() : Optional.ofNullable(lignes.get(0));

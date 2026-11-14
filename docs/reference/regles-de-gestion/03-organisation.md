@@ -101,7 +101,9 @@
 
 - **RG-ORG-040** — Seul le SUPERADMIN crée, modifie, active/désactive les comptes `ADMIN` d'une société et réinitialise
   leur mot de
-  passe ; le mot de passe n'est jamais renvoyé ni journalisé.
+  passe ; le mot de passe n'est jamais renvoyé ni journalisé. Le refus (403) d'un profil sans droit passe **avant** la
+  validation du corps (400), sur cette route comme sur les comptes direction (KB-IDN-2, corrigé le 2026-11-14, à confirmer
+  métiers/DPO avant le 2026-12-15 ; c'était un 400 avant le 403).
 - **RG-ORG-041** — Création : le centre est obligatoire (`CENTRE_REQUIS`) et doit appartenir à la société
   (`CENTRE_HORS_SOCIETE`) ;
   identifiant 3 à 50 caractères (minuscules, chiffres, point, tiret, souligné) (`USERNAME_INVALID`) et libre

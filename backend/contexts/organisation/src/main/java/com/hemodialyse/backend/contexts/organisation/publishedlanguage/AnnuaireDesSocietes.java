@@ -13,6 +13,16 @@ public interface AnnuaireDesSocietes {
     /** Les identifiants des sociétés actives ({@code actif} vrai ; une société sans état renseigné n'est pas active), ordre non spécifié. */
     List<UUID> societesActives();
 
+    /**
+     * Les sociétés actives qui possèdent au moins un centre actif (un état de centre non renseigné vaut actif), par raison sociale
+     * croissante : le tri est celui d'Organisation (ADR 0174).
+     */
+    List<SocieteNommee> societesAvecUnCentreActif();
+
+    /** Une société et sa raison sociale. */
+    record SocieteNommee(UUID id, String raisonSociale) {
+    }
+
     /** La société d'un centre ; vide si le centre est inconnu. */
     Optional<UUID> societeDuCentre(UUID centre);
 

@@ -20,7 +20,8 @@ abstract class AnnuairesContrat {
     static final UUID SOCIETE_A = UUID.fromString("99998200-0000-0000-0000-0000000000a1");
     static final UUID SOCIETE_B = UUID.fromString("99998200-0000-0000-0000-0000000000b1");
     static final UUID SOCIETE_INACTIVE = UUID.fromString("99998200-0000-0000-0000-0000000000c1");
-    static final UUID C1 = UUID.fromString("99998200-0000-0000-0000-000000000001");
+    static final UUID SOCIETE_SANS_CENTRE_ACTIF = UUID.fromString("99998200-0000-0000-0000-0000000000d1");
+    static final UUID C1 =UUID.fromString("99998200-0000-0000-0000-000000000001");
     static final UUID C2 = UUID.fromString("99998200-0000-0000-0000-000000000002");
     static final UUID C3 = UUID.fromString("99998200-0000-0000-0000-000000000003");
     static final UUID C4 = UUID.fromString("99998200-0000-0000-0000-000000000004");
@@ -106,6 +107,38 @@ abstract class AnnuairesContrat {
                 new CentreDeLaSociete(C1, "Alger", true),
                 new CentreDeLaSociete(C2, "Blida", false),
                 new CentreDeLaSociete(C3, "Zeta", true));
+    }
+
+    /** ADR 0174 : tous les centres avec leur nom, désactivés compris, triés par nom par Organisation. */
+    @Test
+    void tous_les_centres_avec_leur_nom_sont_tries_par_nom_et_comprennent_les_centres_desactives() {
+        donnees();
+        assertThat(centres().tousAvecNom()).containsExactly(
+                new AnnuaireDesCentres.CentreNomme(C1, "Alger"),
+                new AnnuaireDesCentres.CentreNomme(C5, "Annaba"),
+                new AnnuaireDesCentres.CentreNomme(C2, "Blida"),
+                new AnnuaireDesCentres.CentreNomme(C4, "Oran"),
+                new AnnuaireDesCentres.CentreNomme(C3, "Zeta"));
+    }
+
+    @Test
+    void le_nom_d_un_centre_est_celui_de_sa_fiche_et_vide_si_le_centre_est_inconnu() {
+        donnees();
+        assertThat(centres().nomDuCentre(C2)).contains("Blida");
+        assertThat(centres().nomDuCentre(C6)).isEmpty();
+    }
+
+    /** ADR 0174 : sociétés proposées à la connexion = actives avec au moins un centre actif ; une société sans centre actif est exclue. */
+    @Test
+    void les_societes_proposees_sont_actives_avec_un_centre_actif_triees_par_raison_sociale() {
+        donnees();
+        assertThat(societes().societesAvecUnCentreActif()).containsExactly(
+                new AnnuaireDesSocietes.SocieteNommee(SOCIETE_A, "Alpha"),
+                new AnnuaireDesSocietes.SocieteNommee(SOCIETE_B, "Beta"));
+        societe(SOCIETE_SANS_CENTRE_ACTIF, "Aaa", true);
+        centre(C6, SOCIETE_SANS_CENTRE_ACTIF, "Ferme", false, null);
+        assertThat(societes().societesAvecUnCentreActif()).extracting(AnnuaireDesSocietes.SocieteNommee::id)
+                .containsExactly(SOCIETE_A, SOCIETE_B);
     }
 
     @Test

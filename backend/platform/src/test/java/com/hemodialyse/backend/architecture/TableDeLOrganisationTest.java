@@ -52,15 +52,10 @@ class TableDeLOrganisationTest {
             // 2026-11-09, O4 lot E (ADR 0111) : 2 lecteurs retirés (DocumentIdentityProvider : identité imprimée par IdentiteImprimee ;
             // ModeleDocumentProvisioner : tous les centres par AnnuaireDesCentres.tous) : 9 -> 7. Les 7 restants sont des résiduels nominatifs
             // (O4-R9 à O4-R13 de la fiche O4 : authentification, comptes, garde d'accès, amorçage dev, admin générique).
-            // RETRAIT des entrées restantes : à l'échéance de organisation.v1 (jalon O4), butoir 2027-03-31.
-            "platform/src/main/java/com/hemodialyse/backend/application/auth/AuthService.java",
-            "platform/src/main/java/com/hemodialyse/backend/application/direction/DirectionAccountService.java",
-            "platform/src/main/java/com/hemodialyse/backend/application/direction/SocieteAdminAccountService.java",
-            "platform/src/main/java/com/hemodialyse/backend/infrastructure/config/DevSuperAdminBootstrapInitializer.java",
-            // PL9 (ADR 0148) puis PL10b2 (ADR 0152, 2026-11-12) : la garde de société de la direction (rapport PDF, routes du tableau de bord,
-            // suivi STOMP via AccesALaDirection) ; DirectionAccessGuard de la plateforme est supprimée. Retirée avec Identité et accès.
-            "contexts/pilotage-direction/src/main/java/com/hemodialyse/backend/contexts/pilotagedirection/infrastructure/acl/legacyidentite/SessionLegacy.java",
-            "platform/src/main/java/com/hemodialyse/backend/infrastructure/web/rest/UserRestController.java");
+            // 2026-11-14, IDN-lecture (ADR 0174) : les 6 derniers lecteurs soldés (AuthService, DirectionAccountService,
+            // SocieteAdminAccountService, DevSuperAdminBootstrapInitializer, SessionLegacy du Pilotage, UserRestController) : 6 -> 0.
+            // La liste reste vide et la garde permanente : tout nouveau lecteur SQL d'une table de l'Organisation hors du contexte échoue.
+            );
 
     private static final Pattern LECTURE_SQL = Pattern.compile(
             "\\b(FROM|JOIN|INTO|UPDATE|TABLE)\\s+([A-Za-z_][A-Za-z0-9_]*)", Pattern.CASE_INSENSITIVE);
@@ -140,7 +135,7 @@ class TableDeLOrganisationTest {
     /** Critère d'avancement de O4 : 32 lecteurs au 2026-11-02 et au lancement, 22 après le lot A, 18 après le lot B, 15 après le lot C, 9 après le lot D, 7 après le lot E (2026-11-09). Le baisser avec chaque lot. */
     @Test
     void le_nombre_de_lecteurs_connus_est_le_critere_d_avancement_de_o4() {
-        assertThat(LECTEURS_CONNUS).as("lecteurs SQL directs restants (lot E de O4 : 9 -> 7, puis +1 avec la garde du rapport PL9, -1 DirectionAccessGuard en PL10b2 : 7, -1 ReferentialAdminJdbcAdapter en PL11-3 : 6)").hasSize(6);
+        assertThat(LECTEURS_CONNUS).as("lecteurs SQL directs restants (lot E de O4 : 9 -> 7, puis +1 avec la garde du rapport PL9, -1 DirectionAccessGuard en PL10b2 : 7, -1 ReferentialAdminJdbcAdapter en PL11-3 : 6, IDN-lecture ADR 0174 : 0)").isEmpty();
     }
 
     /**

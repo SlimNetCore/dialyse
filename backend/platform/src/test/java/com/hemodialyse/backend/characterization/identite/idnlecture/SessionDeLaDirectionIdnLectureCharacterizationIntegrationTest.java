@@ -42,7 +42,7 @@ class SessionDeLaDirectionIdnLectureCharacterizationIntegrationTest extends IdnL
         rattacherALaSociete(directionBeta, beta);
         directionSocieteInactive = compte("DIRECTION_SOCIETE_INACTIVE", "dir-soc-inactive", true, "DIRECTION");
         rattacherALaSociete(directionSocieteInactive, inactive);
-        session = new SessionLegacy(jdbc);
+        session = new SessionLegacy(jdbc, annuaireDesSocietes);
     }
 
     @AfterEach

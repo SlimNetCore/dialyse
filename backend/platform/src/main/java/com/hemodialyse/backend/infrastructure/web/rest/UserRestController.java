@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
+import com.hemodialyse.backend.contexts.organisation.publishedlanguage.AnnuaireDesCentres;
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.FichesDesInfirmiers;
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.FichesDesInfirmiers.CompteLieAUneFicheActive;
 import com.hemodialyse.backend.application.erreur.BusinessException;
@@ -40,8 +41,12 @@ public class UserRestController {
     /** Fiches d'infirmiers liées aux comptes : référentiel du contexte Planification (langage publié, slice P2). */
     private final FichesDesInfirmiers fichesDesInfirmiers;
 
+    /** Noms des centres : langage publié d'Organisation (IDN-lecture, ADR 0174). */
+    private final AnnuaireDesCentres annuaireDesCentres;
+
     public UserRestController(JdbcTemplate jdbc, PasswordEncoder passwordEncoder, AppUserJpaRepository userRepository,
-                              FichesDesInfirmiers fichesDesInfirmiers) {
+                              FichesDesInfirmiers fichesDesInfirmiers, AnnuaireDesCentres annuaireDesCentres) {
+        this.annuaireDesCentres = annuaireDesCentres;
         this.jdbc = jdbc;
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
@@ -103,9 +108,17 @@ public class UserRestController {
         u.put("roles", jdbc.queryForList(
                 "SELECT r.id AS \"id\", r.code AS \"code\", r.name AS \"name\" " +
                         "FROM app_role r INNER JOIN app_user_role ur ON ur.role_id = r.id WHERE ur.user_id = ?", id));
-        u.put("centers", jdbc.queryForList(
-                "SELECT c.id AS \"id\", c.name AS \"name\" " +
-                        "FROM centers c INNER JOIN app_user_center uc ON uc.center_id = c.id WHERE uc.user_id = ?", id));
+        // Les noms des centres viennent du langage publié d'Organisation (IDN-lecture, ADR 0174) ; le rattachement reste à Identité.
+        List<Map<String, Object>> centres = new ArrayList<>();
+        for (UUID centreId : jdbc.queryForList("SELECT center_id FROM app_user_center WHERE user_id = ?", UUID.class, id)) {
+            annuaireDesCentres.nomDuCentre(centreId).ifPresent(nom -> {
+                Map<String, Object> centre = new LinkedHashMap<>();
+                centre.put("id", centreId);
+                centre.put("name", nom);
+                centres.add(centre);
+            });
+        }
+        u.put("centers", centres);
         return ResponseEntity.ok(u);
     }
 

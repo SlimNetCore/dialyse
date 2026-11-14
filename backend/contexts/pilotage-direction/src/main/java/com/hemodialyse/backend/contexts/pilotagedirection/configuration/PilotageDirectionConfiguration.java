@@ -242,17 +242,19 @@ public class PilotageDirectionConfiguration {
     // ───────────── PL9 (ADR 0148) : le rapport PDF de la direction, rendu par Documents (documents.v1) ─────────────
 
     @Bean
-    com.hemodialyse.backend.contexts.pilotagedirection.application.SessionDeLaDirection sessionDeLaDirection(JdbcTemplate jdbc) {
-        return new com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.legacyidentite.SessionLegacy(jdbc);
+    com.hemodialyse.backend.contexts.pilotagedirection.application.SessionDeLaDirection sessionDeLaDirection(JdbcTemplate jdbc,
+                                                                                                           AnnuaireDesSocietes annuaire) {
+        return new com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.legacyidentite.SessionLegacy(jdbc, annuaire);
     }
 
     // ───────────── PL10b2 + PL10c (ADR 0152) : les lectures de GMAO, Stock, Planification et Absences, composées par le Pilotage ─────────────
 
     /** Habilitation (compte actif, rattaché, société active) : publiée à la plateforme pour le suivi STOMP, qui n'a plus de garde propre. */
     @Bean
-    com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.AccesALaDirection accesALaDirection(JdbcTemplate jdbc) {
+    com.hemodialyse.backend.contexts.pilotagedirection.publishedlanguage.AccesALaDirection accesALaDirection(JdbcTemplate jdbc,
+                                                                                                           AnnuaireDesSocietes annuaire) {
         return new com.hemodialyse.backend.contexts.pilotagedirection.interfaces.publie.AccesPublie(
-                new com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.legacyidentite.SessionLegacy(jdbc));
+                new com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.legacyidentite.SessionLegacy(jdbc, annuaire));
     }
 
     @Bean

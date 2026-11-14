@@ -85,7 +85,7 @@ class AmorcageDeDeveloppementIdnLectureCharacterizationIntegrationTest extends I
     private DevSuperAdminBootstrapInitializer amorceur(boolean active, boolean clesEphemeres) {
         LicenseKeyProperties cles = mock(LicenseKeyProperties.class);
         when(cles.isEphemeralDevMode()).thenReturn(clesEphemeres);
-        return new DevSuperAdminBootstrapInitializer(active, cles, jdbc, encodeur);
+        return new DevSuperAdminBootstrapInitializer(active, cles, jdbc, encodeur, annuaireDesCentres);
     }
 
     private void etat(String libelle) {

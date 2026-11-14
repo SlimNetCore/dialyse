@@ -42,6 +42,13 @@ public abstract class IdnLectureSupport extends OrganisationCharacterizationSupp
     @Autowired
     protected PasswordEncoder encodeur;
 
+    /** Langage publié d'Organisation, injecté dans les objets construits à la main par les scénarios (IDN-lecture phase 2, ADR 0174). */
+    @Autowired
+    protected com.hemodialyse.backend.contexts.organisation.publishedlanguage.AnnuaireDesCentres annuaireDesCentres;
+
+    @Autowired
+    protected com.hemodialyse.backend.contexts.organisation.publishedlanguage.AnnuaireDesSocietes annuaireDesSocietes;
+
     protected ObjectNode journal;
     private int etape;
 

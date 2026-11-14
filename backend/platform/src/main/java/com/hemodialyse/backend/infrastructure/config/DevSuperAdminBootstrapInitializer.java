@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.infrastructure.config;
 
+import com.hemodialyse.backend.contexts.organisation.publishedlanguage.AnnuaireDesCentres;
 import com.hemodialyse.backend.infrastructure.security.license.LicenseKeyProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,10 +36,13 @@ public class DevSuperAdminBootstrapInitializer implements CommandLineRunner {
     private final LicenseKeyProperties keyProperties;
     private final JdbcTemplate jdbc;
     private final PasswordEncoder encoder;
+    /** Les centres à rattacher viennent du langage publié d'Organisation (IDN-lecture, ADR 0174). */
+    private final AnnuaireDesCentres centres;
 
     public DevSuperAdminBootstrapInitializer(@Value("${app.dev.superadmin.enabled:false}") boolean enabled,
                                              LicenseKeyProperties keyProperties, JdbcTemplate jdbc,
-                                             PasswordEncoder encoder) {
+                                             PasswordEncoder encoder, AnnuaireDesCentres centres) {
+        this.centres = centres;
         this.enabled = enabled;
         this.keyProperties = keyProperties;
         this.jdbc = jdbc;
@@ -67,7 +71,7 @@ public class DevSuperAdminBootstrapInitializer implements CommandLineRunner {
         if (count("SELECT COUNT(1) FROM app_user_role WHERE user_id = ? AND role_id = ?", userId, roleId) == 0) {
             jdbc.update("INSERT INTO app_user_role (user_id, role_id) VALUES (?, ?)", userId, roleId);
         }
-        List<UUID> centers = jdbc.queryForList("SELECT id FROM centers", UUID.class);
+        List<UUID> centers = centres.tous();
         for (UUID centerId : centers) {
             if (count("SELECT COUNT(1) FROM app_user_center WHERE user_id = ? AND center_id = ?", userId, centerId) == 0) {
                 jdbc.update("INSERT INTO app_user_center (user_id, center_id) VALUES (?, ?)", userId, centerId);

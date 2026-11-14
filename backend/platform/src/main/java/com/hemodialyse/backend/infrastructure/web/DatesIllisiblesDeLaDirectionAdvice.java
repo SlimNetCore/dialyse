@@ -16,6 +16,7 @@ import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -59,8 +60,50 @@ class DatesIllisiblesDeLaDirectionAdvice {
         this.gestionnaireCommun = gestionnaireCommun;
     }
 
+    /**
+     * IDN-lecture (ADR 0174, KB « CORRIGÉ 2026-11-14 ») : les comptes administrateurs et direction d'une société
+     * ({@code /api/v1/societes/{id}/admin-accounts} et {@code /direction-accounts}) répondent 403 AVANT 400 : la validation du corps
+     * précède le contrôle {@code @PreAuthorize}, on rétablit donc l'ordre ici.
+     */
+    private static final java.util.regex.Pattern COMPTES_DE_SOCIETE =
+            java.util.regex.Pattern.compile("/api/v1/societes/[^/]+/(admin|direction)-accounts(/.*)?");
+
+    /** IDN-lecture (ADR 0174) : l'annuaire public de connexion des centres d'une société, avec un identifiant illisible (c'était un 500). */
+    private static final java.util.regex.Pattern CENTRES_DE_CONNEXION =
+            java.util.regex.Pattern.compile("/api/v1/auth/societes/[^/]+/centres");
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    ProblemDetail corpsInvalide(MethodArgumentNotValidException erreur, HttpServletRequest requete) {
+        if (correspond(COMPTES_DE_SOCIETE, requete) && !droitsSuffisants(requete)) {
+            return refus();
+        }
+        return gestionnaireCommun.handleValidation(erreur);
+    }
+
+    private static boolean correspond(java.util.regex.Pattern motif, HttpServletRequest requete) {
+        String uri = requete.getRequestURI();
+        String contexte = requete.getContextPath();
+        String chemin = contexte != null && !contexte.isEmpty() && uri.startsWith(contexte) ? uri.substring(contexte.length()) : uri;
+        return motif.matcher(chemin).matches();
+    }
+
+    private static ProblemDetail refus() {
+        ProblemDetail refus = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
+        refus.setTitle("Acces refuse");
+        refus.setDetail("Accès refusé");
+        refus.setProperty("code", "ACCESS_DENIED");
+        return refus;
+    }
+
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     ProblemDetail parametreIllisible(MethodArgumentTypeMismatchException erreur, HttpServletRequest requete) {
+        if (correspond(CENTRES_DE_CONNEXION, requete)) {
+            ProblemDetail probleme = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+            probleme.setTitle("Requete invalide");
+            probleme.setDetail("Identifiant de société illisible");
+            probleme.setProperty("code", "BAD_REQUEST");
+            return probleme;
+        }
         if (!estUneRouteReprise(requete)) {
             return gestionnaireCommun.handleUnexpected(erreur);
         }

@@ -35,7 +35,10 @@
   centre
   actif ; puis centres actifs de la société choisie) puis identifiant/mot de passe. Les annuaires n'exposent que
   identifiant
-  et nom. *Sources :* `AuthService.listLoginSocietes/listLoginCentres`, `AuthRestController`.
+  et nom. Un identifiant de société illisible dans `GET /auth/societes/{id}/centres` répond 400 `BAD_REQUEST`
+  (KB-IDN-1, corrigé le 2026-11-14, à confirmer métiers/DPO avant le 2026-12-15 ; c'était un 500). Les centres et sociétés
+  sont lus par le langage publié d'Organisation (ADR 0174). *Sources :* `AuthService.listLoginSocietes/listLoginCentres`,
+  `AuthRestController`.
 - **RG-SEC-011** — Un identifiant ou un mot de passe erroné renvoie le même message « Identifiants invalides » (on ne
   révèle pas
   lequel est faux). Le mot de passe (BCrypt) est vérifié avant tout contrôle de rôle ou de rattachement. *Source :*

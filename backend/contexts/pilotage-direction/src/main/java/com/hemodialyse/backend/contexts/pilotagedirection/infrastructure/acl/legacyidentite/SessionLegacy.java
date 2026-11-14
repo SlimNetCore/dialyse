@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.legacyidentite;
 
+import com.hemodialyse.backend.contexts.organisation.publishedlanguage.AnnuaireDesSocietes;
 import com.hemodialyse.backend.contexts.pilotagedirection.application.HabilitationDeLaDirection;
 import com.hemodialyse.backend.contexts.pilotagedirection.application.SessionDeLaDirection;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -19,9 +20,11 @@ import java.util.UUID;
 public final class SessionLegacy implements SessionDeLaDirection, HabilitationDeLaDirection {
 
     private final JdbcTemplate jdbc;
+    private final AnnuaireDesSocietes societes;
 
-    public SessionLegacy(JdbcTemplate jdbc) {
+    public SessionLegacy(JdbcTemplate jdbc, AnnuaireDesSocietes societes) {
         this.jdbc = jdbc;
+        this.societes = societes;
     }
 
     @Override
@@ -58,10 +61,10 @@ public final class SessionLegacy implements SessionDeLaDirection, HabilitationDe
         Integer rattache = jdbc.queryForObject(
                 "SELECT COUNT(1) FROM app_user u "
                         + "INNER JOIN app_user_societe us ON us.user_id = u.id "
-                        + "INNER JOIN societes s ON s.id = us.societe_id "
-                        + "WHERE u.id = ? AND u.active = TRUE AND us.societe_id = ? AND s.actif = TRUE",
+                        + "WHERE u.id = ? AND u.active = TRUE AND us.societe_id = ?",
                 Integer.class, utilisateur, societe);
-        return rattache != null && rattache > 0;
+        // L'état de la société est lu dans le langage publié d'Organisation (IDN-lecture, ADR 0174) : plus de lecture de `societes`.
+        return rattache != null && rattache > 0 && societes.societesActives().contains(societe);
     }
 
     private static boolean possede(Object principal) {

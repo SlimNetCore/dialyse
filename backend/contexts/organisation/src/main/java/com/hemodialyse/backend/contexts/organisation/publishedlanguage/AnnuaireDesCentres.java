@@ -20,6 +20,16 @@ public interface AnnuaireDesCentres {
     /** Tous les centres, actifs ou non, dans un ordre non spécifié. */
     List<UUID> tous();
 
+    /** Tous les centres, actifs ou non, avec leur nom, par nom croissant (le tri est celui d'Organisation, ADR 0174). */
+    List<CentreNomme> tousAvecNom();
+
+    /** Le nom d'un centre ; vide si le centre est inconnu (ADR 0174). */
+    Optional<String> nomDuCentre(UUID centre);
+
+    /** Un centre et son nom. */
+    record CentreNomme(UUID id, String nom) {
+    }
+
     /**
      * Le fuseau horaire du centre. Vide si le centre est inconnu ou si son fuseau est absent, vide ou illisible : chaque consommateur
      * applique alors SON fuseau par défaut (ce choix reste le sien).

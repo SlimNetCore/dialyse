@@ -45,6 +45,26 @@ final class AnnuairesEnMemoire implements AnnuaireDesCentres, AnnuaireDesSociete
     }
 
     @Override
+    public List<CentreNomme> tousAvecNom() {
+        return centres.values().stream().sorted(Comparator.comparing(Centre::nom))
+                .map(c -> new CentreNomme(c.id(), c.nom())).toList();
+    }
+
+    @Override
+    public Optional<String> nomDuCentre(UUID centre) {
+        return Optional.ofNullable(centres.get(centre)).map(Centre::nom);
+    }
+
+    @Override
+    public List<SocieteNommee> societesAvecUnCentreActif() {
+        return societes.values().stream().filter(Societe::actif)
+                .filter(s -> centres.values().stream()
+                        .anyMatch(c -> c.societe().equals(s.id()) && (c.actif() == null || c.actif())))
+                .sorted(Comparator.comparing(Societe::raisonSociale))
+                .map(s -> new SocieteNommee(s.id(), s.raisonSociale())).toList();
+    }
+
+    @Override
     public Optional<ZoneId> fuseauHoraireDe(UUID centre) {
         Centre c = centres.get(centre);
         if (c == null || c.fuseau() == null || c.fuseau().isBlank()) return Optional.empty();

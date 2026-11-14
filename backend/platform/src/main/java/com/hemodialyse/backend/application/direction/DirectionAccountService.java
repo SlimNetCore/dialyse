@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.application.direction;
 
 import com.hemodialyse.backend.application.erreur.BusinessException;
+import com.hemodialyse.backend.contexts.organisation.publishedlanguage.AnnuaireDesSocietes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -26,9 +27,13 @@ public class DirectionAccountService {
     private static final Pattern EMAIL = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}$", Pattern.CASE_INSENSITIVE);
     private final JdbcTemplate jdbc;
     private final PasswordEncoder encoder;
-    public DirectionAccountService(JdbcTemplate jdbc, PasswordEncoder encoder) {
+    /** L'existence de la société est lue dans le langage publié d'Organisation (IDN-lecture, ADR 0174). */
+    private final AnnuaireDesSocietes annuaireDesSocietes;
+
+    public DirectionAccountService(JdbcTemplate jdbc, PasswordEncoder encoder, AnnuaireDesSocietes annuaireDesSocietes) {
         this.jdbc = jdbc;
         this.encoder = encoder;
+        this.annuaireDesSocietes = annuaireDesSocietes;
     }
 
     public List<Account> list(UUID societeId) {
@@ -101,8 +106,7 @@ public class DirectionAccountService {
     }
 
     private void requireSociete(UUID societeId) {
-        Integer n = jdbc.queryForObject("SELECT COUNT(1) FROM societes WHERE id = ?", Integer.class, societeId);
-        if (n == null || n == 0) {
+        if (annuaireDesSocietes.societe(societeId).isEmpty()) {
             throw new BusinessException("SOCIETE_INTROUVABLE", "Société introuvable");
         }
     }

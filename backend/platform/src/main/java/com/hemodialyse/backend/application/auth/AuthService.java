@@ -1,6 +1,8 @@
 package com.hemodialyse.backend.application.auth;
 
 import com.hemodialyse.backend.application.auth.mfa.MfaService;
+import com.hemodialyse.backend.contexts.organisation.publishedlanguage.AnnuaireDesCentres;
+import com.hemodialyse.backend.contexts.organisation.publishedlanguage.AnnuaireDesSocietes;
 import com.hemodialyse.backend.infrastructure.security.JwtTokenProvider;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,8 +31,14 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final MfaService mfaService;
 
+    /** Centres et sociétés : langage publié d'Organisation (IDN-lecture, ADR 0174) ; plus aucune lecture de {@code centers}/{@code societes}. */
+    private final AnnuaireDesCentres annuaireDesCentres;
+    private final AnnuaireDesSocietes annuaireDesSocietes;
+
     public AuthService(JdbcTemplate jdbc, JwtTokenProvider jwtTokenProvider, PasswordEncoder passwordEncoder,
-                       MfaService mfaService) {
+                       MfaService mfaService, AnnuaireDesCentres annuaireDesCentres, AnnuaireDesSocietes annuaireDesSocietes) {
+        this.annuaireDesCentres = annuaireDesCentres;
+        this.annuaireDesSocietes = annuaireDesSocietes;
         this.jdbc = jdbc;
         this.jwtTokenProvider = jwtTokenProvider;
         this.passwordEncoder = passwordEncoder;
@@ -94,7 +102,7 @@ public class AuthService {
         assertCentreEtSocieteUtilisables(centerId, societeId);
 
         // 4. Load center name
-        String centerName = jdbc.queryForObject("SELECT name FROM centers WHERE id = ?", String.class, centerId);
+        String centerName = annuaireDesCentres.nomDuCentre(centerId).orElse(null);
 
         // 5. Load roles for this user
         List<String> roles = jdbc.queryForList(
@@ -114,22 +122,23 @@ public class AuthService {
      * Sociétés proposées à la connexion : actives et disposant d'au moins un centre actif.
      */
     public List<DirectoryItem> listLoginSocietes() {
-        return jdbc.query(
-                "SELECT s.id, s.raison_sociale FROM societes s WHERE s.actif = TRUE AND EXISTS ("
-                        + "SELECT 1 FROM centers c WHERE c.societe_id = s.id AND COALESCE(c.actif, TRUE) = TRUE) "
-                        + "ORDER BY s.raison_sociale",
-                (rs, i) -> new DirectoryItem(rs.getObject("id", UUID.class), rs.getString("raison_sociale")));
+        return annuaireDesSocietes.societesAvecUnCentreActif().stream()
+                .map(s -> new DirectoryItem(s.id(), s.raisonSociale())).toList();
     }
 
     /**
      * Centres actifs d'une société active, proposés à la connexion une fois la société choisie.
      */
     public List<DirectoryItem> listLoginCentres(UUID societeId) {
-        return jdbc.query(
-                "SELECT c.id, c.name FROM centers c INNER JOIN societes s ON s.id = c.societe_id "
-                        + "WHERE c.societe_id = ? AND s.actif = TRUE AND COALESCE(c.actif, TRUE) = TRUE ORDER BY c.name",
-                (rs, i) -> new DirectoryItem(rs.getObject("id", UUID.class), rs.getString("name")),
-                societeId);
+        if (!annuaireDesSocietes.societesActives().contains(societeId)) {
+            return List.of();
+        }
+        return annuaireDesSocietes.societe(societeId).map(s -> centresActifs(s.centres())).orElse(List.of());
+    }
+
+    private static List<DirectoryItem> centresActifs(List<AnnuaireDesSocietes.CentreDeLaSociete> centres) {
+        return centres.stream().filter(AnnuaireDesSocietes.CentreDeLaSociete::actif)
+                .map(c -> new DirectoryItem(c.id(), c.nom())).toList();
     }
 
     /**
@@ -138,34 +147,27 @@ public class AuthService {
      */
     public List<DirectoryItem> listAccessibleCentres(UUID currentCenterId, boolean superAdmin) {
         if (superAdmin) {
-            return jdbc.query("SELECT id, name FROM centers ORDER BY name",
-                    (rs, i) -> new DirectoryItem(rs.getObject("id", UUID.class), rs.getString("name")));
+            return annuaireDesCentres.tousAvecNom().stream().map(c -> new DirectoryItem(c.id(), c.nom())).toList();
         }
-        return jdbc.query(
-                "SELECT c.id, c.name FROM centers c WHERE COALESCE(c.actif, TRUE) = TRUE AND "
-                        + "(c.id = ? OR c.societe_id = (SELECT societe_id FROM centers WHERE id = ?)) ORDER BY c.name",
-                (rs, i) -> new DirectoryItem(rs.getObject("id", UUID.class), rs.getString("name")),
-                currentCenterId, currentCenterId);
+        return annuaireDesSocietes.societeDuCentre(currentCenterId)
+                .flatMap(annuaireDesSocietes::societe)
+                .map(s -> centresActifs(s.centres()))
+                .orElse(List.of());
     }
 
     private void assertCentreEtSocieteUtilisables(UUID centerId, UUID expectedSocieteId) {
-        var rows = jdbc.query(
-                "SELECT c.societe_id, COALESCE(c.actif, TRUE) AS centre_actif, s.actif AS societe_actif "
-                        + "FROM centers c LEFT JOIN societes s ON s.id = c.societe_id WHERE c.id = ?",
-                (rs, i) -> new Object[]{rs.getObject("societe_id", UUID.class), rs.getBoolean("centre_actif"),
-                        rs.getObject("societe_actif") == null || rs.getBoolean("societe_actif")},
-                centerId);
-        if (rows.isEmpty()) {
-            throw new IllegalStateException("Utilisateur non autorisé sur ce centre");
-        }
-        Object[] row = rows.get(0);
-        if (expectedSocieteId != null && !expectedSocieteId.equals(row[0])) {
+        UUID societeDuCentre = annuaireDesSocietes.societeDuCentre(centerId)
+                .orElseThrow(() -> new IllegalStateException("Utilisateur non autorisé sur ce centre"));
+        if (expectedSocieteId != null && !expectedSocieteId.equals(societeDuCentre)) {
             throw new IllegalStateException("Ce centre n'appartient pas à la société sélectionnée");
         }
-        if (!(Boolean) row[1]) {
+        boolean centreActif = annuaireDesSocietes.societe(societeDuCentre)
+                .flatMap(s -> s.centres().stream().filter(c -> c.id().equals(centerId)).findFirst())
+                .map(AnnuaireDesSocietes.CentreDeLaSociete::actif).orElse(true);
+        if (!centreActif) {
             throw new IllegalStateException("Ce centre est désactivé");
         }
-        if (!(Boolean) row[2]) {
+        if (!annuaireDesSocietes.societesActives().contains(societeDuCentre)) {
             throw new IllegalStateException("Cette société est désactivée");
         }
     }
@@ -243,12 +245,12 @@ public class AuthService {
         if (assigned == null || assigned == 0) {
             throw new IllegalStateException("Ce compte n'est pas rattaché à cette société");
         }
-        var societe = jdbc.queryForList("SELECT raison_sociale, actif FROM societes WHERE id = ?", societeId);
-        if (societe.isEmpty() || !Boolean.TRUE.equals(societe.get(0).get("ACTIF"))) {
+        var societe = annuaireDesSocietes.societe(societeId);
+        if (societe.isEmpty() || !annuaireDesSocietes.societesActives().contains(societeId)) {
             throw new IllegalStateException("Cette société est désactivée");
         }
         return new LoginResult("", username, fullName, userId, null, null, prefixed, societeId,
-                (String) societe.get(0).get("RAISON_SOCIALE"), "SOCIETE");
+                societe.get().raisonSociale(), "SOCIETE");
     }
 
     public LoginResult rebuildSession(UUID centerId, UUID userId) {
@@ -279,7 +281,7 @@ public class AuthService {
 
         String username = (String) user.get("USERNAME");
         String fullName = (String) user.get("FULL_NAME");
-        String centerName = jdbc.queryForObject("SELECT name FROM centers WHERE id = ?", String.class, centerId);
+        String centerName = annuaireDesCentres.nomDuCentre(centerId).orElse(null);
         List<String> roles = jdbc.queryForList(
                 "SELECT r.code FROM app_role r INNER JOIN app_user_role ur ON ur.role_id = r.id WHERE ur.user_id = ?",
                 String.class,

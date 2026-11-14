@@ -1,0 +1,201 @@
+{
+  "01 liste de la societe Alpha" : {
+    "body" : [ {
+      "active" : true,
+      "email" : null,
+      "fullName" : "Compte COMPTE_DIRECTION_ALPHA",
+      "userId" : "<COMPTE_DIRECTION_ALPHA>",
+      "username" : "idn-direction-alpha"
+    } ],
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "02 liste de la societe Beta (aucun compte)" : {
+    "body" : [ ],
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "03 liste d'une societe inconnue" : {
+    "body" : {
+      "code" : "SOCIETE_INTROUVABLE",
+      "detail" : "Société introuvable",
+      "instance" : "/api/v1/societes/<UUID_GENERE_1>/direction-accounts",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "04 creation" : {
+    "body" : {
+      "active" : true,
+      "email" : "direction@example.test",
+      "fullName" : "Direction creee",
+      "userId" : "<UUID_GENERE_2>",
+      "username" : "idn-direction-cree"
+    },
+    "contentType" : "application/json",
+    "status" : 201
+  },
+  "05 identifiant deja pris" : {
+    "body" : {
+      "code" : "USERNAME_TAKEN",
+      "detail" : "Cet identifiant est déjà utilisé",
+      "instance" : "/api/v1/societes/<SOCIETE_BETA>/direction-accounts",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "06 societe inconnue, corps valide" : {
+    "body" : {
+      "code" : "SOCIETE_INTROUVABLE",
+      "detail" : "Société introuvable",
+      "instance" : "/api/v1/societes/<UUID_GENERE_1>/direction-accounts",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "07 identifiant invalide" : {
+    "body" : {
+      "code" : "USERNAME_INVALID",
+      "detail" : "Identifiant invalide (3 à 50 caractères : lettres minuscules, chiffres, point, tiret, souligné)",
+      "instance" : "/api/v1/societes/<SOCIETE_BETA>/direction-accounts",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "08 mot de passe faible" : {
+    "body" : {
+      "code" : "PASSWORD_TOO_SHORT",
+      "detail" : "Mot de passe refusé (12 caractères minimum, lettres et chiffres)",
+      "instance" : "/api/v1/societes/<SOCIETE_BETA>/direction-accounts",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "09 adresse invalide" : {
+    "body" : {
+      "code" : "EMAIL_INVALID",
+      "detail" : "Adresse email invalide",
+      "instance" : "/api/v1/societes/<SOCIETE_BETA>/direction-accounts",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "10 role ADMIN, corps invalide" : {
+    "body" : {
+      "code" : "ACCESS_DENIED",
+      "detail" : "Accès refusé",
+      "instance" : "/api/v1/societes/<SOCIETE_BETA>/direction-accounts",
+      "status" : 403,
+      "title" : "Acces refuse"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 403
+  },
+  "11 role ADMIN, corps valide" : {
+    "body" : {
+      "code" : "ACCESS_DENIED",
+      "detail" : "Access Denied",
+      "instance" : "/api/v1/societes/<SOCIETE_BETA>/direction-accounts",
+      "status" : 403,
+      "title" : "Acces refuse"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 403
+  },
+  "12 role DIRECTION, corps invalide" : {
+    "body" : {
+      "code" : "ROLE_SCOPE",
+      "detail" : "Ce profil n'a pas accès à cette ressource.",
+      "title" : "Accès refusé"
+    },
+    "contentType" : "application/json",
+    "status" : 403
+  },
+  "13 role DIRECTION, corps valide" : {
+    "body" : {
+      "code" : "ROLE_SCOPE",
+      "detail" : "Ce profil n'a pas accès à cette ressource.",
+      "title" : "Accès refusé"
+    },
+    "contentType" : "application/json",
+    "status" : 403
+  },
+  "14 compte direction d'une autre societe" : {
+    "body" : {
+      "code" : "COMPTE_INTROUVABLE",
+      "detail" : "Compte direction introuvable dans cette société",
+      "instance" : "/api/v1/societes/<SOCIETE_BETA>/direction-accounts/<COMPTE_DIRECTION_ALPHA>/desactiver",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "15 desactivation" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "16 etat et jetons apres la desactivation" : {
+    "lignes" : [ {
+      "active" : "false",
+      "revoked" : "true",
+      "token_hash" : "idn-jeton-direction"
+    } ]
+  },
+  "17 reactivation" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "18 mot de passe faible" : {
+    "body" : {
+      "code" : "PASSWORD_TOO_SHORT",
+      "detail" : "Mot de passe refusé (12 caractères minimum, lettres et chiffres)",
+      "instance" : "/api/v1/societes/<SOCIETE_ALPHA>/direction-accounts/<COMPTE_DIRECTION_ALPHA>/password",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "19 mot de passe valide" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "20 administrateur de centre sur la route des directions" : {
+    "body" : {
+      "code" : "COMPTE_INTROUVABLE",
+      "detail" : "Compte direction introuvable dans cette société",
+      "instance" : "/api/v1/societes/<SOCIETE_ALPHA>/direction-accounts/<COMPTE_ADMIN_ALPHA>/desactiver",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "21 liste finale de la societe Beta" : {
+    "body" : [ {
+      "active" : true,
+      "email" : "direction@example.test",
+      "fullName" : "Direction creee",
+      "userId" : "<UUID_GENERE_2>",
+      "username" : "idn-direction-cree"
+    } ],
+    "contentType" : "application/json",
+    "status" : 200
+  }
+}

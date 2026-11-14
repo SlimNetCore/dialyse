@@ -1,6 +1,9 @@
 package com.hemodialyse.backend.application.direction;
 
 import com.hemodialyse.backend.application.erreur.BusinessException;
+import com.hemodialyse.backend.contexts.organisation.publishedlanguage.AnnuaireDesSocietes;
+import com.hemodialyse.backend.contexts.organisation.publishedlanguage.AnnuaireDesSocietes.CentreDeLaSociete;
+import com.hemodialyse.backend.contexts.organisation.publishedlanguage.AnnuaireDesSocietes.SocieteAvecSesCentres;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -34,34 +37,48 @@ public class SocieteAdminAccountService {
     private final JdbcTemplate jdbc;
     private final PasswordEncoder encoder;
 
-    public SocieteAdminAccountService(JdbcTemplate jdbc, PasswordEncoder encoder) {
+    /** Sociétés et centres : langage publié d'Organisation (IDN-lecture, ADR 0174). */
+    private final AnnuaireDesSocietes annuaireDesSocietes;
+
+    public SocieteAdminAccountService(JdbcTemplate jdbc, PasswordEncoder encoder, AnnuaireDesSocietes annuaireDesSocietes) {
         this.jdbc = jdbc;
         this.encoder = encoder;
+        this.annuaireDesSocietes = annuaireDesSocietes;
     }
 
     public List<Account> list(UUID societeId) {
-        requireSociete(societeId);
+        // Les centres de la société (et leur nom, par nom croissant) viennent du langage publié d'Organisation (ADR 0174).
+        List<CentreDeLaSociete> centresDeLaSociete = societe(societeId).centres();
         Map<UUID, Account> byUser = new LinkedHashMap<>();
+        Map<UUID, Set<UUID>> rattachements = new LinkedHashMap<>();
         jdbc.query(
-                "SELECT u.id, u.username, u.full_name, u.email, u.active, c.id AS center_id, c.name AS center_name "
+                "SELECT u.id, u.username, u.full_name, u.email, u.active, uc.center_id "
                         + "FROM app_user u "
                         + "INNER JOIN app_user_center uc ON uc.user_id = u.id "
-                        + "INNER JOIN centers c ON c.id = uc.center_id "
                         + "INNER JOIN app_user_role ur ON ur.user_id = u.id "
                         + "INNER JOIN app_role r ON r.id = ur.role_id AND r.code = 'ADMIN' "
-                        + "WHERE c.societe_id = ? ORDER BY u.username, c.name",
+                        + "ORDER BY u.username",
                 (java.sql.ResultSet rs) -> {
                     UUID id = rs.getObject("id", UUID.class);
-                    Account account = byUser.get(id);
-                    if (account == null) {
-                        account = new Account(id, rs.getString("username"), rs.getString("full_name"),
-                                rs.getString("email"), rs.getBoolean("active"), new ArrayList<>());
-                        byUser.put(id, account);
+                    if (!byUser.containsKey(id)) {
+                        byUser.put(id, new Account(id, rs.getString("username"), rs.getString("full_name"),
+                                rs.getString("email"), rs.getBoolean("active"), new ArrayList<>()));
                     }
-                    account.centres().add(new CentreRef(rs.getObject("center_id", UUID.class), rs.getString("center_name")));
-                },
-                societeId);
-        return List.copyOf(byUser.values());
+                    rattachements.computeIfAbsent(id, k -> new LinkedHashSet<>()).add(rs.getObject("center_id", UUID.class));
+                });
+        List<Account> comptes = new ArrayList<>();
+        byUser.forEach((id, account) -> {
+            Set<UUID> rattaches = rattachements.get(id);
+            for (CentreDeLaSociete centre : centresDeLaSociete) {
+                if (rattaches.contains(centre.id())) {
+                    account.centres().add(new CentreRef(centre.id(), centre.nom()));
+                }
+            }
+            if (!account.centres().isEmpty()) {
+                comptes.add(account);
+            }
+        });
+        return List.copyOf(comptes);
     }
 
     @Transactional
@@ -126,9 +143,9 @@ public class SocieteAdminAccountService {
         String name = fullName == null || fullName.isBlank() ? username : fullName.trim();
         jdbc.update("UPDATE app_user SET full_name = ?, email = ? WHERE id = ?", name, mail, userId);
 
-        List<UUID> current = jdbc.queryForList(
-                "SELECT uc.center_id FROM app_user_center uc INNER JOIN centers c ON c.id = uc.center_id "
-                        + "WHERE uc.user_id = ? AND c.societe_id = ?", UUID.class, userId, societeId);
+        Set<UUID> centresDeLaSociete = idsDesCentres(societe(societeId));
+        List<UUID> current = jdbc.queryForList("SELECT center_id FROM app_user_center WHERE user_id = ?", UUID.class, userId)
+                .stream().filter(centresDeLaSociete::contains).toList();
         for (UUID centerId : current) {
             if (!wanted.contains(centerId)) {
                 jdbc.update("DELETE FROM app_user_center WHERE user_id = ? AND center_id = ?", userId, centerId);
@@ -172,10 +189,19 @@ public class SocieteAdminAccountService {
     }
 
     private void requireSociete(UUID societeId) {
-        Integer n = jdbc.queryForObject("SELECT COUNT(1) FROM societes WHERE id = ?", Integer.class, societeId);
-        if (n == null || n == 0) {
-            throw new BusinessException("SOCIETE_INTROUVABLE", "Société introuvable");
-        }
+        societe(societeId);
+    }
+
+    /** La société et ses centres (par nom croissant) lus dans le langage publié d'Organisation (ADR 0174). */
+    private SocieteAvecSesCentres societe(UUID societeId) {
+        return annuaireDesSocietes.societe(societeId)
+                .orElseThrow(() -> new BusinessException("SOCIETE_INTROUVABLE", "Société introuvable"));
+    }
+
+    private static Set<UUID> idsDesCentres(SocieteAvecSesCentres societe) {
+        Set<UUID> ids = new LinkedHashSet<>();
+        societe.centres().forEach(c -> ids.add(c.id()));
+        return ids;
     }
 
     /**
@@ -185,24 +211,22 @@ public class SocieteAdminAccountService {
         if (centerId == null) {
             throw new BusinessException("CENTRE_REQUIS", "Le centre de l'administrateur est obligatoire");
         }
-        List<String> names = jdbc.queryForList("SELECT name FROM centers WHERE id = ? AND societe_id = ?",
-                String.class, centerId, societeId);
-        if (names.isEmpty()) {
-            throw new BusinessException("CENTRE_HORS_SOCIETE", "Ce centre n'appartient pas à cette société");
-        }
-        return names.get(0);
+        return societe(societeId).centres().stream().filter(c -> c.id().equals(centerId)).findFirst()
+                .map(CentreDeLaSociete::nom)
+                .orElseThrow(() -> new BusinessException("CENTRE_HORS_SOCIETE", "Ce centre n'appartient pas à cette société"));
     }
 
     /** Le compte doit porter le rôle ADMIN et être rattaché à un centre de cette société. */
     private void requireAdminAccount(UUID societeId, UUID userId) {
-        Integer n = jdbc.queryForObject(
-                "SELECT COUNT(1) FROM app_user_center uc "
-                        + "INNER JOIN centers c ON c.id = uc.center_id "
+        Set<UUID> centresDeLaSociete = annuaireDesSocietes.societe(societeId)
+                .map(SocieteAdminAccountService::idsDesCentres).orElse(Set.of());
+        List<UUID> centresDuCompte = jdbc.queryForList(
+                "SELECT uc.center_id FROM app_user_center uc "
                         + "INNER JOIN app_user_role ur ON ur.user_id = uc.user_id "
                         + "INNER JOIN app_role r ON r.id = ur.role_id AND r.code = 'ADMIN' "
-                        + "WHERE c.societe_id = ? AND uc.user_id = ?",
-                Integer.class, societeId, userId);
-        if (n == null || n == 0) {
+                        + "WHERE uc.user_id = ?",
+                UUID.class, userId);
+        if (centresDuCompte.stream().noneMatch(centresDeLaSociete::contains)) {
             throw new BusinessException("COMPTE_INTROUVABLE", "Administrateur introuvable dans cette société");
         }
     }

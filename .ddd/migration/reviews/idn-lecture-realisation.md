@@ -1,7 +1,7 @@
 ---
-status: phase 1 realisee (filet), phase 2 en attente d'inscription des fichiers dans covered.json
+status: phase 1 realisee (filet, afb554b7), phase 2 realisee (ADR 0174) ; non commitee
 date: 2026-11-14
-sources: ADR 0024, 0107, 0140 D7, 0157-0161, `inventaire-platform-restant-v2.md` ligne 12 (decision D6), `TableDeLOrganisationTest`, `rp3c-realisation.md`
+sources: ADR 0024, 0107, 0140 D7, 0157-0161, 0174, `inventaire-platform-restant-v2.md` ligne 12 (decision D6), `TableDeLOrganisationTest`, `rp3c-realisation.md`
 ---
 
 # IDN-lecture - phase 1 : filet de caracterisation
@@ -49,6 +49,26 @@ Total : 19 tests. Trois passes ciblees `-Dtest=*IdnLecture*` : vertes. Mots de p
 - Ports : `AnnuaireDesCentres` fournit ids (actifs/tous) et fuseau ; `AnnuaireDesSocietes` fournit societes actives, societe d'un centre, societe avec ses centres (nom, actif) et raison sociale. Manquent : nom d'un centre par identifiant, centre actif par identifiant, tous les centres avec nom (liste SUPERADMIN), existence d'une societe (`societe(id).isPresent()` suffit). Option A : composer (`societeDuCentre` + `societe(id).centres`, tri en Java, ecart de collation a verifier) ; option B (preferee si l'utilisateur l'approuve) : etendre le langage publie par des lectures minimales (`nomDuCentre`, `tousAvecNom`). A trancher dans l'ADR 0174.
 - Chaque site : remplacer le SELECT par l'annuaire injecte, goldens inchanges (parite), tri par nom conserve. `SessionLegacy` : `s.actif` via `societesActives().contains` (garde le SQL `app_user`/`app_user_societe` qui reste a Identite et acces).
 - Sortie : supprimer les 6 entrees de `TableDeLOrganisationTest` (critere d'avancement : 0), ArchUnit, `check-arch.ts`, KB.
+
+# IDN-lecture - phase 2 : refactoring sur place (2026-11-14, ADR 0174)
+
+## Decisions de l'utilisateur
+Fichiers inscrits dans `covered.json` (par l'utilisateur) ; option B (langage publie etendu, tri cote Organisation) ; deux ecarts corriges (KB-IDN-1, KB-IDN-2).
+
+## Livre
+| Couche | Fichiers |
+|---|---|
+| Langage publie (Organisation) | `AnnuaireDesCentres` (+ `tousAvecNom`, `nomDuCentre`, `CentreNomme`), `AnnuaireDesSocietes` (+ `societesAvecUnCentreActif`, `SocieteNommee`) ; adapters `AnnuaireDesCentresJdbc`, `AnnuaireDesSocietesJdbc` |
+| Contrat | `AnnuairesContrat` (+3 tests), `AnnuairesEnMemoire` (meme contrat que JDBC) ; fakes de Seance et Patient-couverture completes |
+| Consommateurs | `AuthService`, `DirectionAccountService`, `SocieteAdminAccountService`, `UserRestController`, `DevSuperAdminBootstrapInitializer`, `SessionLegacy` (Pilotage ; cablage `PilotageDirectionConfiguration`) : plus aucun SELECT sur `centers`/`societes` |
+| Ecarts | `DatesIllisiblesDeLaDirectionAdvice` : 403 avant 400 (comptes de societe), 400 sur identifiant de societe illisible |
+| Garde | `TableDeLOrganisationTest` : 6 -> 0 entrees, critere `isEmpty()`, aucun report de butoir |
+
+## Parite
+19 goldens : 16 inchanges, 3 changes volontairement (`annuaires_publics_de_connexion`, `administrateurs_creation`, `direction_comptes`) -> `*_nouveau_code.approved.json`, anciens archives en `_ecarts-legacy/{connexion,comptes}/*_avant_idn_lecture.legacy.json`. Ecart de forme uniquement sur 400->403 et 500->400 (diff verifie ligne a ligne).
+
+## Reste a faire / limites
+Confirmation metiers/DPO des KB-IDN-1/2 avant le 2026-12-15 ; `app_user*` reste lu par Identite (propriete future du contexte Identite et acces).
 
 ## Verification de phase 1
 Build complet detache (`mvnw.cmd -o test -fae -q`) : 3550 tests, 1 echec connu et non touche (`InventairePl7...feuille_de_comptage`, date) ; aucun autre `[ERROR]`. Un premier build avait revele une pollution de la base partagee par le test d'amorcage (role/compte SUPERADMIN preexistants supprimes puis non rendus, `InitialSetupIntegrationTest` en echec) : corrige (sauvegarde avant retrait, restitution a la fin), puis trois passes ciblees vertes (`*IdnLecture*` + `InitialSetupIntegrationTest`) et build complet relance.
