@@ -1,0 +1,73 @@
+{
+  "01 apres la verification en ligne (instance autorite, aucune URL, aucun reseau) : rien n'est enregistre" : {
+    "lignes" : [ {
+      "center_id" : "<CENTRE_ALPHA_2>",
+      "status" : "REVOKED",
+      "verification_enregistree" : "false"
+    }, {
+      "center_id" : "<CENTRE_ALPHA_1>",
+      "status" : "ACTIVE",
+      "verification_enregistree" : "false"
+    } ]
+  },
+  "02 autorite sans session : refusee (la route n'est pas publique en pratique)" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 403
+  },
+  "03 autorite : licence active" : {
+    "body" : {
+      "revoked" : false
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "04 autorite : licence revoquee" : {
+    "body" : {
+      "revoked" : true
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "05 autorite : jti inconnu" : {
+    "body" : {
+      "revoked" : false,
+      "unknown" : true
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "06 autorite : jti absent" : {
+    "body" : {
+      "code" : "INTERNAL_ERROR",
+      "detail" : "<message technique Spring/Jackson/SGBD non verrouille>",
+      "instance" : "/api/v1/licenses/authority/verify",
+      "status" : 500,
+      "title" : "Erreur interne"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 500
+  },
+  "07 apres un enregistrement de verification (la licence inconnue est ignoree)" : {
+    "lignes" : [ {
+      "center_id" : "<CENTRE_ALPHA_2>",
+      "verification_enregistree" : "false"
+    }, {
+      "center_id" : "<CENTRE_ALPHA_1>",
+      "verification_enregistree" : "true"
+    } ]
+  },
+  "08 statut apres verification" : {
+    "body" : {
+      "applicable" : true,
+      "expiresAt" : "<HORODATAGE>",
+      "maxUsers" : 5,
+      "reason" : null,
+      "type" : "STANDARD",
+      "usedSeats" : 1,
+      "valid" : true
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  }
+}

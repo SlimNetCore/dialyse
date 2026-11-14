@@ -1,0 +1,118 @@
+{
+  "01 emission pour Alpha 1 (SUPERADMIN)" : {
+    "body" : {
+      "activatedAt" : "<HORODATAGE>",
+      "centerId" : "<CENTRE_ALPHA_1>",
+      "centerName" : null,
+      "createdAt" : "<HORODATAGE>",
+      "id" : "<UUID_GENERE_1>",
+      "lastOnlineCheckAt" : null,
+      "licenseKey" : "<CLE_SIGNEE>",
+      "maxUsers" : 5,
+      "revokedReason" : null,
+      "status" : "ACTIVE",
+      "type" : "STANDARD",
+      "validFrom" : "<HORODATAGE>",
+      "validUntil" : "<HORODATAGE>"
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "02 emission pour un centre desactive : acceptee" : {
+    "body" : {
+      "activatedAt" : "<HORODATAGE>",
+      "centerId" : "<CENTRE_ALPHA_FERME>",
+      "centerName" : null,
+      "createdAt" : "<HORODATAGE>",
+      "id" : "<UUID_GENERE_2>",
+      "lastOnlineCheckAt" : null,
+      "licenseKey" : "<CLE_SIGNEE>",
+      "maxUsers" : 2,
+      "revokedReason" : null,
+      "status" : "ACTIVE",
+      "type" : "ESSAI",
+      "validFrom" : "<HORODATAGE>",
+      "validUntil" : "<HORODATAGE>"
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "03 emission pour le centre d'une societe desactivee : acceptee" : {
+    "body" : {
+      "activatedAt" : "<HORODATAGE>",
+      "centerId" : "<CENTRE_BETA_NORD>",
+      "centerName" : null,
+      "createdAt" : "<HORODATAGE>",
+      "id" : "<UUID_GENERE_3>",
+      "lastOnlineCheckAt" : null,
+      "licenseKey" : "<CLE_SIGNEE>",
+      "maxUsers" : 9,
+      "revokedReason" : null,
+      "status" : "ACTIVE",
+      "type" : "STANDARD",
+      "validFrom" : "<HORODATAGE>",
+      "validUntil" : "<HORODATAGE>"
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "04 emission pour un centre inconnu" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Centre introuvable : <UUID_GENERE_4>",
+      "instance" : "/api/v1/licenses/issue",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "05 emission : le code du centre est un champ du jeton" : {
+    "body" : {
+      "activatedAt" : "<HORODATAGE>",
+      "centerId" : "<CENTRE_ALPHA_2>",
+      "centerName" : null,
+      "createdAt" : "<HORODATAGE>",
+      "id" : "<UUID_GENERE_5>",
+      "lastOnlineCheckAt" : null,
+      "licenseKey" : "<CLE_SIGNEE>",
+      "maxUsers" : 1,
+      "revokedReason" : null,
+      "status" : "ACTIVE",
+      "type" : "STANDARD",
+      "validFrom" : "<HORODATAGE>",
+      "validUntil" : "<HORODATAGE>"
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "06 licences en base apres les emissions" : {
+    "lignes" : [ {
+      "center_id" : "<CENTRE_ALPHA_1>",
+      "max_users" : "5",
+      "status" : "ACTIVE",
+      "type" : "STANDARD"
+    }, {
+      "center_id" : "<CENTRE_ALPHA_2>",
+      "max_users" : "1",
+      "status" : "ACTIVE",
+      "type" : "STANDARD"
+    }, {
+      "center_id" : "<CENTRE_ALPHA_FERME>",
+      "max_users" : "2",
+      "status" : "ACTIVE",
+      "type" : "ESSAI"
+    }, {
+      "center_id" : "<CENTRE_BETA_NORD>",
+      "max_users" : "9",
+      "status" : "ACTIVE",
+      "type" : "STANDARD"
+    } ]
+  },
+  "07 le code du centre figure dans le jeton signe" : {
+    "valeur" : "true"
+  },
+  "08 l'identifiant du centre figure dans le jeton" : {
+    "valeur" : "true"
+  }
+}

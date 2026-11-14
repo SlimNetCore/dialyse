@@ -56,6 +56,11 @@ class HorlogeDesCentresPubliesTest {
         }
 
         @Override
+        public Optional<String> codeDuCentre(UUID centre) {
+            return Optional.empty();
+        }
+
+        @Override
         public Optional<ZoneId> fuseauHoraireDe(UUID centre) {
             return Optional.ofNullable(fuseaux.get(centre));
         }

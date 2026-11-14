@@ -35,6 +35,15 @@ public class AnnuaireDesSocietesJdbc implements AnnuaireDesSocietes {
     }
 
     @Override
+    public List<CentreRattache> centresAvecLeurSociete() {
+        return jdbc.query(
+                "SELECT c.id, c.name, c.societe_id, s.raison_sociale FROM centers c LEFT JOIN societes s ON s.id = c.societe_id "
+                        + "ORDER BY c.name, c.id",
+                (rs, i) -> new CentreRattache(rs.getObject("id", UUID.class), rs.getString("name"),
+                        rs.getObject("societe_id", UUID.class), rs.getString("raison_sociale")));
+    }
+
+    @Override
     public Optional<UUID> societeDuCentre(UUID centre) {
         var lignes = jdbc.queryForList("SELECT societe_id FROM centers WHERE id = ?", UUID.class, centre);
         return lignes.isEmpty() ? Optional.empty() : Optional.ofNullable(lignes.get(0));

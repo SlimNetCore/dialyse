@@ -1,0 +1,214 @@
+{
+  "01 ADMIN active la cle de son centre" : {
+    "body" : {
+      "activatedAt" : "<HORODATAGE>",
+      "centerId" : "<CENTRE_ALPHA_1>",
+      "centerName" : null,
+      "createdAt" : "<HORODATAGE>",
+      "id" : "<UUID_GENERE_1>",
+      "lastOnlineCheckAt" : null,
+      "licenseKey" : "<CLE_SIGNEE>",
+      "maxUsers" : 5,
+      "revokedReason" : null,
+      "status" : "ACTIVE",
+      "type" : "STANDARD",
+      "validFrom" : "<HORODATAGE>",
+      "validUntil" : "<HORODATAGE>"
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "02 la meme cle une seconde fois" : {
+    "body" : {
+      "code" : "INTERNAL_ERROR",
+      "detail" : "<message technique Spring/Jackson/SGBD non verrouille>",
+      "instance" : "/api/v1/licenses/activate",
+      "status" : 500,
+      "title" : "Erreur interne"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 500
+  },
+  "03 ADMIN : la cle d'un autre centre est refusee (le centre du corps est ignore)" : {
+    "body" : {
+      "code" : "INTERNAL_ERROR",
+      "detail" : "<message technique Spring/Jackson/SGBD non verrouille>",
+      "instance" : "/api/v1/licenses/activate",
+      "status" : 500,
+      "title" : "Erreur interne"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 500
+  },
+  "04 ADMIN : le centre du corps est ignore, la cle de son centre est activee" : {
+    "body" : {
+      "activatedAt" : "<HORODATAGE>",
+      "centerId" : "<CENTRE_ALPHA_1>",
+      "centerName" : null,
+      "createdAt" : "<HORODATAGE>",
+      "id" : "<UUID_GENERE_2>",
+      "lastOnlineCheckAt" : null,
+      "licenseKey" : "<CLE_SIGNEE>",
+      "maxUsers" : 3,
+      "revokedReason" : null,
+      "status" : "ACTIVE",
+      "type" : "ESSAI",
+      "validFrom" : "<HORODATAGE>",
+      "validUntil" : "<HORODATAGE>"
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "05 SUPERADMIN active pour le centre du corps" : {
+    "body" : {
+      "activatedAt" : "<HORODATAGE>",
+      "centerId" : "<CENTRE_ALPHA_2>",
+      "centerName" : null,
+      "createdAt" : "<HORODATAGE>",
+      "id" : "<UUID_GENERE_3>",
+      "lastOnlineCheckAt" : null,
+      "licenseKey" : "<CLE_SIGNEE>",
+      "maxUsers" : 8,
+      "revokedReason" : null,
+      "status" : "ACTIVE",
+      "type" : "STANDARD",
+      "validFrom" : "<HORODATAGE>",
+      "validUntil" : "<HORODATAGE>"
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "06 SUPERADMIN : cle d'un autre centre" : {
+    "body" : {
+      "code" : "INTERNAL_ERROR",
+      "detail" : "<message technique Spring/Jackson/SGBD non verrouille>",
+      "instance" : "/api/v1/licenses/activate",
+      "status" : 500,
+      "title" : "Erreur interne"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 500
+  },
+  "07 SUPERADMIN : centre inconnu, cle valide pour ce centre : acceptee" : {
+    "body" : {
+      "activatedAt" : "<HORODATAGE>",
+      "centerId" : "<CENTRE_INCONNU>",
+      "centerName" : null,
+      "createdAt" : "<HORODATAGE>",
+      "id" : "<UUID_GENERE_4>",
+      "lastOnlineCheckAt" : null,
+      "licenseKey" : "<CLE_SIGNEE>",
+      "maxUsers" : 1,
+      "revokedReason" : null,
+      "status" : "ACTIVE",
+      "type" : "STANDARD",
+      "validFrom" : "<HORODATAGE>",
+      "validUntil" : "<HORODATAGE>"
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "08 cle illisible" : {
+    "body" : {
+      "code" : "INTERNAL_ERROR",
+      "detail" : "<message technique Spring/Jackson/SGBD non verrouille>",
+      "instance" : "/api/v1/licenses/activate",
+      "status" : 500,
+      "title" : "Erreur interne"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 500
+  },
+  "09 cle expiree" : {
+    "body" : {
+      "code" : "INTERNAL_ERROR",
+      "detail" : "<message technique Spring/Jackson/SGBD non verrouille>",
+      "instance" : "/api/v1/licenses/activate",
+      "status" : 500,
+      "title" : "Erreur interne"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 500
+  },
+  "10 cle vide" : {
+    "body" : {
+      "code" : "INTERNAL_ERROR",
+      "detail" : "<message technique Spring/Jackson/SGBD non verrouille>",
+      "instance" : "/api/v1/licenses/activate",
+      "status" : 500,
+      "title" : "Erreur interne"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 500
+  },
+  "11 cle absente" : {
+    "body" : {
+      "code" : "INTERNAL_ERROR",
+      "detail" : "<message technique Spring/Jackson/SGBD non verrouille>",
+      "instance" : "/api/v1/licenses/activate",
+      "status" : 500,
+      "title" : "Erreur interne"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 500
+  },
+  "12 DIRECTION" : {
+    "body" : {
+      "code" : "ROLE_SCOPE",
+      "detail" : "Ce profil n'a pas accès à cette ressource.",
+      "title" : "Accès refusé"
+    },
+    "contentType" : "application/json",
+    "status" : 403
+  },
+  "13 MEDECIN" : {
+    "body" : {
+      "code" : "ACCESS_DENIED",
+      "detail" : "Access Denied",
+      "instance" : "/api/v1/licenses/activate",
+      "status" : 403,
+      "title" : "Acces refuse"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 403
+  },
+  "14 sans session" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 403
+  },
+  "15 ADMIN sans centre" : {
+    "body" : {
+      "code" : "INTERNAL_ERROR",
+      "detail" : "<message technique Spring/Jackson/SGBD non verrouille>",
+      "instance" : "/api/v1/licenses/activate",
+      "status" : 500,
+      "title" : "Erreur interne"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 500
+  },
+  "16 licences en base" : {
+    "lignes" : [ {
+      "center_id" : "<CENTRE_INCONNU>",
+      "max_users" : "1",
+      "status" : "ACTIVE",
+      "type" : "STANDARD"
+    }, {
+      "center_id" : "<CENTRE_ALPHA_2>",
+      "max_users" : "8",
+      "status" : "ACTIVE",
+      "type" : "STANDARD"
+    }, {
+      "center_id" : "<CENTRE_ALPHA_1>",
+      "max_users" : "3",
+      "status" : "ACTIVE",
+      "type" : "ESSAI"
+    }, {
+      "center_id" : "<CENTRE_ALPHA_1>",
+      "max_users" : "5",
+      "status" : "ACTIVE",
+      "type" : "STANDARD"
+    } ]
+  }
+}

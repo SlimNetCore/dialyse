@@ -1,0 +1,123 @@
+{
+  "01 societe desactivee dont le centre est actif : acceptee" : {
+    "body" : [ {
+      "activatedAt" : "<HORODATAGE>",
+      "centerId" : "<CENTRE_BETA_NORD>",
+      "centerName" : "Beta Nord",
+      "createdAt" : "<HORODATAGE>",
+      "id" : "<UUID_GENERE_1>",
+      "lastOnlineCheckAt" : null,
+      "licenseKey" : "<CLE_SIGNEE>",
+      "maxUsers" : 5,
+      "revokedReason" : null,
+      "status" : "ACTIVE",
+      "type" : "STANDARD",
+      "validFrom" : "<HORODATAGE>",
+      "validUntil" : "<HORODATAGE>"
+    } ],
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "02 societe dont le seul centre est desactive" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Cette société n'a aucun centre actif à licencier",
+      "instance" : "/api/v1/licenses/issue-societe",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "03 societe sans centre" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Cette société n'a aucun centre actif à licencier",
+      "instance" : "/api/v1/licenses/issue-societe",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "04 societe inconnue" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Cette société n'a aucun centre actif à licencier",
+      "instance" : "/api/v1/licenses/issue-societe",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "05 societe absente" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "societeId est obligatoire",
+      "instance" : "/api/v1/licenses/issue-societe",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "06 dates inversees" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "La date de fin doit être postérieure à la date de début",
+      "instance" : "/api/v1/licenses/issue-societe",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "07 zero poste" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Le nombre de postes doit être d'au moins 1",
+      "instance" : "/api/v1/licenses/issue-societe",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "08 ADMIN" : {
+    "body" : {
+      "code" : "ACCESS_DENIED",
+      "detail" : "Access Denied",
+      "instance" : "/api/v1/licenses/issue-societe",
+      "status" : 403,
+      "title" : "Acces refuse"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 403
+  },
+  "09 DIRECTION" : {
+    "body" : {
+      "code" : "ROLE_SCOPE",
+      "detail" : "Ce profil n'a pas accès à cette ressource.",
+      "title" : "Accès refusé"
+    },
+    "contentType" : "application/json",
+    "status" : 403
+  },
+  "10 ADMIN avec un corps a dates illisibles" : {
+    "body" : {
+      "code" : "INTERNAL_ERROR",
+      "detail" : "<message technique Spring/Jackson/SGBD non verrouille>",
+      "instance" : "/api/v1/licenses/issue-societe",
+      "status" : 500,
+      "title" : "Erreur interne"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 500
+  },
+  "11 licences en base" : {
+    "lignes" : [ {
+      "center_id" : "<CENTRE_BETA_NORD>"
+    } ]
+  }
+}

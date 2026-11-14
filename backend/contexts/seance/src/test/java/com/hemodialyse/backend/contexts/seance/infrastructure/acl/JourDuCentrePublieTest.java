@@ -55,6 +55,11 @@ class JourDuCentrePublieTest {
         }
 
         @Override
+        public Optional<String> codeDuCentre(UUID centre) {
+            return Optional.empty();
+        }
+
+        @Override
         public Optional<ZoneId> fuseauHoraireDe(UUID centre) {
             String identifiant = FUSEAUX.get(centre);
             if (identifiant == null || identifiant.isBlank()) return Optional.empty();

@@ -1,0 +1,63 @@
+{
+  "01 ADMIN" : {
+    "body" : {
+      "code" : "ACCESS_DENIED",
+      "detail" : "Access Denied",
+      "instance" : "/api/v1/licenses/issue",
+      "status" : 403,
+      "title" : "Acces refuse"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 403
+  },
+  "02 DIRECTION" : {
+    "body" : {
+      "code" : "ROLE_SCOPE",
+      "detail" : "Ce profil n'a pas accès à cette ressource.",
+      "title" : "Accès refusé"
+    },
+    "contentType" : "application/json",
+    "status" : 403
+  },
+  "03 MEDECIN" : {
+    "body" : {
+      "code" : "ACCESS_DENIED",
+      "detail" : "Access Denied",
+      "instance" : "/api/v1/licenses/issue",
+      "status" : 403,
+      "title" : "Acces refuse"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 403
+  },
+  "04 sans session" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 403
+  },
+  "05 ADMIN avec un corps a dates illisibles" : {
+    "body" : {
+      "code" : "INTERNAL_ERROR",
+      "detail" : "<message technique Spring/Jackson/SGBD non verrouille>",
+      "instance" : "/api/v1/licenses/issue",
+      "status" : 500,
+      "title" : "Erreur interne"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 500
+  },
+  "06 SUPERADMIN avec un corps a dates illisibles" : {
+    "body" : {
+      "code" : "INTERNAL_ERROR",
+      "detail" : "<message technique Spring/Jackson/SGBD non verrouille>",
+      "instance" : "/api/v1/licenses/issue",
+      "status" : 500,
+      "title" : "Erreur interne"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 500
+  },
+  "07 aucune licence emise" : {
+    "lignes" : [ ]
+  }
+}

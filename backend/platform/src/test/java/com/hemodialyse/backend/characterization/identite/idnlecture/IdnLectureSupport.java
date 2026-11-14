@@ -54,9 +54,14 @@ public abstract class IdnLectureSupport extends OrganisationCharacterizationSupp
 
     protected abstract String dossier();
 
+    /** Dossier racine des goldens sous {@code characterization/identite} (le filet IDN-licence réutilise ce harnais). */
+    protected String racineDesGoldens() {
+        return "idn-lecture";
+    }
+
     @Override
     protected final String theme() {
-        return "../identite/idn-lecture/" + dossier();
+        return "../identite/" + racineDesGoldens() + "/" + dossier();
     }
 
     @BeforeEach
@@ -252,6 +257,11 @@ public abstract class IdnLectureSupport extends OrganisationCharacterizationSupp
             row.entrySet().stream().sorted(Map.Entry.comparingByKey())
                     .forEach(e -> o.put(e.getKey().toLowerCase(), e.getValue() == null ? null : String.valueOf(e.getValue())));
         }
+    }
+
+    /** Ouvre une étape numérotée du journal (pour les filets qui construisent leur propre entrée, p. ex. IDN-licence). */
+    protected ObjectNode nouvelleEtape(String libelle) {
+        return journal.putObject(String.format("%02d %s", ++etape, libelle));
     }
 
     protected void traceNote(String libelle, String valeur) {

@@ -26,6 +26,12 @@ public interface AnnuaireDesCentres {
     /** Le nom d'un centre ; vide si le centre est inconnu (ADR 0174). */
     Optional<String> nomDuCentre(UUID centre);
 
+    /**
+     * Le code d'un centre (identifiant métier court, signé dans la clé de licence) ; vide si le centre est inconnu ou si son code est
+     * absent (IDN-licence, ADR 0175).
+     */
+    Optional<String> codeDuCentre(UUID centre);
+
     /** Un centre et son nom. */
     record CentreNomme(UUID id, String nom) {
     }

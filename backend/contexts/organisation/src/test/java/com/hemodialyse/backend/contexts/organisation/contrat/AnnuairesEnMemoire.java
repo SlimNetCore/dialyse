@@ -65,6 +65,19 @@ final class AnnuairesEnMemoire implements AnnuaireDesCentres, AnnuaireDesSociete
     }
 
     @Override
+    public Optional<String> codeDuCentre(UUID centre) {
+        return Optional.ofNullable(centres.get(centre)).map(c -> AnnuairesContrat.code(c.id()));
+    }
+
+    @Override
+    public List<CentreRattache> centresAvecLeurSociete() {
+        return centres.values().stream().sorted(Comparator.comparing(Centre::nom).thenComparing(c -> c.id().toString()))
+                .map(c -> new CentreRattache(c.id(), c.nom(), c.societe(),
+                        Optional.ofNullable(societes.get(c.societe())).map(Societe::raisonSociale).orElse(null)))
+                .toList();
+    }
+
+    @Override
     public Optional<ZoneId> fuseauHoraireDe(UUID centre) {
         Centre c = centres.get(centre);
         if (c == null || c.fuseau() == null || c.fuseau().isBlank()) return Optional.empty();

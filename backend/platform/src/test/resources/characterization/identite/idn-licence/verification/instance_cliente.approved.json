@@ -1,0 +1,117 @@
+{
+  "01 avant : licence ancienne jamais verifiee (hors periode de grace)" : {
+    "body" : {
+      "applicable" : true,
+      "reason" : "Vérification en ligne de la licence trop ancienne (> 5 jours) — vérifiez la connexion Internet du centre.",
+      "valid" : false
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "02 avant : licence recente" : {
+    "body" : {
+      "applicable" : true,
+      "expiresAt" : "<HORODATAGE>",
+      "maxUsers" : 5,
+      "reason" : null,
+      "type" : "STANDARD",
+      "usedSeats" : 0,
+      "valid" : true
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "03 avant : licence sans date d'activation ni verification" : {
+    "body" : {
+      "applicable" : true,
+      "expiresAt" : "<HORODATAGE>",
+      "maxUsers" : 5,
+      "reason" : null,
+      "type" : "STANDARD",
+      "usedSeats" : 0,
+      "valid" : true
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "04 apres la verification en ligne (aucune date enregistree dans le golden)" : {
+    "lignes" : [ {
+      "center_id" : "<CENTRE_DELTA_3>",
+      "revoked_reason" : null,
+      "status" : "ACTIVE",
+      "verification_enregistree" : "true"
+    }, {
+      "center_id" : "<CENTRE_ALPHA_1>",
+      "revoked_reason" : null,
+      "status" : "ACTIVE",
+      "verification_enregistree" : "true"
+    }, {
+      "center_id" : "<CENTRE_DELTA_2>",
+      "revoked_reason" : null,
+      "status" : "ACTIVE",
+      "verification_enregistree" : "true"
+    }, {
+      "center_id" : "<CENTRE_DELTA_1>",
+      "revoked_reason" : null,
+      "status" : "ACTIVE",
+      "verification_enregistree" : "false"
+    }, {
+      "center_id" : "<CENTRE_DELTA_4>",
+      "revoked_reason" : null,
+      "status" : "REVOKED",
+      "verification_enregistree" : "false"
+    }, {
+      "center_id" : "<CENTRE_ALPHA_2>",
+      "revoked_reason" : "Révoquée à distance (vérification en ligne)",
+      "status" : "REVOKED",
+      "verification_enregistree" : "false"
+    } ]
+  },
+  "05 apres : licence verifiee aupres de l'autorite" : {
+    "body" : {
+      "applicable" : true,
+      "expiresAt" : "<HORODATAGE>",
+      "maxUsers" : 5,
+      "reason" : null,
+      "type" : "STANDARD",
+      "usedSeats" : 1,
+      "valid" : true
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "06 apres : licence revoquee a distance" : {
+    "body" : {
+      "applicable" : true,
+      "reason" : "Licence révoquée : Révoquée à distance (vérification en ligne)",
+      "valid" : false
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "07 apres : l'autorite en erreur ne change rien" : {
+    "body" : {
+      "applicable" : true,
+      "reason" : "Vérification en ligne de la licence trop ancienne (> 5 jours) — vérifiez la connexion Internet du centre.",
+      "valid" : false
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "08 autorite : une instance cliente repond 404" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 404
+  },
+  "09 emission : une instance cliente ne detient pas la cle privee de l'autorite" : {
+    "body" : {
+      "code" : "BUSINESS_RULE_VIOLATION",
+      "detail" : "Cette instance ne détient pas la clé privée de licence — seule l'instance autorité peut émettre des licences.",
+      "instance" : "/api/v1/licenses/issue",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  }
+}

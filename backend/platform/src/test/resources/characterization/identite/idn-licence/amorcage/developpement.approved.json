@@ -1,0 +1,74 @@
+{
+  "01 apres le premier amorcage (une licence de 50 postes, STANDARD, par centre non servi)" : {
+    "lignes" : [ {
+      "center_id" : "<CENTRE_GAMMA_2>",
+      "max_users" : "5",
+      "status" : "ACTIVE",
+      "type" : "STANDARD"
+    }, {
+      "center_id" : "<CENTRE_GAMMA_2>",
+      "max_users" : "50",
+      "status" : "ACTIVE",
+      "type" : "STANDARD"
+    }, {
+      "center_id" : "<CENTRE_BETA_NORD>",
+      "max_users" : "5",
+      "status" : "ACTIVE",
+      "type" : "STANDARD"
+    }, {
+      "center_id" : "<CENTRE_ALPHA_1>",
+      "max_users" : "50",
+      "status" : "ACTIVE",
+      "type" : "STANDARD"
+    }, {
+      "center_id" : "<CENTRE_ALPHA_FERME>",
+      "max_users" : "50",
+      "status" : "ACTIVE",
+      "type" : "STANDARD"
+    }, {
+      "center_id" : "<CENTRE_GAMMA_1>",
+      "max_users" : "5",
+      "status" : "REVOKED",
+      "type" : "STANDARD"
+    } ]
+  },
+  "02 apres le rejeu : aucune nouvelle licence" : {
+    "lignes" : [ {
+      "center_id" : "<CENTRE_GAMMA_2>",
+      "max_users" : "5",
+      "status" : "ACTIVE",
+      "type" : "STANDARD"
+    }, {
+      "center_id" : "<CENTRE_GAMMA_2>",
+      "max_users" : "50",
+      "status" : "ACTIVE",
+      "type" : "STANDARD"
+    }, {
+      "center_id" : "<CENTRE_BETA_NORD>",
+      "max_users" : "5",
+      "status" : "ACTIVE",
+      "type" : "STANDARD"
+    }, {
+      "center_id" : "<CENTRE_ALPHA_1>",
+      "max_users" : "50",
+      "status" : "ACTIVE",
+      "type" : "STANDARD"
+    }, {
+      "center_id" : "<CENTRE_ALPHA_FERME>",
+      "max_users" : "50",
+      "status" : "ACTIVE",
+      "type" : "STANDARD"
+    }, {
+      "center_id" : "<CENTRE_GAMMA_1>",
+      "max_users" : "5",
+      "status" : "REVOKED",
+      "type" : "STANDARD"
+    } ]
+  },
+  "03 le jeton emis porte le code du centre" : {
+    "valeur" : "true"
+  },
+  "04 la licence emise n'a pas de createur" : {
+    "valeur" : "true"
+  }
+}

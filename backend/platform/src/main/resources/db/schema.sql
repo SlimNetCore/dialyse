@@ -435,33 +435,103 @@ CREATE TABLE IF NOT EXISTS attestation_droit (
 
 -- ═══ User & Role Management ═══
 
+-- S-DDL1 (2026-11-14) : societes, centers, license, app_user, app_role et les deux tables de rattachement décrivent EXACTEMENT
+-- Flyway V1 (baseline) + V12 (must_change_password) + V46 (fuseau_horaire) + V56 (centers.actif NOT NULL DEFAULT TRUE) : mêmes
+-- colonnes, mêmes largeurs, mêmes nullités, mêmes contraintes d'unicité (société.code, licence.jti, et AUCUNE unicité sur
+-- app_user.username ni app_role.code, comme en production : KB-PLN-24), mêmes clés étrangères. Jusqu'ici ces tables étaient créées
+-- par Hibernate (ddl-auto: update) ; l'ancien DDL de app_role / app_user ci-dessous (largeurs 50/80/150, UNIQUE) n'était jamais appliqué.
+-- ORDRE : les clés étrangères imposent societes, centers, app_role, app_user AVANT app_user_role et app_user_center. H2 seulement.
+CREATE TABLE IF NOT EXISTS societes (
+    id UUID NOT NULL,
+    actif BOOLEAN NOT NULL,
+    adresse VARCHAR(250),
+    code VARCHAR(30) NOT NULL,
+    created_at TIMESTAMP(6) WITH TIME ZONE NOT NULL,
+    email VARCHAR(150),
+    logo BYTEA,
+    logo_content_type VARCHAR(30),
+    nif VARCHAR(40),
+    nis VARCHAR(40),
+    pied_page VARCHAR(500),
+    raison_sociale VARCHAR(200) NOT NULL,
+    rc VARCHAR(40),
+    site_web VARCHAR(200),
+    telephone VARCHAR(30),
+    ville VARCHAR(100),
+    wilaya VARCHAR(100),
+    PRIMARY KEY (id),
+    CONSTRAINT uk_societes_code UNIQUE (code)
+);
+
+CREATE TABLE IF NOT EXISTS centers (
+    id UUID NOT NULL,
+    actif BOOLEAN DEFAULT TRUE NOT NULL,
+    adresse VARCHAR(250),
+    code VARCHAR(255),
+    email VARCHAR(150),
+    fuseau_horaire VARCHAR(50),
+    name VARCHAR(255),
+    site_web VARCHAR(200),
+    societe_id UUID NOT NULL,
+    telephone VARCHAR(30),
+    ville VARCHAR(100),
+    wilaya VARCHAR(100),
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS license (
+    id UUID NOT NULL,
+    activated_at TIMESTAMP(6) WITH TIME ZONE,
+    center_id UUID NOT NULL,
+    created_at TIMESTAMP(6) WITH TIME ZONE NOT NULL,
+    created_by UUID,
+    jti VARCHAR(255) NOT NULL,
+    last_online_check_at TIMESTAMP(6) WITH TIME ZONE,
+    license_key TEXT NOT NULL,
+    max_users INTEGER NOT NULL,
+    revoked_reason VARCHAR(255),
+    status VARCHAR(255) NOT NULL,
+    type VARCHAR(255) NOT NULL,
+    valid_from TIMESTAMP(6) WITH TIME ZONE NOT NULL,
+    valid_until TIMESTAMP(6) WITH TIME ZONE NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_license_jti UNIQUE (jti)
+);
+
 CREATE TABLE IF NOT EXISTS app_role (
-    id UUID PRIMARY KEY,
-    code VARCHAR(50) NOT NULL UNIQUE,
-    name VARCHAR(100) NOT NULL,
-    description VARCHAR(255)
+    id UUID NOT NULL,
+    code VARCHAR(255) NOT NULL,
+    description VARCHAR(255),
+    name VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS app_user (
-    id UUID PRIMARY KEY,
-    username VARCHAR(80) NOT NULL UNIQUE,
+    id UUID NOT NULL,
+    active BOOLEAN NOT NULL,
+    created_at TIMESTAMP(6) WITH TIME ZONE,
+    email VARCHAR(255),
+    full_name VARCHAR(255),
+    must_change_password BOOLEAN DEFAULT FALSE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
-    email VARCHAR(150),
-    full_name VARCHAR(150),
-    active BOOLEAN NOT NULL DEFAULT TRUE,
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+    username VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS app_user_role (
     user_id UUID NOT NULL,
     role_id UUID NOT NULL,
-    PRIMARY KEY (user_id, role_id)
+    PRIMARY KEY (user_id, role_id),
+    CONSTRAINT fk_app_user_role_user FOREIGN KEY (user_id) REFERENCES app_user (id),
+    CONSTRAINT fk_app_user_role_role FOREIGN KEY (role_id) REFERENCES app_role (id)
 );
 
 CREATE TABLE IF NOT EXISTS app_user_center (
     user_id UUID NOT NULL,
     center_id UUID NOT NULL,
-    PRIMARY KEY (user_id, center_id)
+    PRIMARY KEY (user_id, center_id),
+    CONSTRAINT fk_app_user_center_user FOREIGN KEY (user_id) REFERENCES app_user (id),
+    CONSTRAINT fk_app_user_center_center FOREIGN KEY (center_id) REFERENCES centers (id)
 );
 
 CREATE TABLE IF NOT EXISTS auth_refresh_token

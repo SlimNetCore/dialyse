@@ -23,6 +23,16 @@ public interface AnnuaireDesSocietes {
     record SocieteNommee(UUID id, String raisonSociale) {
     }
 
+    /**
+     * Tous les centres, actifs ou non, chacun avec son nom, sa société et la raison sociale de celle-ci, par nom de centre croissant (le
+     * tri est celui d'Organisation, IDN-licence, ADR 0175). La société et sa raison sociale sont {@code null} si la société est inconnue.
+     */
+    List<CentreRattache> centresAvecLeurSociete();
+
+    /** Un centre avec son nom et sa société. */
+    record CentreRattache(UUID centre, String nomDuCentre, UUID societe, String raisonSociale) {
+    }
+
     /** La société d'un centre ; vide si le centre est inconnu. */
     Optional<UUID> societeDuCentre(UUID centre);
 

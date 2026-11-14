@@ -1,0 +1,186 @@
+{
+  "01 SUPERADMIN : sans objet" : {
+    "body" : {
+      "applicable" : false
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "02 DIRECTION : refusee par le perimetre de role" : {
+    "body" : {
+      "code" : "ROLE_SCOPE",
+      "detail" : "Ce profil n'a pas accès à cette ressource.",
+      "title" : "Accès refusé"
+    },
+    "contentType" : "application/json",
+    "status" : 403
+  },
+  "03 ADMIN sans centre : sans objet" : {
+    "body" : {
+      "applicable" : false
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "04 centre sans licence" : {
+    "body" : {
+      "applicable" : true,
+      "reason" : "Aucune licence enregistrée pour ce centre.",
+      "valid" : false
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "05 sans session" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 403
+  },
+  "06 emission pour Alpha 1" : {
+    "body" : {
+      "activatedAt" : "<HORODATAGE>",
+      "centerId" : "<CENTRE_ALPHA_1>",
+      "centerName" : null,
+      "createdAt" : "<HORODATAGE>",
+      "id" : "<UUID_GENERE_1>",
+      "lastOnlineCheckAt" : null,
+      "licenseKey" : "<CLE_SIGNEE>",
+      "maxUsers" : 5,
+      "revokedReason" : null,
+      "status" : "ACTIVE",
+      "type" : "STANDARD",
+      "validFrom" : "<HORODATAGE>",
+      "validUntil" : "<HORODATAGE>"
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "07 centre licencie, aucun poste occupe hors l'administrateur" : {
+    "body" : {
+      "applicable" : true,
+      "expiresAt" : "<HORODATAGE>",
+      "maxUsers" : 5,
+      "reason" : null,
+      "type" : "STANDARD",
+      "usedSeats" : 1,
+      "valid" : true
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "08 postes occupes : seuls les comptes actifs du centre comptent" : {
+    "body" : {
+      "applicable" : true,
+      "expiresAt" : "<HORODATAGE>",
+      "maxUsers" : 5,
+      "reason" : null,
+      "type" : "STANDARD",
+      "usedSeats" : 2,
+      "valid" : true
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "09 emission pour Alpha 2 puis revocation avec motif" : {
+    "body" : {
+      "activatedAt" : "<HORODATAGE>",
+      "centerId" : "<CENTRE_ALPHA_2>",
+      "centerName" : null,
+      "createdAt" : "<HORODATAGE>",
+      "id" : "<LICENCE_ALPHA_2>",
+      "lastOnlineCheckAt" : null,
+      "licenseKey" : "<CLE_SIGNEE>",
+      "maxUsers" : 2,
+      "revokedReason" : null,
+      "status" : "ACTIVE",
+      "type" : "ESSAI",
+      "validFrom" : "<HORODATAGE>",
+      "validUntil" : "<HORODATAGE>"
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "10 revocation avec motif" : {
+    "body" : {
+      "revoked" : true
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "11 statut d'un centre dont la licence est revoquee" : {
+    "body" : {
+      "applicable" : true,
+      "reason" : "Licence révoquée : Impaye",
+      "valid" : false
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "12 revocation d'une licence inconnue" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Licence introuvable : <UUID_GENERE_2>",
+      "instance" : "/api/v1/licenses/<UUID_GENERE_2>/revoke",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "13 revocation par ADMIN" : {
+    "body" : {
+      "code" : "ACCESS_DENIED",
+      "detail" : "Access Denied",
+      "instance" : "/api/v1/licenses/<LICENCE_ALPHA_2>/revoke",
+      "status" : 403,
+      "title" : "Acces refuse"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 403
+  },
+  "14 statut : licence revoquee sans motif" : {
+    "body" : {
+      "applicable" : true,
+      "reason" : "Licence révoquée.",
+      "valid" : false
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "15 statut : la cle stockee appartient a un autre centre (alteration)" : {
+    "body" : {
+      "applicable" : true,
+      "reason" : "La licence enregistrée ne correspond pas à ce centre.",
+      "valid" : false
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "16 statut : cle stockee illisible" : {
+    "body" : {
+      "applicable" : true,
+      "reason" : "Licence invalide, expirée ou signature incorrecte : Invalid compact JWT string: Compact JWSs must contain exactly 2 period characters, and compact JWEs must contain exactly 4.  Found: 0",
+      "valid" : false
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "17 statut : cle expiree" : {
+    "body" : {
+      "applicable" : true,
+      "reason" : "Licence invalide, expirée ou signature incorrecte : JWT expired <N> milliseconds ago at <HORODATAGE>. Current time: <HORODATAGE>. Allowed clock skew: <N> milliseconds.",
+      "valid" : false
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "18 statut : seule la licence la plus recente compte" : {
+    "body" : {
+      "applicable" : true,
+      "reason" : "Licence révoquée.",
+      "valid" : false
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  }
+}

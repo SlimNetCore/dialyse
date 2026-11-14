@@ -141,6 +141,34 @@ abstract class AnnuairesContrat {
                 .containsExactly(SOCIETE_A, SOCIETE_B);
     }
 
+    /** Le code que les deux implémentations donnent à chaque centre de fixture. */
+    static String code(UUID centre) {
+        return "ANNU-" + centre.toString().substring(30);
+    }
+
+    /** ADR 0175 (IDN-licence) : le code du centre est celui de sa fiche ; vide si le centre est inconnu. */
+    @Test
+    void le_code_d_un_centre_est_celui_de_sa_fiche_et_vide_si_le_centre_est_inconnu() {
+        donnees();
+        assertThat(centres().codeDuCentre(C1)).contains(code(C1));
+        assertThat(centres().codeDuCentre(C2)).as("centre desactive").contains(code(C2));
+        assertThat(centres().codeDuCentre(C6)).as("centre inconnu").isEmpty();
+    }
+
+    /** ADR 0175 : tous les centres avec leur nom et leur société, par nom ; une société inconnue donne une raison sociale absente. */
+    @Test
+    void tous_les_centres_portent_leur_nom_leur_societe_et_la_raison_sociale_tries_par_nom() {
+        donnees();
+        centre(C6, UUID.fromString("99998200-0000-0000-0000-0000000000fe"), "Sans societe", true, null);
+        assertThat(societes().centresAvecLeurSociete()).containsExactly(
+                new AnnuaireDesSocietes.CentreRattache(C1, "Alger", SOCIETE_A, "Alpha"),
+                new AnnuaireDesSocietes.CentreRattache(C5, "Annaba", SOCIETE_B, "Beta"),
+                new AnnuaireDesSocietes.CentreRattache(C2, "Blida", SOCIETE_A, "Alpha"),
+                new AnnuaireDesSocietes.CentreRattache(C4, "Oran", SOCIETE_B, "Beta"),
+                new AnnuaireDesSocietes.CentreRattache(C6, "Sans societe", UUID.fromString("99998200-0000-0000-0000-0000000000fe"), null),
+                new AnnuaireDesSocietes.CentreRattache(C3, "Zeta", SOCIETE_A, "Alpha"));
+    }
+
     @Test
     void une_societe_inconnue_est_absente() {
         donnees();
