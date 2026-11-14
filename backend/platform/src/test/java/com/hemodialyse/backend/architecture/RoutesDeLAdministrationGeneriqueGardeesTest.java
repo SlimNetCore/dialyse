@@ -19,7 +19,7 @@ import java.util.TreeSet;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * RF5 (revue complémentaire RF1-RF3d, constat 5) : le 403 prioritaire de {@code DatesIllisiblesDeLaDirectionAdvice} sur
+ * RF5 (revue complémentaire RF1-RF3d, constat 5) : le 403 prioritaire de {@code FormesIllisiblesDesRoutesAdvice} sur
  * {@code /api/v1/admin/referentials/**} repose sur la présence de {@code @PreAuthorize} (méthode ou classe). Cette garde échoue si UNE route
  * de cette administration (ou un motif plus large qui la recouvre, comme {@code /api/v1/admin/**}) n'en porte pas : ajouter une route sans
  * droit ne passe plus inaperçu. Complément : l'advice refuse par défaut (403) une route de cette administration sans garde.

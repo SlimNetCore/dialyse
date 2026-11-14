@@ -13,10 +13,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  * KB-DIR-02 (lot L6) : une méthode non supportée sur l'API de la Direction répond 405 {@code METHOD_NOT_ALLOWED} avec l'en-tête
  * {@code Allow} (c'était un 500), sans le message technique ; le reste de l'application garde la réponse du gestionnaire commun.
  */
-class MethodesNonSupporteesDeLaDirectionAdviceTest {
+class MethodesNonSupporteesDesRoutesAdviceTest {
 
-    private final DatesIllisiblesDeLaDirectionAdvice.MethodesNonSupporteesDeLaDirectionAdvice advice =
-            new DatesIllisiblesDeLaDirectionAdvice.MethodesNonSupporteesDeLaDirectionAdvice(new ApiExceptionHandler());
+    private final FormesIllisiblesDesRoutesAdvice.MethodesNonSupporteesDesRoutesAdvice advice =
+            new FormesIllisiblesDesRoutesAdvice.MethodesNonSupporteesDesRoutesAdvice(new ApiExceptionHandler());
 
     private ResponseEntity<ProblemDetail> repondre(String methode, String chemin, String... supportees) {
         HttpServletRequest requete = new MockHttpServletRequest(methode, chemin);

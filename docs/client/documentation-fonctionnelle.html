@@ -1913,7 +1913,7 @@ gardent la fin demandée. <em>(Était : jour UTC ; absences futures comptées ; 
 <code>GET /api/v1/direction/absences</code> est refusée en <strong>400</strong> <code>BAD_REQUEST</code> (était : 500) ; un <code>format</code> d&#39;export du tableau de bord autre que
 <code>csv</code>, <code>pdf</code> ou <code>xlsx</code> (sans égard à la casse) est refusé en <strong>400</strong> <code>BAD_REQUEST</code> (était : CSV servi silencieusement). Sans <code>format</code> : CSV.
 La période de la Direction reste refusée en 422 si inversée (<code>PERIODE_INVALIDE</code>) ou de plus de 5 ans (<code>PERIODE_TROP_LONGUE</code>).
-<em>Source :</em> <code>DatesIllisiblesDeLaDirectionAdvice</code>, <code>TableauDeBordDesSeancesControleur.exporter</code>.</p>
+<em>Source :</em> <code>FormesIllisiblesDesRoutesAdvice</code>, <code>TableauDeBordDesSeancesControleur.exporter</code>.</p>
 </div></div>
 <h2>6.7 Clôture mensuelle des absences (slice A6, ADR 0042)</h2>
 <p>Un <strong>mois d&#39;absences</strong> (un mois d&#39;un centre) est ouvert ou clos. Un mois sans ligne est ouvert ; aucun mois n&#39;est clos
@@ -4786,7 +4786,7 @@ de l&#39;application garde sa réponse. Un instantané mensuel dont le contenu s
 lecture (route de lecture, rapport PDF du mois, capture d&#39;un mois déjà figé), sans détail technique ; il <strong>reste listé</strong> (la liste n&#39;ouvre pas le
 contenu) et la donnée n&#39;est jamais réécrite (sa réparation est hors périmètre). <strong>Résiduel documenté (L8, ADR 0120)</strong> : le 405 n&#39;est pas précédé du
 contrôle des droits (l&#39;erreur survient avant le choix du contrôleur) : un profil authentifié sans droit reçoit 405 + <code>Allow</code>, jamais 403 ; sans
-authentification, 401 comme partout (<code>anyRequest().authenticated()</code>). <em>Source :</em> <code>DatesIllisiblesDeLaDirectionAdvice</code>
+authentification, 401 comme partout (<code>anyRequest().authenticated()</code>). <em>Source :</em> <code>FormesIllisiblesDesRoutesAdvice</code>
 (et son gestionnaire de méthode non supportée), <code>InstantanesMensuelsPublies</code>, <code>ErreursDuPilotageAdvice</code>.</p>
 </div></div>
 <div class="rule" id="RG-DIR-113"><div class="rid">RG-DIR-113</div><div class="rtxt"><p><em>Horloge et âge (KB-DIR-03 et KB-DIR-08, <strong>CORRIGÉS le 2026-11-10</strong>)</em> : « aujourd&#39;hui » du Pilotage (fin de période par défaut,

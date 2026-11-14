@@ -208,7 +208,7 @@
   `GET /api/v1/direction/absences` est refusée en **400** `BAD_REQUEST` (était : 500) ; un `format` d'export du tableau de bord autre que
   `csv`, `pdf` ou `xlsx` (sans égard à la casse) est refusé en **400** `BAD_REQUEST` (était : CSV servi silencieusement). Sans `format` : CSV.
   La période de la Direction reste refusée en 422 si inversée (`PERIODE_INVALIDE`) ou de plus de 5 ans (`PERIODE_TROP_LONGUE`).
-  *Source :* `DatesIllisiblesDeLaDirectionAdvice`, `TableauDeBordDesSeancesControleur.exporter`.
+  *Source :* `FormesIllisiblesDesRoutesAdvice`, `TableauDeBordDesSeancesControleur.exporter`.
 
 ## 6.7 Clôture mensuelle des absences (slice A6, ADR 0042)
 

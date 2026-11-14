@@ -169,7 +169,7 @@
   (`AnnuaireDesCentres.codeDuCentre`, centre inconnu : 400). **À confirmer métiers/DPO avant le 2026-12-15 (KB-LIC-3,
   reproduit) :** l'émission pour un centre ne contrôle ni l'état du centre ni celui de sa société (seule l'émission
   « par société » refuse un centre désactivé) ; l'amorçage de développement licencie tous les centres.
-  *Sources :* `LicenseService.issue`, `DatesIllisiblesDeLaDirectionAdvice`.
+  *Sources :* `LicenseService.issue`, `FormesIllisiblesDesRoutesAdvice`.
 - **RG-SEC-035** — Verdict d'un centre : aucune licence, révoquée, signature/expiration invalide, jeton d'un autre
   centre (falsification), vérification en ligne trop ancienne → licence invalide. *Source :* `LicenseService.verify`.
 - **RG-SEC-036** — Tant qu'un centre n'a pas de licence valide, toute route d'un utilisateur non-SUPERADMIN répond

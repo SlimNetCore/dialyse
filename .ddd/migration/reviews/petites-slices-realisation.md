@@ -7,15 +7,15 @@ Refactoring sur place (ADR 0024). Aucun commit, aucun report, `seamAllowed` = []
 | SEED1 | livrée | 0182 | `StockDemoDataSeeder` -> `contexts/stock/configuration/JeuDeDemonstrationDuStock`, mêmes données, même condition `app.stock.demo-data`. Test déplacé et complété (bean absent si faux). |
 | LST | livrée, destination corrigée | 0183 | Vers `comptabilite` : impossible (cycle Maven, facturation dépend de comptabilite). Placés dans `facturation/infrastructure/acl/comptabilite` (`ComptabilisationDesVentesApresLaValidation`, `ComptabilisationDuReglementApresEncaissement`), `@Bean` dans `FacturationContexteConfiguration`. `DomainServiceConfig` ne contenait aucun de ces beans. KB-CPT-37 relu, inchangé. |
 | PL16 | livrée | 0184 | Retirés : DDL H2 `user_center_assignment` et `stock_parametres`, 7 MERGE de `seed.sql`. Les 2 tables GMAO n'ont pas de DDL H2. Aucune table vivante, aucun Flyway touché. |
-| HYG | PARTIELLE | (aucun) | `GEL.md` x2 supprimés (+ 2 commentaires de pom), journaux `backend/*.log` supprimés (tous ignorés par git, aucun suivi, aucun `*.received.json`). RENOMMAGE NON FAIT (voir ci-dessous). |
+| HYG | livrée (2026-11-14) | (aucun) | `GEL.md` x2 supprimés (+ 2 commentaires de pom), journaux `backend/*.log` supprimés (tous ignorés par git). Renommage fait après inscription du nouveau chemin dans `covered.json` par l'utilisateur (ancienne ligne retirée). |
 
-## Blocage guard-legacy (HYG, renommage)
-`DatesIllisiblesDeLaDirectionAdvice.java` est dans `covered.json` (ligne 54) ; le fichier renommé `FormesIllisiblesDesRoutesAdvice.java` ne l'est pas : édition bloquée. Renommage annulé (tout remis en l'état, tests inclus). Pour le reprendre, entrée à ajouter par l'utilisateur :
-`backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/FormesIllisiblesDesRoutesAdvice.java` (et retirer la ligne 54). Plan : renommer outer en `FormesIllisiblesDesRoutesAdvice`, nested `MethodesNonSupporteesDeLaDirectionAdvice` en `MethodesNonSupporteesDesRoutesAdvice`, 2 classes de test idem, mettre à jour la Javadoc de `RoutesDeLAdministrationGeneriqueGardeesTest` et 5 sources dans `docs/reference/regles-de-gestion` (02, 06, 13) et `documentation-fonctionnelle.html`. L'ordre (`HIGHEST_PRECEDENCE`, même paquet, nom entre `Autorisation...` et `ReferentialAdmin...`) est conservé par ce nom.
+## HYG, renommage (réalisé ; le blocage initial est levé)
+Le chemin `FormesIllisiblesDesRoutesAdvice.java` a été inscrit dans `covered.json` sur décision de l'utilisateur, puis le renommage fait. Plan suivi : renommer outer en `FormesIllisiblesDesRoutesAdvice`, nested `MethodesNonSupporteesDeLaDirectionAdvice` en `MethodesNonSupporteesDesRoutesAdvice`, 2 classes de test idem, mettre à jour la Javadoc de `RoutesDeLAdministrationGeneriqueGardeesTest` et 5 sources dans `docs/reference/regles-de-gestion` (02, 06, 13) et `documentation-fonctionnelle.html`. L'ordre (`HIGHEST_PRECEDENCE`, même paquet, nom entre `Autorisation...` et `ReferentialAdmin...`) est conservé par ce nom.
 
-## Entrées de `covered.json` à retirer (non modifié)
-- `backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/listener/FacturationValideeComptabiliteListener.java` (ligne 49)
-- `backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/listener/ReglementEncaisseComptabiliteListener.java` (ligne 50)
+## Entrées de `covered.json` retirées (2026-11-14, par le coordinateur)
+- `.../infrastructure/listener/FacturationValideeComptabiliteListener.java`
+- `.../infrastructure/listener/ReglementEncaisseComptabiliteListener.java`
+- `.../infrastructure/web/DatesIllisiblesDeLaDirectionAdvice.java`
 - (`StockDemoDataSeeder` n'y figurait pas.)
 
 ## Documents mis à jour

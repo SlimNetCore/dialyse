@@ -16,7 +16,7 @@ import org.springframework.web.servlet.HandlerMapping;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /** DM8 (ADR 0087) : sur les indicateurs médicaux de la Direction, le 403 d'un profil sans droit passe AVANT le 400 d'une période illisible. */
-class DatesIllisiblesDeLaDirectionAdviceTest {
+class FormesIllisiblesDesRoutesAdviceTest {
 
     @PreAuthorize("hasRole('DIRECTION')")
     static class RouteDeLaDirection {
@@ -24,7 +24,7 @@ class DatesIllisiblesDeLaDirectionAdviceTest {
         }
     }
 
-    private final DatesIllisiblesDeLaDirectionAdvice advice = new DatesIllisiblesDeLaDirectionAdvice(new ApiExceptionHandler());
+    private final FormesIllisiblesDesRoutesAdvice advice = new FormesIllisiblesDesRoutesAdvice(new ApiExceptionHandler());
 
     @AfterEach
     void apres() {

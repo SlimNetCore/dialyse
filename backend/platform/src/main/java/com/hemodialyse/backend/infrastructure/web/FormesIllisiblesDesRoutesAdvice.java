@@ -25,6 +25,10 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.servlet.HandlerMapping;
 
 /**
+ * HYG (2026-11-14) : ex-{@code DatesIllisiblesDeLaDirectionAdvice}, renommé d'après son rôle réel : les FORMES ILLISIBLES de requête
+ * (corps, paramètre, identifiant, date) de l'administration générique des référentiels et de quelques routes d'identité ; la Direction
+ * n'en fait plus partie (Pilotage). Comportement et ordre ({@code HIGHEST_PRECEDENCE}) inchangés. Historique conservé ci-dessous.
+ * <p>
  * KB-ABS-33, KB-STK-55 et KB-PLN-67 : {@code GET /api/v1/direction/absences?from=hier}, {@code /stock-groupes} et {@code /capacite}
  * répondent 400 {@code BAD_REQUEST} (c'était un 500). DM8 (KB-MED-103 et 105, ADR 0087) : mêmes 400 pour les indicateurs médicaux de la
  * Direction ({@code /direction/indicators}) et les statistiques médicales et exports du patient ({@code stats/medical},
@@ -46,7 +50,7 @@ import org.springframework.web.servlet.HandlerMapping;
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @RestControllerAdvice(basePackages = "com.hemodialyse.backend.infrastructure.web.rest")
-class DatesIllisiblesDeLaDirectionAdvice {
+class FormesIllisiblesDesRoutesAdvice {
 
     // PL10b1 (ADR 0151) et PL10b2 (ADR 0152) : toutes les routes de la Direction (societe, overview, breakdown, indicators, alerts/history,
     // gmao, stock-groupes, capacite, absences) sont servies par le Pilotage, qui lit la garde AVANT les paramètres : plus de route de
@@ -56,7 +60,7 @@ class DatesIllisiblesDeLaDirectionAdvice {
 
     private final ApiExceptionHandler gestionnaireCommun;
 
-    DatesIllisiblesDeLaDirectionAdvice(ApiExceptionHandler gestionnaireCommun) {
+    FormesIllisiblesDesRoutesAdvice(ApiExceptionHandler gestionnaireCommun) {
         this.gestionnaireCommun = gestionnaireCommun;
     }
 
@@ -204,7 +208,7 @@ class DatesIllisiblesDeLaDirectionAdvice {
      */
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @RestControllerAdvice
-    static class MethodesNonSupporteesDeLaDirectionAdvice {
+    static class MethodesNonSupporteesDesRoutesAdvice {
 
         /** La Direction (KB-DIR-02) et le cahier de dialyse imprimé (PL5, KB-PL5-1 : un POST répondait 500). */
         private static final java.util.List<String> PREFIXES = java.util.List.of("/api/v1/direction/", "/api/v1/cahier-dialyse/",
@@ -220,7 +224,7 @@ class DatesIllisiblesDeLaDirectionAdvice {
 
         private final ApiExceptionHandler gestionnaireCommun;
 
-        MethodesNonSupporteesDeLaDirectionAdvice(ApiExceptionHandler gestionnaireCommun) {
+        MethodesNonSupporteesDesRoutesAdvice(ApiExceptionHandler gestionnaireCommun) {
             this.gestionnaireCommun = gestionnaireCommun;
         }
 

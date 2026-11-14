@@ -49,7 +49,7 @@
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/migration/OpeningBalanceJdbcAdapter.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/migration/MigrationRollbackJdbcAdapter.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/ApiExceptionHandler.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/DatesIllisiblesDeLaDirectionAdvice.java",
+    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/web/FormesIllisiblesDesRoutesAdvice.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/websocket/WebSocketStockEventPublisher.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/websocket/WebSocketInventaireEventPublisher.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/websocket/StockEvenementsListener.java",

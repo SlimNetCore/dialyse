@@ -281,7 +281,7 @@ Corrections faites à la demande de l'utilisateur, **à confirmer métiers / DPO
   lecture (route de lecture, rapport PDF du mois, capture d'un mois déjà figé), sans détail technique ; il **reste listé** (la liste n'ouvre pas le
   contenu) et la donnée n'est jamais réécrite (sa réparation est hors périmètre). **Résiduel documenté (L8, ADR 0120)** : le 405 n'est pas précédé du
   contrôle des droits (l'erreur survient avant le choix du contrôleur) : un profil authentifié sans droit reçoit 405 + `Allow`, jamais 403 ; sans
-  authentification, 401 comme partout (`anyRequest().authenticated()`). *Source :* `DatesIllisiblesDeLaDirectionAdvice`
+  authentification, 401 comme partout (`anyRequest().authenticated()`). *Source :* `FormesIllisiblesDesRoutesAdvice`
   (et son gestionnaire de méthode non supportée), `InstantanesMensuelsPublies`, `ErreursDuPilotageAdvice`.
 - **RG-DIR-113** — *Horloge et âge (KB-DIR-03 et KB-DIR-08, **CORRIGÉS le 2026-11-10**)* : « aujourd'hui » du Pilotage (fin de période par défaut,
   RG-DIR-003 ; mois courant et mois écoulé des instantanés, RG-DIR-104 ; capture du 1er du mois à 02:30) est le **jour du fuseau de référence
