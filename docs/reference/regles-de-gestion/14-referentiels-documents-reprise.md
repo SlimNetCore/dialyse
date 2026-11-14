@@ -243,7 +243,8 @@ chaque ligne** avant d'écrire, **n'enregistre rien tant qu'un fichier
   base, des antécédents, des sérologies, des abords vasculaires et des analyses (recherche d'une ligne déjà présente par clé et
   centre, ajout daté, mise à jour des seules valeurs fournies sans jamais changer le patient) est fait par le **Dossier médical**
   (langage publié `RepriseDeLHistoriqueMedical`, tout borné au centre), et le contrôle des **bons de sortie** d'un patient repris
-  par le **Stock** (langage publié `BonsDeSortieDeLaReprise`, lecture seule) ; comportement inchangé. L'écriture directe des colonnes de place de la fiche
+  par le **Stock** (langage publié `BonsDeSortieDeLaReprise`, lecture seule) ; comportement inchangé. Depuis RP3c (ADR 0173) un test d'architecture garantit que l'outil de reprise ne nomme plus aucune
+  table d'un autre contexte (séances par `SeancesDeLaReprisePubliees`, soldes d'ouverture par la **Facturation**, `RepriseDesSoldes`) ; comportement inchangé. L'écriture directe des colonnes de place de la fiche
   par la reprise des patients est gardée (**à confirmer métiers/DPO avant le 2026-12-15**). **Blocages** : un patient repris est refusé s'il a une
   prise en charge, une attestation, une séance, une facture ou des données de dossier médical que le lot n'a pas créées (le
   refus nomme la première catégorie contrôlée) ; une séance reprise est refusée si elle est facturée (motif prioritaire) ou
