@@ -11,4 +11,4 @@ spring:
     init:
       # Même liste ORDONNÉE que application.yml (SEED2, ADR 0188 : un script par contexte propriétaire), puis le jeu RENADIAL en dernier.
       # À tenir identique à application.yml : toute entrée ajoutée là doit l'être ici.
-      data-locations: classpath:db/h2/organisation-seed.sql,classpath:db/seed.sql,classpath:db/h2/gmao-seed.sql,classpath:db/h2/documents-seed.sql,classpath:db/h2/comptabilite-seed.sql,classpath:db/demo/renadial-seed.sql
+      data-locations: classpath:db/h2/organisation-seed.sql,classpath:db/h2/comptabilite-seed.sql,classpath:db/h2/facturation-seed.sql,classpath:db/h2/patient-couverture-seed.sql,classpath:db/seed.sql,classpath:db/h2/gmao-seed.sql,classpath:db/h2/documents-seed.sql,classpath:db/h2/stock-seed.sql,classpath:db/demo/renadial-seed.sql
