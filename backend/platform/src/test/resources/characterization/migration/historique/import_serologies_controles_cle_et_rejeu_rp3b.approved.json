@@ -1,0 +1,466 @@
+{
+  "0_anterieure_a_la_periode_reprise" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : true,
+      "entity" : "serologies",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : true,
+      "warnings" : [ {
+        "code" : "OUT_OF_PERIOD",
+        "field" : "datePrelevement",
+        "message" : "Ligne antérieure à la période reprise (depuis le 30/09/2023) : ignorée.",
+        "params" : {
+          "date" : "30/09/2023"
+        },
+        "row" : 2
+      } ]
+    },
+    "http" : 200
+  },
+  "0_date_dans_le_futur" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "serologies",
+      "errors" : [ {
+        "code" : "DATE_IN_FUTURE",
+        "field" : "datePrelevement",
+        "message" : "La date est dans le futur.",
+        "params" : { },
+        "row" : 2
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "0_doublon_dans_le_fichier" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 1,
+      "dryRun" : false,
+      "entity" : "serologies",
+      "errors" : [ {
+        "code" : "DUPLICATE_IN_FILE",
+        "field" : "marqueur",
+        "message" : "Doublon : même patient et même date / clé qu'à la ligne 2.",
+        "params" : {
+          "firstRow" : "2"
+        },
+        "row" : 3
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 2,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "0_etat_sans_ecriture" : { },
+  "0_marqueur_et_resultat_inconnus" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "serologies",
+      "errors" : [ {
+        "code" : "UNKNOWN_VALUE",
+        "field" : "marqueur",
+        "message" : "« Marqueur » : la valeur « XYZ » n'est pas reconnue — associez-la à une valeur (VIH_AC, AG_HBS, AC_HBS, AC_HBC, AC_VHC, ARN_VHC, TPHA, CMV_IGG, CMV_IGM, TOXO_IGG, TOXO_IGM, EBV_IGG, EBV_IGM).",
+        "params" : {
+          "allowed" : "VIH_AC, AG_HBS, AC_HBS, AC_HBC, AC_VHC, ARN_VHC, TPHA, CMV_IGG, CMV_IGM, TOXO_IGG, TOXO_IGM, EBV_IGG, EBV_IGM",
+          "source" : "XYZ",
+          "value" : "XYZ"
+        },
+        "row" : 2
+      }, {
+        "code" : "UNKNOWN_VALUE",
+        "field" : "resultat",
+        "message" : "« Résultat » : la valeur « PEUT-ETRE » n'est pas reconnue — associez-la à une valeur (POSITIF, NEGATIF, DOUTEUX, EN_COURS).",
+        "params" : {
+          "allowed" : "POSITIF, NEGATIF, DOUTEUX, EN_COURS",
+          "source" : "PEUT_ETRE",
+          "value" : "PEUT-ETRE"
+        },
+        "row" : 2
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "0_marqueur_resultat_et_date_obligatoires_absents" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "serologies",
+      "errors" : [ {
+        "code" : "REQUIRED",
+        "field" : "marqueur",
+        "message" : "« Marqueur » est obligatoire.",
+        "params" : { },
+        "row" : 2
+      }, {
+        "code" : "REQUIRED",
+        "field" : "resultat",
+        "message" : "« Résultat » est obligatoire.",
+        "params" : { },
+        "row" : 2
+      }, {
+        "code" : "REQUIRED",
+        "field" : "datePrelevement",
+        "message" : "« Date de prélèvement » est obligatoire.",
+        "params" : { },
+        "row" : 2
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "0_patient_inconnu" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "serologies",
+      "errors" : [ {
+        "code" : "PATIENT_NOT_MIGRATED",
+        "field" : "patient",
+        "message" : "Patient « INCONNU » inconnu : importez d'abord le fichier des patients.",
+        "params" : {
+          "value" : "INCONNU"
+        },
+        "row" : 2
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "0_titre_illisible" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "serologies",
+      "errors" : [ {
+        "code" : "INVALID_NUMBER",
+        "field" : "titre",
+        "message" : "« Titre » : « abc » n'est pas un nombre (ex. 5600 ou 5600,50).",
+        "params" : {
+          "value" : "abc"
+        },
+        "row" : 2
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "1_etat" : {
+    "correspondances" : [ {
+      "entity" : "SEROLOGIES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "SEROLOGIES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "SEROLOGIES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "SEROLOGIES",
+      "operation" : "CREATED"
+    } ],
+    "serologies_patient" : [ {
+      "cree" : true,
+      "date_prelevement" : "2026-01-16",
+      "marqueur" : "AC_HBS",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH111>",
+      "resultat" : "POSITIF",
+      "titre" : "120.000",
+      "unite" : "mUI/mL"
+    }, {
+      "cree" : true,
+      "date_prelevement" : "2026-01-15",
+      "laboratoire" : "Labo central",
+      "marqueur" : "AG_HBS",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH111>",
+      "resultat" : "NEGATIF",
+      "titre" : "0.500",
+      "unite" : "UI/L"
+    }, {
+      "cree" : true,
+      "date_prelevement" : "2026-03-15",
+      "marqueur" : "AG_HBS",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH111>",
+      "resultat" : "NEGATIF"
+    }, {
+      "cree" : true,
+      "date_prelevement" : "2026-02-01",
+      "marqueur" : "AC_VHC",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH222>",
+      "resultat" : "DOUTEUX"
+    } ]
+  },
+  "1_import_nominal" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 4,
+      "dryRun" : false,
+      "entity" : "serologies",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 4,
+      "updated" : 0,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "2_rejeu_identique" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "serologies",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 1,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "3_etat" : {
+    "correspondances" : [ {
+      "entity" : "SEROLOGIES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "SEROLOGIES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "SEROLOGIES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "SEROLOGIES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "SEROLOGIES",
+      "operation" : "CREATED"
+    } ],
+    "serologies_patient" : [ {
+      "cree" : true,
+      "date_prelevement" : "2026-01-16",
+      "marqueur" : "AC_HBS",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH111>",
+      "resultat" : "POSITIF",
+      "titre" : "120.000",
+      "unite" : "mUI/mL"
+    }, {
+      "cree" : true,
+      "date_prelevement" : "2026-01-15",
+      "laboratoire" : "Labo B",
+      "marqueur" : "AG_HBS",
+      "modifie_apres_creation" : true,
+      "patient_id" : "<PATIENT_ZH111>",
+      "resultat" : "POSITIF",
+      "titre" : "1.500",
+      "unite" : "UI/L"
+    }, {
+      "cree" : true,
+      "date_prelevement" : "2026-03-15",
+      "marqueur" : "AG_HBS",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH111>",
+      "resultat" : "NEGATIF"
+    }, {
+      "cree" : true,
+      "date_prelevement" : "2026-02-01",
+      "marqueur" : "AC_VHC",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH222>",
+      "resultat" : "DOUTEUX"
+    }, {
+      "cree" : true,
+      "date_prelevement" : "2026-04-01",
+      "marqueur" : "TPHA",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH222>",
+      "resultat" : "NEGATIF"
+    } ]
+  },
+  "3_rejeu_avec_nouveau_resultat_et_une_nouvelle_ligne" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 1,
+      "dryRun" : false,
+      "entity" : "serologies",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 2,
+      "updated" : 1,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "4_etat" : {
+    "correspondances" : [ {
+      "entity" : "SEROLOGIES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "SEROLOGIES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "SEROLOGIES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "SEROLOGIES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "SEROLOGIES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "SEROLOGIES",
+      "operation" : "UPDATED"
+    } ],
+    "serologies_patient" : [ {
+      "cree" : true,
+      "date_prelevement" : "2026-01-16",
+      "marqueur" : "AC_HBS",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH111>",
+      "resultat" : "POSITIF",
+      "titre" : "120.000",
+      "unite" : "mUI/mL"
+    }, {
+      "cree" : true,
+      "date_prelevement" : "2026-01-15",
+      "laboratoire" : "Labo B",
+      "marqueur" : "AG_HBS",
+      "modifie_apres_creation" : true,
+      "patient_id" : "<PATIENT_ZH111>",
+      "resultat" : "POSITIF",
+      "titre" : "1.500",
+      "unite" : "UI/L"
+    }, {
+      "cree" : true,
+      "date_prelevement" : "2026-03-15",
+      "marqueur" : "AG_HBS",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH111>",
+      "resultat" : "NEGATIF"
+    }, {
+      "cree" : true,
+      "date_prelevement" : "2026-02-01",
+      "marqueur" : "AC_VHC",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH222>",
+      "resultat" : "DOUTEUX"
+    }, {
+      "cree" : true,
+      "date_prelevement" : "2026-05-05",
+      "laboratoire" : "Reprise",
+      "marqueur" : "CMV_IGG",
+      "modifie_apres_creation" : true,
+      "patient_id" : "<PATIENT_ZH222>",
+      "resultat" : "NEGATIF"
+    }, {
+      "cree" : true,
+      "date_prelevement" : "2026-04-01",
+      "marqueur" : "TPHA",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH222>",
+      "resultat" : "NEGATIF"
+    } ]
+  },
+  "4_serologie_de_la_plateforme_a_la_meme_cle" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "serologies",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 1,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  }
+}

@@ -64,8 +64,9 @@ class TableDuStockTest {
         try {
             return Files.walk(racine)
                     .filter(p -> p.toString().endsWith(".java"))
-                    .filter(p -> !chemin(p).contains("/entity/"))
-                    .filter(p -> !chemin(p).contains("/migration/"));
+                    // RP3b (2026-11-13, ADR 0172) : l'exclusion des répertoires « /migration/ » est SOLDÉE (supprimée, jamais reportée) ;
+                    // l'annulation d'un lot de reprise lit les bons de sortie par BonsDeSortieDeLaReprise (stock.v1).
+                    .filter(p -> !chemin(p).contains("/entity/"));
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
@@ -109,6 +110,22 @@ class TableDuStockTest {
                     .as("les tables du Stock ne doivent être lues que par le contexte Stock")
                     .isEmpty();
         }
+    }
+
+    /**
+     * RP3b (2026-11-13, ADR 0172) : verrou du jalon soldé. L'adapter d'annulation d'un lot de reprise ne contrôle plus {@code bons_sortie} en
+     * SQL (nom de table calculé compris) ; l'exclusion des répertoires « migration » de la garde est supprimée.
+     */
+    @Test
+    void l_annulation_d_un_lot_de_reprise_ne_touche_plus_les_tables_du_stock() throws IOException {
+        Path backend = Path.of("..").toAbsolutePath().normalize();
+        Path adapter = backend.resolve("platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/migration/MigrationRollbackJdbcAdapter.java");
+        String texte = Files.readString(adapter);
+
+        assertThat(sourcesFautives(List.of(backend.resolve("platform/src/main/java")))).as("aucun source de la plateforme, répertoires migration compris")
+                .isEmpty();
+        assertThat(TABLES_DU_STOCK.stream().filter(t -> texte.contains("\"" + t + "\""))).as("aucune table du Stock nommée par l'adapter").isEmpty();
+        assertThat(texte).doesNotContain("JdbcTemplate");
     }
 
     /**

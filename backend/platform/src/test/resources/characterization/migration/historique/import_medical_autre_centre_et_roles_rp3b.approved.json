@@ -1,0 +1,986 @@
+{
+  "0_centre_B_avant" : {
+    "abords_vasculaires" : [ {
+      "actif" : true,
+      "cree" : true,
+      "date_creation" : "2018-03-10",
+      "patient_id" : "<PATIENT_ZH111>",
+      "type_abord" : "FAV"
+    } ],
+    "antecedents_medicaux" : [ {
+      "cree" : true,
+      "date_debut" : "2012-02-02",
+      "libelle_libre" : "Goutte",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_B_ZH-B>",
+      "statut_clinique" : "ACTIF",
+      "type_antecedent" : "MEDICAL"
+    }, {
+      "cree" : true,
+      "date_debut" : "2010-01-01",
+      "libelle_libre" : "Diabete",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH111>",
+      "statut_clinique" : "ACTIF",
+      "type_antecedent" : "MEDICAL"
+    } ],
+    "resultats_analyses" : [ {
+      "cree" : true,
+      "date_prelevement" : "2026-01-05",
+      "hb_g_dl" : "9.50",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH111>"
+    } ],
+    "serologies_patient" : [ {
+      "cree" : true,
+      "date_prelevement" : "2026-01-15",
+      "marqueur" : "AG_HBS",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH111>",
+      "resultat" : "POSITIF"
+    } ]
+  },
+  "1_abords" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 1,
+      "dryRun" : false,
+      "entity" : "abords-vasculaires",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "1_analyses" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 1,
+      "dryRun" : false,
+      "entity" : "analyses",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "1_antecedents" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 1,
+      "dryRun" : false,
+      "entity" : "antecedents",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "1_etat_centre_A" : {
+    "abords_vasculaires" : [ {
+      "actif" : true,
+      "cote" : "GAUCHE",
+      "cree" : true,
+      "date_creation" : "2018-03-10",
+      "patient_id" : "<PATIENT_ZH111>",
+      "type_abord" : "FAV"
+    } ],
+    "antecedents_medicaux" : [ {
+      "cree" : true,
+      "date_debut" : "2010-01-01",
+      "libelle_libre" : "Diabete",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH111>",
+      "statut_clinique" : "ACTIF",
+      "type_antecedent" : "MEDICAL"
+    } ],
+    "correspondances" : [ {
+      "entity" : "ABORDS_VASCULAIRES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ANALYSES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ANTECEDENTS",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "SEROLOGIES",
+      "operation" : "CREATED"
+    } ],
+    "resultats_analyses" : [ {
+      "cree" : true,
+      "date_prelevement" : "2026-01-05",
+      "hb_g_dl" : "10.80",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH111>"
+    } ],
+    "serologies_patient" : [ {
+      "cree" : true,
+      "date_prelevement" : "2026-01-15",
+      "marqueur" : "AG_HBS",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH111>",
+      "resultat" : "NEGATIF"
+    } ]
+  },
+  "1_etat_centre_B_intact" : {
+    "abords_vasculaires" : [ {
+      "actif" : true,
+      "cree" : true,
+      "date_creation" : "2018-03-10",
+      "patient_id" : "<PATIENT_ZH111>",
+      "type_abord" : "FAV"
+    } ],
+    "antecedents_medicaux" : [ {
+      "cree" : true,
+      "date_debut" : "2012-02-02",
+      "libelle_libre" : "Goutte",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_B_ZH-B>",
+      "statut_clinique" : "ACTIF",
+      "type_antecedent" : "MEDICAL"
+    }, {
+      "cree" : true,
+      "date_debut" : "2010-01-01",
+      "libelle_libre" : "Diabete",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH111>",
+      "statut_clinique" : "ACTIF",
+      "type_antecedent" : "MEDICAL"
+    } ],
+    "resultats_analyses" : [ {
+      "cree" : true,
+      "date_prelevement" : "2026-01-05",
+      "hb_g_dl" : "9.50",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH111>"
+    } ],
+    "serologies_patient" : [ {
+      "cree" : true,
+      "date_prelevement" : "2026-01-15",
+      "marqueur" : "AG_HBS",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH111>",
+      "resultat" : "POSITIF"
+    } ]
+  },
+  "1_serologies" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 1,
+      "dryRun" : false,
+      "entity" : "serologies",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "2_etat_apres_refus" : {
+    "abords_vasculaires" : [ {
+      "actif" : true,
+      "cote" : "GAUCHE",
+      "cree" : true,
+      "date_creation" : "2018-03-10",
+      "patient_id" : "<PATIENT_ZH111>",
+      "type_abord" : "FAV"
+    } ],
+    "antecedents_medicaux" : [ {
+      "cree" : true,
+      "date_debut" : "2010-01-01",
+      "libelle_libre" : "Diabete",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH111>",
+      "statut_clinique" : "ACTIF",
+      "type_antecedent" : "MEDICAL"
+    } ],
+    "correspondances" : [ {
+      "entity" : "ABORDS_VASCULAIRES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ANALYSES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ANTECEDENTS",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "SEROLOGIES",
+      "operation" : "CREATED"
+    } ],
+    "resultats_analyses" : [ {
+      "cree" : true,
+      "date_prelevement" : "2026-01-05",
+      "hb_g_dl" : "10.80",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH111>"
+    } ],
+    "serologies_patient" : [ {
+      "cree" : true,
+      "date_prelevement" : "2026-01-15",
+      "marqueur" : "AG_HBS",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH111>",
+      "resultat" : "NEGATIF"
+    } ]
+  },
+  "2_roles" : {
+    "abords-vasculaires INFIRMIER fichier invalide (403 avant 400)" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/abords-vasculaires",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "abords-vasculaires INFIRMIER fichier valide" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/abords-vasculaires",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "abords-vasculaires MEDECIN fichier invalide (403 avant 400)" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/abords-vasculaires",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "abords-vasculaires MEDECIN fichier valide" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/abords-vasculaires",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "abords-vasculaires SECRETAIRE fichier invalide (403 avant 400)" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/abords-vasculaires",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "abords-vasculaires SECRETAIRE fichier valide" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/abords-vasculaires",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "abords-vasculaires SUPERADMIN fichier invalide (403 avant 400)" : {
+      "corps" : {
+        "code" : "ROLE_SCOPE",
+        "detail" : "Ce profil n'a pas accès à cette ressource.",
+        "title" : "Accès refusé"
+      },
+      "http" : 403
+    },
+    "abords-vasculaires SUPERADMIN fichier valide" : {
+      "corps" : {
+        "code" : "ROLE_SCOPE",
+        "detail" : "Ce profil n'a pas accès à cette ressource.",
+        "title" : "Accès refusé"
+      },
+      "http" : 403
+    },
+    "abords-vasculaires TECHNICIEN fichier invalide (403 avant 400)" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/abords-vasculaires",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "abords-vasculaires TECHNICIEN fichier valide" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/abords-vasculaires",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "analyses INFIRMIER fichier invalide (403 avant 400)" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/analyses",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "analyses INFIRMIER fichier valide" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/analyses",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "analyses MEDECIN fichier invalide (403 avant 400)" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/analyses",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "analyses MEDECIN fichier valide" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/analyses",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "analyses SECRETAIRE fichier invalide (403 avant 400)" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/analyses",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "analyses SECRETAIRE fichier valide" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/analyses",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "analyses SUPERADMIN fichier invalide (403 avant 400)" : {
+      "corps" : {
+        "code" : "ROLE_SCOPE",
+        "detail" : "Ce profil n'a pas accès à cette ressource.",
+        "title" : "Accès refusé"
+      },
+      "http" : 403
+    },
+    "analyses SUPERADMIN fichier valide" : {
+      "corps" : {
+        "code" : "ROLE_SCOPE",
+        "detail" : "Ce profil n'a pas accès à cette ressource.",
+        "title" : "Accès refusé"
+      },
+      "http" : 403
+    },
+    "analyses TECHNICIEN fichier invalide (403 avant 400)" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/analyses",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "analyses TECHNICIEN fichier valide" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/analyses",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "antecedents INFIRMIER fichier invalide (403 avant 400)" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/antecedents",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "antecedents INFIRMIER fichier valide" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/antecedents",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "antecedents MEDECIN fichier invalide (403 avant 400)" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/antecedents",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "antecedents MEDECIN fichier valide" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/antecedents",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "antecedents SECRETAIRE fichier invalide (403 avant 400)" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/antecedents",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "antecedents SECRETAIRE fichier valide" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/antecedents",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "antecedents SUPERADMIN fichier invalide (403 avant 400)" : {
+      "corps" : {
+        "code" : "ROLE_SCOPE",
+        "detail" : "Ce profil n'a pas accès à cette ressource.",
+        "title" : "Accès refusé"
+      },
+      "http" : 403
+    },
+    "antecedents SUPERADMIN fichier valide" : {
+      "corps" : {
+        "code" : "ROLE_SCOPE",
+        "detail" : "Ce profil n'a pas accès à cette ressource.",
+        "title" : "Accès refusé"
+      },
+      "http" : 403
+    },
+    "antecedents TECHNICIEN fichier invalide (403 avant 400)" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/antecedents",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "antecedents TECHNICIEN fichier valide" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/antecedents",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "dossiers-medicaux INFIRMIER fichier invalide (403 avant 400)" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/dossiers-medicaux",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "dossiers-medicaux INFIRMIER fichier valide" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/dossiers-medicaux",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "dossiers-medicaux MEDECIN fichier invalide (403 avant 400)" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/dossiers-medicaux",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "dossiers-medicaux MEDECIN fichier valide" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/dossiers-medicaux",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "dossiers-medicaux SECRETAIRE fichier invalide (403 avant 400)" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/dossiers-medicaux",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "dossiers-medicaux SECRETAIRE fichier valide" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/dossiers-medicaux",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "dossiers-medicaux SUPERADMIN fichier invalide (403 avant 400)" : {
+      "corps" : {
+        "code" : "ROLE_SCOPE",
+        "detail" : "Ce profil n'a pas accès à cette ressource.",
+        "title" : "Accès refusé"
+      },
+      "http" : 403
+    },
+    "dossiers-medicaux SUPERADMIN fichier valide" : {
+      "corps" : {
+        "code" : "ROLE_SCOPE",
+        "detail" : "Ce profil n'a pas accès à cette ressource.",
+        "title" : "Accès refusé"
+      },
+      "http" : 403
+    },
+    "dossiers-medicaux TECHNICIEN fichier invalide (403 avant 400)" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/dossiers-medicaux",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "dossiers-medicaux TECHNICIEN fichier valide" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/dossiers-medicaux",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "serologies INFIRMIER fichier invalide (403 avant 400)" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/serologies",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "serologies INFIRMIER fichier valide" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/serologies",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "serologies MEDECIN fichier invalide (403 avant 400)" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/serologies",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "serologies MEDECIN fichier valide" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/serologies",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "serologies SECRETAIRE fichier invalide (403 avant 400)" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/serologies",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "serologies SECRETAIRE fichier valide" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/serologies",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "serologies SUPERADMIN fichier invalide (403 avant 400)" : {
+      "corps" : {
+        "code" : "ROLE_SCOPE",
+        "detail" : "Ce profil n'a pas accès à cette ressource.",
+        "title" : "Accès refusé"
+      },
+      "http" : 403
+    },
+    "serologies SUPERADMIN fichier valide" : {
+      "corps" : {
+        "code" : "ROLE_SCOPE",
+        "detail" : "Ce profil n'a pas accès à cette ressource.",
+        "title" : "Accès refusé"
+      },
+      "http" : 403
+    },
+    "serologies TECHNICIEN fichier invalide (403 avant 400)" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/serologies",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "serologies TECHNICIEN fichier valide" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Access Denied",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/serologies",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    }
+  },
+  "3_autres_centres" : {
+    "abords-vasculaires admin A vers le centre B (valide)" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Accès refusé : le centre demandé ne correspond pas à la session",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/abords-vasculaires",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "abords-vasculaires admin B sur le lot de A (invalide)" : {
+      "corps" : {
+        "code" : "MIGRATION_BATCH_NOT_FOUND",
+        "detail" : "Lot de reprise introuvable pour ce centre.",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/abords-vasculaires",
+        "status" : 422,
+        "title" : "Regle metier violee"
+      },
+      "http" : 422
+    },
+    "abords-vasculaires admin B sur le lot de A (valide)" : {
+      "corps" : {
+        "code" : "MIGRATION_BATCH_NOT_FOUND",
+        "detail" : "Lot de reprise introuvable pour ce centre.",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/abords-vasculaires",
+        "status" : 422,
+        "title" : "Regle metier violee"
+      },
+      "http" : 422
+    },
+    "analyses admin A vers le centre B (valide)" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Accès refusé : le centre demandé ne correspond pas à la session",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/analyses",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "analyses admin B sur le lot de A (invalide)" : {
+      "corps" : {
+        "code" : "MIGRATION_BATCH_NOT_FOUND",
+        "detail" : "Lot de reprise introuvable pour ce centre.",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/analyses",
+        "status" : 422,
+        "title" : "Regle metier violee"
+      },
+      "http" : 422
+    },
+    "analyses admin B sur le lot de A (valide)" : {
+      "corps" : {
+        "code" : "MIGRATION_BATCH_NOT_FOUND",
+        "detail" : "Lot de reprise introuvable pour ce centre.",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/analyses",
+        "status" : 422,
+        "title" : "Regle metier violee"
+      },
+      "http" : 422
+    },
+    "antecedents admin A vers le centre B (valide)" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Accès refusé : le centre demandé ne correspond pas à la session",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/antecedents",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "antecedents admin B sur le lot de A (invalide)" : {
+      "corps" : {
+        "code" : "MIGRATION_BATCH_NOT_FOUND",
+        "detail" : "Lot de reprise introuvable pour ce centre.",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/antecedents",
+        "status" : 422,
+        "title" : "Regle metier violee"
+      },
+      "http" : 422
+    },
+    "antecedents admin B sur le lot de A (valide)" : {
+      "corps" : {
+        "code" : "MIGRATION_BATCH_NOT_FOUND",
+        "detail" : "Lot de reprise introuvable pour ce centre.",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/antecedents",
+        "status" : 422,
+        "title" : "Regle metier violee"
+      },
+      "http" : 422
+    },
+    "dossiers-medicaux admin A vers le centre B (valide)" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Accès refusé : le centre demandé ne correspond pas à la session",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/dossiers-medicaux",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "dossiers-medicaux admin B sur le lot de A (invalide)" : {
+      "corps" : {
+        "code" : "MIGRATION_BATCH_NOT_FOUND",
+        "detail" : "Lot de reprise introuvable pour ce centre.",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/dossiers-medicaux",
+        "status" : 422,
+        "title" : "Regle metier violee"
+      },
+      "http" : 422
+    },
+    "dossiers-medicaux admin B sur le lot de A (valide)" : {
+      "corps" : {
+        "code" : "MIGRATION_BATCH_NOT_FOUND",
+        "detail" : "Lot de reprise introuvable pour ce centre.",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/dossiers-medicaux",
+        "status" : 422,
+        "title" : "Regle metier violee"
+      },
+      "http" : 422
+    },
+    "lot inconnu" : {
+      "corps" : {
+        "code" : "MIGRATION_BATCH_NOT_FOUND",
+        "detail" : "Lot de reprise introuvable pour ce centre.",
+        "instance" : "/api/v1/admin/migration/batches/<UUID_GENERE_1>/import/analyses",
+        "status" : 422,
+        "title" : "Regle metier violee"
+      },
+      "http" : 422
+    },
+    "serologies admin A vers le centre B (valide)" : {
+      "corps" : {
+        "code" : "ACCESS_DENIED",
+        "detail" : "Accès refusé : le centre demandé ne correspond pas à la session",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/serologies",
+        "status" : 403,
+        "title" : "Acces refuse"
+      },
+      "http" : 403
+    },
+    "serologies admin B sur le lot de A (invalide)" : {
+      "corps" : {
+        "code" : "MIGRATION_BATCH_NOT_FOUND",
+        "detail" : "Lot de reprise introuvable pour ce centre.",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/serologies",
+        "status" : 422,
+        "title" : "Regle metier violee"
+      },
+      "http" : 422
+    },
+    "serologies admin B sur le lot de A (valide)" : {
+      "corps" : {
+        "code" : "MIGRATION_BATCH_NOT_FOUND",
+        "detail" : "Lot de reprise introuvable pour ce centre.",
+        "instance" : "/api/v1/admin/migration/batches/<LOT>/import/serologies",
+        "status" : 422,
+        "title" : "Regle metier violee"
+      },
+      "http" : 422
+    }
+  },
+  "3_etat_centre_A" : {
+    "abords_vasculaires" : [ {
+      "actif" : true,
+      "cote" : "GAUCHE",
+      "cree" : true,
+      "date_creation" : "2018-03-10",
+      "patient_id" : "<PATIENT_ZH111>",
+      "type_abord" : "FAV"
+    } ],
+    "antecedents_medicaux" : [ {
+      "cree" : true,
+      "date_debut" : "2010-01-01",
+      "libelle_libre" : "Diabete",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH111>",
+      "statut_clinique" : "ACTIF",
+      "type_antecedent" : "MEDICAL"
+    } ],
+    "correspondances" : [ {
+      "entity" : "ABORDS_VASCULAIRES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ANALYSES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ANTECEDENTS",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "SEROLOGIES",
+      "operation" : "CREATED"
+    } ],
+    "resultats_analyses" : [ {
+      "cree" : true,
+      "date_prelevement" : "2026-01-05",
+      "hb_g_dl" : "10.80",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH111>"
+    } ],
+    "serologies_patient" : [ {
+      "cree" : true,
+      "date_prelevement" : "2026-01-15",
+      "marqueur" : "AG_HBS",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH111>",
+      "resultat" : "NEGATIF"
+    } ]
+  },
+  "3_etat_centre_B" : {
+    "abords_vasculaires" : [ {
+      "actif" : true,
+      "cree" : true,
+      "date_creation" : "2018-03-10",
+      "patient_id" : "<PATIENT_ZH111>",
+      "type_abord" : "FAV"
+    } ],
+    "antecedents_medicaux" : [ {
+      "cree" : true,
+      "date_debut" : "2012-02-02",
+      "libelle_libre" : "Goutte",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_B_ZH-B>",
+      "statut_clinique" : "ACTIF",
+      "type_antecedent" : "MEDICAL"
+    }, {
+      "cree" : true,
+      "date_debut" : "2010-01-01",
+      "libelle_libre" : "Diabete",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH111>",
+      "statut_clinique" : "ACTIF",
+      "type_antecedent" : "MEDICAL"
+    } ],
+    "resultats_analyses" : [ {
+      "cree" : true,
+      "date_prelevement" : "2026-01-05",
+      "hb_g_dl" : "9.50",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH111>"
+    } ],
+    "serologies_patient" : [ {
+      "cree" : true,
+      "date_prelevement" : "2026-01-15",
+      "marqueur" : "AG_HBS",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH111>",
+      "resultat" : "POSITIF"
+    } ]
+  }
+}

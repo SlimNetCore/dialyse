@@ -1,0 +1,468 @@
+{
+  "0_debut_dans_le_futur" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "antecedents",
+      "errors" : [ {
+        "code" : "DATE_IN_FUTURE",
+        "field" : "dateDebut",
+        "message" : "La date est dans le futur.",
+        "params" : { },
+        "row" : 2
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "0_doublon_dans_le_fichier" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 1,
+      "dryRun" : false,
+      "entity" : "antecedents",
+      "errors" : [ {
+        "code" : "DUPLICATE_IN_FILE",
+        "field" : "typeAntecedent",
+        "message" : "Doublon : même patient et même date / clé qu'à la ligne 2.",
+        "params" : {
+          "firstRow" : "2"
+        },
+        "row" : 3
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 2,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "0_etat_sans_ecriture" : { },
+  "0_fin_avant_debut" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "antecedents",
+      "errors" : [ {
+        "code" : "INCONSISTENT_DATES",
+        "field" : "dateFin",
+        "message" : "La date de fin précède la date de début.",
+        "params" : { },
+        "row" : 2
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "0_libelle_et_date_obligatoires_absents" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "antecedents",
+      "errors" : [ {
+        "code" : "REQUIRED",
+        "field" : "libelle",
+        "message" : "« Libellé » est obligatoire.",
+        "params" : { },
+        "row" : 2
+      }, {
+        "code" : "REQUIRED",
+        "field" : "dateDebut",
+        "message" : "« Date de début » est obligatoire.",
+        "params" : { },
+        "row" : 2
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "0_patient_inconnu" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "antecedents",
+      "errors" : [ {
+        "code" : "PATIENT_NOT_MIGRATED",
+        "field" : "patient",
+        "message" : "Patient « INCONNU » inconnu : importez d'abord le fichier des patients.",
+        "params" : {
+          "value" : "INCONNU"
+        },
+        "row" : 2
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "0_type_et_statut_inconnus" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "antecedents",
+      "errors" : [ {
+        "code" : "UNKNOWN_VALUE",
+        "field" : "typeAntecedent",
+        "message" : "« Type » : la valeur « BIZARRE » n'est pas reconnue — associez-la à une valeur (MEDICAL, CHIRURGICAL, FAMILIAL, OBSTETRICAL, COMORBIDITE).",
+        "params" : {
+          "allowed" : "MEDICAL, CHIRURGICAL, FAMILIAL, OBSTETRICAL, COMORBIDITE",
+          "source" : "BIZARRE",
+          "value" : "BIZARRE"
+        },
+        "row" : 2
+      }, {
+        "code" : "UNKNOWN_VALUE",
+        "field" : "statutClinique",
+        "message" : "« Statut clinique » : la valeur « INCONNU » n'est pas reconnue — associez-la à une valeur (ACTIF, RESOLU, INACTIF).",
+        "params" : {
+          "allowed" : "ACTIF, RESOLU, INACTIF",
+          "source" : "INCONNU",
+          "value" : "INCONNU"
+        },
+        "row" : 2
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "1_etat" : {
+    "antecedents_medicaux" : [ {
+      "cree" : true,
+      "date_debut" : "1998-03-15",
+      "date_fin" : "1998-03-15",
+      "libelle_libre" : "Appendicectomie",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH111>",
+      "statut_clinique" : "RESOLU",
+      "type_antecedent" : "CHIRURGICAL"
+    }, {
+      "cree" : true,
+      "date_debut" : "2010-01-01",
+      "diagnostic_code" : "E11",
+      "diagnostic_code_system" : "CIM10",
+      "libelle_libre" : "Diabete de type 2",
+      "modifie_apres_creation" : false,
+      "note" : "Sous insuline",
+      "patient_id" : "<PATIENT_ZH111>",
+      "severite" : "Moderee",
+      "statut_clinique" : "ACTIF",
+      "type_antecedent" : "MEDICAL"
+    }, {
+      "cree" : true,
+      "date_debut" : "2015-05-05",
+      "libelle_libre" : "Diabete de type 2",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH111>",
+      "statut_clinique" : "ACTIF",
+      "type_antecedent" : "MEDICAL"
+    }, {
+      "cree" : true,
+      "date_debut" : "2000-01-01",
+      "diagnostic_code" : "I10",
+      "diagnostic_code_system" : "CIM10",
+      "libelle_libre" : "Hypertension",
+      "modifie_apres_creation" : false,
+      "note" : "Mere",
+      "patient_id" : "<PATIENT_ZH222>",
+      "statut_clinique" : "RESOLU",
+      "type_antecedent" : "FAMILIAL"
+    } ],
+    "correspondances" : [ {
+      "entity" : "ANTECEDENTS",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ANTECEDENTS",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ANTECEDENTS",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ANTECEDENTS",
+      "operation" : "CREATED"
+    } ]
+  },
+  "1_import_nominal" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 4,
+      "dryRun" : false,
+      "entity" : "antecedents",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 4,
+      "updated" : 0,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "2_rejeu_identique" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "antecedents",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 1,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "3_etat" : {
+    "antecedents_medicaux" : [ {
+      "cree" : true,
+      "date_debut" : "1998-03-15",
+      "date_fin" : "1998-03-15",
+      "libelle_libre" : "Appendicectomie",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH111>",
+      "statut_clinique" : "RESOLU",
+      "type_antecedent" : "CHIRURGICAL"
+    }, {
+      "cree" : true,
+      "date_debut" : "2010-01-01",
+      "date_fin" : "2024-01-01",
+      "diagnostic_code" : "E10",
+      "diagnostic_code_system" : "CIM10",
+      "libelle_libre" : "Diabete de type 2",
+      "modifie_apres_creation" : true,
+      "note" : "Sous insuline",
+      "patient_id" : "<PATIENT_ZH111>",
+      "severite" : "Severe",
+      "statut_clinique" : "INACTIF",
+      "type_antecedent" : "MEDICAL"
+    }, {
+      "cree" : true,
+      "date_debut" : "2015-05-05",
+      "libelle_libre" : "Diabete de type 2",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH111>",
+      "statut_clinique" : "ACTIF",
+      "type_antecedent" : "MEDICAL"
+    }, {
+      "cree" : true,
+      "date_debut" : "2005-01-01",
+      "libelle_libre" : "Obesite",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH222>",
+      "statut_clinique" : "ACTIF",
+      "type_antecedent" : "COMORBIDITE"
+    }, {
+      "cree" : true,
+      "date_debut" : "2000-01-01",
+      "diagnostic_code" : "I10",
+      "diagnostic_code_system" : "CIM10",
+      "libelle_libre" : "Hypertension",
+      "modifie_apres_creation" : false,
+      "note" : "Mere",
+      "patient_id" : "<PATIENT_ZH222>",
+      "statut_clinique" : "RESOLU",
+      "type_antecedent" : "FAMILIAL"
+    } ],
+    "correspondances" : [ {
+      "entity" : "ANTECEDENTS",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ANTECEDENTS",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ANTECEDENTS",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ANTECEDENTS",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ANTECEDENTS",
+      "operation" : "CREATED"
+    } ]
+  },
+  "3_rejeu_avec_nouvelles_valeurs_et_une_nouvelle_ligne" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 1,
+      "dryRun" : false,
+      "entity" : "antecedents",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 2,
+      "updated" : 1,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "4_antecedent_de_la_plateforme_a_la_meme_cle" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 1,
+      "dryRun" : false,
+      "entity" : "antecedents",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 2,
+      "updated" : 1,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "4_etat" : {
+    "antecedents_medicaux" : [ {
+      "cree" : true,
+      "date_debut" : "1998-03-15",
+      "date_fin" : "1998-03-15",
+      "libelle_libre" : "Appendicectomie",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH111>",
+      "statut_clinique" : "RESOLU",
+      "type_antecedent" : "CHIRURGICAL"
+    }, {
+      "cree" : true,
+      "date_debut" : "2010-01-01",
+      "date_fin" : "2024-01-01",
+      "diagnostic_code" : "E10",
+      "diagnostic_code_system" : "CIM10",
+      "libelle_libre" : "Diabete de type 2",
+      "modifie_apres_creation" : true,
+      "note" : "Sous insuline",
+      "patient_id" : "<PATIENT_ZH111>",
+      "severite" : "Severe",
+      "statut_clinique" : "INACTIF",
+      "type_antecedent" : "MEDICAL"
+    }, {
+      "cree" : true,
+      "date_debut" : "2015-05-05",
+      "libelle_libre" : "Diabete de type 2",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH111>",
+      "statut_clinique" : "ACTIF",
+      "type_antecedent" : "MEDICAL"
+    }, {
+      "cree" : true,
+      "date_debut" : "2005-01-01",
+      "libelle_libre" : "Obesite",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH222>",
+      "statut_clinique" : "ACTIF",
+      "type_antecedent" : "COMORBIDITE"
+    }, {
+      "cree" : true,
+      "date_debut" : "2000-01-01",
+      "diagnostic_code" : "I10",
+      "diagnostic_code_system" : "CIM10",
+      "libelle_libre" : "Hypertension",
+      "modifie_apres_creation" : false,
+      "note" : "Mere",
+      "patient_id" : "<PATIENT_ZH222>",
+      "statut_clinique" : "RESOLU",
+      "type_antecedent" : "FAMILIAL"
+    }, {
+      "cree" : true,
+      "date_debut" : "2012-02-02",
+      "libelle_libre" : "Goutte",
+      "modifie_apres_creation" : true,
+      "note" : "Reprise",
+      "patient_id" : "<PATIENT_ZH222>",
+      "statut_clinique" : "ACTIF",
+      "type_antecedent" : "MEDICAL"
+    }, {
+      "cree" : true,
+      "date_debut" : "2012-02-03",
+      "libelle_libre" : "Goutte",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH222>",
+      "statut_clinique" : "ACTIF",
+      "type_antecedent" : "MEDICAL"
+    } ],
+    "correspondances" : [ {
+      "entity" : "ANTECEDENTS",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ANTECEDENTS",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ANTECEDENTS",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ANTECEDENTS",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ANTECEDENTS",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ANTECEDENTS",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ANTECEDENTS",
+      "operation" : "UPDATED"
+    } ]
+  }
+}

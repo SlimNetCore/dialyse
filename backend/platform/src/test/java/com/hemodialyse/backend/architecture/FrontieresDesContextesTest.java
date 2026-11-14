@@ -804,6 +804,41 @@ class FrontieresDesContextesTest {
             .should().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDeLHistoriqueDeCouverture")
             .because("l'import des attestations et des prises en charge passe par patientcouverture.v1 (ADR 0171, RP3a)");
 
+    /**
+     * RP3b (ADR 0172) : {@code RepriseDeLHistoriqueMedical} est le SEUL port, hors du Dossier médical, qui écrit le dossier de base, les
+     * antécédents, les sérologies, les abords vasculaires et les analyses d'un lot de reprise ; réservé à l'adapter d'import de la reprise de
+     * données (l'annulation passe par {@code DonneesMedicalesDeLaReprise}, RP2).
+     */
+    @ArchTest
+    static final ArchRule seul_l_import_de_la_reprise_ecrit_l_historique_medical = noClasses()
+            .that().resideOutsideOfPackage("com.hemodialyse.backend.contexts.dossiermedical..")
+            .and().haveNameNotMatching(".*\\.HistoricalRecordJdbcAdapter(\\$.*)?")
+            .should().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.RepriseDeLHistoriqueMedical")
+            .because("seule la reprise de données écrit l'historique médical hors du Dossier médical (ADR 0172, RP3b)");
+
+    @ArchTest
+    static final ArchRule l_import_de_la_reprise_ecrit_l_historique_medical_par_le_langage_publie = classes()
+            .that().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.persistence.adapter.migration.HistoricalRecordJdbcAdapter")
+            .should().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.RepriseDeLHistoriqueMedical")
+            .because("l'import du dossier de base, des antécédents, sérologies, abords et analyses passe par dossier-medical.v1 (ADR 0172, RP3b)");
+
+    /**
+     * RP3b (ADR 0172) : {@code BonsDeSortieDeLaReprise} est le SEUL port, hors du Stock, qui lit les bons de sortie d'un patient ; réservé à
+     * l'adapter d'annulation de la reprise de données.
+     */
+    @ArchTest
+    static final ArchRule seule_l_annulation_d_un_lot_de_reprise_controle_les_bons_de_sortie = noClasses()
+            .that().resideOutsideOfPackage("com.hemodialyse.backend.contexts.stock..")
+            .and().haveNameNotMatching(".*\\.MigrationRollbackJdbcAdapter(\\$.*)?")
+            .should().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.stock.publishedlanguage.BonsDeSortieDeLaReprise")
+            .because("seule l'annulation d'un lot de reprise contrôle les bons de sortie d'un patient hors du Stock (ADR 0172, RP3b)");
+
+    @ArchTest
+    static final ArchRule l_annulation_d_un_lot_de_reprise_controle_les_bons_de_sortie_par_le_langage_publie = classes()
+            .that().haveFullyQualifiedName("com.hemodialyse.backend.infrastructure.persistence.adapter.migration.MigrationRollbackJdbcAdapter")
+            .should().dependOnClassesThat().haveFullyQualifiedName("com.hemodialyse.backend.contexts.stock.publishedlanguage.BonsDeSortieDeLaReprise")
+            .because("l'annulation d'un lot contrôle les bons de sortie par stock.v1 (ADR 0172, RP3b)");
+
     private static final String ORGANISATION = "com.hemodialyse.backend.contexts.organisation";
 
     @ArchTest

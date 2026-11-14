@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.infrastructure.persistence.adapter.migration;
 
+import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.RepriseDeLHistoriqueMedical;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDeLHistoriqueDeCouverture;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDeLHistoriqueDeCouverture.ReportDUneAttestation;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDeLHistoriqueDeCouverture.ReportDUnePriseEnCharge;
@@ -7,62 +8,45 @@ import com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesDeLaRepr
 import com.hemodialyse.backend.infrastructure.migration.model.MigrationEntity;
 import com.hemodialyse.backend.infrastructure.migration.port.HistoricalRecordPort;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
-import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
- * Écriture JDBC de l'historique repris dans les tables métier (état final, sans passer par les services).
- * Les champs sont traduits en colonnes (camelCase → snake_case) après contrôle sur une liste blanche par table :
- * aucune valeur venant d'un fichier n'est jamais concaténée à une requête.
+ * Écriture de l'historique repris dans les données métier (état final, sans passer par les services). Plus aucune écriture SQL ici : chaque
+ * donnée est reprise par le langage publié de son contexte (séances : Séance, SE7e, ADR 0099 ; attestations et prises en charge : Patient et
+ * couverture, RP3a, ADR 0171 ; dossier de base, antécédents, sérologies, abords vasculaires et analyses : Dossier médical, RP3b, ADR 0172),
+ * qui contrôle les champs sur sa liste blanche : aucune valeur venant d'un fichier n'est jamais concaténée à une requête.
  */
 @Component
 public class HistoricalRecordJdbcAdapter implements HistoricalRecordPort {
 
-    static final Map<MigrationEntity, Table> TABLES = new EnumMap<>(MigrationEntity.class);
+    /** Nature d'historique médical de chaque donnée reprise par le Dossier médical (liste fermée de son langage publié). */
+    static final Map<MigrationEntity, String> NATURES_MEDICALES = new EnumMap<>(MigrationEntity.class);
 
     static {
-        // Les attestations de droits et les prises en charge ne sont plus décrites ici : Patient et couverture les reprend par son langage
-        // publié (RP3a, ADR 0171), avec les mêmes valeurs, la même date de création et les mêmes requêtes.
-        TABLES.put(MigrationEntity.DOSSIERS_MEDICAUX, new Table("dossier_medical_patient",
-                Set.of("patientId", "dateMiseEnDialyse", "nephropathieInitiale", "hepatiteBStatut", "hepatiteCStatut",
-                        "observationGlobale", "conclusionMedicale"), true, true));
-        TABLES.put(MigrationEntity.ANTECEDENTS, new Table("antecedents_medicaux",
-                Set.of("patientId", "typeAntecedent", "libelleLibre", "diagnosticCodeSystem", "diagnosticCode", "dateDebut",
-                        "dateFin", "statutClinique", "severite", "note"), true, true));
-        TABLES.put(MigrationEntity.SEROLOGIES, new Table("serologies_patient",
-                Set.of("patientId", "marqueur", "resultat", "datePrelevement", "titre", "unite", "laboratoire"), true, true));
-        TABLES.put(MigrationEntity.ABORDS_VASCULAIRES, new Table("abords_vasculaires",
-                Set.of("patientId", "typeAbord", "cote", "localisation", "dateCreation", "dateFin", "actif", "complications"),
-                true, false));
-        TABLES.put(MigrationEntity.ANALYSES, new Table("resultats_analyses",
-                Set.of("patientId", "datePrelevement", "plaquettes", "hbGDl", "htPct", "ferritineNgMl", "cstfPct",
-                        "ureePreMgDl", "ureePostMgDl", "creatinineMgDl", "ktVMensuel", "phosphoreMgDl", "calciumMgDl",
-                        "pthPgMl", "albumineGDl", "proteinesGDl", "crpMgL"), true, true));
-        // Les séances ne sont plus décrites ici : la Séance les reprend par son langage publié (SE7e, ADR 0099), avec la même liste
-        // blanche (patientId, dateSeance, statut), la même date de création et les mêmes requêtes.
+        NATURES_MEDICALES.put(MigrationEntity.DOSSIERS_MEDICAUX, RepriseDeLHistoriqueMedical.DOSSIER_DE_BASE);
+        NATURES_MEDICALES.put(MigrationEntity.ANTECEDENTS, RepriseDeLHistoriqueMedical.ANTECEDENTS);
+        NATURES_MEDICALES.put(MigrationEntity.SEROLOGIES, RepriseDeLHistoriqueMedical.SEROLOGIES);
+        NATURES_MEDICALES.put(MigrationEntity.ABORDS_VASCULAIRES, RepriseDeLHistoriqueMedical.ABORDS_VASCULAIRES);
+        NATURES_MEDICALES.put(MigrationEntity.ANALYSES, RepriseDeLHistoriqueMedical.ANALYSES);
     }
 
-    private final JdbcTemplate jdbc;
     private final SeancesDeLaReprisePubliees seances;
     /** Attestations de droits et prises en charge : écrites par le langage publié de Patient et couverture (RP3a, ADR 0171). */
     private final RepriseDeLHistoriqueDeCouverture couverture;
+    /** Dossier de base, antécédents, sérologies, abords et analyses : écrits par le langage publié du Dossier médical (RP3b, ADR 0172). */
+    private final RepriseDeLHistoriqueMedical medical;
 
-    public HistoricalRecordJdbcAdapter(JdbcTemplate jdbc, SeancesDeLaReprisePubliees seances,
-                                       RepriseDeLHistoriqueDeCouverture couverture) {
-        this.jdbc = jdbc;
+    public HistoricalRecordJdbcAdapter(SeancesDeLaReprisePubliees seances, RepriseDeLHistoriqueDeCouverture couverture,
+                                       RepriseDeLHistoriqueMedical medical) {
         this.seances = seances;
         this.couverture = couverture;
+        this.medical = medical;
     }
 
     private static LocalDate date(Map<String, Object> valeurs, String champ) {
@@ -83,24 +67,11 @@ public class HistoricalRecordJdbcAdapter implements HistoricalRecordPort {
                 date(valeurs, "dateFinEffectif"), identifiant(valeurs, "forfaitEffectifId"));
     }
 
-    static Table table(MigrationEntity entity) {
-        Table table = TABLES.get(entity);
-        if (table == null) throw new IllegalArgumentException("Donnée non historisable : " + entity);
-        return table;
-    }
-
-    private static String column(Table table, String field) {
-        if (!table.fields().contains(field)) {
-            throw new IllegalArgumentException("Champ non autorisé pour " + table.name() + " : " + field);
-        }
-        return snake(field);
-    }
-
-    /**
-     * patientId → patient_id ; hbGDl → hb_g_dl ; ktVMensuel → kt_v_mensuel.
-     */
-    static String snake(String field) {
-        return field.replaceAll("([A-Z])", "_$1").toLowerCase(java.util.Locale.ROOT);
+    /** Nature d'historique médical d'une donnée reprise par le Dossier médical ; toute autre donnée n'est pas historisable. */
+    static String nature(MigrationEntity entity) {
+        String nature = NATURES_MEDICALES.get(entity);
+        if (nature == null) throw new IllegalArgumentException("Donnée non historisable : " + entity);
+        return nature;
     }
 
     @Override
@@ -112,20 +83,7 @@ public class HistoricalRecordJdbcAdapter implements HistoricalRecordPort {
         if (entity == MigrationEntity.PRISES_EN_CHARGE) {
             return couverture.priseEnChargeDemandee(centerId.valeur(), identifiant(key, "patientId"), date(key, "dateDebutDemande"));
         }
-        Table table = table(entity);
-        List<Object> params = new ArrayList<>(List.of(centerId.valeur()));
-        StringBuilder where = new StringBuilder(" WHERE center_id = ?");
-        key.forEach((field, value) -> {
-            String column = column(table, field);
-            if (value == null) {
-                where.append(" AND ").append(column).append(" IS NULL");
-            } else {
-                where.append(" AND ").append(column).append(" = ?");
-                params.add(value);
-            }
-        });
-        return jdbc.queryForList("SELECT id FROM " + table.name() + where + " ORDER BY created_at", UUID.class,
-                params.toArray()).stream().findFirst();
+        return medical.dejaPresente(centerId.valeur(), nature(entity), key);
     }
 
     @Override
@@ -137,27 +95,7 @@ public class HistoricalRecordJdbcAdapter implements HistoricalRecordPort {
         if (entity == MigrationEntity.PRISES_EN_CHARGE) {
             return couverture.reprendreUnePriseEnCharge(centerId.valeur(), identifiant(values, "patientId"), priseEnCharge(values));
         }
-        Table table = table(entity);
-        UUID id = UUID.randomUUID();
-        OffsetDateTime now = OffsetDateTime.now();
-        List<String> columns = new ArrayList<>(List.of("id", "center_id"));
-        List<Object> params = new ArrayList<>(List.of(id, centerId.valeur()));
-        values.forEach((field, value) -> {
-            columns.add(column(table, field));
-            params.add(value);
-        });
-        if (table.createdAt()) {
-            columns.add("created_at");
-            params.add(now);
-        }
-        if (table.updatedAt()) {
-            columns.add("updated_at");
-            params.add(now);
-        }
-        String placeholders = columns.stream().map(c -> "?").collect(Collectors.joining(", "));
-        jdbc.update("INSERT INTO " + table.name() + " (" + String.join(", ", columns) + ") VALUES (" + placeholders + ")",
-                params.toArray());
-        return id;
+        return medical.reprendre(centerId.valeur(), nature(entity), values);
     }
 
     @Override
@@ -174,29 +112,6 @@ public class HistoricalRecordJdbcAdapter implements HistoricalRecordPort {
             couverture.completerUnePriseEnCharge(centerId.valeur(), id, priseEnCharge(values));
             return;
         }
-        Table table = table(entity);
-        List<String> assignments = new ArrayList<>();
-        List<Object> params = new ArrayList<>();
-        values.forEach((field, value) -> {
-            if (field.equals("patientId")) return; // une ligne ne change jamais de patient
-            assignments.add(column(table, field) + " = ?");
-            params.add(value);
-        });
-        if (table.updatedAt()) {
-            assignments.add("updated_at = ?");
-            params.add(OffsetDateTime.now());
-        }
-        if (assignments.isEmpty()) return;
-        params.add(id);
-        params.add(centerId.valeur());
-        jdbc.update("UPDATE " + table.name() + " SET " + String.join(", ", assignments) + " WHERE id = ? AND center_id = ?",
-                params.toArray());
-    }
-
-    /**
-     * Table cible d'une donnée reprise.
-     */
-    record Table(String name, Set<String> fields, boolean createdAt, boolean updatedAt) {
+        medical.completer(centerId.valeur(), nature(entity), id, values);
     }
 }
-

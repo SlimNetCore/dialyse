@@ -230,6 +230,15 @@ public class DossierMedicalConfiguration {
         return new com.hemodialyse.backend.contexts.dossiermedical.infrastructure.persistence.DonneesMedicalesDeLaRepriseJdbc(jdbc);
     }
 
+    /**
+     * Langage publié RP3b (ADR 0172) : écriture de l'historique médical d'un lot de reprise (dossier de base, antécédents, sérologies, abords,
+     * analyses), pour l'import (réservé à l'adapter d'import de la plateforme, règle ArchUnit). Participe à la transaction de l'import.
+     */
+    @Bean
+    com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.RepriseDeLHistoriqueMedical repriseDeLHistoriqueMedical(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.dossiermedical.infrastructure.persistence.RepriseDeLHistoriqueMedicalJdbc(jdbc);
+    }
+
     /** Langage publié SE7f (ADR 0100) : la dernière créatinine du patient au centre pour l'évaluation KDIGO de la plateforme (KB-SEA-96 reproduit). */
     @Bean
     com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.DerniereCreatininePubliee derniereCreatininePubliee(JdbcTemplate jdbc) {

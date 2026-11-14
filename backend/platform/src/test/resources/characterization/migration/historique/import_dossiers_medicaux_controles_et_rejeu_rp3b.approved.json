@@ -1,0 +1,530 @@
+{
+  "0_date_future" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "dossiers-medicaux",
+      "errors" : [ {
+        "code" : "DATE_IN_FUTURE",
+        "field" : "dateMiseEnDialyse",
+        "message" : "La date est dans le futur.",
+        "params" : { },
+        "row" : 2
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "0_doublon_dans_le_fichier" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 1,
+      "dryRun" : false,
+      "entity" : "dossiers-medicaux",
+      "errors" : [ {
+        "code" : "DUPLICATE_IN_FILE",
+        "field" : "patient",
+        "message" : "Doublon : même patient qu'à la ligne 2.",
+        "params" : {
+          "firstRow" : "2"
+        },
+        "row" : 3
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 2,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "0_etat_sans_ecriture" : { },
+  "0_patient_inconnu" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "dossiers-medicaux",
+      "errors" : [ {
+        "code" : "PATIENT_NOT_MIGRATED",
+        "field" : "patient",
+        "message" : "Patient « INCONNU » inconnu : importez d'abord le fichier des patients.",
+        "params" : {
+          "value" : "INCONNU"
+        },
+        "row" : 2
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "0_patient_vide" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "dossiers-medicaux",
+      "errors" : [ {
+        "code" : "REQUIRED",
+        "field" : "patient",
+        "message" : "« Patient (identifiant d'origine) » est obligatoire.",
+        "params" : { },
+        "row" : 2
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "0_texte_trop_long" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "dossiers-medicaux",
+      "errors" : [ {
+        "code" : "TOO_LONG",
+        "field" : "nephropathieInitiale",
+        "message" : "« Néphropathie initiale » dépasse 255 caractères.",
+        "params" : {
+          "max" : "255"
+        },
+        "row" : 2
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "1_etat_apres_simulations" : { },
+  "1_formats_de_date_en_simulation" : {
+    "dateMiseEnDialyse [  15/06/2018  ]" : {
+      "corps" : {
+        "applied" : false,
+        "created" : 1,
+        "dryRun" : true,
+        "entity" : "dossiers-medicaux",
+        "errors" : [ ],
+        "executedAt" : "<HORODATAGE>",
+        "executedBy" : "u-<ADMIN_A>",
+        "fileName" : "import.csv",
+        "ignoredColumns" : [ ],
+        "missingColumns" : [ ],
+        "totalRows" : 1,
+        "updated" : 0,
+        "valid" : true,
+        "warnings" : [ ]
+      },
+      "http" : 200
+    },
+    "dateMiseEnDialyse [15-06-2018]" : {
+      "corps" : {
+        "applied" : false,
+        "created" : 1,
+        "dryRun" : true,
+        "entity" : "dossiers-medicaux",
+        "errors" : [ ],
+        "executedAt" : "<HORODATAGE>",
+        "executedBy" : "u-<ADMIN_A>",
+        "fileName" : "import.csv",
+        "ignoredColumns" : [ ],
+        "missingColumns" : [ ],
+        "totalRows" : 1,
+        "updated" : 0,
+        "valid" : true,
+        "warnings" : [ ]
+      },
+      "http" : 200
+    },
+    "dateMiseEnDialyse [15/06/18]" : {
+      "corps" : {
+        "applied" : false,
+        "created" : 0,
+        "dryRun" : true,
+        "entity" : "dossiers-medicaux",
+        "errors" : [ {
+          "code" : "INVALID_DATE",
+          "field" : "dateMiseEnDialyse",
+          "message" : "« Date de mise en dialyse » : « 15/06/18 » n'est pas une date (JJ/MM/AAAA).",
+          "params" : {
+            "value" : "15/06/18"
+          },
+          "row" : 2
+        } ],
+        "executedAt" : "<HORODATAGE>",
+        "executedBy" : "u-<ADMIN_A>",
+        "fileName" : "import.csv",
+        "ignoredColumns" : [ ],
+        "missingColumns" : [ ],
+        "totalRows" : 1,
+        "updated" : 0,
+        "valid" : false,
+        "warnings" : [ ]
+      },
+      "http" : 200
+    },
+    "dateMiseEnDialyse [15/06/2018]" : {
+      "corps" : {
+        "applied" : false,
+        "created" : 1,
+        "dryRun" : true,
+        "entity" : "dossiers-medicaux",
+        "errors" : [ ],
+        "executedAt" : "<HORODATAGE>",
+        "executedBy" : "u-<ADMIN_A>",
+        "fileName" : "import.csv",
+        "ignoredColumns" : [ ],
+        "missingColumns" : [ ],
+        "totalRows" : 1,
+        "updated" : 0,
+        "valid" : true,
+        "warnings" : [ ]
+      },
+      "http" : 200
+    },
+    "dateMiseEnDialyse [2018-06-15]" : {
+      "corps" : {
+        "applied" : false,
+        "created" : 1,
+        "dryRun" : true,
+        "entity" : "dossiers-medicaux",
+        "errors" : [ ],
+        "executedAt" : "<HORODATAGE>",
+        "executedBy" : "u-<ADMIN_A>",
+        "fileName" : "import.csv",
+        "ignoredColumns" : [ ],
+        "missingColumns" : [ ],
+        "totalRows" : 1,
+        "updated" : 0,
+        "valid" : true,
+        "warnings" : [ ]
+      },
+      "http" : 200
+    },
+    "dateMiseEnDialyse [2018-13-01]" : {
+      "corps" : {
+        "applied" : false,
+        "created" : 0,
+        "dryRun" : true,
+        "entity" : "dossiers-medicaux",
+        "errors" : [ {
+          "code" : "INVALID_DATE",
+          "field" : "dateMiseEnDialyse",
+          "message" : "« Date de mise en dialyse » : « 2018-13-01 » n'est pas une date (JJ/MM/AAAA).",
+          "params" : {
+            "value" : "2018-13-01"
+          },
+          "row" : 2
+        } ],
+        "executedAt" : "<HORODATAGE>",
+        "executedBy" : "u-<ADMIN_A>",
+        "fileName" : "import.csv",
+        "ignoredColumns" : [ ],
+        "missingColumns" : [ ],
+        "totalRows" : 1,
+        "updated" : 0,
+        "valid" : false,
+        "warnings" : [ ]
+      },
+      "http" : 200
+    },
+    "dateMiseEnDialyse [2018/06/15]" : {
+      "corps" : {
+        "applied" : false,
+        "created" : 0,
+        "dryRun" : true,
+        "entity" : "dossiers-medicaux",
+        "errors" : [ {
+          "code" : "INVALID_DATE",
+          "field" : "dateMiseEnDialyse",
+          "message" : "« Date de mise en dialyse » : « 2018/06/15 » n'est pas une date (JJ/MM/AAAA).",
+          "params" : {
+            "value" : "2018/06/15"
+          },
+          "row" : 2
+        } ],
+        "executedAt" : "<HORODATAGE>",
+        "executedBy" : "u-<ADMIN_A>",
+        "fileName" : "import.csv",
+        "ignoredColumns" : [ ],
+        "missingColumns" : [ ],
+        "totalRows" : 1,
+        "updated" : 0,
+        "valid" : false,
+        "warnings" : [ ]
+      },
+      "http" : 200
+    },
+    "dateMiseEnDialyse [20180615]" : {
+      "corps" : {
+        "applied" : false,
+        "created" : 0,
+        "dryRun" : true,
+        "entity" : "dossiers-medicaux",
+        "errors" : [ {
+          "code" : "INVALID_DATE",
+          "field" : "dateMiseEnDialyse",
+          "message" : "« Date de mise en dialyse » : « 20180615 » n'est pas une date (JJ/MM/AAAA).",
+          "params" : {
+            "value" : "20180615"
+          },
+          "row" : 2
+        } ],
+        "executedAt" : "<HORODATAGE>",
+        "executedBy" : "u-<ADMIN_A>",
+        "fileName" : "import.csv",
+        "ignoredColumns" : [ ],
+        "missingColumns" : [ ],
+        "totalRows" : 1,
+        "updated" : 0,
+        "valid" : false,
+        "warnings" : [ ]
+      },
+      "http" : 200
+    },
+    "dateMiseEnDialyse [31/02/2018]" : {
+      "corps" : {
+        "applied" : false,
+        "created" : 0,
+        "dryRun" : true,
+        "entity" : "dossiers-medicaux",
+        "errors" : [ {
+          "code" : "INVALID_DATE",
+          "field" : "dateMiseEnDialyse",
+          "message" : "« Date de mise en dialyse » : « 31/02/2018 » n'est pas une date (JJ/MM/AAAA).",
+          "params" : {
+            "value" : "31/02/2018"
+          },
+          "row" : 2
+        } ],
+        "executedAt" : "<HORODATAGE>",
+        "executedBy" : "u-<ADMIN_A>",
+        "fileName" : "import.csv",
+        "ignoredColumns" : [ ],
+        "missingColumns" : [ ],
+        "totalRows" : 1,
+        "updated" : 0,
+        "valid" : false,
+        "warnings" : [ ]
+      },
+      "http" : 200
+    },
+    "dateMiseEnDialyse [5/6/2018]" : {
+      "corps" : {
+        "applied" : false,
+        "created" : 1,
+        "dryRun" : true,
+        "entity" : "dossiers-medicaux",
+        "errors" : [ ],
+        "executedAt" : "<HORODATAGE>",
+        "executedBy" : "u-<ADMIN_A>",
+        "fileName" : "import.csv",
+        "ignoredColumns" : [ ],
+        "missingColumns" : [ ],
+        "totalRows" : 1,
+        "updated" : 0,
+        "valid" : true,
+        "warnings" : [ ]
+      },
+      "http" : 200
+    },
+    "dateMiseEnDialyse [abc]" : {
+      "corps" : {
+        "applied" : false,
+        "created" : 0,
+        "dryRun" : true,
+        "entity" : "dossiers-medicaux",
+        "errors" : [ {
+          "code" : "INVALID_DATE",
+          "field" : "dateMiseEnDialyse",
+          "message" : "« Date de mise en dialyse » : « abc » n'est pas une date (JJ/MM/AAAA).",
+          "params" : {
+            "value" : "abc"
+          },
+          "row" : 2
+        } ],
+        "executedAt" : "<HORODATAGE>",
+        "executedBy" : "u-<ADMIN_A>",
+        "fileName" : "import.csv",
+        "ignoredColumns" : [ ],
+        "missingColumns" : [ ],
+        "totalRows" : 1,
+        "updated" : 0,
+        "valid" : false,
+        "warnings" : [ ]
+      },
+      "http" : 200
+    }
+  },
+  "2_etat" : {
+    "correspondances" : [ {
+      "entity" : "DOSSIERS_MEDICAUX",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "DOSSIERS_MEDICAUX",
+      "operation" : "UPDATED"
+    } ],
+    "dossier_medical_patient" : [ {
+      "conclusion_medicale" : "Conclusion",
+      "cree" : true,
+      "date_mise_en_dialyse" : "2018-06-15",
+      "hepatite_b_statut" : "NEGATIF",
+      "hepatite_c_statut" : "POSITIF",
+      "modifie" : true,
+      "nephropathie_initiale" : "Nephropathie diabetique",
+      "observation_globale" : "Observation",
+      "patient_id" : "<PATIENT_ZH111>"
+    }, {
+      "cree" : true,
+      "date_mise_en_dialyse" : "2020-01-10",
+      "modifie" : true,
+      "nephropathie_initiale" : "Saisie plateforme",
+      "patient_id" : "<PATIENT_ZH222>"
+    } ]
+  },
+  "2_import_nominal" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 1,
+      "dryRun" : false,
+      "entity" : "dossiers-medicaux",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 2,
+      "updated" : 1,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "3_etat" : {
+    "correspondances" : [ {
+      "entity" : "DOSSIERS_MEDICAUX",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "DOSSIERS_MEDICAUX",
+      "operation" : "UPDATED"
+    } ],
+    "dossier_medical_patient" : [ {
+      "conclusion_medicale" : "Conclusion",
+      "cree" : true,
+      "date_mise_en_dialyse" : "2018-06-15",
+      "hepatite_b_statut" : "NEGATIF",
+      "hepatite_c_statut" : "POSITIF",
+      "modifie" : true,
+      "nephropathie_initiale" : "Nephropathie diabetique",
+      "observation_globale" : "Observation",
+      "patient_id" : "<PATIENT_ZH111>"
+    }, {
+      "cree" : true,
+      "date_mise_en_dialyse" : "2020-01-10",
+      "modifie" : true,
+      "nephropathie_initiale" : "Saisie plateforme",
+      "patient_id" : "<PATIENT_ZH222>"
+    } ]
+  },
+  "3_rejeu_identique" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "dossiers-medicaux",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 1,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "4_etat" : {
+    "correspondances" : [ {
+      "entity" : "DOSSIERS_MEDICAUX",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "DOSSIERS_MEDICAUX",
+      "operation" : "UPDATED"
+    } ],
+    "dossier_medical_patient" : [ {
+      "conclusion_medicale" : "Conclusion",
+      "cree" : true,
+      "date_mise_en_dialyse" : "2017-01-01",
+      "hepatite_b_statut" : "NEGATIF",
+      "hepatite_c_statut" : "POSITIF",
+      "modifie" : true,
+      "nephropathie_initiale" : "Glomerulonephrite",
+      "observation_globale" : "Observation",
+      "patient_id" : "<PATIENT_ZH111>"
+    }, {
+      "cree" : true,
+      "date_mise_en_dialyse" : "2020-01-10",
+      "hepatite_b_statut" : "POSITIF",
+      "modifie" : true,
+      "nephropathie_initiale" : "Lupus",
+      "patient_id" : "<PATIENT_ZH222>"
+    } ]
+  },
+  "4_rejeu_avec_nouvelles_valeurs_et_champs_vides" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "dossiers-medicaux",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 2,
+      "updated" : 2,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  }
+}

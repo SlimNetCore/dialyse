@@ -45,6 +45,12 @@ public class StockContexteConfiguration {
         return new com.hemodialyse.backend.contexts.stock.infrastructure.persistence.IndicateursDuStockJdbc(jdbc);
     }
 
+    /** Langage publié RP3b (ADR 0172) : contrôle des bons de sortie d'un patient pour l'annulation d'un lot de reprise (réservé à cet adapter, règle ArchUnit). */
+    @Bean
+    com.hemodialyse.backend.contexts.stock.publishedlanguage.BonsDeSortieDeLaReprise stockBonsDeSortieDeLaReprise(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.stock.infrastructure.persistence.BonsDeSortieDeLaRepriseJdbc(jdbc);
+    }
+
     @Bean
     com.hemodialyse.backend.contexts.stock.application.HorlogeDesCentres stockHorloge(
             com.hemodialyse.backend.contexts.stock.publishedlanguage.CentresFournis centres) {

@@ -87,10 +87,8 @@ class TableDesSeancesTest {
         lecteur(ressources + "db/demo/renadial-purge.sql", "purge de la démonstration (SUPPRIME des séances ; jamais sur une base partagée ; SE7f)",
                 RETRAIT_DU_PILOTAGE_LEGACY);
 
-        MENTIONS_NON_SQL.put(plateforme + "infrastructure/migration/model/MigrationEntity.java",
-                "code du type de donnée importée (SEANCES(\"seances\", …) : segment d'URL /import/seances et colonne « seances » de "
-                        + "joursDialyse) ; nommé par HistoricalRecordJdbcAdapter qui construit ses requêtes depuis TABLES, où les séances ne "
-                        + "figurent plus (SE7e) : la chaîne n'atteint aucune requête");
+        // MigrationEntity.java (faux positif nommé de la détection des noms calculés : SEANCES("seances", …), segment d'URL /import/seances) :
+        // exemption SOLDÉE par RP3b (2026-11-13, ADR 0172) ; plus aucun constructeur de SQL de la reprise ne la nomme (aucun report).
     }
 
     /** Les trois tables de la Séance (ADR 0100 : les volets suivent la séance ; {@code resultats_analyses} est au Dossier médical). */
@@ -353,7 +351,7 @@ class TableDesSeancesTest {
         assertThat(LECTEURS_CONNUS.keySet().stream().filter(c -> c.startsWith("platform/src/main/resources/")).count())
                 .as("dont 4 ressources SQL de la plateforme (le schéma H2 et 3 scripts de données ; l'état Jasper du cahier est au module "
                         + "Documents depuis DOC2, ADR 0162)").isEqualTo(4);
-        assertThat(MENTIONS_NON_SQL).as("1 faux positif nommé de la détection des noms calculés").hasSize(1);
+        assertThat(MENTIONS_NON_SQL).as("plus aucun faux positif nommé de la détection des noms calculés (RP3b, ADR 0172)").isEmpty();
         assertThat(LECTEURS_CONNUS.keySet().stream().filter(c -> c.startsWith("contexts/facturation/")).count())
                 .as("dont 0 de la Facturation (SE7c2)").isZero();
     }

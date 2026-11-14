@@ -6,6 +6,7 @@ import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.Annu
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDeLHistoriqueDeCouverture;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.RepriseDesAssures;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesDeLaReprisePubliees;
+import com.hemodialyse.backend.contexts.stock.publishedlanguage.BonsDeSortieDeLaReprise;
 import com.hemodialyse.backend.infrastructure.migration.model.IdMapping;
 import com.hemodialyse.backend.infrastructure.migration.model.MigrationEntity;
 import com.hemodialyse.backend.infrastructure.migration.port.MigrationRollbackPort;
@@ -14,7 +15,6 @@ import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -37,8 +37,8 @@ public class MigrationRollbackJdbcAdapter implements MigrationRollbackPort {
 
     private static final Logger log = LoggerFactory.getLogger(MigrationRollbackJdbcAdapter.class);
 
-    /** Seule donnée contrôlée ici qui n'est ni de Patient et couverture, ni de la Séance, ni de la Facturation, ni du Dossier médical (Stock). */
-    private static final String BONS_DE_SORTIE = "bons_sortie";
+    /** Le contrôle des bons de sortie est lu par le langage publié du Stock (RP3b, ADR 0172) : plus aucun SQL ici. */
+    private static final String BONS_DE_SORTIE = BonsDeSortieDeLaReprise.NATURE;
 
     /**
      * Natures de données rattachées à un patient qui empêchent sa suppression (assure_patient est supprimée avec lui), dans l'ORDRE du
@@ -55,7 +55,8 @@ public class MigrationRollbackJdbcAdapter implements MigrationRollbackPort {
         return List.copyOf(natures);
     }
 
-    private final JdbcTemplate jdbc;
+    /** Bons de sortie du patient : lus par le langage publié du Stock (RP3b, ADR 0172), mêmes requêtes qu'avant. */
+    private final BonsDeSortieDeLaReprise bonsDeSortie;
     /** Données médicales et analyses du lot : lues et supprimées par le langage publié du Dossier médical (RP2, ADR 0170), mêmes requêtes qu'avant. */
     private final DonneesMedicalesDeLaReprise medical;
     private final RepriseDesSoldes reprise;
@@ -68,13 +69,14 @@ public class MigrationRollbackJdbcAdapter implements MigrationRollbackPort {
     /** Patients, assurés et affectations créés par le lot : supprimés et contrôlés par le langage publié de Patient et couverture (RP1, ADR 0169). */
     private final AnnulationDeLaReprise annulation;
 
-    public MigrationRollbackJdbcAdapter(JdbcTemplate jdbc, RepriseDesSoldes reprise, SeancesDeLaReprisePubliees seances,
-                                        RepriseDesAssures assures, AnnulationDeLaReprise annulation, DonneesMedicalesDeLaReprise medical) {
+    public MigrationRollbackJdbcAdapter(RepriseDesSoldes reprise, SeancesDeLaReprisePubliees seances, RepriseDesAssures assures,
+                                        AnnulationDeLaReprise annulation, DonneesMedicalesDeLaReprise medical,
+                                        BonsDeSortieDeLaReprise bonsDeSortie) {
         this.medical = medical;
+        this.bonsDeSortie = bonsDeSortie;
         this.annulation = annulation;
         this.assures = assures;
         this.reprise = reprise;
-        this.jdbc = jdbc;
         this.seances = seances;
     }
 
@@ -88,8 +90,7 @@ public class MigrationRollbackJdbcAdapter implements MigrationRollbackPort {
                     : m.entity() == MigrationEntity.SEANCES ? SeancesDeLaReprisePubliees.NATURE
                     : m.entity() == MigrationEntity.ATTESTATIONS ? RepriseDeLHistoriqueDeCouverture.NATURE_DES_ATTESTATIONS
                     : m.entity() == MigrationEntity.PRISES_EN_CHARGE ? RepriseDeLHistoriqueDeCouverture.NATURE_DES_PRISES_EN_CHARGE
-                    : HistoricalRecordJdbcAdapter.TABLES.containsKey(m.entity())
-                    ? HistoricalRecordJdbcAdapter.TABLES.get(m.entity()).name() : null;
+                    : HistoricalRecordJdbcAdapter.NATURES_MEDICALES.get(m.entity());
             if (table != null) out.computeIfAbsent(table, t -> new HashSet<>()).add(m.targetId().toLowerCase());
         }
         return out;
@@ -118,7 +119,7 @@ public class MigrationRollbackJdbcAdapter implements MigrationRollbackPort {
                                 : SeancesDeLaReprisePubliees.NATURE.equals(table) ? ids(() -> seances.seancesDuPatient(patientId))
                                 : RepriseDeLHistoriqueDeCouverture.NATURE_DES_PRISES_EN_CHARGE.equals(table) ? ids(() -> uuids(annulation.prisesEnChargeDuPatient(patientId)))
                                 : RepriseDeLHistoriqueDeCouverture.NATURE_DES_ATTESTATIONS.equals(table) ? ids(() -> uuids(annulation.attestationsDuPatient(patientId)))
-                                : BONS_DE_SORTIE.equals(table) ? ids("SELECT CAST(id AS VARCHAR(36)) FROM " + table + " WHERE patient_id = ?", patientId)
+                                : BONS_DE_SORTIE.equals(table) ? ids(() -> bonsDeSortie.bonsDeSortieDuPatient(patientId))
                                 : ids(() -> medical.lignesDuPatient(patientId, table));
                         boolean usedElsewhere = rows.stream().anyMatch(id -> !ownRows.contains(id));
                         if (usedElsewhere) {
@@ -169,7 +170,7 @@ public class MigrationRollbackJdbcAdapter implements MigrationRollbackPort {
                 case PRISES_EN_CHARGE -> annulation.supprimerUnePriseEnCharge(center, UUID.fromString(m.targetId()));
                 default -> {
                     // dossier de base, antécédents, sérologies, abords, analyses : supprimés par le Dossier médical (RP2, ADR 0170)
-                    medical.supprimerLaDonneeDuLot(center, HistoricalRecordJdbcAdapter.table(m.entity()).name(), UUID.fromString(m.targetId()));
+                    medical.supprimerLaDonneeDuLot(center, HistoricalRecordJdbcAdapter.nature(m.entity()), UUID.fromString(m.targetId()));
                 }
             }
         }
@@ -186,10 +187,6 @@ public class MigrationRollbackJdbcAdapter implements MigrationRollbackPort {
 
     private static List<String> uuids(List<UUID> identifiants) {
         return identifiants.stream().map(UUID::toString).toList();
-    }
-
-    private List<String> ids(String sql, Object... args) {
-        return ids(() -> jdbc.queryForList(sql, String.class, args));
     }
 
     /** Identifiants en minuscules ; contrôle ignoré si la table est absente (même traitement pour une lecture publiée). */

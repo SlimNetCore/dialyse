@@ -1,0 +1,121 @@
+{
+  "0_avant" : {
+    "correspondances" : [ {
+      "entity" : "ANALYSES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "DOSSIERS_MEDICAUX",
+      "operation" : "CREATED"
+    } ],
+    "dossier_medical_patient" : [ {
+      "cree" : true,
+      "date_mise_en_dialyse" : "2018-06-15",
+      "modifie" : true,
+      "nephropathie_initiale" : "Diabete",
+      "patient_id" : "<PATIENT_ZH111>"
+    } ],
+    "resultats_analyses" : [ {
+      "cree" : true,
+      "date_prelevement" : "2026-01-05",
+      "hb_g_dl" : "10.80",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH111>"
+    } ]
+  },
+  "a_bon_de_sortie_du_patient" : {
+    "corps" : {
+      "code" : "MIGRATION_CANCEL_BLOCKED",
+      "detail" : "Annulation impossible : des données reprises ont déjà été utilisées — patient « P1 » (bons_sortie)",
+      "instance" : "/api/v1/admin/migration/batches/<LOT>/cancel",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "http" : 422
+  },
+  "a_etat" : {
+    "correspondances" : [ {
+      "entity" : "ANALYSES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "DOSSIERS_MEDICAUX",
+      "operation" : "CREATED"
+    } ],
+    "dossier_medical_patient" : [ {
+      "cree" : true,
+      "date_mise_en_dialyse" : "2018-06-15",
+      "modifie" : true,
+      "nephropathie_initiale" : "Diabete",
+      "patient_id" : "<PATIENT_ZH111>"
+    } ],
+    "resultats_analyses" : [ {
+      "cree" : true,
+      "date_prelevement" : "2026-01-05",
+      "hb_g_dl" : "10.80",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH111>"
+    } ]
+  },
+  "b_analyse_hors_lot_et_bon_de_sortie" : {
+    "corps" : {
+      "code" : "MIGRATION_CANCEL_BLOCKED",
+      "detail" : "Annulation impossible : des données reprises ont déjà été utilisées — patient « P1 » (resultats_analyses)",
+      "instance" : "/api/v1/admin/migration/batches/<LOT>/cancel",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "http" : 422
+  },
+  "c_bilan_pre_greffe_et_bon_de_sortie" : {
+    "corps" : {
+      "code" : "MIGRATION_CANCEL_BLOCKED",
+      "detail" : "Annulation impossible : des données reprises ont déjà été utilisées — patient « P1 » (bons_sortie)",
+      "instance" : "/api/v1/admin/migration/batches/<LOT>/cancel",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "http" : 422
+  },
+  "d_bilan_pre_greffe_seul" : {
+    "corps" : {
+      "code" : "MIGRATION_CANCEL_BLOCKED",
+      "detail" : "Annulation impossible : des données reprises ont déjà été utilisées — patient « P1 » (bilans_pre_greffe)",
+      "instance" : "/api/v1/admin/migration/batches/<LOT>/cancel",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "http" : 422
+  },
+  "e_bon_de_sortie_d_un_autre_centre" : {
+    "corps" : {
+      "code" : "MIGRATION_CANCEL_BLOCKED",
+      "detail" : "Annulation impossible : des données reprises ont déjà été utilisées — patient « P1 » (bons_sortie)",
+      "instance" : "/api/v1/admin/migration/batches/<LOT>/cancel",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "http" : 422
+  },
+  "f_annulation_une_fois_le_patient_libre" : {
+    "corps" : {
+      "closedAt" : "<HORODATAGE>",
+      "createdAt" : "<HORODATAGE>",
+      "createdBy" : "u-<ADMIN_A>",
+      "dateDebutReprise" : "2023-09-30",
+      "id" : "<LOT>",
+      "libelle" : "Reprise RP3b",
+      "sourceSystem" : "AncienLogiciel",
+      "status" : "ANNULE"
+    },
+    "http" : 200
+  },
+  "f_apres" : { },
+  "f_bons_de_sortie_restants" : [ {
+    "reference" : "BS-AUTRE-PATIENT"
+  }, {
+    "reference" : "BS-SANS-PATIENT"
+  } ],
+  "f_lots" : [ {
+    "libelle" : "Reprise RP3b",
+    "status" : "ANNULE"
+  } ]
+}

@@ -48,9 +48,8 @@ class TableDuDossierMedicalTest {
 
     static {
         String plateforme = "platform/src/main/java/com/hemodialyse/backend/";
-        lecteur(plateforme + "infrastructure/persistence/adapter/migration/HistoricalRecordJdbcAdapter.java",
-                "reprise de données (ÉCRIT des antécédents, sérologies et abords historiques, descripteur TABLES) ; échéance : reprise par le module",
-                RETRAIT_DU_PILOTAGE_LEGACY);
+        // HistoricalRecordJdbcAdapter : entrée SOLDÉE par RP3b (2026-11-13, ADR 0172) ; l'import écrit le dossier de base, les antécédents, les
+        // sérologies et les abords par RepriseDeLHistoriqueMedical (dossier-medical.v1). Butoir 2027-06-30 supprimé, aucun report.
         // MigrationRollbackJdbcAdapter : entrée SOLDÉE par RP2 (2026-11-13, ADR 0170) ; l'annulation d'un lot lit et supprime ces tables par
         // DonneesMedicalesDeLaReprise (dossier-medical.v1). Butoir supprimé, aucun report.
         String ressources = "platform/src/main/resources/";
@@ -147,7 +146,7 @@ class TableDuDossierMedicalTest {
 
     @Test
     void chaque_entree_a_un_butoir_propre_et_la_liste_est_a_revoir_au_plus_tard_le_2026_12_15() {
-        assertThat(LECTEURS_CONNUS).hasSize(8);
+        assertThat(LECTEURS_CONNUS).hasSize(7);
         LECTEURS_CONNUS.forEach((chemin, lecteur) -> {
             assertThat(lecteur.nature()).as("nature de " + chemin).isNotBlank();
             assertThat(lecteur.butoir()).as("butoir de " + chemin).isAfter(REVUE);
@@ -167,6 +166,18 @@ class TableDuDossierMedicalTest {
     @Test
     void l_annulation_d_un_lot_de_reprise_ne_touche_plus_les_tables_du_dossier_medical() throws IOException {
         String adapter = "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/migration/MigrationRollbackJdbcAdapter.java";
+        assertThat(LECTEURS_CONNUS).doesNotContainKey(adapter);
+        assertThat(lecteurs(TableDesAnalysesTest.sourcesDeProduction(backend()))).doesNotContain(adapter);
+    }
+
+    /**
+     * RP3b (2026-11-13, ADR 0172) : l'import de l'historique d'un lot de reprise passe par {@code RepriseDeLHistoriqueMedical} ; son entrée et
+     * son butoir 2027-06-30 sont SOLDÉS (supprimés, jamais reportés). Verrou : elle ne figure plus dans la liste blanche ET ne lit ni
+     * n'écrit plus ces tables (SQL ou nom de table calculé).
+     */
+    @Test
+    void l_import_de_l_historique_d_un_lot_de_reprise_n_ecrit_plus_les_tables_du_dossier_medical() throws IOException {
+        String adapter = "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/migration/HistoricalRecordJdbcAdapter.java";
         assertThat(LECTEURS_CONNUS).doesNotContainKey(adapter);
         assertThat(lecteurs(TableDesAnalysesTest.sourcesDeProduction(backend()))).doesNotContain(adapter);
     }

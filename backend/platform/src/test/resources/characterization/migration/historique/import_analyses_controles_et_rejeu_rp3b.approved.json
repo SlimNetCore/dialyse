@@ -1,0 +1,416 @@
+{
+  "0_anterieure_a_la_periode_reprise" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : true,
+      "entity" : "analyses",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : true,
+      "warnings" : [ {
+        "code" : "OUT_OF_PERIOD",
+        "field" : "datePrelevement",
+        "message" : "Ligne antérieure à la période reprise (depuis le 30/09/2023) : ignorée.",
+        "params" : {
+          "date" : "30/09/2023"
+        },
+        "row" : 2
+      } ]
+    },
+    "http" : 200
+  },
+  "0_aucun_resultat" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "analyses",
+      "errors" : [ {
+        "code" : "NO_RESULT",
+        "field" : "datePrelevement",
+        "message" : "Aucun résultat renseigné sur cette ligne.",
+        "params" : { },
+        "row" : 2
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "0_date_dans_le_futur" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "analyses",
+      "errors" : [ {
+        "code" : "DATE_IN_FUTURE",
+        "field" : "datePrelevement",
+        "message" : "La date est dans le futur.",
+        "params" : { },
+        "row" : 2
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "0_date_obligatoire_absente" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "analyses",
+      "errors" : [ {
+        "code" : "REQUIRED",
+        "field" : "datePrelevement",
+        "message" : "« Date de prélèvement » est obligatoire.",
+        "params" : { },
+        "row" : 2
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "0_doublon_dans_le_fichier" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 1,
+      "dryRun" : false,
+      "entity" : "analyses",
+      "errors" : [ {
+        "code" : "DUPLICATE_IN_FILE",
+        "field" : "datePrelevement",
+        "message" : "Doublon : même patient et même date / clé qu'à la ligne 2.",
+        "params" : {
+          "firstRow" : "2"
+        },
+        "row" : 3
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 2,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "0_etat_sans_ecriture" : { },
+  "0_patient_inconnu" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "analyses",
+      "errors" : [ {
+        "code" : "PATIENT_NOT_MIGRATED",
+        "field" : "patient",
+        "message" : "Patient « INCONNU » inconnu : importez d'abord le fichier des patients.",
+        "params" : {
+          "value" : "INCONNU"
+        },
+        "row" : 2
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "0_valeurs_illisibles" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "analyses",
+      "errors" : [ {
+        "code" : "INVALID_NUMBER",
+        "field" : "hbGDl",
+        "message" : "« Hémoglobine (g/dL) » : « abc » n'est pas un nombre (ex. 5600 ou 5600,50).",
+        "params" : {
+          "value" : "abc"
+        },
+        "row" : 2
+      }, {
+        "code" : "INVALID_NUMBER",
+        "field" : "plaquettes",
+        "message" : "« Plaquettes » : « 12.5 » n'est pas un nombre entier.",
+        "params" : {
+          "value" : "12.5"
+        },
+        "row" : 2
+      }, {
+        "code" : "INVALID_NUMBER",
+        "field" : "plaquettes",
+        "message" : "« Plaquettes » : « 1,5 » n'est pas un nombre entier.",
+        "params" : {
+          "value" : "1,5"
+        },
+        "row" : 3
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 2,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "1_etat" : {
+    "correspondances" : [ {
+      "entity" : "ANALYSES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ANALYSES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ANALYSES",
+      "operation" : "CREATED"
+    } ],
+    "resultats_analyses" : [ {
+      "creatinine_mg_dl" : "8.50",
+      "cree" : true,
+      "crp_mg_l" : "4.00",
+      "date_prelevement" : "2026-01-05",
+      "ferritine_ng_ml" : "350.00",
+      "hb_g_dl" : "10.80",
+      "ht_pct" : "33.00",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH111>",
+      "plaquettes" : "210000"
+    }, {
+      "cree" : true,
+      "date_prelevement" : "2026-02-12",
+      "hb_g_dl" : "11.20",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH111>"
+    }, {
+      "cree" : true,
+      "crp_mg_l" : "12.25",
+      "date_prelevement" : "2026-01-05",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH222>",
+      "plaquettes" : "180000"
+    } ]
+  },
+  "1_import_nominal" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 3,
+      "dryRun" : false,
+      "entity" : "analyses",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 3,
+      "updated" : 0,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "2_rejeu_identique" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "analyses",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 1,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "3_etat" : {
+    "correspondances" : [ {
+      "entity" : "ANALYSES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ANALYSES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ANALYSES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ANALYSES",
+      "operation" : "CREATED"
+    } ],
+    "resultats_analyses" : [ {
+      "creatinine_mg_dl" : "8.50",
+      "cree" : true,
+      "crp_mg_l" : "4.00",
+      "date_prelevement" : "2026-01-05",
+      "ferritine_ng_ml" : "350.00",
+      "hb_g_dl" : "12.00",
+      "ht_pct" : "33.00",
+      "modifie_apres_creation" : true,
+      "patient_id" : "<PATIENT_ZH111>",
+      "plaquettes" : "210000"
+    }, {
+      "cree" : true,
+      "date_prelevement" : "2026-02-12",
+      "hb_g_dl" : "11.20",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH111>"
+    }, {
+      "cree" : true,
+      "crp_mg_l" : "12.25",
+      "date_prelevement" : "2026-01-05",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH222>",
+      "plaquettes" : "180000"
+    }, {
+      "cree" : true,
+      "date_prelevement" : "2026-03-01",
+      "hb_g_dl" : "9.90",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH222>"
+    } ]
+  },
+  "3_rejeu_avec_nouvelles_valeurs_et_une_nouvelle_ligne" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 1,
+      "dryRun" : false,
+      "entity" : "analyses",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 2,
+      "updated" : 1,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "4_analyse_de_la_plateforme_a_la_meme_date" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "analyses",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 1,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "4_etat" : {
+    "correspondances" : [ {
+      "entity" : "ANALYSES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ANALYSES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ANALYSES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ANALYSES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ANALYSES",
+      "operation" : "UPDATED"
+    } ],
+    "resultats_analyses" : [ {
+      "creatinine_mg_dl" : "8.50",
+      "cree" : true,
+      "crp_mg_l" : "4.00",
+      "date_prelevement" : "2026-01-05",
+      "ferritine_ng_ml" : "350.00",
+      "hb_g_dl" : "12.00",
+      "ht_pct" : "33.00",
+      "modifie_apres_creation" : true,
+      "patient_id" : "<PATIENT_ZH111>",
+      "plaquettes" : "210000"
+    }, {
+      "cree" : true,
+      "date_prelevement" : "2026-02-12",
+      "hb_g_dl" : "11.20",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH111>"
+    }, {
+      "cree" : true,
+      "crp_mg_l" : "12.25",
+      "date_prelevement" : "2026-01-05",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH222>",
+      "plaquettes" : "180000"
+    }, {
+      "cree" : true,
+      "date_prelevement" : "2026-03-01",
+      "hb_g_dl" : "9.90",
+      "modifie_apres_creation" : false,
+      "patient_id" : "<PATIENT_ZH222>"
+    }, {
+      "cree" : true,
+      "date_prelevement" : "2026-06-06",
+      "hb_g_dl" : "13.30",
+      "modifie_apres_creation" : true,
+      "patient_id" : "<PATIENT_ZH222>"
+    } ]
+  }
+}

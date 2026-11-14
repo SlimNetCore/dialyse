@@ -1,0 +1,417 @@
+{
+  "0_actif_avec_fin_passee_en_simulation" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 1,
+      "dryRun" : true,
+      "entity" : "abords-vasculaires",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : true,
+      "warnings" : [ {
+        "code" : "ACTIVE_BUT_ENDED",
+        "field" : "actif",
+        "message" : "Abord déclaré actif avec une date de fin passée.",
+        "params" : { },
+        "row" : 2
+      } ]
+    },
+    "http" : 200
+  },
+  "0_doublon_dans_le_fichier" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 1,
+      "dryRun" : false,
+      "entity" : "abords-vasculaires",
+      "errors" : [ {
+        "code" : "DUPLICATE_IN_FILE",
+        "field" : "typeAbord",
+        "message" : "Doublon : même patient et même date / clé qu'à la ligne 2.",
+        "params" : {
+          "firstRow" : "2"
+        },
+        "row" : 3
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 2,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "0_etat_sans_ecriture" : { },
+  "0_fin_avant_creation" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "abords-vasculaires",
+      "errors" : [ {
+        "code" : "INCONSISTENT_DATES",
+        "field" : "dateFin",
+        "message" : "La date de fin précède la date de début.",
+        "params" : { },
+        "row" : 2
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ {
+        "code" : "ACTIVE_BUT_ENDED",
+        "field" : "actif",
+        "message" : "Abord déclaré actif avec une date de fin passée.",
+        "params" : { },
+        "row" : 2
+      } ]
+    },
+    "http" : 200
+  },
+  "0_patient_inconnu" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "abords-vasculaires",
+      "errors" : [ {
+        "code" : "PATIENT_NOT_MIGRATED",
+        "field" : "patient",
+        "message" : "Patient « INCONNU » inconnu : importez d'abord le fichier des patients.",
+        "params" : {
+          "value" : "INCONNU"
+        },
+        "row" : 2
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "0_type_obligatoire_absent_et_inconnu" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "abords-vasculaires",
+      "errors" : [ {
+        "code" : "REQUIRED",
+        "field" : "typeAbord",
+        "message" : "« Type d'abord » est obligatoire.",
+        "params" : { },
+        "row" : 2
+      }, {
+        "code" : "UNKNOWN_VALUE",
+        "field" : "typeAbord",
+        "message" : "« Type d'abord » : la valeur « TUBE » n'est pas reconnue — associez-la à une valeur (FAV, PTFE, KT_TUNNELISE, KT_AIGU).",
+        "params" : {
+          "allowed" : "FAV, PTFE, KT_TUNNELISE, KT_AIGU",
+          "source" : "TUBE",
+          "value" : "TUBE"
+        },
+        "row" : 3
+      }, {
+        "code" : "UNKNOWN_VALUE",
+        "field" : "cote",
+        "message" : "« Côté » : la valeur « CENTRE » n'est pas reconnue — associez-la à une valeur (GAUCHE, DROIT).",
+        "params" : {
+          "allowed" : "GAUCHE, DROIT",
+          "source" : "CENTRE",
+          "value" : "CENTRE"
+        },
+        "row" : 3
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 2,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "1_booleen_illisible" : {
+    "corps" : {
+      "applied" : false,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "abords-vasculaires",
+      "errors" : [ {
+        "code" : "INVALID_BOOLEAN",
+        "field" : "actif",
+        "message" : "« Actif » : « en service » doit valoir oui ou non.",
+        "params" : {
+          "value" : "en service"
+        },
+        "row" : 2
+      } ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 0,
+      "valid" : false,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "1_etat" : {
+    "abords_vasculaires" : [ {
+      "actif" : true,
+      "cote" : "GAUCHE",
+      "cree" : true,
+      "date_creation" : "2018-03-10",
+      "localisation" : "Radio-cephalique",
+      "patient_id" : "<PATIENT_ZH111>",
+      "type_abord" : "FAV"
+    }, {
+      "actif" : false,
+      "complications" : "Infection",
+      "cote" : "DROIT",
+      "cree" : true,
+      "date_creation" : "2020-03-10",
+      "date_fin" : "2022-01-01",
+      "localisation" : "Jugulaire",
+      "patient_id" : "<PATIENT_ZH111>",
+      "type_abord" : "KT_TUNNELISE"
+    }, {
+      "actif" : true,
+      "cree" : true,
+      "patient_id" : "<PATIENT_ZH111>",
+      "type_abord" : "PTFE"
+    }, {
+      "actif" : true,
+      "cote" : "DROIT",
+      "cree" : true,
+      "date_creation" : "2024-01-01",
+      "patient_id" : "<PATIENT_ZH222>",
+      "type_abord" : "KT_AIGU"
+    } ],
+    "correspondances" : [ {
+      "entity" : "ABORDS_VASCULAIRES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ABORDS_VASCULAIRES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ABORDS_VASCULAIRES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ABORDS_VASCULAIRES",
+      "operation" : "CREATED"
+    } ]
+  },
+  "1_import_nominal" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 4,
+      "dryRun" : false,
+      "entity" : "abords-vasculaires",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 4,
+      "updated" : 0,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "2_rejeu_identique_dont_la_cle_sans_date_de_creation" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "abords-vasculaires",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 2,
+      "updated" : 2,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "3_etat" : {
+    "abords_vasculaires" : [ {
+      "actif" : false,
+      "complications" : "Thrombose",
+      "cote" : "DROIT",
+      "cree" : true,
+      "date_creation" : "2018-03-10",
+      "date_fin" : "2025-06-30",
+      "localisation" : "Humero-basilique",
+      "patient_id" : "<PATIENT_ZH111>",
+      "type_abord" : "FAV"
+    }, {
+      "actif" : false,
+      "complications" : "Infection",
+      "cote" : "DROIT",
+      "cree" : true,
+      "date_creation" : "2020-03-10",
+      "date_fin" : "2022-01-01",
+      "localisation" : "Jugulaire",
+      "patient_id" : "<PATIENT_ZH111>",
+      "type_abord" : "KT_TUNNELISE"
+    }, {
+      "actif" : true,
+      "cote" : "GAUCHE",
+      "cree" : true,
+      "localisation" : "Cuisse",
+      "patient_id" : "<PATIENT_ZH111>",
+      "type_abord" : "PTFE"
+    }, {
+      "actif" : true,
+      "cote" : "DROIT",
+      "cree" : true,
+      "date_creation" : "2024-01-01",
+      "patient_id" : "<PATIENT_ZH222>",
+      "type_abord" : "KT_AIGU"
+    } ],
+    "correspondances" : [ {
+      "entity" : "ABORDS_VASCULAIRES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ABORDS_VASCULAIRES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ABORDS_VASCULAIRES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ABORDS_VASCULAIRES",
+      "operation" : "CREATED"
+    } ]
+  },
+  "3_rejeu_avec_nouvelles_valeurs" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "abords-vasculaires",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 2,
+      "updated" : 2,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "4_abord_de_la_plateforme_sans_date_de_creation" : {
+    "corps" : {
+      "applied" : true,
+      "created" : 0,
+      "dryRun" : false,
+      "entity" : "abords-vasculaires",
+      "errors" : [ ],
+      "executedAt" : "<HORODATAGE>",
+      "executedBy" : "u-<ADMIN_A>",
+      "fileName" : "import.csv",
+      "ignoredColumns" : [ ],
+      "missingColumns" : [ ],
+      "totalRows" : 1,
+      "updated" : 1,
+      "valid" : true,
+      "warnings" : [ ]
+    },
+    "http" : 200
+  },
+  "4_etat" : {
+    "abords_vasculaires" : [ {
+      "actif" : false,
+      "complications" : "Thrombose",
+      "cote" : "DROIT",
+      "cree" : true,
+      "date_creation" : "2018-03-10",
+      "date_fin" : "2025-06-30",
+      "localisation" : "Humero-basilique",
+      "patient_id" : "<PATIENT_ZH111>",
+      "type_abord" : "FAV"
+    }, {
+      "actif" : false,
+      "complications" : "Infection",
+      "cote" : "DROIT",
+      "cree" : true,
+      "date_creation" : "2020-03-10",
+      "date_fin" : "2022-01-01",
+      "localisation" : "Jugulaire",
+      "patient_id" : "<PATIENT_ZH111>",
+      "type_abord" : "KT_TUNNELISE"
+    }, {
+      "actif" : true,
+      "cote" : "GAUCHE",
+      "cree" : true,
+      "localisation" : "Cuisse",
+      "patient_id" : "<PATIENT_ZH111>",
+      "type_abord" : "PTFE"
+    }, {
+      "actif" : true,
+      "cote" : "GAUCHE",
+      "cree" : true,
+      "localisation" : "Reprise",
+      "patient_id" : "<PATIENT_ZH222>",
+      "type_abord" : "FAV"
+    }, {
+      "actif" : true,
+      "cote" : "DROIT",
+      "cree" : true,
+      "date_creation" : "2024-01-01",
+      "patient_id" : "<PATIENT_ZH222>",
+      "type_abord" : "KT_AIGU"
+    } ],
+    "correspondances" : [ {
+      "entity" : "ABORDS_VASCULAIRES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ABORDS_VASCULAIRES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ABORDS_VASCULAIRES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ABORDS_VASCULAIRES",
+      "operation" : "CREATED"
+    }, {
+      "entity" : "ABORDS_VASCULAIRES",
+      "operation" : "UPDATED"
+    } ]
+  }
+}

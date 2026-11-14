@@ -239,7 +239,11 @@ chaque ligne** avant d'écrire, **n'enregistre rien tant qu'un fichier
   suppression bornée au centre) ; comportement inchangé. Depuis RP3a (ADR 0171) l'**import** des attestations et des prises en
   charge (recherche d'une ligne déjà présente par patient, centre et début, ajout, mise à jour des seules valeurs fournies) et
   leur **suppression** à l'annulation sont faits par **Patient et couverture** (langages publiés `RepriseDeLHistoriqueDeCouverture`
-  et `AnnulationDeLaReprise`, tout borné au centre) ; comportement inchangé. L'écriture directe des colonnes de place de la fiche
+  et `AnnulationDeLaReprise`, tout borné au centre) ; comportement inchangé. Depuis RP3b (ADR 0172) l'**import** du dossier de
+  base, des antécédents, des sérologies, des abords vasculaires et des analyses (recherche d'une ligne déjà présente par clé et
+  centre, ajout daté, mise à jour des seules valeurs fournies sans jamais changer le patient) est fait par le **Dossier médical**
+  (langage publié `RepriseDeLHistoriqueMedical`, tout borné au centre), et le contrôle des **bons de sortie** d'un patient repris
+  par le **Stock** (langage publié `BonsDeSortieDeLaReprise`, lecture seule) ; comportement inchangé. L'écriture directe des colonnes de place de la fiche
   par la reprise des patients est gardée (**à confirmer métiers/DPO avant le 2026-12-15**). **Blocages** : un patient repris est refusé s'il a une
   prise en charge, une attestation, une séance, une facture ou des données de dossier médical que le lot n'a pas créées (le
   refus nomme la première catégorie contrôlée) ; une séance reprise est refusée si elle est facturée (motif prioritaire) ou
