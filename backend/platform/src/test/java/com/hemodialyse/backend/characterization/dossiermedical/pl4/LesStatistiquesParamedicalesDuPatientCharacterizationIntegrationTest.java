@@ -208,6 +208,35 @@ class LesStatistiquesParamedicalesDuPatientCharacterizationIntegrationTest exten
         arbre("droits_et_garde_de_centre", m);
     }
 
+    /**
+     * LEC-PLN-GMAO (c), ADR 0180 : filet AJOUTÉ avant le déplacement du départage du poids sec dans le Dossier médical. À date de prescription
+     * égale, la prescription mise à jour en dernier l'emporte (mise à jour inconnue en dernier), puis l'identifiant le plus élevé.
+     */
+    @Test
+    void a_date_de_prescription_egale_le_poids_sec_de_chaque_seance_est_celui_mis_a_jour_en_dernier_puis_l_identifiant_le_plus_eleve() throws Exception {
+        UUID patient = patientDm8(CENTRE_A, "PAT_EGALITE");
+        for (int jour : new int[]{50, 60, 65, 80, 85}) {
+            insererVolet(CENTRE_A, seance(CENTRE_A, patient, fixe(jour), "VALIDEE", null, null, null), "70.0", "68.0", "130/80", "120-70", "2000");
+        }
+        // D+60 : mise à jour inconnue contre connue (la connue l'emporte)
+        prescriptionEnBase(CENTRE_A, patient, "EGAL_1", fixe(60), "4000", "SC", 1, "SEMAINE");
+        jdbc.update("UPDATE prescriptions_medicales SET poids_sec_cible_kg = 60.0, updated_at = NULL WHERE id = ?", idStable("prescription", "EGAL_1-" + CENTRE_A));
+        prescriptionEnBase(CENTRE_A, patient, "EGAL_2", fixe(60), "4000", "SC", 1, "SEMAINE");
+        jdbc.update("UPDATE prescriptions_medicales SET poids_sec_cible_kg = 61.0, updated_at = ? WHERE id = ?", CREATION_FIXE.plusHours(1),
+                idStable("prescription", "EGAL_2-" + CENTRE_A));
+        // D+80 : même date, même mise à jour : l'identifiant le plus élevé l'emporte
+        prescriptionEnBase(CENTRE_A, patient, "EGAL_3", fixe(80), "4000", "SC", 1, "SEMAINE");
+        jdbc.update("UPDATE prescriptions_medicales SET poids_sec_cible_kg = 70.5 WHERE id = ?", idStable("prescription", "EGAL_3-" + CENTRE_A));
+        prescriptionEnBase(CENTRE_A, patient, "EGAL_4", fixe(80), "4000", "SC", 1, "SEMAINE");
+        jdbc.update("UPDATE prescriptions_medicales SET poids_sec_cible_kg = 71.5 WHERE id = ?", idStable("prescription", "EGAL_4-" + CENTRE_A));
+        Map<String, Object> m = new LinkedHashMap<>();
+        Map<String, Object> reponse = synthese(doGet(api(patient, CENTRE_A, ""), infirmierA()));
+        // le poids sec de l'en-tête (poidsSecCibleEnVigueur) départage autrement (sans identifiant) : valeur laissée au SGBD à égalité, hors filet
+        reponse.remove("poidsSecCibleKg");
+        m.put("01 reponse", reponse);
+        arbre("egalite_de_date", m);
+    }
+
     @Test
     void les_lectures_paramedicales_ne_sont_pas_journalisees_mais_la_recherche_par_corps_l_est_comme_une_consultation() throws Exception {
         jeuDeDonnees();

@@ -221,8 +221,9 @@ public class SeanceConfiguration {
     }
 
     @Bean
-    com.hemodialyse.backend.contexts.seance.publishedlanguage.StatistiquesDesSeancesPubliees statistiquesDesSeancesPubliees(JdbcTemplate jdbc) {
-        return new com.hemodialyse.backend.contexts.seance.infrastructure.persistence.StatistiquesDesSeancesJdbc(jdbc);
+    com.hemodialyse.backend.contexts.seance.publishedlanguage.StatistiquesDesSeancesPubliees statistiquesDesSeancesPubliees(
+            JdbcTemplate jdbc, com.hemodialyse.backend.contexts.seance.publishedlanguage.PoidsSecDesPrescriptions poidsSecs) {
+        return new com.hemodialyse.backend.contexts.seance.infrastructure.persistence.StatistiquesDesSeancesJdbc(jdbc, poidsSecs);
     }
 
     /**

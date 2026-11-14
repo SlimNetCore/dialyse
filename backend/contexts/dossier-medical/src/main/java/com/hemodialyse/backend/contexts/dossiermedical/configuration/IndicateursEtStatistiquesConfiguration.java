@@ -39,6 +39,10 @@ import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.Indicat
 import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.RisquesInfectieuxPublies;
 import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.StatistiquesMedicalesPubliees;
 import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.TraitementDeLAnemiePublie;
+import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.acl.seance.PoidsSecsPourLaSeance;
+import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.persistence.PoidsSecsPrescritsJdbc;
+import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.PoidsSecsPrescritsPublies;
+import com.hemodialyse.backend.contexts.seance.publishedlanguage.PoidsSecDesPrescriptions;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.SaisiesDeSeanceFournies;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -142,6 +146,18 @@ public class IndicateursEtStatistiquesConfiguration {
                                                                     ConsulterLesStatistiquesMedicales medicales,
                                                                     ExporterLesStatistiquesDuPatient exporter) {
         return new StatistiquesDuPatientControleur(paramedicales, medicales, exporter);
+    }
+
+    /** dossier-medical.v1 : poids secs cibles prescrits (LEC-PLN-GMAO c, ADR 0180). */
+    @Bean
+    PoidsSecsPrescritsPublies poidsSecsPrescritsPublies(JdbcTemplate jdbc) {
+        return new PoidsSecsPrescritsJdbc(jdbc);
+    }
+
+    /** seance.v1 : fourni à la Séance pour le poids sec en vigueur le jour de chaque séance (LEC-PLN-GMAO c, ADR 0180). */
+    @Bean
+    PoidsSecDesPrescriptions poidsSecDesPrescriptionsDeLaSeance(PoidsSecsPrescritsPublies prescrits) {
+        return new PoidsSecsPourLaSeance(prescrits);
     }
 
     /** seance.v1 : fourni à la Séance pour la suppression d'une séance (SE6). */

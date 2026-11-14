@@ -1,8 +1,10 @@
 package com.hemodialyse.backend.contexts.seance.infrastructure.persistence;
 
+import com.hemodialyse.backend.contexts.seance.publishedlanguage.PoidsSecDesPrescriptions;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.StatistiquesDesSeancesPubliees;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
@@ -12,7 +14,9 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Lecture publiée des séances et de leur volet paramédical pour les statistiques du patient (ADR 0099, SE7e), lecture seule. Requêtes
+ * Lecture publiée des séances et de leur volet paramédical pour les statistiques du patient (ADR 0099, SE7e), lecture seule. Le poids sec
+ * cible vient du Dossier médical par {@link PoidsSecDesPrescriptions} (LEC-PLN-GMAO c, ADR 0180) : plus aucune lecture de
+ * {@code prescriptions_medicales} ici. Requêtes
  * reprises MOT POUR MOT de {@code PatientStatsQueryService.getParamedicalStats} (plateforme) (E6 à E9 de {@code .ddd/safety-net/seance-se7e.md}) :
  * (corrigées par le lot L5b, ADR 0118 : séances RÉALISÉES seulement et volet borné au centre de la séance, KB-SEA-85), dates de période écrites en LITTÉRAL ISO dans la requête comme avant (valeurs
  * {@link LocalDate}, jamais une saisie libre), {@code AVG} rendu en {@code Double} par le pilote (KB-SEA-87 : précision dépendante du SGBD,
@@ -27,23 +31,15 @@ public class StatistiquesDesSeancesJdbc implements StatistiquesDesSeancesPubliee
     private static final String UF_REELLE_EXPR =
             "COALESCE(vp.ultrafiltration_ml, (vp.poids_avant_kg - vp.poids_apres_kg) * 1000)";
 
-    /**
-     * Poids sec cible en vigueur le jour de la séance : dernière prescription médicale portant un poids sec, datée au plus tard du jour de
-     * la séance.
-     */
-    private static final String POIDS_SEC_A_LA_SEANCE_EXPR =
-            "(SELECT pm.poids_sec_cible_kg FROM prescriptions_medicales pm "
-                    + "WHERE pm.patient_id = s.patient_id AND pm.center_id = s.center_id "
-                    + "AND pm.poids_sec_cible_kg IS NOT NULL AND pm.date_prescription <= s.date_seance "
-                    + "ORDER BY pm.date_prescription DESC, pm.updated_at DESC NULLS LAST, pm.id DESC LIMIT 1)";   // L8 : colonne nullable, NULLS explicite + identifiant
-
     /** Ordre déterministe (KB-SEA-86) : date, création connue d'abord (la plus ancienne créée), puis identifiant. */
     private static final String ORDRE_DES_SEANCES = " ORDER BY s.date_seance, s.created_at NULLS LAST, s.id";
 
     private final JdbcTemplate jdbc;
+    private final PoidsSecDesPrescriptions poidsSecs;
 
-    public StatistiquesDesSeancesJdbc(JdbcTemplate jdbc) {
+    public StatistiquesDesSeancesJdbc(JdbcTemplate jdbc, PoidsSecDesPrescriptions poidsSecs) {
         this.jdbc = jdbc;
+        this.poidsSecs = poidsSecs;
     }
 
     private static String buildSeanceDateFilter(LocalDate from, LocalDate to) {
@@ -84,20 +80,33 @@ public class StatistiquesDesSeancesJdbc implements StatistiquesDesSeancesPubliee
     public List<Map<String, Object>> evolutionDuPoids(UUID centre, UUID patient, LocalDate du, LocalDate au) {
         List<Map<String, Object>> lignes = jdbc.queryForList(
                 "SELECT s.date_seance, vp.poids_avant_kg, vp.poids_apres_kg, "
-                        + POIDS_SEC_A_LA_SEANCE_EXPR + " AS poids_sec_cible_kg, "
                         + UF_REELLE_EXPR + " AS uf_reelle_ml"
                         + baseFrom(du, au)
                         + ORDRE_DES_SEANCES,
                 centre, patient
         );
+        if (lignes.isEmpty()) return List.of();
+        // LEC-PLN-GMAO (c), ADR 0180 : le poids sec en vigueur le jour de la séance est la PREMIÈRE prescription (la plus récente) datée au
+        // plus tard de ce jour, lue dans le Dossier médical ; l'ordre des séances et des colonnes est celui de l'ancienne requête
+        List<PoidsSecDesPrescriptions.PoidsSecPrescrit> prescrits = poidsSecs.poidsSecsCiblesPrescrits(centre, patient);
         // KB-SEA-86 corrigé (ADR 0117) : une seule casse de clé, les minuscules (contrat de production, PostgreSQL), quel que soit le SGBD
-        return lignes.stream().map(StatistiquesDesSeancesJdbc::enMinuscules).toList();
+        return lignes.stream().map(ligne -> enMinuscules(ligne, prescrits)).toList();
     }
 
-    private static Map<String, Object> enMinuscules(Map<String, Object> ligne) {
+    private static Map<String, Object> enMinuscules(Map<String, Object> ligne, List<PoidsSecDesPrescriptions.PoidsSecPrescrit> prescrits) {
         Map<String, Object> normalisee = new LinkedHashMap<>();
         ligne.forEach((cle, valeur) -> normalisee.put(cle.toLowerCase(Locale.ROOT), valeur));
-        return normalisee;
+        Object jour = normalisee.get("date_seance");
+        BigDecimal poidsSec = jour == null ? null : prescrits.stream()
+                .filter(p -> !p.datePrescription().isAfter(((Date) jour).toLocalDate()))
+                .map(PoidsSecDesPrescriptions.PoidsSecPrescrit::poidsSecCibleKg).findFirst().orElse(null);
+        Map<String, Object> resultat = new LinkedHashMap<>();
+        resultat.put("date_seance", normalisee.get("date_seance"));
+        resultat.put("poids_avant_kg", normalisee.get("poids_avant_kg"));
+        resultat.put("poids_apres_kg", normalisee.get("poids_apres_kg"));
+        resultat.put("poids_sec_cible_kg", poidsSec);
+        resultat.put("uf_reelle_ml", normalisee.get("uf_reelle_ml"));
+        return resultat;
     }
 
     @Override

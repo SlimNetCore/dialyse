@@ -5,6 +5,7 @@ import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.Seance
 import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.SeancesRealiseesDesCentresJdbc;
 import com.hemodialyse.backend.contexts.seance.infrastructure.persistence.StatistiquesDesSeancesJdbc;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.ForfaitsImposesAuxSeancesPublies;
+import com.hemodialyse.backend.contexts.seance.publishedlanguage.PoidsSecDesPrescriptions;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesDeLaReprisePubliees;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesDuCahierPubliees;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesRealiseesDesCentresPubliees;
@@ -27,7 +28,7 @@ import java.util.UUID;
  */
 abstract class PilotageEtRapportsDesSeancesJdbcContrat extends PilotageEtRapportsDesSeancesContrat {
 
-    private static final List<String> TABLES = List.of("volet_paramedical", "volet_medical", "prescriptions_medicales", "seances", "patients", "centre_payeur",
+    private static final List<String> TABLES = List.of("volet_paramedical", "volet_medical", "seances", "patients", "centre_payeur",
             "agence", "caisse_assurance");
 
     protected abstract JdbcTemplate jdbc();
@@ -50,13 +51,11 @@ abstract class PilotageEtRapportsDesSeancesJdbcContrat extends PilotageEtRapport
                 + "updated_at TIMESTAMP WITH TIME ZONE)");
         jdbc().execute("CREATE TABLE IF NOT EXISTS volet_medical (id UUID PRIMARY KEY, center_id UUID NOT NULL, seance_id UUID NOT NULL UNIQUE, "
                 + "created_at TIMESTAMP WITH TIME ZONE, updated_at TIMESTAMP WITH TIME ZONE)");
-        jdbc().execute("CREATE TABLE IF NOT EXISTS prescriptions_medicales (id UUID PRIMARY KEY, center_id UUID NOT NULL, patient_id UUID NOT NULL, "
-                + "date_prescription DATE NOT NULL, poids_sec_cible_kg NUMERIC(5, 2), created_at TIMESTAMP WITH TIME ZONE, "
-                + "updated_at TIMESTAMP WITH TIME ZONE)");
         vider();
     }
 
     protected void vider() {
+        prescriptionsPosees.clear();
         for (String table : TABLES) {
             jdbc().update("DELETE FROM " + table + " WHERE center_id IN (?, ?, ?)", CENTRE_A, CENTRE_B, CENTRE_C);
         }
@@ -71,9 +70,29 @@ abstract class PilotageEtRapportsDesSeancesJdbcContrat extends PilotageEtRapport
                         new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.LotsDePatientsJdbc(jdbc())));
     }
 
+    /**
+     * LEC-PLN-GMAO (c), ADR 0180 : le poids sec vient du Dossier médical, hors de la Séance ; ce double rend les prescriptions posées par
+     * le contrat dans l'ordre PUBLIÉ du port (date, mise à jour inconnue en dernier, identifiant, tous décroissants). L'ordre réel de
+     * l'adapter est éprouvé côté Dossier médical ({@code PoidsSecsPrescritsContrat}, H2 et PostgreSQL 16).
+     */
+    private record PrescriptionPosee(UUID id, UUID centre, UUID patient, LocalDate date, BigDecimal poidsSec, Instant majLe) {
+    }
+
+    private final List<PrescriptionPosee> prescriptionsPosees = new java.util.ArrayList<>();
+
+    private List<PoidsSecDesPrescriptions.PoidsSecPrescrit> poidsSecsPrescrits(UUID centre, UUID patient) {
+        return prescriptionsPosees.stream()
+                .filter(p -> p.centre().equals(centre) && p.patient().equals(patient) && p.poidsSec() != null)
+                .sorted(java.util.Comparator.comparing(PrescriptionPosee::date).reversed()
+                        .thenComparing(java.util.Comparator.comparing(PrescriptionPosee::majLe,
+                                java.util.Comparator.nullsFirst(java.util.Comparator.<Instant>naturalOrder())).reversed())
+                        .thenComparing((x, y) -> SeancesRealiseesEtConstantesEnMemoire.enOctetsNonSignes(y.id(), x.id())))
+                .map(p -> new PoidsSecDesPrescriptions.PoidsSecPrescrit(p.date(), p.poidsSec())).toList();
+    }
+
     @Override
     protected StatistiquesDesSeancesPubliees statistiques() {
-        return new StatistiquesDesSeancesJdbc(jdbc());
+        return new StatistiquesDesSeancesJdbc(jdbc(), this::poidsSecsPrescrits);
     }
 
     @Override
@@ -140,9 +159,7 @@ abstract class PilotageEtRapportsDesSeancesJdbcContrat extends PilotageEtRapport
 
     @Override
     protected void prescription(UUID id, UUID centre, UUID patient, LocalDate date, BigDecimal poidsSec, Instant majLe) {
-        jdbc().update("INSERT INTO prescriptions_medicales (id, center_id, patient_id, date_prescription, poids_sec_cible_kg, created_at, "
-                        + "updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)", id, centre, patient, Date.valueOf(date), poidsSec,
-                Timestamp.from(Instant.parse("2026-01-01T10:00:00Z")), majLe == null ? null : Timestamp.from(majLe));
+        prescriptionsPosees.add(new PrescriptionPosee(id, centre, patient, date, poidsSec, majLe));
     }
 
     @Override

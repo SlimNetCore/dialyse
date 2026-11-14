@@ -64,9 +64,8 @@ class TableDuDossierMedicalTest {
                 + "(hépatites) et prescriptions_medicales (cibles de séance) en SQL Jasper ; échéance : lecture publiée du Dossier médical", LECTURES_PUBLIEES);
         lecteur("contexts/documents/src/main/resources/reports/ordonnance.jrxml", "état imprimé d'une ordonnance (RG-MED-055) : lit ordonnances et lignes_ordonnance en SQL "
                 + "Jasper ; échéance : impression par le module ou lecture publiée", LECTURES_PUBLIEES);
-        lecteur("contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/persistence/StatistiquesDesSeancesJdbc.java",
-                "Séance (SE7e, ADR 0099) : poids sec cible en vigueur lu dans prescriptions_medicales pour les statistiques paramédicales ; "
-                        + "échéance : StatistiquesMedicalesPubliees.poidsSecCibleEnVigueur (dossier-medical.v1, DM9)", LECTURES_PUBLIEES);
+        // StatistiquesDesSeancesJdbc (Séance) : entrée SOLDÉE par LEC-PLN-GMAO (c) (2026-11-14, ADR 0180) ; le poids sec cible est lu par
+        // PoidsSecsPrescritsPublies (dossier-medical.v1) via le port PoidsSecDesPrescriptions. Butoir 2027-03-31 supprimé, aucun report.
     }
 
     private static final String ALTERNATIVES = TABLES.stream().map(Pattern::quote).collect(Collectors.joining("|"));
@@ -146,17 +145,24 @@ class TableDuDossierMedicalTest {
 
     @Test
     void chaque_entree_a_un_butoir_propre_et_la_liste_est_a_revoir_au_plus_tard_le_2026_12_15() {
-        assertThat(LECTEURS_CONNUS).hasSize(7);
+        assertThat(LECTEURS_CONNUS).hasSize(6);
         LECTEURS_CONNUS.forEach((chemin, lecteur) -> {
             assertThat(lecteur.nature()).as("nature de " + chemin).isNotBlank();
             assertThat(lecteur.butoir()).as("butoir de " + chemin).isAfter(REVUE);
         });
-        // Un seul lecteur dans un autre contexte (la Séance, poids sec cible : SE7e) ; tout autre contexte passe par dossier-medical.v1.
+        // Plus aucun lecteur Java dans un autre contexte (la Séance est soldée, ADR 0180) ; seuls restent les deux états Jasper.
         // DOC2 (ADR 0162) : les deux états Jasper (cahier, ordonnance) ont changé d'emplacement (module Documents) sans changer de nature
         assertThat(LECTEURS_CONNUS.keySet().stream().filter(c -> c.startsWith("contexts/")).toList())
                 .containsExactly("contexts/documents/src/main/resources/reports/cahier_dialyse.jrxml",
-                        "contexts/documents/src/main/resources/reports/ordonnance.jrxml",
-                        "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/persistence/StatistiquesDesSeancesJdbc.java");
+                        "contexts/documents/src/main/resources/reports/ordonnance.jrxml");
+    }
+
+    /** LEC-PLN-GMAO (c), ADR 0180 : la Séance ne lit plus les prescriptions ; ni entrée, ni lecteur. */
+    @Test
+    void la_seance_ne_lit_plus_les_prescriptions_medicales() throws IOException {
+        String adapter = "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/persistence/StatistiquesDesSeancesJdbc.java";
+        assertThat(LECTEURS_CONNUS).doesNotContainKey(adapter);
+        assertThat(lecteurs(TableDesAnalysesTest.sourcesDeProduction(backend()))).noneMatch(c -> c.startsWith("contexts/seance/"));
     }
 
     /**
