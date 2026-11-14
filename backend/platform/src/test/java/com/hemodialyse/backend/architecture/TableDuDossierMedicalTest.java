@@ -53,8 +53,9 @@ class TableDuDossierMedicalTest {
         // MigrationRollbackJdbcAdapter : entrée SOLDÉE par RP2 (2026-11-13, ADR 0170) ; l'annulation d'un lot lit et supprime ces tables par
         // DonneesMedicalesDeLaReprise (dossier-medical.v1). Butoir supprimé, aucun report.
         String ressources = "platform/src/main/resources/";
-        lecteur(ressources + "db/schema.sql", "schéma H2 des tests et du poste de développement (CREATE TABLE IF NOT EXISTS ; DM9 : remplace "
-                + "les 17 entités JPA retirées) ; aucune lecture ni écriture de données", RETRAIT_DU_PILOTAGE_LEGACY);
+        // db/schema.sql : entrée SOLDÉE par S-DDL3b (2026-11-14, ADR 0187) ; le DDL H2 des 18 tables est dans le script du contexte
+        // Dossier médical (contexts/dossier-medical/.../db/h2/dossier-medical-schema.sql, hors du périmètre de la garde). Butoir 2027-06-30
+        // supprimé, aucun report.
         lecteur(ressources + "db/seed.sql", "jeu d'amorçage (écrit des données médicales ; rejoué HORS profil prod seulement, voir TableDesSeancesTest)",
                 RETRAIT_DU_PILOTAGE_LEGACY);
         lecteur(ressources + "db/demo/renadial-seed.sql", "jeu de démonstration (écrit des données médicales)", RETRAIT_DU_PILOTAGE_LEGACY);
@@ -145,7 +146,7 @@ class TableDuDossierMedicalTest {
 
     @Test
     void chaque_entree_a_un_butoir_propre_et_la_liste_est_a_revoir_au_plus_tard_le_2026_12_15() {
-        assertThat(LECTEURS_CONNUS).hasSize(6);
+        assertThat(LECTEURS_CONNUS).hasSize(5);
         LECTEURS_CONNUS.forEach((chemin, lecteur) -> {
             assertThat(lecteur.nature()).as("nature de " + chemin).isNotBlank();
             assertThat(lecteur.butoir()).as("butoir de " + chemin).isAfter(REVUE);

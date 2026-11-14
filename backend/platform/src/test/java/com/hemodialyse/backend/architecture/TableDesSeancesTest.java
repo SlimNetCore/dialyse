@@ -73,9 +73,8 @@ class TableDesSeancesTest {
         // SeancesDeLaReprisePubliees.laSeanceEstCompletee (butoir 2027-03-31 supprimé, aucun report).
         // Ressources SQL de production hors Flyway, révélées par le durcissement de la garde (revue SE7c1, 2026-11-08).
         String ressources = "platform/src/main/resources/";
-        lecteur(ressources + "db/schema.sql", "schéma H2 des tests et du poste de développement (CREATE TABLE IF NOT EXISTS seances, volet_paramedical, "
-                        + "volet_medical ; SE7f : remplace les entités JPA retirées) ; aucune lecture ni écriture de données",
-                RETRAIT_DU_PILOTAGE_LEGACY);
+        // db/schema.sql : entrée SOLDÉE par S-DDL3b (2026-11-14, ADR 0187) ; le DDL H2 des séances et des volets est dans le script du contexte
+        // Séance (contexts/seance/.../db/h2/seance-schema.sql, hors du périmètre de la garde). Butoir 2027-06-30 supprimé, aucun report.
         lecteur("contexts/documents/src/main/resources/reports/cahier_dialyse.jrxml", "état Jasper du cahier de dialyse (lecture, jointure séances ; KB-SEA-47, 88) : modèle "
                         + "de document PERSONNALISABLE par centre, dont la requête unique est embarquée (ADR 0099, décision 3, résidu E-R3)",
                 CAHIER_PERSONNALISABLE);
@@ -334,14 +333,14 @@ class TableDesSeancesTest {
     }
 
     @Test
-    void la_liste_blanche_compte_5_lecteurs_le_schema_h2_et_les_ressources_justifiees() {
+    void la_liste_blanche_compte_4_lecteurs_l_etat_jasper_et_les_scripts_de_donnees() {
         assertThat(LECTEURS_CONNUS)
-                .as("la liste blanche des lecteurs des tables de la Séance compte 5 entrées (0 Facturation depuis SE7c2, 0 autre contexte depuis "
+                .as("la liste blanche des lecteurs des tables de la Séance compte 4 entrées (0 Facturation depuis SE7c2, 0 autre contexte depuis "
                         + "SE7d, 0 lecteur Java du pilotage, des statistiques, du cahier, de la reprise ni du référentiel sur seances depuis SE7e, "
-                        + "0 fournisseur de seance.v1 ni entité JPA depuis SE7f, 0 lecteur Java des volets depuis RP2 ; restent "
-                        + "le schéma H2, l'état Jasper du cahier (justifié) et 3 scripts de données) : toute entrée ajoutée ou retirée doit être "
-                        + "décidée, datée et reportée dans la fiche de la slice et l'annexe 16")
-                .hasSize(5);
+                        + "0 fournisseur de seance.v1 ni entité JPA depuis SE7f, 0 lecteur Java des volets depuis RP2, 0 schéma H2 depuis S-DDL3b "
+                        + "(ADR 0187) ; restent l'état Jasper du cahier (justifié) et 3 scripts de données) : toute entrée ajoutée ou retirée doit "
+                        + "être décidée, datée et reportée dans la fiche de la slice et l'annexe 16")
+                .hasSize(4);
         // DOC2 (ADR 0162) : l'état Jasper du cahier (déjà justifié) a changé d'emplacement (module Documents) sans changer de nature
         assertThat(LECTEURS_CONNUS.keySet().stream()
                 .filter(c -> c.startsWith("contexts/") && !c.equals("contexts/documents/src/main/resources/reports/cahier_dialyse.jrxml")).count())
@@ -349,8 +348,8 @@ class TableDesSeancesTest {
         assertThat(LECTEURS_CONNUS.keySet().stream().filter(c -> c.startsWith("platform/src/main/java/")))
                 .as("dont 0 source Java : l'annulation d'un lot de reprise lit les volets par la Séance depuis RP2 (ADR 0170)").isEmpty();
         assertThat(LECTEURS_CONNUS.keySet().stream().filter(c -> c.startsWith("platform/src/main/resources/")).count())
-                .as("dont 4 ressources SQL de la plateforme (le schéma H2 et 3 scripts de données ; l'état Jasper du cahier est au module "
-                        + "Documents depuis DOC2, ADR 0162)").isEqualTo(4);
+                .as("dont 3 ressources SQL de la plateforme (3 scripts de données ; l'état Jasper du cahier est au module "
+                        + "Documents depuis DOC2, ADR 0162)").isEqualTo(3);
         assertThat(MENTIONS_NON_SQL).as("plus aucun faux positif nommé de la détection des noms calculés (RP3b, ADR 0172)").isEmpty();
         assertThat(LECTEURS_CONNUS.keySet().stream().filter(c -> c.startsWith("contexts/facturation/")).count())
                 .as("dont 0 de la Facturation (SE7c2)").isZero();

@@ -54,8 +54,8 @@ class TableDesAnalysesTest {
         lecteur(ressources + "db/seed.sql", "jeu d'amorçage (écrit des analyses ; rejoué HORS profil prod seulement, voir TableDesSeancesTest)", RETRAIT_DU_PILOTAGE_LEGACY);
         lecteur(ressources + "db/demo/renadial-seed.sql", "jeu de démonstration (écrit des analyses)", RETRAIT_DU_PILOTAGE_LEGACY);
         lecteur(ressources + "db/demo/renadial-purge.sql", "purge de la démonstration (SUPPRIME des analyses ; jamais sur une base partagée)", RETRAIT_DU_PILOTAGE_LEGACY);
-        lecteur(ressources + "db/schema.sql", "schéma H2 des tests et du poste de développement (CREATE TABLE IF NOT EXISTS ; SE7f : remplace "
-                + "l'entité JPA retirée) ; aucune lecture ni écriture de données", RETRAIT_DU_PILOTAGE_LEGACY);
+        // db/schema.sql : entrée SOLDÉE par S-DDL3b (2026-11-14, ADR 0187) ; le DDL H2 de resultats_analyses est dans le script du contexte
+        // Dossier médical (contexts/dossier-medical/.../db/h2/dossier-medical-schema.sql). Butoir 2027-06-30 supprimé, aucun report.
     }
 
     private static final Set<String> TABLES = Set.of("resultats_analyses");
@@ -163,7 +163,7 @@ class TableDesAnalysesTest {
 
     @Test
     void chaque_entree_a_un_butoir_propre_et_la_liste_est_a_revoir_au_plus_tard_le_2026_12_15() {
-        assertThat(LECTEURS_CONNUS).hasSize(4);
+        assertThat(LECTEURS_CONNUS).hasSize(3);
         LECTEURS_CONNUS.forEach((chemin, lecteur) -> {
             assertThat(lecteur.nature()).as("nature de " + chemin).isNotBlank();
             assertThat(lecteur.butoir()).as("butoir de " + chemin).isAfter(REVUE);

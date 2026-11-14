@@ -1,7 +1,8 @@
 -- DDL H2 (tests et poste de développement) des tables dont la Planification est propriétaire (S-DDL3, ADR 0186).
 -- Chargé par spring.sql.init.schema-locations (application.yml de la plateforme) ; en production le schéma vient de Flyway
--- (V24, V25, V28, V48). Restent dans db/schema.sql : planning_parametres (le script de reprise des salles d'isolement l'écrit en même
--- temps que salle, propriété de l'Organisation) et ce qui s'y rattache.
+-- (V10, V11, V16, V24, V25, V28, V47, V48). S-DDL3b (ADR 0187) : planning_parametres et le personnel soignant (infirmier, affectations,
+-- absences, remplacements) sont ici ; la reprise des salles d'isolement lit planning_parametres ET écrit salle (Organisation) : ce
+-- script se charge APRÈS organisation-schema.sql (la Planification dépend de l'Organisation, jamais l'inverse).
 
 -- Optimisation du planning (Timefold) : historique des propositions d'un centre. parametres, resume et resultat sont
 -- des documents JSON ; empreinte identifie l'état du centre lu au lancement (une proposition périmée n'est pas appliquée).
@@ -139,3 +140,84 @@ CREATE TABLE IF NOT EXISTS deplacement_temporaire
     UNIQUE (center_id, patient_id, date_seance)
 );
 CREATE INDEX IF NOT EXISTS idx_deplacement_temporaire_date ON deplacement_temporaire (center_id, date_seance);
+
+-- Paramétrage du planning d'un centre (contexte Planification, slice P1). Auparavant créée par Hibernate (entité retirée) ; en
+-- production le schéma vient de Flyway (V10, V11, V16).
+CREATE TABLE IF NOT EXISTS planning_parametres (
+    center_id UUID NOT NULL PRIMARY KEY,
+    jours_ouverts VARCHAR(100) NOT NULL,
+    salles_isolement TEXT,
+    patients_par_infirmier INTEGER,
+    patients_par_poste_serie INTEGER,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
+
+-- Reprise des salles d'isolement de l'ancien paramétrage du planning (liste d'identifiants), une seule fois. La colonne
+-- salle.isolement est créée par organisation-schema.sql (qui précède ce script).
+UPDATE salle
+SET isolement = 'OUI'
+WHERE isolement = 'NON'
+  AND EXISTS (SELECT 1
+              FROM planning_parametres p
+              WHERE p.center_id = salle.center_id
+                AND p.salles_isolement LIKE '%' || CAST(salle.id AS VARCHAR(36)) || '%');
+UPDATE planning_parametres
+SET salles_isolement = NULL
+WHERE salles_isolement IS NOT NULL;
+
+-- ═══ Personnel soignant : infirmiers, roulement, absences et remplacements ═══
+
+CREATE TABLE IF NOT EXISTS infirmier
+(
+    id UUID PRIMARY KEY,
+    center_id UUID NOT NULL,
+    matricule VARCHAR(50) NOT NULL,
+    nom VARCHAR(255) NOT NULL,
+    prenom VARCHAR(255),
+    telephone VARCHAR(50),
+    qualification VARCHAR(20) NOT NULL,
+    habilite_isolement BOOLEAN NOT NULL DEFAULT FALSE,
+    actif BOOLEAN NOT NULL DEFAULT TRUE,
+    UNIQUE (center_id, matricule)
+);
+
+CREATE TABLE IF NOT EXISTS infirmier_affectation
+(
+    id UUID PRIMARY KEY,
+    center_id UUID NOT NULL,
+    infirmier_id UUID NOT NULL,
+    salle_id UUID NOT NULL,
+    creneau_id UUID NOT NULL,
+    jours VARCHAR(100) NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_infirmier_affectation_infirmier ON infirmier_affectation (center_id, infirmier_id);
+
+CREATE TABLE IF NOT EXISTS infirmier_absence
+(
+    id UUID PRIMARY KEY,
+    center_id UUID NOT NULL,
+    infirmier_id UUID NOT NULL,
+    date_debut DATE NOT NULL,
+    date_fin DATE NOT NULL,
+    type VARCHAR(20) NOT NULL,
+    motif VARCHAR(255)
+);
+CREATE INDEX IF NOT EXISTS idx_infirmier_absence_periode ON infirmier_absence (center_id, date_debut, date_fin);
+-- Compte qui a saisi l'absence (V47) : nul pour les absences antérieures
+ALTER TABLE IF EXISTS infirmier_absence ADD COLUMN IF NOT EXISTS declaree_par UUID;
+
+CREATE TABLE IF NOT EXISTS infirmier_remplacement
+(
+    id UUID PRIMARY KEY,
+    center_id UUID NOT NULL,
+    date_jour DATE NOT NULL,
+    salle_id UUID NOT NULL,
+    creneau_id UUID NOT NULL,
+    infirmier_id UUID NOT NULL,
+    remplace_infirmier_id UUID,
+    UNIQUE (center_id, date_jour, creneau_id, infirmier_id)
+);
+
+-- Lien facultatif d'un infirmier avec un compte utilisateur (un compte ne sert qu'une fiche par centre)
+ALTER TABLE IF EXISTS infirmier ADD COLUMN IF NOT EXISTS user_id UUID;
+CREATE UNIQUE INDEX IF NOT EXISTS ux_infirmier_user ON infirmier (center_id, user_id);

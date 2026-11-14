@@ -15,8 +15,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * S-DDL1 : {@code db/schema.sql} décrit à lui seul les tables de l'Organisation (societes, centers), de la licence et de l'identité
- * (app_user, app_role, rattachements), dans l'ordre exigé par les clés étrangères, avec les colonnes de Flyway V1 + V12 + V46 + V56.
+ * S-DDL1 : {@code db/h2/organisation-schema.sql} (societes, centers ; S-DDL3b) puis {@code db/schema.sql} décrivent les tables de
+ * l'Organisation, de la licence et de l'identité (app_user, app_role, rattachements), dans l'ordre exigé par les clés étrangères, avec
+ * les colonnes de Flyway V1 + V12 + V46 + V56.
  * Le script est rejoué sur une base H2 VIERGE (sans Hibernate) : ce qu'il crée est comparé à la signature attendue (colonne, type,
  * largeur, nullité, valeur par défaut) puis aux contraintes de la production.
  */
@@ -60,6 +61,8 @@ class SchemaH2DeLIdentiteEtDeLOrganisationTest {
     private static Connection baseViergeAvecLeSchema() throws Exception {
         Connection base = DriverManager.getConnection(
                 "jdbc:h2:mem:ddl_idn_" + System.nanoTime() + ";MODE=PostgreSQL;DB_CLOSE_DELAY=-1", "sa", "");
+        // S-DDL3b (ADR 0187) : societes et centers sont créées par le script de l'Organisation, qui précède celui de l'identité.
+        ScriptUtils.executeSqlScript(base, new ClassPathResource("db/h2/organisation-schema.sql"));
         ScriptUtils.executeSqlScript(base, new ClassPathResource("db/schema.sql"));
         return base;
     }
