@@ -4173,7 +4173,7 @@ déclenche, après le commit, la génération des écritures de ventes (RG-CPT-0
 période encore sans écriture (idempotent). <strong>Aucun évènement</strong> quand aucune facture n&#39;est émise ; la reconstitution des ventes manquantes passe par
 <code>POST /api/v1/comptabilite/rebuild</code>. L&#39;existence d&#39;une facture couvrant une date <strong>clôt les absences</strong> du patient à
 cette date (RG-ABS-024) ; les séances facturées deviennent immuables (RG-SEA-002). <em>Source :</em>
-<code>FacturationValideeEvent</code> (langage publié du contexte <code>facturation</code>) → <code>FacturationValideeComptabiliteListener</code>.</p>
+<code>FacturationValideeEvent</code> (langage publié du contexte <code>facturation</code>) → <code>ComptabilisationDesVentesApresLaValidation</code> (contexte <code>facturation</code>, ACL vers la Comptabilité ; ex-écouteur de la plateforme, LST ADR 0183).</p>
 </div></div>
 <h2>12.4 bis Clôture mensuelle de facturation</h2>
 <div class="rule" id="RG-FAC-040"><div class="rid">RG-FAC-040</div><div class="rtxt"><p><strong>Clôture d&#39;un mois</strong> (<code>POST /api/v1/facturation/periodes/{mois}/cloturer</code>, mois <code>AAAA-MM</code>, <code>ADMIN</code>) : un
@@ -4270,7 +4270,7 @@ paginées (page ≥ 0, taille &gt; 0) et exportables en Excel ou PDF.</p>
 </div></div>
 <div class="rule" id="RG-REG-004"><div class="rid">RG-REG-004</div><div class="rtxt"><p>Chaque règlement enregistré déclenche, après son enregistrement, la génération d&#39;une écriture de
 trésorerie (RG-CPT-002) par l&#39;événement <code>FactureReglementRecordedEvent</code> (langage publié du contexte <code>facturation</code>,
-porteur de l&#39;identifiant du règlement, du montant signé et du mode) → <code>ReglementEncaisseComptabiliteListener</code>. Un mois
+porteur de l&#39;identifiant du règlement, du montant signé et du mode) → <code>ComptabilisationDuReglementApresEncaissement</code> (contexte <code>facturation</code>, ex-écouteur de la plateforme, LST ADR 0183). Un mois
 comptable clos n&#39;empêche pas le règlement : l&#39;écriture est alors à régénérer (<code>POST /comptabilite/rebuild</code>).</p>
 </div></div>
 <h2>12.6 Comptabilité (plan SCF)</h2>
@@ -4285,7 +4285,7 @@ pièce, lui, n&#39;est pas contraint). L&#39;écriture est générée <strong>ap
 facture par facture, chacune indépendamment : un refus (mois clôturé, facture déséquilibrée…) n&#39;annule jamais la
 facturation, n&#39;empêche pas les factures suivantes, et laisse la facture <strong>à régénérer</strong> (RG-CPT-024). <em>Source :</em>
 <code>ComptabiliserLesVentesEtReglements</code>, <code>EcritureComptable.generer</code>, <code>RedactionDesEcritures.ventes</code> (contexte
-<code>comptabilite</code>), écouteur <code>FacturationValideeComptabiliteListener</code> → langage publié
+<code>comptabilite</code>), écouteur <code>ComptabilisationDesVentesApresLaValidation</code> (Facturation, LST ADR 0183) → langage publié
 <code>ComptabilisationDesVentesEtReglements</code>.</p>
 </div></div>
 <div class="rule" id="RG-CPT-002"><div class="rid">RG-CPT-002</div><div class="rtxt"><p><strong>Écriture de règlement</strong> : journal choisi pour les règlements en banque (<code>BQ</code> par défaut, débit

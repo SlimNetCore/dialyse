@@ -140,7 +140,7 @@ class EvenementEtComptabiliteCharacterizationIntegrationTest extends ValidationC
     private tools.jackson.databind.ObjectMapper mapperDeLApplication;
 
     @Autowired
-    private com.hemodialyse.backend.infrastructure.listener.FacturationValideeComptabiliteListener consommateur;
+    private com.hemodialyse.backend.contexts.facturation.infrastructure.acl.comptabilite.ComptabilisationDesVentesApresLaValidation consommateur;
 
     @Test
     void une_publication_v2_enregistree_avant_la_v3_se_relit_et_le_consommateur_la_traite_sans_erreur() throws Exception {

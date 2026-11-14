@@ -261,23 +261,14 @@ CREATE TABLE IF NOT EXISTS bons_sortie_lignes (
 CREATE INDEX IF NOT EXISTS idx_bs_ligne_bon ON bons_sortie_lignes (bon_sortie_id);
 CREATE INDEX IF NOT EXISTS idx_bs_ligne_lot ON bons_sortie_lignes (lot_id);
 
--- PL1 (d) : compteurs de numérotation des pièces (JDBC : SequenceDesNumerosDePiecesJdbc) et affectations utilisateur / centre / rôle
--- (lues par seed.sql). Entités AppSetting, AppSettingId et UserCenterAssignment retirées.
+-- PL1 (d) : compteurs de numérotation des pièces (JDBC : SequenceDesNumerosDePiecesJdbc). Entités AppSetting, AppSettingId et
+-- UserCenterAssignment retirées ; PL16 (ADR 0184) : la table morte user_center_assignment n'existe plus en H2 (Flyway inchangé).
 CREATE TABLE IF NOT EXISTS app_settings (
     center_id UUID NOT NULL,
     cle VARCHAR(50) NOT NULL,
     dernier_compteur BIGINT NOT NULL,
     prefixe VARCHAR(20) NOT NULL,
     PRIMARY KEY (center_id, cle)
-);
-
-CREATE TABLE IF NOT EXISTS user_center_assignment (
-    id UUID NOT NULL PRIMARY KEY,
-    center_id UUID NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE,
-    role_code VARCHAR(255) NOT NULL,
-    user_id VARCHAR(255) NOT NULL,
-    UNIQUE (user_id, center_id, role_code)
 );
 
 CREATE TABLE IF NOT EXISTS medecin (
@@ -2410,25 +2401,7 @@ CREATE TABLE IF NOT EXISTS groupes_articles_items
 
 CREATE INDEX IF NOT EXISTS idx_groupes_articles_centre ON groupes_articles (center_id);
 
--- Sortie pour seances (migration V45, slice S6b, ADR 0045)
-CREATE TABLE IF NOT EXISTS stock_parametres
-(
-    center_id
-    UUID
-    NOT
-    NULL,
-    sortie_pour_seances_activee
-    BOOLEAN
-    NOT
-    NULL
-    DEFAULT
-    FALSE,
-    PRIMARY
-    KEY
-(
-    center_id
-)
-    );
+-- Sortie pour seances (migration V45, slice S6b, ADR 0045) ; PL16 (ADR 0184) : la table orpheline stock_parametres n'existe plus en H2
 CREATE TABLE IF NOT EXISTS sorties_pour_seances
 (
     id

@@ -105,7 +105,7 @@
         </dependency>
     </dependencies>
 
-    <!-- Reprise sur place (ADR 0024, GEL.md) : les sources gelées d'avant la reprise (Assure, Pec, Attestation, services,
+    <!-- Reprise sur place (ADR 0024 ; GEL.md supprimé, HYG 2026-11-14) : les sources gelées d'avant la reprise (Assure, Pec, Attestation, services,
          adapters et contrôleurs aux URL et aux tables inventées) ne sont plus compilées. Elles sont à SUPPRIMER (aucun outil de
          suppression dans la session de reprise) ; PC2 à PC5 réécriront leur périmètre. -->
     <build>

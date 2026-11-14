@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * F4 : événement {@code FactureReglementRecordedEvent} réellement publié par l'enregistrement d'un règlement, et
- * écritures de règlement produites par la Comptabilité (écouteur {@code ReglementEncaisseComptabiliteListener}, après
+ * écritures de règlement produites par la Comptabilité (écouteur {@code ComptabilisationDuReglementApresEncaissement}, après
  * commit, transaction propre). La Comptabilité lit aussi {@code facture_reglements} (reconstruction).
  */
 class EvenementEtComptabiliteCharacterizationIntegrationTest extends ReglementsCharacterizationSupport {

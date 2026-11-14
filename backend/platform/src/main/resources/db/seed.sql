@@ -38,32 +38,6 @@ MERGE INTO center_closure_day (id, center_id, day_date, reason) KEY (id)
     VALUES ('92000001-0000-0000-0000-000000000002', '22222222-2222-2222-2222-222222222222', DATE '2026-06-21',
             'Fermeture exceptionnelle');
 
--- Admin user assignment to both centers
-MERGE INTO user_center_assignment (id, user_id, center_id, role_code) KEY (id)
-VALUES ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'admin', '11111111-1111-1111-1111-111111111111', 'ADMIN');
-
-MERGE INTO user_center_assignment (id, user_id, center_id, role_code) KEY (id)
-VALUES ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'admin', '22222222-2222-2222-2222-222222222222', 'ADMIN');
-
-MERGE INTO user_center_assignment (id, user_id, center_id, role_code) KEY (id)
-VALUES ('cccccccc-cccc-cccc-cccc-cccccccccccc', 'medecin', '11111111-1111-1111-1111-111111111111', 'MEDECIN');
-
-MERGE INTO user_center_assignment (id, user_id, center_id, role_code) KEY (id)
-    VALUES ('dddddddd-dddd-dddd-dddd-dddddddddddd', 'infirmier-annaba', '11111111-1111-1111-1111-111111111111',
-            'INFIRMIER');
-
-MERGE INTO user_center_assignment (id, user_id, center_id, role_code) KEY (id)
-    VALUES ('eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee', 'infirmier-rouiba', '22222222-2222-2222-2222-222222222222',
-            'INFIRMIER');
-
-MERGE INTO user_center_assignment (id, user_id, center_id, role_code) KEY (id)
-    VALUES ('ffffffff-ffff-ffff-ffff-ffffffffffff', 'secretaire-annaba', '11111111-1111-1111-1111-111111111111',
-            'SECRETAIRE');
-
-MERGE INTO user_center_assignment (id, user_id, center_id, role_code) KEY (id)
-    VALUES ('12121212-1212-1212-1212-121212121212', 'secretaire-rouiba', '22222222-2222-2222-2222-222222222222',
-            'SECRETAIRE');
-
 -- ═══ REFERENTIAL SEED DATA ═══
 
 -- Caisse d'assurance

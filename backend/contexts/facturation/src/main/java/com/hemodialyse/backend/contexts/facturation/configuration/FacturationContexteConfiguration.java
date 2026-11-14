@@ -63,6 +63,9 @@ import com.hemodialyse.backend.contexts.facturation.domain.seance.SeancesDeFactu
 import com.hemodialyse.backend.contexts.facturation.domain.simulation.ForfaitsDuCentre;
 import com.hemodialyse.backend.contexts.facturation.domain.simulation.SeancesFacturables;
 import com.hemodialyse.backend.contexts.facturation.domain.simulation.SequenceDeFacturation;
+import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.ComptabilisationDesVentesEtReglements;
+import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.comptabilite.ComptabilisationDesVentesApresLaValidation;
+import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.comptabilite.ComptabilisationDuReglementApresEncaissement;
 import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.comptabilite.TauxDeTvaComptabilite;
 import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.legacyidentite.SessionLegacy;
 import com.hemodialyse.backend.contexts.facturation.infrastructure.acl.seance.LiaisonDesSeancesPubliee;
@@ -378,5 +381,19 @@ public class FacturationContexteConfiguration {
                                                          UniteDeTravail uniteDeTravail, GardeDesMoisClos garde) {
         return new ValiderLaFacturation(seances, parametres, sequence, tva, factures, liaison, publication, uniteDeTravail,
                 Clock.systemUTC(), UUID::randomUUID, garde);
+    }
+
+    /** Politique P1 de la Comptabilité (LST, ADR 0183) : les ventes d'une période validée sont comptabilisées après le commit. */
+    @Bean
+    ComptabilisationDesVentesApresLaValidation facturationComptabilisationDesVentes(
+            ComptabilisationDesVentesEtReglements comptabilisation) {
+        return new ComptabilisationDesVentesApresLaValidation(comptabilisation);
+    }
+
+    /** Politique P2 de la Comptabilité (LST, ADR 0183) : un règlement enregistré est comptabilisé après le commit. */
+    @Bean
+    ComptabilisationDuReglementApresEncaissement facturationComptabilisationDuReglement(
+            ComptabilisationDesVentesEtReglements comptabilisation) {
+        return new ComptabilisationDuReglementApresEncaissement(comptabilisation);
     }
 }

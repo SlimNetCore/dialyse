@@ -159,7 +159,7 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
   période encore sans écriture (idempotent). **Aucun évènement** quand aucune facture n'est émise ; la reconstitution des ventes manquantes passe par
   `POST /api/v1/comptabilite/rebuild`. L'existence d'une facture couvrant une date **clôt les absences** du patient à
   cette date (RG-ABS-024) ; les séances facturées deviennent immuables (RG-SEA-002). *Source :*
-  `FacturationValideeEvent` (langage publié du contexte `facturation`) → `FacturationValideeComptabiliteListener`.
+  `FacturationValideeEvent` (langage publié du contexte `facturation`) → `ComptabilisationDesVentesApresLaValidation` (contexte `facturation`, ACL vers la Comptabilité ; ex-écouteur de la plateforme, LST ADR 0183).
 
 ## 12.4 bis Clôture mensuelle de facturation
 
@@ -248,7 +248,7 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
   paginées (page ≥ 0, taille > 0) et exportables en Excel ou PDF.
 - **RG-REG-004** — Chaque règlement enregistré déclenche, après son enregistrement, la génération d'une écriture de
   trésorerie (RG-CPT-002) par l'événement `FactureReglementRecordedEvent` (langage publié du contexte `facturation`,
-  porteur de l'identifiant du règlement, du montant signé et du mode) → `ReglementEncaisseComptabiliteListener`. Un mois
+  porteur de l'identifiant du règlement, du montant signé et du mode) → `ComptabilisationDuReglementApresEncaissement` (contexte `facturation`, ex-écouteur de la plateforme, LST ADR 0183). Un mois
   comptable clos n'empêche pas le règlement : l'écriture est alors à régénérer (`POST /comptabilite/rebuild`).
 
 ## 12.6 Comptabilité (plan SCF)
@@ -264,7 +264,7 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
   facture par facture, chacune indépendamment : un refus (mois clôturé, facture déséquilibrée…) n'annule jamais la
   facturation, n'empêche pas les factures suivantes, et laisse la facture **à régénérer** (RG-CPT-024). *Source :*
   `ComptabiliserLesVentesEtReglements`, `EcritureComptable.generer`, `RedactionDesEcritures.ventes` (contexte
-  `comptabilite`), écouteur `FacturationValideeComptabiliteListener` → langage publié
+  `comptabilite`), écouteur `ComptabilisationDesVentesApresLaValidation` (Facturation, LST ADR 0183) → langage publié
   `ComptabilisationDesVentesEtReglements`.
 - **RG-CPT-002** — **Écriture de règlement** : journal choisi pour les règlements en banque (`BQ` par défaut, débit
     512) ou en caisse (`CA` par défaut, débit 530, si le mode

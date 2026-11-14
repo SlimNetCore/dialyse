@@ -1,4 +1,4 @@
-package com.hemodialyse.backend.infrastructure.seed;
+package com.hemodialyse.backend.contexts.stock.configuration;
 
 import com.hemodialyse.backend.contexts.stock.application.commandes.GestionDesBonsDeCommande;
 import com.hemodialyse.backend.contexts.stock.application.reception.GestionDesReceptions;
@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @ActiveProfiles("test")
-class StockDemoDataSeederIntegrationTest {
+class JeuDeDemonstrationDuStockIntegrationTest {
 
     private static final UUID CENTRE = UUID.fromString("11111111-1111-1111-1111-111111111111");
     private static final List<String> CODES = List.of("DIA-FX60", "LIGNE-AV", "AIG-FAV", "HEP-5000", "SERPH-500", "BICA-650",
@@ -52,7 +52,7 @@ class StockDemoDataSeederIntegrationTest {
     private List<Map<String, Object>> compteurs;
 
     private ApplicationRunner seeder() {
-        return new StockDemoDataSeeder().stockDemoDataRunner(referentiel, articles, commandes, receptions, sorties);
+        return new JeuDeDemonstrationDuStock().stockDemoDataRunner(referentiel, articles, commandes, receptions, sorties);
     }
 
     private BigDecimal valeur(String sql, Object... args) {
@@ -91,6 +91,14 @@ class StockDemoDataSeederIntegrationTest {
             jdbc.update("INSERT INTO app_settings (center_id, cle, prefixe, dernier_compteur) VALUES (?, ?, ?, ?)", CENTRE, c.get("cle"),
                     c.get("prefixe"), c.get("dernier_compteur"));
         }
+    }
+
+    @Autowired
+    private org.springframework.context.ApplicationContext contexte;
+
+    @Test
+    void le_jeu_de_demonstration_n_est_pas_active_quand_app_stock_demo_data_est_faux() {
+        assertThat(contexte.containsBean("stockDemoDataRunner")).isFalse();
     }
 
     @Test

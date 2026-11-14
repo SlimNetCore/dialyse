@@ -1,11 +1,11 @@
-package com.hemodialyse.backend.infrastructure.seed;
+package com.hemodialyse.backend.contexts.stock.configuration;
 
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.stock.application.commandes.GestionDesBonsDeCommande;
 import com.hemodialyse.backend.contexts.stock.application.reception.GestionDesReceptions;
 import com.hemodialyse.backend.contexts.stock.application.referentiel.ReferentielDesArticles;
 import com.hemodialyse.backend.contexts.stock.application.referentiel.ReferentielDesFournisseursEtEmplacements;
 import com.hemodialyse.backend.contexts.stock.application.sortie.GestionDesSorties;
-import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.stock.domain.referentiel.FicheArticle;
 import com.hemodialyse.backend.contexts.stock.domain.referentiel.Fournisseur;
 import com.hemodialyse.backend.contexts.stock.domain.referentiel.TypeTraitementAnemie;
@@ -25,13 +25,14 @@ import java.util.UUID;
 /**
  * Jeu de données de démonstration du stock (idempotent), écrit par les cas d'usage du contexte Stock (référentiel, bon de
  * commande, réceptions avec lots et PMP, sortie FEFO) : mêmes règles et mêmes gardes que l'application. Désactivé en production
- * et en test ({@code app.stock.demo-data=false}).
+ * et en test ({@code app.stock.demo-data=false}) ; activé par défaut (SEED1, ADR 0182 : ex-{@code StockDemoDataSeeder} de la
+ * plateforme).
  */
 @Configuration
 @ConditionalOnProperty(prefix = "app.stock", name = "demo-data", havingValue = "true", matchIfMissing = true)
-public class StockDemoDataSeeder {
+public class JeuDeDemonstrationDuStock {
 
-    private static final Logger log = LoggerFactory.getLogger(StockDemoDataSeeder.class);
+    private static final Logger log = LoggerFactory.getLogger(JeuDeDemonstrationDuStock.class);
     private static final CentreId CENTRE = new CentreId(UUID.fromString("11111111-1111-1111-1111-111111111111"));
     private static final String SEED_USER = "seed";
 
@@ -61,9 +62,9 @@ public class StockDemoDataSeeder {
     }
 
     @Bean
-    ApplicationRunner stockDemoDataRunner(ReferentielDesFournisseursEtEmplacements referentiel, ReferentielDesArticles articles,
-                                          GestionDesBonsDeCommande commandes, GestionDesReceptions receptions,
-                                          GestionDesSorties sorties) {
+    public ApplicationRunner stockDemoDataRunner(ReferentielDesFournisseursEtEmplacements referentiel, ReferentielDesArticles articles,
+                                                 GestionDesBonsDeCommande commandes, GestionDesReceptions receptions,
+                                                 GestionDesSorties sorties) {
         return args -> {
             if (!referentiel.chercherDesFournisseurs(CENTRE, null).isEmpty()) {
                 log.info("[STOCK][SEED] Donnees de demonstration deja presentes, seeding ignore.");

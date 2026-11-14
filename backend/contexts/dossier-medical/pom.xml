@@ -135,7 +135,7 @@
         </dependency>
     </dependencies>
 
-    <!-- Reprise sur place (ADR 0024, GEL.md, ADR 0080) : le module ne porte que DM1 (constantes) ; DM2 a DM8 seront repris slice par slice. -->
+    <!-- Reprise sur place (ADR 0024, ADR 0080 ; GEL.md supprimé, HYG 2026-11-14) : le module ne porte que DM1 (constantes) ; DM2 a DM8 seront repris slice par slice. -->
     <build>
         <plugins>
             <plugin>

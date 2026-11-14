@@ -1,17 +1,19 @@
-package com.hemodialyse.backend.infrastructure.listener;
+package com.hemodialyse.backend.contexts.facturation.infrastructure.acl.comptabilite;
 
 import com.hemodialyse.backend.contexts.comptabilite.publishedlanguage.ComptabilisationDesVentesEtReglements;
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.FacturationValideeEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 /**
  * Politique P1 (slice C5) : une validation de facturation produit une écriture de ventes par facture de la période,
- * par le contexte {@code comptabilite}. Traducteur de l'événement legacy vers le langage publié du contexte
- * ({@link ComptabilisationDesVentesEtReglements}) : aucun import de l'intérieur du contexte.
+ * par le contexte {@code comptabilite}. Traducteur de l'événement de la Facturation vers le langage publié de la Comptabilité
+ * ({@link ComptabilisationDesVentesEtReglements}) : aucun import de l'intérieur du contexte. Ex-{@code
+ * FacturationValideeComptabiliteListener} de la plateforme (LST, ADR 0183) ; placé ici et non dans la Comptabilité parce que
+ * {@code contexts-facturation} dépend de {@code contexts-comptabilite} (un écouteur de la Comptabilité importerait
+ * {@code facturation.publishedlanguage} : cycle Maven).
  * <p>
  * Décision KB-CPT-37 (2026-10-19) : la comptabilisation a lieu <b>après le commit</b> de la facturation, chaque facture
  * dans sa propre transaction. Une facture refusée (mois clôturé, facture déséquilibrée...) ne fait jamais échouer la
@@ -23,14 +25,13 @@ import org.springframework.transaction.event.TransactionalEventListener;
  * émises ; il n'est jamais publié quand rien n'est émis. Les factures sont relues en base : les écritures sont produites par période
  * (les factures émises ont exactement cette période) : mêmes écritures qu'avant pour les cas nominaux.
  */
-@Component
-public class FacturationValideeComptabiliteListener {
+public class ComptabilisationDesVentesApresLaValidation {
 
-    private static final Logger log = LoggerFactory.getLogger(FacturationValideeComptabiliteListener.class);
+    private static final Logger log = LoggerFactory.getLogger(ComptabilisationDesVentesApresLaValidation.class);
 
     private final ComptabilisationDesVentesEtReglements comptabilisation;
 
-    public FacturationValideeComptabiliteListener(ComptabilisationDesVentesEtReglements comptabilisation) {
+    public ComptabilisationDesVentesApresLaValidation(ComptabilisationDesVentesEtReglements comptabilisation) {
         this.comptabilisation = comptabilisation;
     }
 
@@ -46,4 +47,3 @@ public class FacturationValideeComptabiliteListener {
         }
     }
 }
-
