@@ -24,4 +24,4 @@ Filet existant réutilisé (goldens inchangés, aucun `.approved` modifié, aucu
 Aucun écart de parité observé. Deux écarts théoriques non couverts (préfixe enregistré de `SEQ_ORD` ; première création concurrente de `SEQ_ORD`) : voir ADR 0185, « reproduit / à confirmer ≤ 2026-12-15 ». Aucun changement de comportement : pas de `*_nouveau_code`, pas d'archive `_ecarts-legacy`, pas de ligne KB « CORRIGÉ ».
 
 ## Reste à faire : S-DDL2b (butoir 2027-06-30, solder en supprimant)
-`CREATE TABLE app_settings` (schema.sql) et 4 `MERGE` (seed.sql) vers la comptabilité ; non fait faute de budget (14 fichiers de production > ~12).
+FAIT le 2026-11-14 : voir `s-ddl3-realisation.md` et ADR 0186 (`CREATE TABLE app_settings` et 4 `MERGE` vers `contexts/comptabilite/.../db/h2/`).

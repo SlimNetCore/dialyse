@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class TableDuStockTest {
 
     /**
-     * Tables possédées par le Stock (schéma {@code db/schema.sql} + tables des adapters du contexte).
+     * Tables possédées par le Stock (schéma {@code contexts/stock/.../db/h2/stock-schema.sql} depuis S-DDL3, ADR 0186, + tables des adapters du contexte).
      */
     private static final Set<String> TABLES_DU_STOCK = Set.of(
             "articles", "lots", "fournisseurs", "emplacements",

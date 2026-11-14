@@ -2398,19 +2398,7 @@ SET stock_quantity = COALESCE((
 WHERE a.code LIKE 'ART-ANN-%'
    OR a.code LIKE 'ART-SL-%';
 
--- Synchronise les compteurs sequence pour eviter collisions de references.
-MERGE INTO app_settings (center_id, cle, prefixe, dernier_compteur)
-    KEY (center_id, cle)
-    VALUES ('11111111-1111-1111-1111-111111111111', 'SEQ_BR', 'BR-', 6000);
-MERGE INTO app_settings (center_id, cle, prefixe, dernier_compteur)
-    KEY (center_id, cle)
-    VALUES ('11111111-1111-1111-1111-111111111111', 'SEQ_BS', 'BS-', 6000);
-MERGE INTO app_settings (center_id, cle, prefixe, dernier_compteur)
-    KEY (center_id, cle)
-    VALUES ('22222222-2222-2222-2222-222222222222', 'SEQ_BR', 'BR-', 6000);
-MERGE INTO app_settings (center_id, cle, prefixe, dernier_compteur)
-    KEY (center_id, cle)
-    VALUES ('22222222-2222-2222-2222-222222222222', 'SEQ_BS', 'BS-', 6000);
+-- Les compteurs de numérotation des pièces (app_settings) sont amorcés par contexts/comptabilite (db/h2/comptabilite-seed.sql, S-DDL2b).
 
 
 

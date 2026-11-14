@@ -9,4 +9,4 @@
 spring:
   sql:
     init:
-      data-locations: classpath:db/seed.sql,classpath:db/demo/renadial-seed.sql
+      data-locations: classpath:db/seed.sql,classpath:db/h2/comptabilite-seed.sql,classpath:db/demo/renadial-seed.sql

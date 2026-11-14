@@ -20,10 +20,21 @@ spring:
   sql:
     init:
       mode: always
-      schema-locations: classpath:db/schema.sql
+      # DDL H2 par contexte propriétaire (S-DDL3, ADR 0186) : db/schema.sql garde ce qui n'est pas encore réparti, puis un script
+      # par contexte (contexts/<contexte>/src/main/resources/db/h2/). Les tables ne se référencent pas entre scripts (aucune clé
+      # étrangère inter-contextes) : l'ordre est sans effet sur le résultat, vérifié par SchemaH2DesScriptsParContexteTest.
+      schema-locations: >-
+        classpath:db/schema.sql,
+        classpath:db/h2/comptabilite-schema.sql,
+        classpath:db/h2/documents-schema.sql,
+        classpath:db/h2/notifications-schema.sql,
+        classpath:db/h2/absences-patients-schema.sql,
+        classpath:db/h2/planification-schema.sql,
+        classpath:db/h2/stock-schema.sql
       # Jeu(x) de données rejoués à chaque démarrage. Le profil "demo-renadial" y ajoute le jeu de test RENADIAL
       # (17 centres, 12 mois de données — voir db/demo/README.md) sans toucher au comportement par défaut.
-      data-locations: ${SEED_DATA_LOCATIONS:classpath:db/seed.sql}
+      # SEED_DATA_LOCATIONS REMPLACE cette liste (db/h2/comptabilite-seed.sql : compteurs app_settings, S-DDL2b).
+      data-locations: ${SEED_DATA_LOCATIONS:classpath:db/seed.sql,classpath:db/h2/comptabilite-seed.sql}
   h2:
     console:
       enabled: true

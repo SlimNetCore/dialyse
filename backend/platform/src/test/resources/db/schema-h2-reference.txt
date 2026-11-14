@@ -1,0 +1,1454 @@
+COLONNE|abords_vasculaires|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|abords_vasculaires|002|actif|BOOLEAN|null|null|null|null|NO|null|NO|null
+COLONNE|abords_vasculaires|003|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|abords_vasculaires|004|complications|CHARACTER VARYING|500|null|null|null|YES|null|NO|null
+COLONNE|abords_vasculaires|005|cote|CHARACTER VARYING|10|null|null|null|YES|null|NO|null
+COLONNE|abords_vasculaires|006|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|abords_vasculaires|007|date_creation|DATE|null|null|null|0|YES|null|NO|null
+COLONNE|abords_vasculaires|008|date_fin|DATE|null|null|null|0|YES|null|NO|null
+COLONNE|abords_vasculaires|009|localisation|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|abords_vasculaires|010|patient_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|abords_vasculaires|011|type_abord|CHARACTER VARYING|20|null|null|null|NO|null|NO|null
+COLONNE|absence_patient|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|absence_patient|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|absence_patient|003|patient_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|absence_patient|004|date_seance|DATE|null|null|null|0|NO|null|NO|null
+COLONNE|absence_patient|005|source|CHARACTER VARYING|20|null|null|null|NO|null|NO|null
+COLONNE|absence_patient|006|statut|CHARACTER VARYING|20|null|null|null|NO|null|NO|null
+COLONNE|absence_patient|007|motif|CHARACTER VARYING|30|null|null|null|YES|null|NO|null
+COLONNE|absence_patient|008|commentaire|CHARACTER VARYING|1000|null|null|null|YES|null|NO|null
+COLONNE|absence_patient|009|forfait_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|absence_patient|010|forfait_libelle|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|absence_patient|011|prix_ttc|NUMERIC|null|14|2|null|NO|0|NO|null
+COLONNE|absence_patient|012|taux_tva|NUMERIC|null|6|2|null|NO|0|NO|null
+COLONNE|absence_patient|013|montant_ht|NUMERIC|null|14|2|null|NO|0|NO|null
+COLONNE|absence_patient|014|declaree_par|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|absence_patient|015|declaree_le|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|absence_patient|016|qualifiee_par|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|absence_patient|017|qualifiee_le|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|absence_patient|018|date_rattrapage|DATE|null|null|null|0|YES|null|NO|null
+COLONNE|absence_patient|019|modifiee_par|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|absence_patient|020|modifiee_le|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|administrations_anemie|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|administrations_anemie|002|administre_par|CHARACTER VARYING|100|null|null|null|YES|null|NO|null
+COLONNE|administrations_anemie|003|administree|BOOLEAN|null|null|null|null|NO|null|NO|null
+COLONNE|administrations_anemie|004|article_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|administrations_anemie|005|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|administrations_anemie|006|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|administrations_anemie|007|date_administration|DATE|null|null|null|0|NO|null|NO|null
+COLONNE|administrations_anemie|008|dose|NUMERIC|null|10|3|null|YES|null|NO|null
+COLONNE|administrations_anemie|009|molecule|CHARACTER VARYING|100|null|null|null|YES|null|NO|null
+COLONNE|administrations_anemie|010|motif_non_administration|CHARACTER VARYING|500|null|null|null|YES|null|NO|null
+COLONNE|administrations_anemie|011|patient_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|administrations_anemie|012|prescription_medicale_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|administrations_anemie|013|quantite_article|NUMERIC|null|10|3|null|YES|null|NO|null
+COLONNE|administrations_anemie|014|seance_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|administrations_anemie|015|type_traitement|CHARACTER VARYING|20|null|null|null|NO|null|NO|null
+COLONNE|administrations_anemie|016|unite_dose|CHARACTER VARYING|20|null|null|null|YES|null|NO|null
+COLONNE|administrations_anemie|017|voie|CHARACTER VARYING|10|null|null|null|YES|null|NO|null
+COLONNE|agence|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|agence|002|caisse_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|agence|003|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|agence|004|code|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|agence|005|nom|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|alertes_observance|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|alertes_observance|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|alertes_observance|003|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|alertes_observance|004|doses_administrees|INTEGER|null|32|0|null|NO|null|NO|null
+COLONNE|alertes_observance|005|doses_attendues|INTEGER|null|32|0|null|NO|null|NO|null
+COLONNE|alertes_observance|006|message|CHARACTER VARYING|500|null|null|null|YES|null|NO|null
+COLONNE|alertes_observance|007|patient_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|alertes_observance|008|periode_debut|DATE|null|null|null|0|NO|null|NO|null
+COLONNE|alertes_observance|009|periode_fin|DATE|null|null|null|0|NO|null|NO|null
+COLONNE|alertes_observance|010|resolved_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|alertes_observance|011|type_alerte|CHARACTER VARYING|20|null|null|null|NO|null|NO|null
+COLONNE|alertes_observance|012|type_traitement|CHARACTER VARYING|20|null|null|null|NO|null|NO|null
+COLONNE|alertes_observance|013|unite_dose|CHARACTER VARYING|10|null|null|null|YES|null|NO|null
+COLONNE|alertes_observance|014|dose_prescrite|INTEGER|null|32|0|null|YES|null|NO|null
+COLONNE|alertes_observance|015|frequence_valeur|INTEGER|null|32|0|null|YES|null|NO|null
+COLONNE|alertes_observance|016|frequence_unite|CHARACTER VARYING|10|null|null|null|YES|null|NO|null
+COLONNE|allergies_patient|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|allergies_patient|002|categorie|CHARACTER VARYING|20|null|null|null|NO|null|NO|null
+COLONNE|allergies_patient|003|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|allergies_patient|004|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|allergies_patient|005|criticite|CHARACTER VARYING|10|null|null|null|NO|null|NO|null
+COLONNE|allergies_patient|006|date_constatation|DATE|null|null|null|0|NO|null|NO|null
+COLONNE|allergies_patient|007|manifestations|CHARACTER VARYING|1000000000|null|null|null|YES|null|NO|null
+COLONNE|allergies_patient|008|patient_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|allergies_patient|009|statut_verification|CHARACTER VARYING|15|null|null|null|NO|null|NO|null
+COLONNE|allergies_patient|010|substance_code|CHARACTER VARYING|20|null|null|null|NO|null|NO|null
+COLONNE|allergies_patient|011|substance_code_display|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|allergies_patient|012|substance_code_system|CHARACTER VARYING|10|null|null|null|YES|null|NO|null
+COLONNE|allergies_patient|013|type_reaction|CHARACTER VARYING|15|null|null|null|NO|null|NO|null
+COLONNE|allergies_patient|014|updated_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|antecedents_medicaux|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|antecedents_medicaux|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|antecedents_medicaux|003|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|antecedents_medicaux|004|date_debut|DATE|null|null|null|0|NO|null|NO|null
+COLONNE|antecedents_medicaux|005|date_fin|DATE|null|null|null|0|YES|null|NO|null
+COLONNE|antecedents_medicaux|006|diagnostic_code|CHARACTER VARYING|20|null|null|null|YES|null|NO|null
+COLONNE|antecedents_medicaux|007|diagnostic_code_display|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|antecedents_medicaux|008|diagnostic_code_system|CHARACTER VARYING|10|null|null|null|YES|null|NO|null
+COLONNE|antecedents_medicaux|009|libelle_libre|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|antecedents_medicaux|010|note|CHARACTER VARYING|1000000000|null|null|null|YES|null|NO|null
+COLONNE|antecedents_medicaux|011|patient_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|antecedents_medicaux|012|severite|CHARACTER VARYING|50|null|null|null|YES|null|NO|null
+COLONNE|antecedents_medicaux|013|statut_clinique|CHARACTER VARYING|20|null|null|null|NO|null|NO|null
+COLONNE|antecedents_medicaux|014|type_antecedent|CHARACTER VARYING|20|null|null|null|NO|null|NO|null
+COLONNE|antecedents_medicaux|015|updated_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|app_role|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|app_role|002|code|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|app_role|003|description|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|app_role|004|name|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|app_settings|001|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|app_settings|002|cle|CHARACTER VARYING|50|null|null|null|NO|null|NO|null
+COLONNE|app_settings|003|dernier_compteur|BIGINT|null|64|0|null|NO|null|NO|null
+COLONNE|app_settings|004|prefixe|CHARACTER VARYING|20|null|null|null|NO|null|NO|null
+COLONNE|app_user_center|001|user_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|app_user_center|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|app_user_mfa_recovery|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|app_user_mfa_recovery|002|user_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|app_user_mfa_recovery|003|code_hash|CHARACTER VARYING|100|null|null|null|NO|null|NO|null
+COLONNE|app_user_mfa_recovery|004|used|BOOLEAN|null|null|null|null|NO|FALSE|NO|null
+COLONNE|app_user_mfa|001|user_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|app_user_mfa|002|secret_cipher|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|app_user_mfa|003|enabled|BOOLEAN|null|null|null|null|NO|FALSE|NO|null
+COLONNE|app_user_mfa|004|last_step|BIGINT|null|64|0|null|NO|0|NO|null
+COLONNE|app_user_mfa|005|failed_attempts|INTEGER|null|32|0|null|NO|0|NO|null
+COLONNE|app_user_mfa|006|locked_until|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|app_user_mfa|007|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|CURRENT_TIMESTAMP|NO|null
+COLONNE|app_user_role|001|user_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|app_user_role|002|role_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|app_user_societe|001|user_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|app_user_societe|002|societe_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|app_user|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|app_user|002|active|BOOLEAN|null|null|null|null|NO|null|NO|null
+COLONNE|app_user|003|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|app_user|004|email|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|app_user|005|full_name|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|app_user|006|must_change_password|BOOLEAN|null|null|null|null|NO|FALSE|NO|null
+COLONNE|app_user|007|password_hash|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|app_user|008|username|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|articles|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|articles|002|active|BOOLEAN|null|null|null|null|NO|null|NO|null
+COLONNE|articles|003|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|articles|004|code|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|articles|005|code_barres|CHARACTER VARYING|64|null|null|null|YES|null|NO|null
+COLONNE|articles|006|coefficient_achat|NUMERIC|null|14|4|null|YES|null|NO|null
+COLONNE|articles|007|compte_charge|CHARACTER VARYING|20|null|null|null|YES|null|NO|null
+COLONNE|articles|008|compte_stock|CHARACTER VARYING|20|null|null|null|YES|null|NO|null
+COLONNE|articles|009|condition_conservation|CHARACTER VARYING|20|null|null|null|YES|null|NO|null
+COLONNE|articles|010|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|articles|011|dci|CHARACTER VARYING|150|null|null|null|YES|null|NO|null
+COLONNE|articles|012|dechet_dasri|BOOLEAN|null|null|null|null|NO|FALSE|NO|null
+COLONNE|articles|013|dosage_par_unite|NUMERIC|null|14|4|null|YES|null|NO|null
+COLONNE|articles|014|forme_galenique|CHARACTER VARYING|80|null|null|null|YES|null|NO|null
+COLONNE|articles|015|fournisseur_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|articles|016|gere_par_lot|BOOLEAN|null|null|null|null|NO|null|NO|null
+COLONNE|articles|017|libelle|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|articles|018|peremption_obligatoire|BOOLEAN|null|null|null|null|NO|FALSE|NO|null
+COLONNE|articles|019|pmp_courant|NUMERIC|null|38|2|null|YES|null|NO|null
+COLONNE|articles|020|prix_achat|NUMERIC|null|14|4|null|YES|null|NO|null
+COLONNE|articles|021|produit_dangereux|BOOLEAN|null|null|null|null|NO|FALSE|NO|null
+COLONNE|articles|022|reference_fabricant|CHARACTER VARYING|80|null|null|null|YES|null|NO|null
+COLONNE|articles|023|seuil_alerte|NUMERIC|null|38|2|null|NO|null|NO|null
+COLONNE|articles|024|stock_max|NUMERIC|null|14|4|null|YES|null|NO|null
+COLONNE|articles|025|stock_quantity|NUMERIC|null|38|2|null|NO|null|NO|null
+COLONNE|articles|026|tva_type_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|articles|027|type_traitement_anemie|CHARACTER VARYING|20|null|null|null|YES|null|NO|null
+COLONNE|articles|028|unite|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|articles|029|unite_achat|CHARACTER VARYING|30|null|null|null|YES|null|NO|null
+COLONNE|articles|030|unite_dosage|CHARACTER VARYING|20|null|null|null|YES|null|NO|null
+COLONNE|assure_patient|001|id|UUID|null|null|null|null|NO|RANDOM_UUID()|NO|null
+COLONNE|assure_patient|002|patient_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|assure_patient|003|numero_assurance|CHARACTER VARYING|100|null|null|null|NO|null|NO|null
+COLONNE|assure_patient|004|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|assure_patient|005|is_primary|BOOLEAN|null|null|null|null|NO|FALSE|NO|null
+COLONNE|assure_patient|006|date_debut_affectation|DATE|null|null|null|0|YES|null|NO|null
+COLONNE|assure_patient|007|date_fin_affectation|DATE|null|null|null|0|YES|null|NO|null
+COLONNE|assure_patient|008|date_affectation|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|CURRENT_TIMESTAMP|NO|null
+COLONNE|assure|001|numero_assurance|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|assure|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|assure|003|nom|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|assure|004|prenom|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|assure|005|sexe|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|assure|006|date_naissance|DATE|null|null|null|0|YES|null|NO|null
+COLONNE|assure|007|tel_personnel|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|assure|008|tel_mobile|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|assure|009|tel_bureau|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|assure|010|adresse|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|assure|011|groupe_sanguin|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|assure|012|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|CURRENT_TIMESTAMP|NO|null
+COLONNE|attestation_droit|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|attestation_droit|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|attestation_droit|003|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|attestation_droit|004|date_debut|DATE|null|null|null|0|NO|null|NO|null
+COLONNE|attestation_droit|005|date_fin|DATE|null|null|null|0|NO|null|NO|null
+COLONNE|attestation_droit|006|patient_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|audit_log|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|audit_log|002|occurred_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|audit_log|003|user_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|audit_log|004|username|CHARACTER VARYING|100|null|null|null|YES|null|NO|null
+COLONNE|audit_log|005|roles|CHARACTER VARYING|200|null|null|null|YES|null|NO|null
+COLONNE|audit_log|006|center_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|audit_log|007|societe_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|audit_log|008|action_code|CHARACTER VARYING|80|null|null|null|NO|null|NO|null
+COLONNE|audit_log|009|entity_type|CHARACTER VARYING|80|null|null|null|YES|null|NO|null
+COLONNE|audit_log|010|entity_id|CHARACTER VARYING|100|null|null|null|YES|null|NO|null
+COLONNE|audit_log|011|libelle|CHARACTER VARYING|500|null|null|null|YES|null|NO|null
+COLONNE|audit_log|012|http_method|CHARACTER VARYING|10|null|null|null|YES|null|NO|null
+COLONNE|audit_log|013|route_template|CHARACTER VARYING|300|null|null|null|YES|null|NO|null
+COLONNE|audit_log|014|status_code|INTEGER|null|32|0|null|YES|null|NO|null
+COLONNE|audit_log|015|duration_ms|BIGINT|null|64|0|null|YES|null|NO|null
+COLONNE|audit_log|016|ip_address|CHARACTER VARYING|64|null|null|null|YES|null|NO|null
+COLONNE|auth_refresh_token|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|auth_refresh_token|002|token_hash|CHARACTER VARYING|128|null|null|null|NO|null|NO|null
+COLONNE|auth_refresh_token|003|user_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|auth_refresh_token|004|center_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|auth_refresh_token|005|societe_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|auth_refresh_token|006|expires_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|auth_refresh_token|007|revoked|BOOLEAN|null|null|null|null|NO|FALSE|NO|null
+COLONNE|auth_refresh_token|008|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|CURRENT_TIMESTAMP|NO|null
+COLONNE|auth_refresh_token|009|revoked_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|bilans_pre_greffe|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|bilans_pre_greffe|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|bilans_pre_greffe|003|conclusion_nephrologue|CHARACTER VARYING|1000000000|null|null|null|YES|null|NO|null
+COLONNE|bilans_pre_greffe|004|contre_indications|CHARACTER VARYING|1000000000|null|null|null|YES|null|NO|null
+COLONNE|bilans_pre_greffe|005|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|bilans_pre_greffe|006|date_debut_bilan|DATE|null|null|null|0|YES|null|NO|null
+COLONNE|bilans_pre_greffe|007|date_greffe|DATE|null|null|null|0|YES|null|NO|null
+COLONNE|bilans_pre_greffe|008|date_inscription_liste_attente|DATE|null|null|null|0|YES|null|NO|null
+COLONNE|bilans_pre_greffe|009|groupe_sanguin_confirme|CHARACTER VARYING|5|null|null|null|YES|null|NO|null
+COLONNE|bilans_pre_greffe|010|patient_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|bilans_pre_greffe|011|pra_classe_i|NUMERIC|null|5|2|null|YES|null|NO|null
+COLONNE|bilans_pre_greffe|012|pra_classe_ii|NUMERIC|null|5|2|null|YES|null|NO|null
+COLONNE|bilans_pre_greffe|013|statut|CHARACTER VARYING|30|null|null|null|NO|null|NO|null
+COLONNE|bilans_pre_greffe|014|typage_hla|CHARACTER VARYING|500|null|null|null|YES|null|NO|null
+COLONNE|bilans_pre_greffe|015|updated_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|bons_commande_lignes|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|bons_commande_lignes|002|article_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|bons_commande_lignes|003|bon_commande_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|bons_commande_lignes|004|prix_unitaire|NUMERIC|null|38|2|null|YES|null|NO|null
+COLONNE|bons_commande_lignes|005|quantite|NUMERIC|null|38|2|null|NO|null|NO|null
+COLONNE|bons_commande|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|bons_commande|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|bons_commande|003|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|bons_commande|004|created_by|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|bons_commande|005|fournisseur_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|bons_commande|006|reference|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|bons_commande|007|statut|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|bons_reception_lignes|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|bons_reception_lignes|002|article_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|bons_reception_lignes|003|bon_reception_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|bons_reception_lignes|004|date_peremption|DATE|null|null|null|0|YES|null|NO|null
+COLONNE|bons_reception_lignes|005|emplacement_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|bons_reception_lignes|006|lot_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|bons_reception_lignes|007|numero_lot|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|bons_reception_lignes|008|prix_unitaire|NUMERIC|null|38|2|null|YES|null|NO|null
+COLONNE|bons_reception_lignes|009|quantite|NUMERIC|null|38|2|null|NO|null|NO|null
+COLONNE|bons_reception|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|bons_reception|002|bon_commande_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|bons_reception|003|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|bons_reception|004|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|bons_reception|005|created_by|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|bons_reception|006|date_reception|DATE|null|null|null|0|YES|null|NO|null
+COLONNE|bons_reception|007|fournisseur_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|bons_reception|008|reference|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|bons_reception|009|statut|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|bons_sortie_lignes|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|bons_sortie_lignes|002|article_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|bons_sortie_lignes|003|bon_sortie_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|bons_sortie_lignes|004|lot_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|bons_sortie_lignes|005|pmp_applique|NUMERIC|null|38|2|null|YES|null|NO|null
+COLONNE|bons_sortie_lignes|006|quantite|NUMERIC|null|38|2|null|NO|null|NO|null
+COLONNE|bons_sortie|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|bons_sortie|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|bons_sortie|003|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|bons_sortie|004|created_by|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|bons_sortie|005|date_sortie|DATE|null|null|null|0|YES|null|NO|null
+COLONNE|bons_sortie|006|patient_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|bons_sortie|007|poste|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|bons_sortie|008|reference|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|bons_sortie|009|seance_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|caisse_assurance|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|caisse_assurance|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|caisse_assurance|003|code|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|caisse_assurance|004|nom|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|caisse_assurance|005|type_caisse|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|categorie_transport|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|categorie_transport|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|categorie_transport|003|libelle|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|center_closure_day|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|center_closure_day|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|center_closure_day|003|day_date|DATE|null|null|null|0|NO|null|NO|null
+COLONNE|center_closure_day|004|reason|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|center_holiday|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|center_holiday|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|center_holiday|003|day_date|DATE|null|null|null|0|NO|null|NO|null
+COLONNE|center_holiday|004|label|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|centers|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|centers|002|actif|BOOLEAN|null|null|null|null|NO|TRUE|NO|null
+COLONNE|centers|003|adresse|CHARACTER VARYING|250|null|null|null|YES|null|NO|null
+COLONNE|centers|004|code|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|centers|005|email|CHARACTER VARYING|150|null|null|null|YES|null|NO|null
+COLONNE|centers|006|fuseau_horaire|CHARACTER VARYING|50|null|null|null|YES|null|NO|null
+COLONNE|centers|007|name|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|centers|008|site_web|CHARACTER VARYING|200|null|null|null|YES|null|NO|null
+COLONNE|centers|009|societe_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|centers|010|telephone|CHARACTER VARYING|30|null|null|null|YES|null|NO|null
+COLONNE|centers|011|ville|CHARACTER VARYING|100|null|null|null|YES|null|NO|null
+COLONNE|centers|012|wilaya|CHARACTER VARYING|100|null|null|null|YES|null|NO|null
+COLONNE|centre_payeur|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|centre_payeur|002|adresse|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|centre_payeur|003|agence_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|centre_payeur|004|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|centre_payeur|005|code|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|centre_payeur|006|nom|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|comptes_comptables|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|comptes_comptables|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|comptes_comptables|003|numero|CHARACTER VARYING|20|null|null|null|NO|null|NO|null
+COLONNE|comptes_comptables|004|libelle|CHARACTER VARYING|150|null|null|null|NO|null|NO|null
+COLONNE|comptes_comptables|005|actif|BOOLEAN|null|null|null|null|NO|null|NO|null
+COLONNE|comptes_payeurs|001|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|comptes_payeurs|002|payeur_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|comptes_payeurs|003|compte|CHARACTER VARYING|20|null|null|null|NO|null|NO|null
+COLONNE|consommations_de_seance_imputations|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|consommations_de_seance_imputations|002|seance_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|consommations_de_seance_imputations|003|article_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|consommations_de_seance_imputations|004|lot_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|consommations_de_seance_imputations|005|quantite|NUMERIC|null|38|2|null|NO|null|NO|null
+COLONNE|consommations_de_seance_imputations|006|alerte|CHARACTER VARYING|40|null|null|null|YES|null|NO|null
+COLONNE|consommations_de_seance|001|seance_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|consommations_de_seance|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|consommations_de_seance|003|patient_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|consommations_de_seance|004|sortie_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|consommations_de_seance|005|mise_a_jour|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|decisions_rcp|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|decisions_rcp|002|avis|CHARACTER VARYING|15|null|null|null|NO|null|NO|null
+COLONNE|decisions_rcp|003|bilan_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|decisions_rcp|004|compte_rendu|CHARACTER VARYING|1000000000|null|null|null|YES|null|NO|null
+COLONNE|decisions_rcp|005|date_reunion|DATE|null|null|null|0|NO|null|NO|null
+COLONNE|decisions_rcp|006|prochaine_date_revue|DATE|null|null|null|0|YES|null|NO|null
+COLONNE|demandes_examen|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|demandes_examen|002|categorie|CHARACTER VARYING|15|null|null|null|NO|null|NO|null
+COLONNE|demandes_examen|003|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|demandes_examen|004|conclusion|CHARACTER VARYING|1000000000|null|null|null|YES|null|NO|null
+COLONNE|demandes_examen|005|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|demandes_examen|006|date_demande|DATE|null|null|null|0|NO|null|NO|null
+COLONNE|demandes_examen|007|motif|CHARACTER VARYING|500|null|null|null|YES|null|NO|null
+COLONNE|demandes_examen|008|patient_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|demandes_examen|009|prescripteur_id|CHARACTER VARYING|100|null|null|null|YES|null|NO|null
+COLONNE|demandes_examen|010|statut|CHARACTER VARYING|20|null|null|null|NO|null|NO|null
+COLONNE|demandes_examen|011|updated_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|demandes_examen|012|urgent|BOOLEAN|null|null|null|null|NO|null|NO|null
+COLONNE|deplacement_temporaire|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|deplacement_temporaire|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|deplacement_temporaire|003|patient_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|deplacement_temporaire|004|date_seance|DATE|null|null|null|0|NO|null|NO|null
+COLONNE|deplacement_temporaire|005|salle_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|deplacement_temporaire|006|creneau_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|deplacement_temporaire|007|generateur_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|deplacement_temporaire|008|motif|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|deplacement_temporaire|009|cree_le|TIMESTAMP|null|null|null|6|NO|null|NO|null
+COLONNE|direction_alert_history|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|direction_alert_history|002|societe_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|direction_alert_history|003|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|direction_alert_history|004|centre_nom|CHARACTER VARYING|200|null|null|null|NO|null|NO|null
+COLONNE|direction_alert_history|005|code|CHARACTER VARYING|60|null|null|null|NO|null|NO|null
+COLONNE|direction_alert_history|006|severity|CHARACTER VARYING|20|null|null|null|NO|null|NO|null
+COLONNE|direction_alert_history|007|valeur|NUMERIC|null|14|2|null|YES|null|NO|null
+COLONNE|direction_alert_history|008|first_seen_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|CURRENT_TIMESTAMP|NO|null
+COLONNE|direction_alert_history|009|resolved_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|direction_snapshot|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|direction_snapshot|002|societe_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|direction_snapshot|003|mois|CHARACTER VARYING|7|null|null|null|NO|null|NO|null
+COLONNE|direction_snapshot|004|payload|CHARACTER VARYING|1000000000|null|null|null|NO|null|NO|null
+COLONNE|direction_snapshot|005|generated_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|CURRENT_TIMESTAMP|NO|null
+COLONNE|donneurs_vivants|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|donneurs_vivants|002|bilan_realise|CHARACTER VARYING|1000000000|null|null|null|YES|null|NO|null
+COLONNE|donneurs_vivants|003|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|donneurs_vivants|004|contre_indications|CHARACTER VARYING|1000000000|null|null|null|YES|null|NO|null
+COLONNE|donneurs_vivants|005|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|donneurs_vivants|006|crossmatch_resultat|CHARACTER VARYING|15|null|null|null|NO|null|NO|null
+COLONNE|donneurs_vivants|007|date_crossmatch|DATE|null|null|null|0|YES|null|NO|null
+COLONNE|donneurs_vivants|008|date_decision|DATE|null|null|null|0|YES|null|NO|null
+COLONNE|donneurs_vivants|009|date_naissance|DATE|null|null|null|0|YES|null|NO|null
+COLONNE|donneurs_vivants|010|decision_finale|CHARACTER VARYING|1000000000|null|null|null|YES|null|NO|null
+COLONNE|donneurs_vivants|011|groupe_sanguin|CHARACTER VARYING|5|null|null|null|YES|null|NO|null
+COLONNE|donneurs_vivants|012|lien_parente|CHARACTER VARYING|20|null|null|null|NO|null|NO|null
+COLONNE|donneurs_vivants|013|nom|CHARACTER VARYING|100|null|null|null|NO|null|NO|null
+COLONNE|donneurs_vivants|014|patient_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|donneurs_vivants|015|prenom|CHARACTER VARYING|100|null|null|null|YES|null|NO|null
+COLONNE|donneurs_vivants|016|statut_bilan|CHARACTER VARYING|20|null|null|null|NO|null|NO|null
+COLONNE|donneurs_vivants|017|telephone|CHARACTER VARYING|30|null|null|null|YES|null|NO|null
+COLONNE|donneurs_vivants|018|typage_hla|CHARACTER VARYING|500|null|null|null|YES|null|NO|null
+COLONNE|donneurs_vivants|019|updated_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|dossier_medical_patient|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|dossier_medical_patient|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|dossier_medical_patient|003|conclusion_medicale|CHARACTER VARYING|1000000000|null|null|null|YES|null|NO|null
+COLONNE|dossier_medical_patient|004|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|dossier_medical_patient|005|date_mise_en_dialyse|DATE|null|null|null|0|YES|null|NO|null
+COLONNE|dossier_medical_patient|006|hepatite_b_statut|CHARACTER VARYING|20|null|null|null|YES|null|NO|null
+COLONNE|dossier_medical_patient|007|hepatite_c_statut|CHARACTER VARYING|20|null|null|null|YES|null|NO|null
+COLONNE|dossier_medical_patient|008|nephropathie_initiale|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|dossier_medical_patient|009|observation_globale|CHARACTER VARYING|1000000000|null|null|null|YES|null|NO|null
+COLONNE|dossier_medical_patient|010|patient_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|dossier_medical_patient|011|updated_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|emplacements|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|emplacements|002|actif|BOOLEAN|null|null|null|null|NO|null|NO|null
+COLONNE|emplacements|003|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|emplacements|004|code|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|emplacements|005|libelle|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|etapes_bilan_pre_greffe|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|etapes_bilan_pre_greffe|002|categorie|CHARACTER VARYING|20|null|null|null|NO|null|NO|null
+COLONNE|etapes_bilan_pre_greffe|003|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|etapes_bilan_pre_greffe|004|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|etapes_bilan_pre_greffe|005|date_expiration|DATE|null|null|null|0|YES|null|NO|null
+COLONNE|etapes_bilan_pre_greffe|006|date_realisation|DATE|null|null|null|0|YES|null|NO|null
+COLONNE|etapes_bilan_pre_greffe|007|demande_examen_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|etapes_bilan_pre_greffe|008|libelle|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|etapes_bilan_pre_greffe|009|patient_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|etapes_bilan_pre_greffe|010|resultat|CHARACTER VARYING|1000000000|null|null|null|YES|null|NO|null
+COLONNE|etapes_bilan_pre_greffe|011|serologie_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|etapes_bilan_pre_greffe|012|statut|CHARACTER VARYING|20|null|null|null|NO|null|NO|null
+COLONNE|etapes_bilan_pre_greffe|013|updated_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|event_publication|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|event_publication|002|listener_id|CHARACTER VARYING|512|null|null|null|NO|null|NO|null
+COLONNE|event_publication|003|event_type|CHARACTER VARYING|512|null|null|null|NO|null|NO|null
+COLONNE|event_publication|004|serialized_event|CHARACTER VARYING|1000000|null|null|null|NO|null|NO|null
+COLONNE|event_publication|005|publication_date|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|event_publication|006|completion_date|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|event_publication|007|status|CHARACTER VARYING|20|null|null|null|YES|null|NO|null
+COLONNE|event_publication|008|completion_attempts|INTEGER|null|32|0|null|YES|null|NO|null
+COLONNE|event_publication|009|last_resubmission_date|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|facturation_settings|001|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|facturation_settings|002|tva_rate|NUMERIC|null|5|2|null|YES|0.00|NO|null
+COLONNE|facturation_settings|003|code_format|CHARACTER VARYING|120|null|null|null|NO|null|NO|null
+COLONNE|facturation_settings|004|regroupement_multi_forfait|BOOLEAN|null|null|null|null|NO|TRUE|NO|null
+COLONNE|facturation_settings|005|updated_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|facturation_settings|006|updated_by|CHARACTER VARYING|120|null|null|null|YES|null|NO|null
+COLONNE|facture_lignes|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|facture_lignes|002|facture_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|facture_lignes|003|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|facture_lignes|004|forfait_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|facture_lignes|005|forfait_label|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|facture_lignes|006|unit_price_ht|NUMERIC|null|14|2|null|NO|null|NO|null
+COLONNE|facture_lignes|007|seance_count|INTEGER|null|32|0|null|NO|null|NO|null
+COLONNE|facture_lignes|008|line_ht|NUMERIC|null|14|2|null|NO|null|NO|null
+COLONNE|facture_reglements|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|facture_reglements|002|facture_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|facture_reglements|003|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|facture_reglements|004|montant|NUMERIC|null|14|2|null|NO|null|NO|null
+COLONNE|facture_reglements|005|date_reglement|DATE|null|null|null|0|NO|null|NO|null
+COLONNE|facture_reglements|006|saisi_par|CHARACTER VARYING|120|null|null|null|YES|null|NO|null
+COLONNE|facture_reglements|007|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|CURRENT_TIMESTAMP|NO|null
+COLONNE|facture_reglements|008|code_reglement|CHARACTER VARYING|30|null|null|null|YES|null|NO|null
+COLONNE|facture_reglements|009|mode_reglement|CHARACTER VARYING|20|null|null|null|YES|null|NO|null
+COLONNE|facture_reglements|010|reference_paiement|CHARACTER VARYING|120|null|null|null|YES|null|NO|null
+COLONNE|facture_reglements|011|cle_idempotence|CHARACTER VARYING|120|null|null|null|YES|null|NO|null
+COLONNE|facture_sequence|001|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|facture_sequence|002|seq_year|INTEGER|null|32|0|null|NO|null|NO|null
+COLONNE|facture_sequence|003|seq_value|INTEGER|null|32|0|null|NO|null|NO|null
+COLONNE|factures|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|factures|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|factures|003|patient_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|factures|004|numero_facture|CHARACTER VARYING|120|null|null|null|NO|null|NO|null
+COLONNE|factures|005|patient_code|CHARACTER VARYING|80|null|null|null|YES|null|NO|null
+COLONNE|factures|006|patient_full_name|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|factures|007|patient_status_snapshot|CHARACTER VARYING|120|null|null|null|YES|null|NO|null
+COLONNE|factures|008|numero_immatriculation_snapshot|CHARACTER VARYING|120|null|null|null|YES|null|NO|null
+COLONNE|factures|009|centre_payeur_id_snapshot|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|factures|010|agence_id_snapshot|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|factures|011|period_start|DATE|null|null|null|0|NO|null|NO|null
+COLONNE|factures|012|period_end|DATE|null|null|null|0|NO|null|NO|null
+COLONNE|factures|013|date_facturation|DATE|null|null|null|0|NO|null|NO|null
+COLONNE|factures|014|tva_rate|NUMERIC|null|5|2|null|NO|null|NO|null
+COLONNE|factures|015|total_ht|NUMERIC|null|14|2|null|NO|null|NO|null
+COLONNE|factures|016|total_tva|NUMERIC|null|14|2|null|NO|null|NO|null
+COLONNE|factures|017|total_ttc|NUMERIC|null|14|2|null|NO|null|NO|null
+COLONNE|factures|018|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|CURRENT_TIMESTAMP|NO|null
+COLONNE|factures|019|emise_par|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|forfait|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|forfait|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|forfait|003|code|CHARACTER VARYING|50|null|null|null|NO|null|NO|null
+COLONNE|forfait|004|libelle|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|forfait|005|prix|NUMERIC|null|10|2|null|YES|null|NO|null
+COLONNE|fournisseurs|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|fournisseurs|002|actif|BOOLEAN|null|null|null|null|NO|null|NO|null
+COLONNE|fournisseurs|003|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|fournisseurs|004|code|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|fournisseurs|005|contact|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|fournisseurs|006|email|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|fournisseurs|007|raison_sociale|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|fournisseurs|008|telephone|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|groupes_articles_items|001|groupe_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|groupes_articles_items|002|article_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|groupes_articles|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|groupes_articles|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|groupes_articles|003|nom|CHARACTER VARYING|100|null|null|null|NO|null|NO|null
+COLONNE|groupes_articles|004|nom_cle|CHARACTER VARYING|100|null|null|null|NO|null|NO|null
+COLONNE|groupes_articles|005|description|CHARACTER VARYING|500|null|null|null|YES|null|NO|null
+COLONNE|groupes_articles|006|updated_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|infirmier_absence|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|infirmier_absence|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|infirmier_absence|003|infirmier_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|infirmier_absence|004|date_debut|DATE|null|null|null|0|NO|null|NO|null
+COLONNE|infirmier_absence|005|date_fin|DATE|null|null|null|0|NO|null|NO|null
+COLONNE|infirmier_absence|006|type|CHARACTER VARYING|20|null|null|null|NO|null|NO|null
+COLONNE|infirmier_absence|007|motif|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|infirmier_absence|008|declaree_par|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|infirmier_affectation|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|infirmier_affectation|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|infirmier_affectation|003|infirmier_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|infirmier_affectation|004|salle_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|infirmier_affectation|005|creneau_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|infirmier_affectation|006|jours|CHARACTER VARYING|100|null|null|null|NO|null|NO|null
+COLONNE|infirmier_profil_planning|001|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|infirmier_profil_planning|002|infirmier_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|infirmier_profil_planning|003|taux_activite|INTEGER|null|32|0|null|NO|100|NO|null
+COLONNE|infirmier_profil_planning|004|competences|CHARACTER VARYING|100|null|null|null|YES|null|NO|null
+COLONNE|infirmier_remplacement|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|infirmier_remplacement|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|infirmier_remplacement|003|date_jour|DATE|null|null|null|0|NO|null|NO|null
+COLONNE|infirmier_remplacement|004|salle_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|infirmier_remplacement|005|creneau_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|infirmier_remplacement|006|infirmier_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|infirmier_remplacement|007|remplace_infirmier_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|infirmier|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|infirmier|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|infirmier|003|matricule|CHARACTER VARYING|50|null|null|null|NO|null|NO|null
+COLONNE|infirmier|004|nom|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|infirmier|005|prenom|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|infirmier|006|telephone|CHARACTER VARYING|50|null|null|null|YES|null|NO|null
+COLONNE|infirmier|007|qualification|CHARACTER VARYING|20|null|null|null|NO|null|NO|null
+COLONNE|infirmier|008|habilite_isolement|BOOLEAN|null|null|null|null|NO|FALSE|NO|null
+COLONNE|infirmier|009|actif|BOOLEAN|null|null|null|null|NO|TRUE|NO|null
+COLONNE|infirmier|010|user_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|inventaire_lignes|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|inventaire_lignes|002|inventaire_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|inventaire_lignes|003|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|inventaire_lignes|004|position_ligne|INTEGER|null|32|0|null|NO|null|NO|null
+COLONNE|inventaire_lignes|005|article_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|inventaire_lignes|006|article_code|CHARACTER VARYING|100|null|null|null|YES|null|NO|null
+COLONNE|inventaire_lignes|007|article_libelle|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|inventaire_lignes|008|unite|CHARACTER VARYING|50|null|null|null|YES|null|NO|null
+COLONNE|inventaire_lignes|009|lot_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|inventaire_lignes|010|numero_lot|CHARACTER VARYING|100|null|null|null|YES|null|NO|null
+COLONNE|inventaire_lignes|011|date_peremption|DATE|null|null|null|0|YES|null|NO|null
+COLONNE|inventaire_lignes|012|quantite_theorique|NUMERIC|null|14|3|null|NO|null|NO|null
+COLONNE|inventaire_lignes|013|quantite_comptee|NUMERIC|null|14|3|null|YES|null|NO|null
+COLONNE|inventaire_lignes|014|pmp|NUMERIC|null|14|4|null|YES|null|NO|null
+COLONNE|inventaire_lignes|015|motif_ecart|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|inventaire_lignes|016|compte_par|CHARACTER VARYING|100|null|null|null|YES|null|NO|null
+COLONNE|inventaire_lignes|017|compte_le|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|inventaire_lignes|018|ajoutee|BOOLEAN|null|null|null|null|NO|FALSE|NO|null
+COLONNE|inventaires|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|inventaires|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|inventaires|003|reference|CHARACTER VARYING|40|null|null|null|NO|null|NO|null
+COLONNE|inventaires|004|date_inventaire|DATE|null|null|null|0|NO|null|NO|null
+COLONNE|inventaires|005|statut|CHARACTER VARYING|20|null|null|null|NO|null|NO|null
+COLONNE|inventaires|006|commentaire|CHARACTER VARYING|1000|null|null|null|YES|null|NO|null
+COLONNE|inventaires|007|created_by|CHARACTER VARYING|100|null|null|null|YES|null|NO|null
+COLONNE|inventaires|008|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|inventaires|009|closed_by|CHARACTER VARYING|100|null|null|null|YES|null|NO|null
+COLONNE|inventaires|010|closed_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|license|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|license|002|activated_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|license|003|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|license|004|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|license|005|created_by|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|license|006|jti|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|license|007|last_online_check_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|license|008|license_key|CHARACTER VARYING|1000000000|null|null|null|NO|null|NO|null
+COLONNE|license|009|max_users|INTEGER|null|32|0|null|NO|null|NO|null
+COLONNE|license|010|revoked_reason|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|license|011|status|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|license|012|type|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|license|013|valid_from|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|license|014|valid_until|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|lignes_demande_examen|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|lignes_demande_examen|002|analyte_code|CHARACTER VARYING|20|null|null|null|YES|null|NO|null
+COLONNE|lignes_demande_examen|003|analyte_code_display|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|lignes_demande_examen|004|analyte_code_system|CHARACTER VARYING|10|null|null|null|YES|null|NO|null
+COLONNE|lignes_demande_examen|005|commentaire|CHARACTER VARYING|500|null|null|null|YES|null|NO|null
+COLONNE|lignes_demande_examen|006|demande_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|lignes_demande_examen|007|libelle|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|lignes_ordonnance|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|lignes_ordonnance|002|duree_jours|INTEGER|null|32|0|null|YES|null|NO|null
+COLONNE|lignes_ordonnance|003|instructions|CHARACTER VARYING|500|null|null|null|YES|null|NO|null
+COLONNE|lignes_ordonnance|004|libelle|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|lignes_ordonnance|005|medicament_code|CHARACTER VARYING|20|null|null|null|YES|null|NO|null
+COLONNE|lignes_ordonnance|006|medicament_code_display|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|lignes_ordonnance|007|medicament_code_system|CHARACTER VARYING|10|null|null|null|YES|null|NO|null
+COLONNE|lignes_ordonnance|008|ordonnance_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|lignes_ordonnance|009|posologie|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|lignes_ordonnance|010|quantite|INTEGER|null|32|0|null|YES|null|NO|null
+COLONNE|lignes_ordonnance|011|voie|CHARACTER VARYING|50|null|null|null|YES|null|NO|null
+COLONNE|lots|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|lots|002|article_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|lots|003|bon_reception_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|lots|004|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|lots|005|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|lots|006|date_peremption|DATE|null|null|null|0|YES|null|NO|null
+COLONNE|lots|007|emplacement_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|lots|008|numero_lot|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|lots|009|pmp|NUMERIC|null|38|2|null|YES|null|NO|null
+COLONNE|lots|010|quantite_initiale|NUMERIC|null|38|2|null|NO|null|NO|null
+COLONNE|lots|011|quantite_restante|NUMERIC|null|38|2|null|NO|null|NO|null
+COLONNE|machine|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|machine|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|machine|003|code|CHARACTER VARYING|100|null|null|null|NO|null|NO|null
+COLONNE|machine|004|libelle|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|machine|005|actif|BOOLEAN|null|null|null|null|NO|TRUE|NO|null
+COLONNE|medecin|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|medecin|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|medecin|003|nom|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|medecin|004|prenom|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|medecin|005|specialite|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|medecin|006|actif|BOOLEAN|null|null|null|null|NO|TRUE|NO|null
+COLONNE|migration_batch|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|migration_batch|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|migration_batch|003|libelle|CHARACTER VARYING|200|null|null|null|NO|null|NO|null
+COLONNE|migration_batch|004|source_system|CHARACTER VARYING|100|null|null|null|YES|null|NO|null
+COLONNE|migration_batch|005|date_debut_reprise|DATE|null|null|null|0|YES|null|NO|null
+COLONNE|migration_batch|006|status|CHARACTER VARYING|20|null|null|null|NO|null|NO|null
+COLONNE|migration_batch|007|created_by|CHARACTER VARYING|100|null|null|null|YES|null|NO|null
+COLONNE|migration_batch|008|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|migration_batch|009|closed_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|migration_entity_run|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|migration_entity_run|002|batch_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|migration_entity_run|003|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|migration_entity_run|004|entity|CHARACTER VARYING|40|null|null|null|NO|null|NO|null
+COLONNE|migration_entity_run|005|file_name|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|migration_entity_run|006|dry_run|BOOLEAN|null|null|null|null|NO|null|NO|null
+COLONNE|migration_entity_run|007|applied|BOOLEAN|null|null|null|null|NO|null|NO|null
+COLONNE|migration_entity_run|008|total_rows|INTEGER|null|32|0|null|NO|null|NO|null
+COLONNE|migration_entity_run|009|created_count|INTEGER|null|32|0|null|NO|null|NO|null
+COLONNE|migration_entity_run|010|updated_count|INTEGER|null|32|0|null|NO|null|NO|null
+COLONNE|migration_entity_run|011|error_count|INTEGER|null|32|0|null|NO|null|NO|null
+COLONNE|migration_entity_run|012|warning_count|INTEGER|null|32|0|null|NO|null|NO|null
+COLONNE|migration_entity_run|013|report_json|CHARACTER VARYING|1000000000|null|null|null|YES|null|NO|null
+COLONNE|migration_entity_run|014|executed_by|CHARACTER VARYING|100|null|null|null|YES|null|NO|null
+COLONNE|migration_entity_run|015|executed_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|migration_id_map|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|migration_id_map|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|migration_id_map|003|batch_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|migration_id_map|004|entity|CHARACTER VARYING|40|null|null|null|NO|null|NO|null
+COLONNE|migration_id_map|005|legacy_id|CHARACTER VARYING|150|null|null|null|NO|null|NO|null
+COLONNE|migration_id_map|006|target_id|CHARACTER VARYING|150|null|null|null|NO|null|NO|null
+COLONNE|migration_id_map|007|operation|CHARACTER VARYING|10|null|null|null|NO|null|NO|null
+COLONNE|migration_id_map|008|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|migration_id_map|009|etat_origine|CHARACTER VARYING|1000000000|null|null|null|YES|null|NO|null
+COLONNE|migration_value_map|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|migration_value_map|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|migration_value_map|003|column_key|CHARACTER VARYING|60|null|null|null|NO|null|NO|null
+COLONNE|migration_value_map|004|source_value|CHARACTER VARYING|150|null|null|null|NO|null|NO|null
+COLONNE|migration_value_map|005|target_value|CHARACTER VARYING|150|null|null|null|NO|null|NO|null
+COLONNE|modele_document_version|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|modele_document_version|002|actif|BOOLEAN|null|null|null|null|NO|null|NO|null
+COLONNE|modele_document_version|003|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|modele_document_version|004|commentaire|CHARACTER VARYING|500|null|null|null|YES|null|NO|null
+COLONNE|modele_document_version|005|contenu|CHARACTER VARYING|1000000000|null|null|null|NO|null|NO|null
+COLONNE|modele_document_version|006|modele_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|modele_document_version|007|sha256|CHARACTER VARYING|64|null|null|null|NO|null|NO|null
+COLONNE|modele_document_version|008|taille_octets|INTEGER|null|32|0|null|NO|null|NO|null
+COLONNE|modele_document_version|009|uploaded_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|modele_document_version|010|uploaded_by|CHARACTER VARYING|100|null|null|null|NO|null|NO|null
+COLONNE|modele_document_version|011|version|INTEGER|null|32|0|null|NO|null|NO|null
+COLONNE|modele_document|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|modele_document|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|modele_document|003|code|CHARACTER VARYING|50|null|null|null|NO|null|NO|null
+COLONNE|modele_document|004|libelle|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|modele_document|005|type_document|CHARACTER VARYING|50|null|null|null|NO|null|NO|null
+COLONNE|modele_document|006|chemin_jrxml|CHARACTER VARYING|500|null|null|null|NO|null|NO|null
+COLONNE|modele_document|007|format_impression|CHARACTER VARYING|20|null|null|null|NO|'PDF'|NO|null
+COLONNE|modele_document|008|description|CHARACTER VARYING|500|null|null|null|YES|null|NO|null
+COLONNE|modele_document|009|active|BOOLEAN|null|null|null|null|NO|TRUE|NO|null
+COLONNE|modele_document|010|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|CURRENT_TIMESTAMP|NO|null
+COLONNE|modeles_piece_lignes|001|modele_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|modeles_piece_lignes|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|modeles_piece_lignes|003|position_ligne|INTEGER|null|32|0|null|NO|null|NO|null
+COLONNE|modeles_piece_lignes|004|sens|CHARACTER VARYING|6|null|null|null|NO|null|NO|null
+COLONNE|modeles_piece_lignes|005|compte|CHARACTER VARYING|20|null|null|null|NO|null|NO|null
+COLONNE|modeles_piece_lignes|006|libelle|CHARACTER VARYING|100|null|null|null|YES|null|NO|null
+COLONNE|modeles_piece|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|modeles_piece|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|modeles_piece|003|code|CHARACTER VARYING|20|null|null|null|NO|null|NO|null
+COLONNE|modeles_piece|004|libelle|CHARACTER VARYING|100|null|null|null|NO|null|NO|null
+COLONNE|modeles_piece|005|journal_code|CHARACTER VARYING|10|null|null|null|NO|null|NO|null
+COLONNE|modeles_piece|006|actif|BOOLEAN|null|null|null|null|NO|null|NO|null
+COLONNE|mois_absences_journal|001|id|BIGINT|null|64|0|null|NO|null|YES|ALWAYS
+COLONNE|mois_absences_journal|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|mois_absences_journal|003|annee|INTEGER|null|32|0|null|NO|null|NO|null
+COLONNE|mois_absences_journal|004|mois|INTEGER|null|32|0|null|NO|null|NO|null
+COLONNE|mois_absences_journal|005|type_acte|CHARACTER VARYING|12|null|null|null|NO|null|NO|null
+COLONNE|mois_absences_journal|006|effectue_par|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|mois_absences_journal|007|effectue_le|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|mois_absences_journal|008|motif|CHARACTER VARYING|500|null|null|null|YES|null|NO|null
+COLONNE|mois_absences_journal|009|a_qualifier_restantes|BIGINT|null|64|0|null|YES|null|NO|null
+COLONNE|mois_absences_journal|010|en_retard|BIGINT|null|64|0|null|YES|null|NO|null
+COLONNE|mois_absences|001|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|mois_absences|002|annee|INTEGER|null|32|0|null|NO|null|NO|null
+COLONNE|mois_absences|003|mois|INTEGER|null|32|0|null|NO|null|NO|null
+COLONNE|mois_absences|004|statut|CHARACTER VARYING|10|null|null|null|NO|'OUVERT'|NO|null
+COLONNE|mois_absences|005|cloture_par|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|mois_absences|006|cloture_le|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|mois_absences|007|rouvert_par|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|mois_absences|008|rouvert_le|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|mois_absences|009|motif_reouverture|CHARACTER VARYING|500|null|null|null|YES|null|NO|null
+COLONNE|mouvement_patient|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|mouvement_patient|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|mouvement_patient|003|patient_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|mouvement_patient|004|type|CHARACTER VARYING|30|null|null|null|NO|null|NO|null
+COLONNE|mouvement_patient|005|date_effet|DATE|null|null|null|0|NO|null|NO|null
+COLONNE|mouvement_patient|006|etat_precedent|CHARACTER VARYING|30|null|null|null|YES|null|NO|null
+COLONNE|mouvement_patient|007|etat_nouveau|CHARACTER VARYING|30|null|null|null|YES|null|NO|null
+COLONNE|mouvement_patient|008|salle_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|mouvement_patient|009|position_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|mouvement_patient|010|generateur_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|mouvement_patient|011|jours_dialyse|CHARACTER VARYING|80|null|null|null|YES|null|NO|null
+COLONNE|mouvement_patient|012|automatique|BOOLEAN|null|null|null|null|NO|FALSE|NO|null
+COLONNE|mouvement_patient|013|cree_le|TIMESTAMP|null|null|null|6|NO|null|NO|null
+COLONNE|notification_evenement|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|notification_evenement|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|notification_evenement|003|type|CHARACTER VARYING|60|null|null|null|NO|null|NO|null
+COLONNE|notification_evenement|004|payload|CHARACTER VARYING|1000000000|null|null|null|NO|null|NO|null
+COLONNE|notification_evenement|005|target_roles|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|notification_evenement|006|cree_le|TIMESTAMP|null|null|null|6|NO|null|NO|null
+COLONNE|notification_evenement|007|target_user_id|CHARACTER VARYING|64|null|null|null|YES|null|NO|null
+COLONNE|notification_lecture|001|notification_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|notification_lecture|002|user_id|CHARACTER VARYING|100|null|null|null|NO|null|NO|null
+COLONNE|notification_lecture|003|lue_le|TIMESTAMP|null|null|null|6|NO|null|NO|null
+COLONNE|observations_biologiques|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|observations_biologiques|002|analyte_code|CHARACTER VARYING|20|null|null|null|NO|null|NO|null
+COLONNE|observations_biologiques|003|analyte_code_display|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|observations_biologiques|004|analyte_code_system|CHARACTER VARYING|10|null|null|null|NO|null|NO|null
+COLONNE|observations_biologiques|005|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|observations_biologiques|006|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|observations_biologiques|007|date_prelevement|DATE|null|null|null|0|NO|null|NO|null
+COLONNE|observations_biologiques|008|demande_examen_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|observations_biologiques|009|patient_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|observations_biologiques|010|source|CHARACTER VARYING|20|null|null|null|NO|null|NO|null
+COLONNE|observations_biologiques|011|statut|CHARACTER VARYING|15|null|null|null|NO|null|NO|null
+COLONNE|observations_biologiques|012|unite|CHARACTER VARYING|20|null|null|null|YES|null|NO|null
+COLONNE|observations_biologiques|013|updated_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|observations_biologiques|014|valeur_num|NUMERIC|null|14|4|null|YES|null|NO|null
+COLONNE|observations_biologiques|015|valeur_texte|CHARACTER VARYING|500|null|null|null|YES|null|NO|null
+COLONNE|ordonnances|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|ordonnances|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|ordonnances|003|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|ordonnances|004|date_prescription|DATE|null|null|null|0|NO|null|NO|null
+COLONNE|ordonnances|005|medecin_id|CHARACTER VARYING|100|null|null|null|YES|null|NO|null
+COLONNE|ordonnances|006|numero|CHARACTER VARYING|30|null|null|null|YES|null|NO|null
+COLONNE|ordonnances|007|patient_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|ordonnances|008|signed_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|ordonnances|009|statut|CHARACTER VARYING|20|null|null|null|NO|null|NO|null
+COLONNE|ordonnances|010|updated_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|patients|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|patients|002|adresse|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|patients|003|assure_adresse|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|patients|004|assure_date_naissance|DATE|null|null|null|0|YES|null|NO|null
+COLONNE|patients|005|assure_groupe_sanguin|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|patients|006|assure_history_json|CHARACTER VARYING|1000000000|null|null|null|YES|null|NO|null
+COLONNE|patients|007|assure_nom|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|patients|008|assure_numero_assurance|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|patients|009|assure_prenom|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|patients|010|assure_sexe|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|patients|011|assure_tel_bureau|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|patients|012|assure_tel_mobile|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|patients|013|assure_tel_personnel|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|patients|014|categorie_transport_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|patients|015|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|patients|016|centre_payeur_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|patients|017|civilite|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|patients|018|code_patient|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|patients|019|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|patients|020|date_admission|DATE|null|null|null|0|NO|null|NO|null
+COLONNE|patients|021|date_evenement_etat|DATE|null|null|null|0|YES|null|NO|null
+COLONNE|patients|022|date_naissance|DATE|null|null|null|0|YES|null|NO|null
+COLONNE|patients|023|email|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|patients|024|en_sommeil|BOOLEAN|null|null|null|null|YES|null|NO|null
+COLONNE|patients|025|epo_date|DATE|null|null|null|0|YES|null|NO|null
+COLONNE|patients|026|epo_enabled|BOOLEAN|null|null|null|null|YES|null|NO|null
+COLONNE|patients|027|etat_patient|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|patients|028|fer_date|DATE|null|null|null|0|YES|null|NO|null
+COLONNE|patients|029|fer_enabled|BOOLEAN|null|null|null|null|YES|null|NO|null
+COLONNE|patients|030|generateur_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|patients|031|groupe_sanguin|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|patients|032|jour_dimanche|BOOLEAN|null|null|null|null|YES|null|NO|null
+COLONNE|patients|033|jour_jeudi|BOOLEAN|null|null|null|null|YES|null|NO|null
+COLONNE|patients|034|jour_lundi|BOOLEAN|null|null|null|null|YES|null|NO|null
+COLONNE|patients|035|jour_mardi|BOOLEAN|null|null|null|null|YES|null|NO|null
+COLONNE|patients|036|jour_mercredi|BOOLEAN|null|null|null|null|YES|null|NO|null
+COLONNE|patients|037|jour_samedi|BOOLEAN|null|null|null|null|YES|null|NO|null
+COLONNE|patients|038|jour_vendredi|BOOLEAN|null|null|null|null|YES|null|NO|null
+COLONNE|patients|039|lieu_naissance|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|patients|040|medecin_traitant_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|patients|041|nom|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|patients|042|nombre_enfants|INTEGER|null|32|0|null|YES|null|NO|null
+COLONNE|patients|043|numero_assurance|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|patients|044|observation|CHARACTER VARYING|1000000000|null|null|null|YES|null|NO|null
+COLONNE|patients|045|photo_base64|CHARACTER VARYING|1000000000|null|null|null|YES|null|NO|null
+COLONNE|patients|046|pieces_jointes_json|CHARACTER VARYING|1000000000|null|null|null|YES|null|NO|null
+COLONNE|patients|047|position_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|patients|048|prenom|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|patients|049|profession1|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|patients|050|qualite_assure|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|patients|051|salle_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|patients|052|sexe|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|patients|053|situation_familiale|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|patients|054|sous_kt|BOOLEAN|null|null|null|null|YES|null|NO|null
+COLONNE|patients|055|tel_bureau|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|patients|056|tel_mobile|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|patients|057|tel_personnel|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|patients|058|transporteur_aller_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|patients|059|transporteur_retour_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|patients|060|type_patient|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|periodes_facturation_journal|001|id|BIGINT|null|64|0|null|NO|null|YES|ALWAYS
+COLONNE|periodes_facturation_journal|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|periodes_facturation_journal|003|annee|INTEGER|null|32|0|null|NO|null|NO|null
+COLONNE|periodes_facturation_journal|004|mois|INTEGER|null|32|0|null|NO|null|NO|null
+COLONNE|periodes_facturation_journal|005|type_acte|CHARACTER VARYING|12|null|null|null|NO|null|NO|null
+COLONNE|periodes_facturation_journal|006|effectue_par|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|periodes_facturation_journal|007|effectue_le|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|periodes_facturation_journal|008|motif|CHARACTER VARYING|500|null|null|null|YES|null|NO|null
+COLONNE|periodes_facturation_journal|009|seances_eligibles_restantes|INTEGER|null|32|0|null|YES|null|NO|null
+COLONNE|periodes_facturation|001|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|periodes_facturation|002|annee|INTEGER|null|32|0|null|NO|null|NO|null
+COLONNE|periodes_facturation|003|mois|INTEGER|null|32|0|null|NO|null|NO|null
+COLONNE|periodes_facturation|004|statut|CHARACTER VARYING|10|null|null|null|NO|'OUVERT'|NO|null
+COLONNE|periodes_facturation|005|cloturee_par|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|periodes_facturation|006|cloturee_le|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|periodes_facturation|007|rouverte_par|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|periodes_facturation|008|rouverte_le|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|periodes_facturation|009|motif_reouverture|CHARACTER VARYING|500|null|null|null|YES|null|NO|null
+COLONNE|planification_calendrier_case|001|run_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|planification_calendrier_case|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|planification_calendrier_case|003|semaine_debut|DATE|null|null|null|0|NO|null|NO|null
+COLONNE|planification_calendrier_case|004|salle_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|planification_calendrier_case|005|salle_nom|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|planification_calendrier_case|006|salle_ordre|INTEGER|null|32|0|null|NO|null|NO|null
+COLONNE|planification_calendrier_case|007|creneau_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|planification_calendrier_case|008|creneau_libelle|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|planification_calendrier_case|009|creneau_ordre|INTEGER|null|32|0|null|NO|null|NO|null
+COLONNE|planification_calendrier_case|010|jours|CHARACTER VARYING|1000000000|null|null|null|NO|null|NO|null
+COLONNE|planification_calendrier_case|011|entete_0|CHARACTER VARYING|40|null|null|null|YES|null|NO|null
+COLONNE|planification_calendrier_case|012|entete_1|CHARACTER VARYING|40|null|null|null|YES|null|NO|null
+COLONNE|planification_calendrier_case|013|entete_2|CHARACTER VARYING|40|null|null|null|YES|null|NO|null
+COLONNE|planification_calendrier_case|014|entete_3|CHARACTER VARYING|40|null|null|null|YES|null|NO|null
+COLONNE|planification_calendrier_case|015|entete_4|CHARACTER VARYING|40|null|null|null|YES|null|NO|null
+COLONNE|planification_calendrier_case|016|entete_5|CHARACTER VARYING|40|null|null|null|YES|null|NO|null
+COLONNE|planification_calendrier_case|017|entete_6|CHARACTER VARYING|40|null|null|null|YES|null|NO|null
+COLONNE|planification_calendrier_case|018|cell_0|CHARACTER VARYING|1000000000|null|null|null|YES|null|NO|null
+COLONNE|planification_calendrier_case|019|cell_1|CHARACTER VARYING|1000000000|null|null|null|YES|null|NO|null
+COLONNE|planification_calendrier_case|020|cell_2|CHARACTER VARYING|1000000000|null|null|null|YES|null|NO|null
+COLONNE|planification_calendrier_case|021|cell_3|CHARACTER VARYING|1000000000|null|null|null|YES|null|NO|null
+COLONNE|planification_calendrier_case|022|cell_4|CHARACTER VARYING|1000000000|null|null|null|YES|null|NO|null
+COLONNE|planification_calendrier_case|023|cell_5|CHARACTER VARYING|1000000000|null|null|null|YES|null|NO|null
+COLONNE|planification_calendrier_case|024|cell_6|CHARACTER VARYING|1000000000|null|null|null|YES|null|NO|null
+COLONNE|planification_optimisation|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|planification_optimisation|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|planification_optimisation|003|statut|CHARACTER VARYING|20|null|null|null|NO|null|NO|null
+COLONNE|planification_optimisation|004|perimetre|CHARACTER VARYING|20|null|null|null|NO|null|NO|null
+COLONNE|planification_optimisation|005|parametres|CHARACTER VARYING|1000000000|null|null|null|NO|null|NO|null
+COLONNE|planification_optimisation|006|cree_le|TIMESTAMP|null|null|null|6|NO|null|NO|null
+COLONNE|planification_optimisation|007|termine_le|TIMESTAMP|null|null|null|6|YES|null|NO|null
+COLONNE|planification_optimisation|008|lance_par|CHARACTER VARYING|100|null|null|null|YES|null|NO|null
+COLONNE|planification_optimisation|009|phase|CHARACTER VARYING|20|null|null|null|YES|null|NO|null
+COLONNE|planification_optimisation|010|score|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|planification_optimisation|011|empreinte|CHARACTER VARYING|64|null|null|null|NO|null|NO|null
+COLONNE|planification_optimisation|012|resume|CHARACTER VARYING|1000000000|null|null|null|YES|null|NO|null
+COLONNE|planification_optimisation|013|resultat|CHARACTER VARYING|1000000000|null|null|null|YES|null|NO|null
+COLONNE|planification_optimisation|014|erreur|CHARACTER VARYING|1000000000|null|null|null|YES|null|NO|null
+COLONNE|planification_optimisation|015|applique_le|TIMESTAMP|null|null|null|6|YES|null|NO|null
+COLONNE|planification_optimisation|016|instance_id|CHARACTER VARYING|64|null|null|null|YES|null|NO|null
+COLONNE|planification_optimisation|017|battement_le|TIMESTAMP|null|null|null|6|YES|null|NO|null
+COLONNE|planification_reglages|001|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|planification_reglages|002|replanification_auto|BOOLEAN|null|null|null|null|NO|FALSE|NO|null
+COLONNE|planification_reglages|003|heures_par_vacation|INTEGER|null|32|0|null|NO|5|NO|null
+COLONNE|planification_reglages|004|heures_hebdo_temps_plein|INTEGER|null|32|0|null|NO|40|NO|null
+COLONNE|planification_reglages|005|repos_hebdo_min|INTEGER|null|32|0|null|NO|1|NO|null
+COLONNE|planning_parametres|001|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|planning_parametres|002|jours_ouverts|CHARACTER VARYING|100|null|null|null|NO|null|NO|null
+COLONNE|planning_parametres|003|salles_isolement|CHARACTER VARYING|1000000000|null|null|null|YES|null|NO|null
+COLONNE|planning_parametres|004|patients_par_infirmier|INTEGER|null|32|0|null|YES|null|NO|null
+COLONNE|planning_parametres|005|patients_par_poste_serie|INTEGER|null|32|0|null|YES|null|NO|null
+COLONNE|planning_parametres|006|updated_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|planning_preference_patient|001|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|planning_preference_patient|002|patient_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|planning_preference_patient|003|creneau_prefere_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|planning_preference_patient|004|seances_par_semaine|INTEGER|null|32|0|null|YES|null|NO|null
+COLONNE|planning_preference_patient|005|jours_a_choisir|BOOLEAN|null|null|null|null|NO|FALSE|NO|null
+COLONNE|position_creneau|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|position_creneau|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|position_creneau|003|code|CHARACTER VARYING|50|null|null|null|NO|null|NO|null
+COLONNE|position_creneau|004|libelle|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|position_creneau|005|actif|BOOLEAN|null|null|null|null|NO|TRUE|NO|null
+COLONNE|prescriptions_medicales|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|prescriptions_medicales|002|anticoag_type_prescrit|CHARACTER VARYING|20|null|null|null|YES|null|NO|null
+COLONNE|prescriptions_medicales|003|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|prescriptions_medicales|004|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|prescriptions_medicales|005|date_prescription|DATE|null|null|null|0|NO|null|NO|null
+COLONNE|prescriptions_medicales|006|duree_cible_min|INTEGER|null|32|0|null|YES|null|NO|null
+COLONNE|prescriptions_medicales|007|epo_article_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|prescriptions_medicales|008|epo_dose_ui|INTEGER|null|32|0|null|YES|null|NO|null
+COLONNE|prescriptions_medicales|009|epo_frequence_unite|CHARACTER VARYING|10|null|null|null|YES|null|NO|null
+COLONNE|prescriptions_medicales|010|epo_frequence_valeur|INTEGER|null|32|0|null|YES|null|NO|null
+COLONNE|prescriptions_medicales|011|epo_voie|CHARACTER VARYING|10|null|null|null|YES|null|NO|null
+COLONNE|prescriptions_medicales|012|fer_article_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|prescriptions_medicales|013|fer_dose_mg|INTEGER|null|32|0|null|YES|null|NO|null
+COLONNE|prescriptions_medicales|014|fer_frequence_unite|CHARACTER VARYING|10|null|null|null|YES|null|NO|null
+COLONNE|prescriptions_medicales|015|fer_frequence_valeur|INTEGER|null|32|0|null|YES|null|NO|null
+COLONNE|prescriptions_medicales|016|fer_voie|CHARACTER VARYING|10|null|null|null|YES|null|NO|null
+COLONNE|prescriptions_medicales|017|medecin_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|prescriptions_medicales|018|patient_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|prescriptions_medicales|019|qb_cible|INTEGER|null|32|0|null|YES|null|NO|null
+COLONNE|prescriptions_medicales|020|qd_cible|INTEGER|null|32|0|null|YES|null|NO|null
+COLONNE|prescriptions_medicales|021|type_dialyseur_prescrit|CHARACTER VARYING|100|null|null|null|YES|null|NO|null
+COLONNE|prescriptions_medicales|022|uf_max_ml|INTEGER|null|32|0|null|YES|null|NO|null
+COLONNE|prescriptions_medicales|023|updated_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|prescriptions_medicales|024|poids_sec_cible_kg|NUMERIC|null|5|2|null|YES|null|NO|null
+COLONNE|prise_en_charge|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|prise_en_charge|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|prise_en_charge|003|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|prise_en_charge|004|date_debut_demande|DATE|null|null|null|0|YES|null|NO|null
+COLONNE|prise_en_charge|005|date_debut_effectif|DATE|null|null|null|0|YES|null|NO|null
+COLONNE|prise_en_charge|006|date_fin_demande|DATE|null|null|null|0|YES|null|NO|null
+COLONNE|prise_en_charge|007|date_fin_effectif|DATE|null|null|null|0|YES|null|NO|null
+COLONNE|prise_en_charge|008|forfait_demande_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|prise_en_charge|009|forfait_effectif_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|prise_en_charge|010|patient_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|prise_en_charge|011|statut|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|protocole|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|protocole|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|protocole|003|code|CHARACTER VARYING|100|null|null|null|NO|null|NO|null
+COLONNE|protocole|004|libelle|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|resultats_analyses|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|resultats_analyses|002|patient_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|resultats_analyses|003|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|resultats_analyses|004|date_prelevement|DATE|null|null|null|0|NO|null|NO|null
+COLONNE|resultats_analyses|005|hb_g_dl|NUMERIC|null|38|2|null|YES|null|NO|null
+COLONNE|resultats_analyses|006|ht_pct|NUMERIC|null|38|2|null|YES|null|NO|null
+COLONNE|resultats_analyses|007|plaquettes|INTEGER|null|32|0|null|YES|null|NO|null
+COLONNE|resultats_analyses|008|ferritine_ng_ml|NUMERIC|null|38|2|null|YES|null|NO|null
+COLONNE|resultats_analyses|009|cstf_pct|NUMERIC|null|38|2|null|YES|null|NO|null
+COLONNE|resultats_analyses|010|epo_endogene_mui_ml|NUMERIC|null|38|2|null|YES|null|NO|null
+COLONNE|resultats_analyses|011|uree_pre_mg_dl|NUMERIC|null|38|2|null|YES|null|NO|null
+COLONNE|resultats_analyses|012|uree_post_mg_dl|NUMERIC|null|38|2|null|YES|null|NO|null
+COLONNE|resultats_analyses|013|creatinine_mg_dl|NUMERIC|null|38|2|null|YES|null|NO|null
+COLONNE|resultats_analyses|014|kt_v_mensuel|NUMERIC|null|38|2|null|YES|null|NO|null
+COLONNE|resultats_analyses|015|phosphore_mg_dl|NUMERIC|null|38|2|null|YES|null|NO|null
+COLONNE|resultats_analyses|016|calcium_mg_dl|NUMERIC|null|38|2|null|YES|null|NO|null
+COLONNE|resultats_analyses|017|pth_pg_ml|NUMERIC|null|38|2|null|YES|null|NO|null
+COLONNE|resultats_analyses|018|albumine_g_dl|NUMERIC|null|38|2|null|YES|null|NO|null
+COLONNE|resultats_analyses|019|proteines_g_dl|NUMERIC|null|38|2|null|YES|null|NO|null
+COLONNE|resultats_analyses|020|crp_mg_l|NUMERIC|null|38|2|null|YES|null|NO|null
+COLONNE|resultats_analyses|021|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|resultats_analyses|022|updated_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|salle|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|salle|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|salle|003|code|CHARACTER VARYING|50|null|null|null|NO|null|NO|null
+COLONNE|salle|004|nom|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|salle|005|ouverte|BOOLEAN|null|null|null|null|NO|TRUE|NO|null
+COLONNE|salle|006|actif|BOOLEAN|null|null|null|null|NO|TRUE|NO|null
+COLONNE|salle|007|isolement|CHARACTER VARYING|3|null|null|null|NO|'NON'|NO|null
+COLONNE|salle|008|capacite|INTEGER|null|32|0|null|YES|null|NO|null
+COLONNE|seance_raccourcis_articles|001|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|seance_raccourcis_articles|002|article_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|seance_raccourcis_articles|003|ordre|INTEGER|null|32|0|null|NO|null|NO|null
+COLONNE|seance_suppression|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|seance_suppression|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|seance_suppression|003|seance_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|seance_suppression|004|patient_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|seance_suppression|005|date_seance|DATE|null|null|null|0|NO|null|NO|null
+COLONNE|seance_suppression|006|statut|CHARACTER VARYING|20|null|null|null|NO|null|NO|null
+COLONNE|seance_suppression|007|motif|CHARACTER VARYING|500|null|null|null|NO|null|NO|null
+COLONNE|seance_suppression|008|supprime_par|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|seance_suppression|009|supprime_le|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|seances|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|seances|002|patient_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|seances|003|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|seances|004|date_seance|DATE|null|null|null|0|NO|null|NO|null
+COLONNE|seances|005|statut|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|seances|006|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|seances|007|validated_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|seances|008|signed_infirmier_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|seances|009|signed_infirmier_by|CHARACTER VARYING|100|null|null|null|YES|null|NO|null
+COLONNE|seances|010|signed_medecin_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|seances|011|signed_medecin_by|CHARACTER VARYING|100|null|null|null|YES|null|NO|null
+COLONNE|seances|012|facture_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|seances|013|forfait_override_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|seances|014|forfait_override_code|CHARACTER VARYING|50|null|null|null|YES|null|NO|null
+COLONNE|seances|015|forfait_override_nom|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|seances|016|forfait_override_prix|NUMERIC|null|14|2|null|YES|null|NO|null
+COLONNE|seances|017|forfait_override_updated_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|seances|018|forfait_override_updated_by|CHARACTER VARYING|100|null|null|null|YES|null|NO|null
+COLONNE|seances|019|regularisation_deverrouillee_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|seances|020|regularisation_deverrouillee_by|CHARACTER VARYING|100|null|null|null|YES|null|NO|null
+COLONNE|seances|021|hors_planning|BOOLEAN|null|null|null|null|NO|FALSE|NO|null
+COLONNE|seances|022|motif_hors_planning|CHARACTER VARYING|20|null|null|null|YES|null|NO|null
+COLONNE|seances|023|precision_hors_planning|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|seances|024|salle_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|seances|025|creneau_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|seances|026|generateur_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|seances|027|statut_avant_exclusion|CHARACTER VARYING|20|null|null|null|YES|null|NO|null
+COLONNE|seances|028|exclusion_absence_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|serologies_patient|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|serologies_patient|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|serologies_patient|003|conduite_a_tenir|CHARACTER VARYING|1000000000|null|null|null|YES|null|NO|null
+COLONNE|serologies_patient|004|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|serologies_patient|005|date_prelevement|DATE|null|null|null|0|NO|null|NO|null
+COLONNE|serologies_patient|006|date_prochain_controle|DATE|null|null|null|0|YES|null|NO|null
+COLONNE|serologies_patient|007|laboratoire|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|serologies_patient|008|marqueur|CHARACTER VARYING|15|null|null|null|NO|null|NO|null
+COLONNE|serologies_patient|009|patient_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|serologies_patient|010|resultat|CHARACTER VARYING|15|null|null|null|NO|null|NO|null
+COLONNE|serologies_patient|011|titre|NUMERIC|null|10|3|null|YES|null|NO|null
+COLONNE|serologies_patient|012|unite|CHARACTER VARYING|20|null|null|null|YES|null|NO|null
+COLONNE|serologies_patient|013|updated_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|societes|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|societes|002|actif|BOOLEAN|null|null|null|null|NO|null|NO|null
+COLONNE|societes|003|adresse|CHARACTER VARYING|250|null|null|null|YES|null|NO|null
+COLONNE|societes|004|code|CHARACTER VARYING|30|null|null|null|NO|null|NO|null
+COLONNE|societes|005|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|societes|006|email|CHARACTER VARYING|150|null|null|null|YES|null|NO|null
+COLONNE|societes|007|logo|BINARY VARYING|1000000000|null|null|null|YES|null|NO|null
+COLONNE|societes|008|logo_content_type|CHARACTER VARYING|30|null|null|null|YES|null|NO|null
+COLONNE|societes|009|nif|CHARACTER VARYING|40|null|null|null|YES|null|NO|null
+COLONNE|societes|010|nis|CHARACTER VARYING|40|null|null|null|YES|null|NO|null
+COLONNE|societes|011|pied_page|CHARACTER VARYING|500|null|null|null|YES|null|NO|null
+COLONNE|societes|012|raison_sociale|CHARACTER VARYING|200|null|null|null|NO|null|NO|null
+COLONNE|societes|013|rc|CHARACTER VARYING|40|null|null|null|YES|null|NO|null
+COLONNE|societes|014|site_web|CHARACTER VARYING|200|null|null|null|YES|null|NO|null
+COLONNE|societes|015|telephone|CHARACTER VARYING|30|null|null|null|YES|null|NO|null
+COLONNE|societes|016|ville|CHARACTER VARYING|100|null|null|null|YES|null|NO|null
+COLONNE|societes|017|wilaya|CHARACTER VARYING|100|null|null|null|YES|null|NO|null
+COLONNE|sorties_pour_seances_lignes|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|sorties_pour_seances_lignes|002|sortie_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|sorties_pour_seances_lignes|003|article_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|sorties_pour_seances_lignes|004|lot_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|sorties_pour_seances_lignes|005|quantite_sortie|NUMERIC|null|38|2|null|NO|null|NO|null
+COLONNE|sorties_pour_seances_lignes|006|valeur_unitaire|NUMERIC|null|38|2|null|NO|null|NO|null
+COLONNE|sorties_pour_seances_lignes|007|quantite_consommee|NUMERIC|null|38|2|null|YES|null|NO|null
+COLONNE|sorties_pour_seances_lignes|008|ecart|NUMERIC|null|38|2|null|YES|null|NO|null
+COLONNE|sorties_pour_seances_lignes|009|motif|CHARACTER VARYING|500|null|null|null|YES|null|NO|null
+COLONNE|sorties_pour_seances|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|sorties_pour_seances|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|sorties_pour_seances|003|reference|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|sorties_pour_seances|004|jour|DATE|null|null|null|0|NO|null|NO|null
+COLONNE|sorties_pour_seances|005|salle|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|sorties_pour_seances|006|demi_journee|CHARACTER VARYING|20|null|null|null|YES|null|NO|null
+COLONNE|sorties_pour_seances|007|statut|CHARACTER VARYING|20|null|null|null|NO|null|NO|null
+COLONNE|sorties_pour_seances|008|enregistree_le|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|null|NO|null
+COLONNE|sorties_pour_seances|009|enregistree_par|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|sorties_pour_seances|010|validee_le|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|sorties_pour_seances|011|validee_par|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|stock_movements|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|stock_movements|002|article_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|stock_movements|003|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|stock_movements|004|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|stock_movements|005|created_by|CHARACTER VARYING|255|null|null|null|YES|null|NO|null
+COLONNE|stock_movements|006|lot_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|stock_movements|007|mouvement_type|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|stock_movements|008|pmp_apres|NUMERIC|null|38|2|null|YES|null|NO|null
+COLONNE|stock_movements|009|prix_unitaire|NUMERIC|null|38|2|null|YES|null|NO|null
+COLONNE|stock_movements|010|quantite|NUMERIC|null|38|2|null|NO|null|NO|null
+COLONNE|stock_movements|011|seance_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|stock_movements|012|inventaire_id|UUID|null|null|null|null|YES|null|NO|null
+COLONNE|stock_movements|013|saisi_le|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|transporteur|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|transporteur|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|transporteur|003|nom|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|transporteur|004|telephone|CHARACTER VARYING|50|null|null|null|YES|null|NO|null
+COLONNE|tva_types|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|tva_types|002|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|tva_types|003|libelle|CHARACTER VARYING|255|null|null|null|NO|null|NO|null
+COLONNE|tva_types|004|taux|NUMERIC|null|5|2|null|NO|null|NO|null
+COLONNE|tva_types|005|type_prestation|CHARACTER VARYING|120|null|null|null|NO|'HEMODIALYSE'|NO|null
+COLONNE|tva_types|006|exonere|BOOLEAN|null|null|null|null|NO|FALSE|NO|null
+COLONNE|tva_types|007|date_debut_validite|DATE|null|null|null|0|NO|null|NO|null
+COLONNE|tva_types|008|date_fin_validite|DATE|null|null|null|0|YES|null|NO|null
+COLONNE|tva_types|009|texte_reference|CHARACTER VARYING|500|null|null|null|YES|null|NO|null
+COLONNE|tva_types|010|actif|BOOLEAN|null|null|null|null|NO|TRUE|NO|null
+COLONNE|tva_types|011|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|NO|CURRENT_TIMESTAMP|NO|null
+COLONNE|tva_types|012|created_by|CHARACTER VARYING|120|null|null|null|YES|null|NO|null
+COLONNE|volet_medical|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|volet_medical|002|seance_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|volet_medical|003|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|volet_medical|004|prescription|CHARACTER VARYING|1000000000|null|null|null|YES|null|NO|null
+COLONNE|volet_medical|005|tolerance_seance|CHARACTER VARYING|1000000000|null|null|null|YES|null|NO|null
+COLONNE|volet_medical|006|examen_clinique|CHARACTER VARYING|1000000000|null|null|null|YES|null|NO|null
+COLONNE|volet_medical|007|resultats_biologiques|CHARACTER VARYING|1000000000|null|null|null|YES|null|NO|null
+COLONNE|volet_medical|008|ajustements_therapeutiques|CHARACTER VARYING|1000000000|null|null|null|YES|null|NO|null
+COLONNE|volet_medical|009|conclusion_medicale|CHARACTER VARYING|1000000000|null|null|null|YES|null|NO|null
+COLONNE|volet_medical|010|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|volet_medical|011|updated_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|volet_paramedical|001|id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|volet_paramedical|002|seance_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|volet_paramedical|003|center_id|UUID|null|null|null|null|NO|null|NO|null
+COLONNE|volet_paramedical|004|poids_avant_kg|NUMERIC|null|38|2|null|YES|null|NO|null
+COLONNE|volet_paramedical|005|poids_apres_kg|NUMERIC|null|38|2|null|YES|null|NO|null
+COLONNE|volet_paramedical|006|ta_avant|CHARACTER VARYING|30|null|null|null|YES|null|NO|null
+COLONNE|volet_paramedical|007|ta_apres|CHARACTER VARYING|30|null|null|null|YES|null|NO|null
+COLONNE|volet_paramedical|008|duree_minutes|INTEGER|null|32|0|null|YES|null|NO|null
+COLONNE|volet_paramedical|009|debit_sang_ml_min|INTEGER|null|32|0|null|YES|null|NO|null
+COLONNE|volet_paramedical|010|ultrafiltration_ml|NUMERIC|null|38|2|null|YES|null|NO|null
+COLONNE|volet_paramedical|011|anticoagulant|CHARACTER VARYING|100|null|null|null|YES|null|NO|null
+COLONNE|volet_paramedical|012|type_dialysat|CHARACTER VARYING|100|null|null|null|YES|null|NO|null
+COLONNE|volet_paramedical|013|incidents|CHARACTER VARYING|1000000000|null|null|null|YES|null|NO|null
+COLONNE|volet_paramedical|014|created_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+COLONNE|volet_paramedical|015|updated_at|TIMESTAMP WITH TIME ZONE|null|null|null|6|YES|null|NO|null
+CONTRAINTE|abords_vasculaires|PRIMARY KEY|(auto)|id:
+CONTRAINTE|absence_patient|PRIMARY KEY|(auto)|id:
+CONTRAINTE|absence_patient|UNIQUE|(auto)|center_id:,patient_id:,date_seance:
+CONTRAINTE|administrations_anemie|PRIMARY KEY|(auto)|id:
+CONTRAINTE|agence|PRIMARY KEY|(auto)|id:
+CONTRAINTE|alertes_observance|PRIMARY KEY|(auto)|id:
+CONTRAINTE|allergies_patient|PRIMARY KEY|(auto)|id:
+CONTRAINTE|antecedents_medicaux|PRIMARY KEY|(auto)|id:
+CONTRAINTE|app_role|PRIMARY KEY|(auto)|id:
+CONTRAINTE|app_settings|PRIMARY KEY|(auto)|center_id:,cle:
+CONTRAINTE|app_user_center|FOREIGN KEY|FK_APP_USER_CENTER_CENTER|center_id:1
+CONTRAINTE|app_user_center|FOREIGN KEY|FK_APP_USER_CENTER_USER|user_id:1
+CONTRAINTE|app_user_center|PRIMARY KEY|(auto)|user_id:,center_id:
+CONTRAINTE|app_user_mfa_recovery|PRIMARY KEY|(auto)|id:
+CONTRAINTE|app_user_mfa|PRIMARY KEY|(auto)|user_id:
+CONTRAINTE|app_user_role|FOREIGN KEY|FK_APP_USER_ROLE_ROLE|role_id:1
+CONTRAINTE|app_user_role|FOREIGN KEY|FK_APP_USER_ROLE_USER|user_id:1
+CONTRAINTE|app_user_role|PRIMARY KEY|(auto)|user_id:,role_id:
+CONTRAINTE|app_user_societe|PRIMARY KEY|(auto)|user_id:,societe_id:
+CONTRAINTE|app_user|PRIMARY KEY|(auto)|id:
+CONTRAINTE|articles|PRIMARY KEY|(auto)|id:
+CONTRAINTE|assure_patient|PRIMARY KEY|(auto)|id:
+CONTRAINTE|assure|PRIMARY KEY|(auto)|numero_assurance:
+CONTRAINTE|attestation_droit|PRIMARY KEY|(auto)|id:
+CONTRAINTE|audit_log|PRIMARY KEY|(auto)|id:
+CONTRAINTE|auth_refresh_token|PRIMARY KEY|(auto)|id:
+CONTRAINTE|auth_refresh_token|UNIQUE|(auto)|token_hash:
+CONTRAINTE|bilans_pre_greffe|PRIMARY KEY|(auto)|id:
+CONTRAINTE|bons_commande_lignes|PRIMARY KEY|(auto)|id:
+CONTRAINTE|bons_commande|PRIMARY KEY|(auto)|id:
+CONTRAINTE|bons_reception_lignes|PRIMARY KEY|(auto)|id:
+CONTRAINTE|bons_reception|PRIMARY KEY|(auto)|id:
+CONTRAINTE|bons_sortie_lignes|PRIMARY KEY|(auto)|id:
+CONTRAINTE|bons_sortie|PRIMARY KEY|(auto)|id:
+CONTRAINTE|caisse_assurance|PRIMARY KEY|(auto)|id:
+CONTRAINTE|categorie_transport|PRIMARY KEY|(auto)|id:
+CONTRAINTE|center_closure_day|PRIMARY KEY|(auto)|id:
+CONTRAINTE|center_closure_day|UNIQUE|(auto)|center_id:,day_date:
+CONTRAINTE|center_holiday|PRIMARY KEY|(auto)|id:
+CONTRAINTE|center_holiday|UNIQUE|(auto)|center_id:,day_date:
+CONTRAINTE|centers|PRIMARY KEY|(auto)|id:
+CONTRAINTE|centre_payeur|PRIMARY KEY|(auto)|id:
+CONTRAINTE|comptes_comptables|PRIMARY KEY|(auto)|id:
+CONTRAINTE|comptes_comptables|UNIQUE|UQ_COMPTE_COMPTABLE_CENTRE_NUMERO|center_id:,numero:
+CONTRAINTE|comptes_payeurs|PRIMARY KEY|PK_COMPTES_PAYEURS|center_id:,payeur_id:
+CONTRAINTE|consommations_de_seance_imputations|PRIMARY KEY|(auto)|id:
+CONTRAINTE|consommations_de_seance|PRIMARY KEY|(auto)|seance_id:
+CONTRAINTE|decisions_rcp|PRIMARY KEY|(auto)|id:
+CONTRAINTE|demandes_examen|PRIMARY KEY|(auto)|id:
+CONTRAINTE|deplacement_temporaire|PRIMARY KEY|(auto)|id:
+CONTRAINTE|deplacement_temporaire|UNIQUE|(auto)|center_id:,patient_id:,date_seance:
+CONTRAINTE|direction_alert_history|PRIMARY KEY|(auto)|id:
+CONTRAINTE|direction_snapshot|PRIMARY KEY|(auto)|id:
+CONTRAINTE|direction_snapshot|UNIQUE|UQ_DIRECTION_SNAPSHOT|societe_id:,mois:
+CONTRAINTE|donneurs_vivants|PRIMARY KEY|(auto)|id:
+CONTRAINTE|dossier_medical_patient|PRIMARY KEY|(auto)|id:
+CONTRAINTE|dossier_medical_patient|UNIQUE|UK5OBBASYG8V5VDWB90D6LOTNO2|patient_id:
+CONTRAINTE|emplacements|PRIMARY KEY|(auto)|id:
+CONTRAINTE|etapes_bilan_pre_greffe|PRIMARY KEY|(auto)|id:
+CONTRAINTE|event_publication|PRIMARY KEY|(auto)|id:
+CONTRAINTE|facturation_settings|PRIMARY KEY|(auto)|center_id:
+CONTRAINTE|facture_lignes|PRIMARY KEY|(auto)|id:
+CONTRAINTE|facture_reglements|PRIMARY KEY|(auto)|id:
+CONTRAINTE|facture_sequence|PRIMARY KEY|(auto)|center_id:,seq_year:
+CONTRAINTE|factures|PRIMARY KEY|(auto)|id:
+CONTRAINTE|factures|UNIQUE|(auto)|center_id:,numero_facture:
+CONTRAINTE|forfait|PRIMARY KEY|(auto)|id:
+CONTRAINTE|fournisseurs|PRIMARY KEY|(auto)|id:
+CONTRAINTE|groupes_articles_items|FOREIGN KEY|(auto)|groupe_id:1
+CONTRAINTE|groupes_articles_items|PRIMARY KEY|(auto)|groupe_id:,article_id:
+CONTRAINTE|groupes_articles|PRIMARY KEY|(auto)|id:
+CONTRAINTE|groupes_articles|UNIQUE|UK_GROUPES_ARTICLES_CENTRE_NOM|center_id:,nom_cle:
+CONTRAINTE|infirmier_absence|PRIMARY KEY|(auto)|id:
+CONTRAINTE|infirmier_affectation|PRIMARY KEY|(auto)|id:
+CONTRAINTE|infirmier_profil_planning|PRIMARY KEY|(auto)|center_id:,infirmier_id:
+CONTRAINTE|infirmier_remplacement|PRIMARY KEY|(auto)|id:
+CONTRAINTE|infirmier_remplacement|UNIQUE|(auto)|center_id:,date_jour:,creneau_id:,infirmier_id:
+CONTRAINTE|infirmier|PRIMARY KEY|(auto)|id:
+CONTRAINTE|infirmier|UNIQUE|(auto)|center_id:,matricule:
+CONTRAINTE|inventaire_lignes|PRIMARY KEY|(auto)|id:
+CONTRAINTE|inventaires|PRIMARY KEY|(auto)|id:
+CONTRAINTE|inventaires|UNIQUE|UK_INVENTAIRES_REFERENCE|center_id:,reference:
+CONTRAINTE|license|PRIMARY KEY|(auto)|id:
+CONTRAINTE|license|UNIQUE|UK_LICENSE_JTI|jti:
+CONTRAINTE|lignes_demande_examen|PRIMARY KEY|(auto)|id:
+CONTRAINTE|lignes_ordonnance|PRIMARY KEY|(auto)|id:
+CONTRAINTE|lots|PRIMARY KEY|(auto)|id:
+CONTRAINTE|machine|PRIMARY KEY|(auto)|id:
+CONTRAINTE|medecin|PRIMARY KEY|(auto)|id:
+CONTRAINTE|migration_batch|PRIMARY KEY|(auto)|id:
+CONTRAINTE|migration_entity_run|PRIMARY KEY|(auto)|id:
+CONTRAINTE|migration_id_map|PRIMARY KEY|(auto)|id:
+CONTRAINTE|migration_id_map|UNIQUE|UK_MIGRATION_ID_MAP|center_id:,entity:,legacy_id:
+CONTRAINTE|migration_value_map|PRIMARY KEY|(auto)|id:
+CONTRAINTE|migration_value_map|UNIQUE|UK_MIGRATION_VALUE_MAP|center_id:,column_key:,source_value:
+CONTRAINTE|modele_document_version|PRIMARY KEY|(auto)|id:
+CONTRAINTE|modele_document_version|UNIQUE|UK_MODELE_VERSION|modele_id:,version:
+CONTRAINTE|modele_document|PRIMARY KEY|(auto)|id:
+CONTRAINTE|modele_document|UNIQUE|(auto)|center_id:,code:
+CONTRAINTE|modeles_piece_lignes|PRIMARY KEY|PK_MODELES_PIECE_LIGNES|modele_id:,position_ligne:
+CONTRAINTE|modeles_piece|PRIMARY KEY|(auto)|id:
+CONTRAINTE|modeles_piece|UNIQUE|UQ_MODELE_PIECE_CENTRE_CODE|center_id:,code:
+CONTRAINTE|mois_absences_journal|PRIMARY KEY|(auto)|id:
+CONTRAINTE|mois_absences|PRIMARY KEY|(auto)|center_id:,annee:,mois:
+CONTRAINTE|mouvement_patient|PRIMARY KEY|(auto)|id:
+CONTRAINTE|notification_evenement|PRIMARY KEY|(auto)|id:
+CONTRAINTE|notification_lecture|PRIMARY KEY|(auto)|notification_id:,user_id:
+CONTRAINTE|observations_biologiques|PRIMARY KEY|(auto)|id:
+CONTRAINTE|ordonnances|PRIMARY KEY|(auto)|id:
+CONTRAINTE|patients|PRIMARY KEY|(auto)|id:
+CONTRAINTE|periodes_facturation_journal|PRIMARY KEY|(auto)|id:
+CONTRAINTE|periodes_facturation|PRIMARY KEY|(auto)|center_id:,annee:,mois:
+CONTRAINTE|planification_calendrier_case|PRIMARY KEY|(auto)|run_id:,semaine_debut:,salle_id:,creneau_id:
+CONTRAINTE|planification_optimisation|PRIMARY KEY|(auto)|id:
+CONTRAINTE|planification_reglages|PRIMARY KEY|(auto)|center_id:
+CONTRAINTE|planning_parametres|PRIMARY KEY|(auto)|center_id:
+CONTRAINTE|planning_preference_patient|PRIMARY KEY|(auto)|center_id:,patient_id:
+CONTRAINTE|position_creneau|PRIMARY KEY|(auto)|id:
+CONTRAINTE|prescriptions_medicales|PRIMARY KEY|(auto)|id:
+CONTRAINTE|prise_en_charge|PRIMARY KEY|(auto)|id:
+CONTRAINTE|protocole|PRIMARY KEY|(auto)|id:
+CONTRAINTE|resultats_analyses|PRIMARY KEY|(auto)|id:
+CONTRAINTE|salle|PRIMARY KEY|(auto)|id:
+CONTRAINTE|seance_raccourcis_articles|PRIMARY KEY|(auto)|center_id:,article_id:
+CONTRAINTE|seance_suppression|PRIMARY KEY|(auto)|id:
+CONTRAINTE|seances|PRIMARY KEY|(auto)|id:
+CONTRAINTE|serologies_patient|PRIMARY KEY|(auto)|id:
+CONTRAINTE|societes|PRIMARY KEY|(auto)|id:
+CONTRAINTE|societes|UNIQUE|UK_SOCIETES_CODE|code:
+CONTRAINTE|sorties_pour_seances_lignes|PRIMARY KEY|(auto)|id:
+CONTRAINTE|sorties_pour_seances|PRIMARY KEY|(auto)|id:
+CONTRAINTE|stock_movements|PRIMARY KEY|(auto)|id:
+CONTRAINTE|transporteur|PRIMARY KEY|(auto)|id:
+CONTRAINTE|tva_types|PRIMARY KEY|(auto)|id:
+CONTRAINTE|volet_medical|PRIMARY KEY|(auto)|id:
+CONTRAINTE|volet_medical|UNIQUE|(auto)|seance_id:
+CONTRAINTE|volet_paramedical|PRIMARY KEY|(auto)|id:
+CONTRAINTE|volet_paramedical|UNIQUE|(auto)|seance_id:
+INDEX|abords_vasculaires|(auto)|PRIMARY KEY|id ASC
+INDEX|absence_patient|(auto)|PRIMARY KEY|id ASC
+INDEX|absence_patient|(auto)|UNIQUE INDEX|center_id ASC,patient_id ASC,date_seance ASC
+INDEX|absence_patient|IDX_ABSENCE_PATIENT_PERIODE|INDEX|center_id ASC,date_seance ASC
+INDEX|absence_patient|IDX_ABSENCE_PATIENT_STATUT|INDEX|center_id ASC,statut ASC
+INDEX|administrations_anemie|(auto)|PRIMARY KEY|id ASC
+INDEX|administrations_anemie|IDX_ADMIN_ANEMIE_PATIENT|INDEX|center_id ASC,patient_id ASC,date_administration ASC
+INDEX|agence|(auto)|PRIMARY KEY|id ASC
+INDEX|alertes_observance|(auto)|PRIMARY KEY|id ASC
+INDEX|allergies_patient|(auto)|PRIMARY KEY|id ASC
+INDEX|antecedents_medicaux|(auto)|PRIMARY KEY|id ASC
+INDEX|app_role|(auto)|PRIMARY KEY|id ASC
+INDEX|app_settings|(auto)|PRIMARY KEY|center_id ASC,cle ASC
+INDEX|app_user_center|(auto)|PRIMARY KEY|user_id ASC,center_id ASC
+INDEX|app_user_center|FK_APP_USER_CENTER_CENTER_INDEX|INDEX|center_id ASC
+INDEX|app_user_center|FK_APP_USER_CENTER_USER_INDEX|INDEX|user_id ASC
+INDEX|app_user_mfa_recovery|(auto)|PRIMARY KEY|id ASC
+INDEX|app_user_mfa_recovery|IDX_MFA_RECOVERY_USER|INDEX|user_id ASC
+INDEX|app_user_mfa|(auto)|PRIMARY KEY|user_id ASC
+INDEX|app_user_role|(auto)|PRIMARY KEY|user_id ASC,role_id ASC
+INDEX|app_user_role|FK_APP_USER_ROLE_ROLE_INDEX|INDEX|role_id ASC
+INDEX|app_user_role|FK_APP_USER_ROLE_USER_INDEX|INDEX|user_id ASC
+INDEX|app_user_societe|(auto)|PRIMARY KEY|user_id ASC,societe_id ASC
+INDEX|app_user|(auto)|PRIMARY KEY|id ASC
+INDEX|articles|(auto)|PRIMARY KEY|id ASC
+INDEX|assure_patient|(auto)|PRIMARY KEY|id ASC
+INDEX|assure_patient|IDX_ASSURE_PATIENT_PRIMARY_ACTIVE|INDEX|patient_id ASC,center_id ASC,is_primary ASC,date_fin_affectation ASC
+INDEX|assure|(auto)|PRIMARY KEY|numero_assurance ASC
+INDEX|attestation_droit|(auto)|PRIMARY KEY|id ASC
+INDEX|audit_log|(auto)|PRIMARY KEY|id ASC
+INDEX|audit_log|IDX_AUDIT_LOG_CENTER|INDEX|center_id ASC,occurred_at DESC
+INDEX|audit_log|IDX_AUDIT_LOG_SOCIETE|INDEX|societe_id ASC,occurred_at DESC
+INDEX|audit_log|IDX_AUDIT_LOG_USER|INDEX|user_id ASC,occurred_at DESC
+INDEX|auth_refresh_token|(auto)|PRIMARY KEY|id ASC
+INDEX|auth_refresh_token|(auto)|UNIQUE INDEX|token_hash ASC
+INDEX|auth_refresh_token|IDX_AUTH_REFRESH_TOKEN_USER_ID|INDEX|user_id ASC
+INDEX|bilans_pre_greffe|(auto)|PRIMARY KEY|id ASC
+INDEX|bons_commande_lignes|(auto)|PRIMARY KEY|id ASC
+INDEX|bons_commande_lignes|IDX_BL_LIGNE_BON|INDEX|bon_commande_id ASC
+INDEX|bons_commande|(auto)|PRIMARY KEY|id ASC
+INDEX|bons_commande|IDX_BL_CENTER|INDEX|center_id ASC
+INDEX|bons_commande|IDX_BL_REFERENCE|INDEX|center_id ASC,reference ASC
+INDEX|bons_reception_lignes|(auto)|PRIMARY KEY|id ASC
+INDEX|bons_reception_lignes|IDX_BR_LIGNE_BON|INDEX|bon_reception_id ASC
+INDEX|bons_reception|(auto)|PRIMARY KEY|id ASC
+INDEX|bons_reception|IDX_BR_CENTER|INDEX|center_id ASC
+INDEX|bons_reception|IDX_BR_REFERENCE|INDEX|center_id ASC,reference ASC
+INDEX|bons_sortie_lignes|(auto)|PRIMARY KEY|id ASC
+INDEX|bons_sortie_lignes|IDX_BS_LIGNE_BON|INDEX|bon_sortie_id ASC
+INDEX|bons_sortie_lignes|IDX_BS_LIGNE_LOT|INDEX|lot_id ASC
+INDEX|bons_sortie|(auto)|PRIMARY KEY|id ASC
+INDEX|bons_sortie|IDX_BS_CENTER|INDEX|center_id ASC
+INDEX|bons_sortie|IDX_BS_REFERENCE|INDEX|center_id ASC,reference ASC
+INDEX|bons_sortie|IDX_BS_SEANCE|INDEX|seance_id ASC
+INDEX|caisse_assurance|(auto)|PRIMARY KEY|id ASC
+INDEX|categorie_transport|(auto)|PRIMARY KEY|id ASC
+INDEX|center_closure_day|(auto)|PRIMARY KEY|id ASC
+INDEX|center_closure_day|(auto)|UNIQUE INDEX|center_id ASC,day_date ASC
+INDEX|center_holiday|(auto)|PRIMARY KEY|id ASC
+INDEX|center_holiday|(auto)|UNIQUE INDEX|center_id ASC,day_date ASC
+INDEX|centers|(auto)|PRIMARY KEY|id ASC
+INDEX|centre_payeur|(auto)|PRIMARY KEY|id ASC
+INDEX|comptes_comptables|(auto)|PRIMARY KEY|id ASC
+INDEX|comptes_comptables|UQ_COMPTE_COMPTABLE_CENTRE_NUMERO_INDEX|UNIQUE INDEX|center_id ASC,numero ASC
+INDEX|comptes_payeurs|(auto)|PRIMARY KEY|center_id ASC,payeur_id ASC
+INDEX|consommations_de_seance_imputations|(auto)|PRIMARY KEY|id ASC
+INDEX|consommations_de_seance_imputations|IDX_CONSOMMATIONS_IMPUTATIONS_SEANCE|INDEX|seance_id ASC
+INDEX|consommations_de_seance|(auto)|PRIMARY KEY|seance_id ASC
+INDEX|consommations_de_seance|IDX_CONSOMMATIONS_DE_SEANCE_SORTIE|INDEX|sortie_id ASC
+INDEX|decisions_rcp|(auto)|PRIMARY KEY|id ASC
+INDEX|demandes_examen|(auto)|PRIMARY KEY|id ASC
+INDEX|deplacement_temporaire|(auto)|PRIMARY KEY|id ASC
+INDEX|deplacement_temporaire|(auto)|UNIQUE INDEX|center_id ASC,patient_id ASC,date_seance ASC
+INDEX|deplacement_temporaire|IDX_DEPLACEMENT_TEMPORAIRE_DATE|INDEX|center_id ASC,date_seance ASC
+INDEX|direction_alert_history|(auto)|PRIMARY KEY|id ASC
+INDEX|direction_alert_history|IDX_DIRECTION_ALERT_HISTORY_SOCIETE|INDEX|societe_id ASC,resolved_at ASC,first_seen_at DESC
+INDEX|direction_snapshot|(auto)|PRIMARY KEY|id ASC
+INDEX|direction_snapshot|UQ_DIRECTION_SNAPSHOT_INDEX|UNIQUE INDEX|societe_id ASC,mois ASC
+INDEX|donneurs_vivants|(auto)|PRIMARY KEY|id ASC
+INDEX|dossier_medical_patient|(auto)|PRIMARY KEY|id ASC
+INDEX|dossier_medical_patient|UK5OBBASYG8V5VDWB90D6LOTNO2_INDEX|UNIQUE INDEX|patient_id ASC
+INDEX|emplacements|(auto)|PRIMARY KEY|id ASC
+INDEX|emplacements|IDX_EMPLACEMENT_CENTER|INDEX|center_id ASC
+INDEX|etapes_bilan_pre_greffe|(auto)|PRIMARY KEY|id ASC
+INDEX|event_publication|(auto)|PRIMARY KEY|id ASC
+INDEX|event_publication|EVENT_PUBLICATION_BY_COMPLETION_DATE_IDX|INDEX|completion_date ASC
+INDEX|facturation_settings|(auto)|PRIMARY KEY|center_id ASC
+INDEX|facture_lignes|(auto)|PRIMARY KEY|id ASC
+INDEX|facture_lignes|IDX_FACTURE_LIGNES_FACTURE|INDEX|facture_id ASC,center_id ASC
+INDEX|facture_reglements|(auto)|PRIMARY KEY|id ASC
+INDEX|facture_reglements|IDX_FACTURE_REGLEMENTS_FACTURE|INDEX|facture_id ASC,center_id ASC
+INDEX|facture_reglements|IDX_FACTURE_REGLEMENTS_PERIOD|INDEX|center_id ASC,date_reglement ASC
+INDEX|facture_reglements|UX_FACTURE_REGLEMENTS_CLE_IDEMPOTENCE|UNIQUE INDEX|center_id ASC,facture_id ASC,cle_idempotence ASC
+INDEX|facture_sequence|(auto)|PRIMARY KEY|center_id ASC,seq_year ASC
+INDEX|factures|(auto)|PRIMARY KEY|id ASC
+INDEX|factures|(auto)|UNIQUE INDEX|center_id ASC,numero_facture ASC
+INDEX|factures|IDX_FACTURES_CENTER_PATIENT|INDEX|center_id ASC,patient_id ASC
+INDEX|factures|IDX_FACTURES_CENTER_PERIOD|INDEX|center_id ASC,date_facturation ASC
+INDEX|forfait|(auto)|PRIMARY KEY|id ASC
+INDEX|fournisseurs|(auto)|PRIMARY KEY|id ASC
+INDEX|fournisseurs|IDX_FOURNISSEUR_CENTER|INDEX|center_id ASC
+INDEX|groupes_articles_items|(auto)|INDEX|groupe_id ASC
+INDEX|groupes_articles_items|(auto)|PRIMARY KEY|groupe_id ASC,article_id ASC
+INDEX|groupes_articles|(auto)|PRIMARY KEY|id ASC
+INDEX|groupes_articles|IDX_GROUPES_ARTICLES_CENTRE|INDEX|center_id ASC
+INDEX|groupes_articles|UK_GROUPES_ARTICLES_CENTRE_NOM_INDEX|UNIQUE INDEX|center_id ASC,nom_cle ASC
+INDEX|infirmier_absence|(auto)|PRIMARY KEY|id ASC
+INDEX|infirmier_absence|IDX_INFIRMIER_ABSENCE_PERIODE|INDEX|center_id ASC,date_debut ASC,date_fin ASC
+INDEX|infirmier_affectation|(auto)|PRIMARY KEY|id ASC
+INDEX|infirmier_affectation|IDX_INFIRMIER_AFFECTATION_INFIRMIER|INDEX|center_id ASC,infirmier_id ASC
+INDEX|infirmier_profil_planning|(auto)|PRIMARY KEY|center_id ASC,infirmier_id ASC
+INDEX|infirmier_remplacement|(auto)|PRIMARY KEY|id ASC
+INDEX|infirmier_remplacement|(auto)|UNIQUE INDEX|center_id ASC,date_jour ASC,creneau_id ASC,infirmier_id ASC
+INDEX|infirmier|(auto)|PRIMARY KEY|id ASC
+INDEX|infirmier|(auto)|UNIQUE INDEX|center_id ASC,matricule ASC
+INDEX|infirmier|UX_INFIRMIER_USER|UNIQUE INDEX|center_id ASC,user_id ASC
+INDEX|inventaire_lignes|(auto)|PRIMARY KEY|id ASC
+INDEX|inventaire_lignes|IDX_INVENTAIRE_LIGNES_INVENTAIRE|INDEX|inventaire_id ASC,position_ligne ASC
+INDEX|inventaires|(auto)|PRIMARY KEY|id ASC
+INDEX|inventaires|IDX_INVENTAIRES_CENTER_STATUT|INDEX|center_id ASC,statut ASC,date_inventaire ASC
+INDEX|inventaires|UK_INVENTAIRES_REFERENCE_INDEX|UNIQUE INDEX|center_id ASC,reference ASC
+INDEX|license|(auto)|PRIMARY KEY|id ASC
+INDEX|license|UK_LICENSE_JTI_INDEX|UNIQUE INDEX|jti ASC
+INDEX|lignes_demande_examen|(auto)|PRIMARY KEY|id ASC
+INDEX|lignes_ordonnance|(auto)|PRIMARY KEY|id ASC
+INDEX|lots|(auto)|PRIMARY KEY|id ASC
+INDEX|lots|IDX_LOT_ARTICLE_PEREMPTION|INDEX|article_id ASC,date_peremption ASC
+INDEX|lots|IDX_LOT_ARTICLE|INDEX|article_id ASC
+INDEX|lots|IDX_LOT_CENTER|INDEX|center_id ASC
+INDEX|machine|(auto)|PRIMARY KEY|id ASC
+INDEX|medecin|(auto)|PRIMARY KEY|id ASC
+INDEX|migration_batch|(auto)|PRIMARY KEY|id ASC
+INDEX|migration_batch|IDX_MIGRATION_BATCH_CENTER|INDEX|center_id ASC,status ASC
+INDEX|migration_entity_run|(auto)|PRIMARY KEY|id ASC
+INDEX|migration_entity_run|IDX_MIGRATION_RUN_BATCH|INDEX|batch_id ASC,entity ASC,executed_at ASC
+INDEX|migration_id_map|(auto)|PRIMARY KEY|id ASC
+INDEX|migration_id_map|IDX_MIGRATION_ID_MAP_BATCH|INDEX|batch_id ASC
+INDEX|migration_id_map|UK_MIGRATION_ID_MAP_INDEX|UNIQUE INDEX|center_id ASC,entity ASC,legacy_id ASC
+INDEX|migration_value_map|(auto)|PRIMARY KEY|id ASC
+INDEX|migration_value_map|UK_MIGRATION_VALUE_MAP_INDEX|UNIQUE INDEX|center_id ASC,column_key ASC,source_value ASC
+INDEX|modele_document_version|(auto)|PRIMARY KEY|id ASC
+INDEX|modele_document_version|IDX_MODELE_VERSION_MODELE|INDEX|modele_id ASC,center_id ASC
+INDEX|modele_document_version|UK_MODELE_VERSION_INDEX|UNIQUE INDEX|modele_id ASC,version ASC
+INDEX|modele_document|(auto)|PRIMARY KEY|id ASC
+INDEX|modele_document|(auto)|UNIQUE INDEX|center_id ASC,code ASC
+INDEX|modeles_piece_lignes|(auto)|PRIMARY KEY|modele_id ASC,position_ligne ASC
+INDEX|modeles_piece_lignes|IDX_MODELES_PIECE_LIGNES_COMPTE|INDEX|center_id ASC,compte ASC
+INDEX|modeles_piece|(auto)|PRIMARY KEY|id ASC
+INDEX|modeles_piece|UQ_MODELE_PIECE_CENTRE_CODE_INDEX|UNIQUE INDEX|center_id ASC,code ASC
+INDEX|mois_absences_journal|(auto)|PRIMARY KEY|id ASC
+INDEX|mois_absences_journal|IDX_MOIS_ABSENCES_JOURNAL_MOIS|INDEX|center_id ASC,annee ASC,mois ASC,id ASC
+INDEX|mois_absences|(auto)|PRIMARY KEY|center_id ASC,annee ASC,mois ASC
+INDEX|mouvement_patient|(auto)|PRIMARY KEY|id ASC
+INDEX|mouvement_patient|IDX_MOUVEMENT_PATIENT_CENTRE|INDEX|center_id ASC,date_effet ASC
+INDEX|mouvement_patient|IDX_MOUVEMENT_PATIENT_PATIENT|INDEX|center_id ASC,patient_id ASC
+INDEX|notification_evenement|(auto)|PRIMARY KEY|id ASC
+INDEX|notification_evenement|IDX_NOTIFICATION_EVENEMENT_CENTRE|INDEX|center_id ASC,cree_le ASC
+INDEX|notification_lecture|(auto)|PRIMARY KEY|notification_id ASC,user_id ASC
+INDEX|observations_biologiques|(auto)|PRIMARY KEY|id ASC
+INDEX|observations_biologiques|IDX_OBS_BIO_PATIENT_DATE|INDEX|center_id ASC,patient_id ASC,date_prelevement ASC
+INDEX|ordonnances|(auto)|PRIMARY KEY|id ASC
+INDEX|patients|(auto)|PRIMARY KEY|id ASC
+INDEX|periodes_facturation_journal|(auto)|PRIMARY KEY|id ASC
+INDEX|periodes_facturation_journal|IDX_PERIODES_FACTURATION_JOURNAL_MOIS|INDEX|center_id ASC,annee ASC,mois ASC,id ASC
+INDEX|periodes_facturation|(auto)|PRIMARY KEY|center_id ASC,annee ASC,mois ASC
+INDEX|planification_calendrier_case|(auto)|PRIMARY KEY|run_id ASC,semaine_debut ASC,salle_id ASC,creneau_id ASC
+INDEX|planification_calendrier_case|IDX_PLANIFICATION_CALENDRIER_CENTRE|INDEX|center_id ASC,run_id ASC
+INDEX|planification_optimisation|(auto)|PRIMARY KEY|id ASC
+INDEX|planification_optimisation|IDX_PLANIFICATION_OPTIMISATION_CENTRE|INDEX|center_id ASC,cree_le ASC
+INDEX|planification_reglages|(auto)|PRIMARY KEY|center_id ASC
+INDEX|planning_parametres|(auto)|PRIMARY KEY|center_id ASC
+INDEX|planning_preference_patient|(auto)|PRIMARY KEY|center_id ASC,patient_id ASC
+INDEX|position_creneau|(auto)|PRIMARY KEY|id ASC
+INDEX|prescriptions_medicales|(auto)|PRIMARY KEY|id ASC
+INDEX|prescriptions_medicales|IDX_PRESCRIPTIONS_PATIENT|INDEX|center_id ASC,patient_id ASC,date_prescription ASC
+INDEX|prise_en_charge|(auto)|PRIMARY KEY|id ASC
+INDEX|protocole|(auto)|PRIMARY KEY|id ASC
+INDEX|resultats_analyses|(auto)|PRIMARY KEY|id ASC
+INDEX|resultats_analyses|IDX_RESULTATS_PATIENT_DATE|INDEX|patient_id ASC,date_prelevement ASC
+INDEX|salle|(auto)|PRIMARY KEY|id ASC
+INDEX|seance_raccourcis_articles|(auto)|PRIMARY KEY|center_id ASC,article_id ASC
+INDEX|seance_suppression|(auto)|PRIMARY KEY|id ASC
+INDEX|seance_suppression|IDX_SEANCE_SUPPRESSION_CENTRE|INDEX|center_id ASC,supprime_le ASC
+INDEX|seances|(auto)|PRIMARY KEY|id ASC
+INDEX|seances|IDX_SEANCES_CENTER_DATE|INDEX|center_id ASC,date_seance ASC
+INDEX|seances|IDX_SEANCES_CENTER_PATIENT_DATE|INDEX|center_id ASC,patient_id ASC,date_seance ASC
+INDEX|serologies_patient|(auto)|PRIMARY KEY|id ASC
+INDEX|societes|(auto)|PRIMARY KEY|id ASC
+INDEX|societes|UK_SOCIETES_CODE_INDEX|UNIQUE INDEX|code ASC
+INDEX|sorties_pour_seances_lignes|(auto)|PRIMARY KEY|id ASC
+INDEX|sorties_pour_seances_lignes|IDX_SORTIES_POUR_SEANCES_LIGNES_SORTIE|INDEX|sortie_id ASC
+INDEX|sorties_pour_seances|(auto)|PRIMARY KEY|id ASC
+INDEX|sorties_pour_seances|IDX_SORTIES_POUR_SEANCES_CENTRE|INDEX|center_id ASC,jour ASC
+INDEX|stock_movements|(auto)|PRIMARY KEY|id ASC
+INDEX|stock_movements|IDX_STOCK_MVT_ARTICLE_DATE|INDEX|article_id ASC,created_at ASC
+INDEX|stock_movements|IDX_STOCK_MVT_CENTER_DATE|INDEX|center_id ASC,created_at ASC
+INDEX|stock_movements|IDX_STOCK_MVT_CENTER_INVENTAIRE|INDEX|center_id ASC,inventaire_id ASC,created_at ASC
+INDEX|stock_movements|IDX_STOCK_MVT_LOT|INDEX|lot_id ASC
+INDEX|stock_movements|IDX_STOCK_MVT_SEANCE|INDEX|seance_id ASC
+INDEX|transporteur|(auto)|PRIMARY KEY|id ASC
+INDEX|tva_types|(auto)|PRIMARY KEY|id ASC
+INDEX|tva_types|IDX_TVA_TYPES_CENTER_ACTIF|INDEX|center_id ASC,actif ASC
+INDEX|tva_types|IDX_TVA_TYPES_CENTER_PRESTATION|INDEX|center_id ASC,type_prestation ASC,date_debut_validite ASC
+INDEX|volet_medical|(auto)|PRIMARY KEY|id ASC
+INDEX|volet_medical|(auto)|UNIQUE INDEX|seance_id ASC
+INDEX|volet_paramedical|(auto)|PRIMARY KEY|id ASC
+INDEX|volet_paramedical|(auto)|UNIQUE INDEX|seance_id ASC
+VERIFICATION|mois_absences_journal|CK_MOIS_ABSENCES_JOURNAL_TYPE|"TYPE_ACTE" IN('CLOTURE', 'REOUVERTURE')
+VERIFICATION|mois_absences|CK_MOIS_ABSENCES_MOIS|"MOIS" BETWEEN 1 AND 12
+VERIFICATION|mois_absences|CK_MOIS_ABSENCES_STATUT|"STATUT" IN('OUVERT', 'CLOTURE')
+VERIFICATION|periodes_facturation_journal|CK_PERIODES_FACTURATION_JOURNAL_TYPE|"TYPE_ACTE" IN('CLOTURE', 'REOUVERTURE')
+VERIFICATION|periodes_facturation|CK_PERIODES_FACTURATION_MOIS|"MOIS" BETWEEN 1 AND 12
+VERIFICATION|periodes_facturation|CK_PERIODES_FACTURATION_STATUT|"STATUT" IN('OUVERT', 'CLOTURE')
+VERIFICATION|prescriptions_medicales|CK_PRESCRIPTION_POIDS_SEC_CIBLE|("POIDS_SEC_CIBLE_KG" IS NULL) OR ("POIDS_SEC_CIBLE_KG" BETWEEN 20 AND 300)
+VERIFICATION|sorties_pour_seances|CK_SORTIES_POUR_SEANCES_DEMI_JOURNEE|("DEMI_JOURNEE" IN('MATIN', 'APRES_MIDI')) OR ("DEMI_JOURNEE" IS NULL)
+VERIFICATION|sorties_pour_seances|CK_SORTIES_POUR_SEANCES_STATUT|"STATUT" IN('ENREGISTREE', 'RAPPROCHEE')
