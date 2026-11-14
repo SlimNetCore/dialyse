@@ -1,8 +1,7 @@
 package com.hemodialyse.backend.infrastructure.config;
 
 import com.hemodialyse.backend.application.license.LicenseService;
-import com.hemodialyse.backend.infrastructure.persistence.entity.CenterJpaEntity;
-import com.hemodialyse.backend.infrastructure.persistence.repository.CenterJpaRepository;
+import com.hemodialyse.backend.contexts.organisation.publishedlanguage.AnnuaireDesCentres;
 import com.hemodialyse.backend.infrastructure.security.license.LicenseKeyProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,14 +27,15 @@ public class DevLicenseBootstrapInitializer implements CommandLineRunner {
     private static final Logger log = LoggerFactory.getLogger(DevLicenseBootstrapInitializer.class);
 
     private final LicenseKeyProperties keyProperties;
-    private final CenterJpaRepository centerRepository;
+    /** Tous les centres, par le langage publié d'Organisation (IDN-licence, ADR 0175). */
+    private final AnnuaireDesCentres annuaireDesCentres;
     private final LicenseService licenseService;
 
     public DevLicenseBootstrapInitializer(LicenseKeyProperties keyProperties,
-                                          CenterJpaRepository centerRepository,
+                                          AnnuaireDesCentres annuaireDesCentres,
                                           LicenseService licenseService) {
         this.keyProperties = keyProperties;
-        this.centerRepository = centerRepository;
+        this.annuaireDesCentres = annuaireDesCentres;
         this.licenseService = licenseService;
     }
 
@@ -45,23 +45,23 @@ public class DevLicenseBootstrapInitializer implements CommandLineRunner {
             return;
         }
 
-        for (CenterJpaEntity center : centerRepository.findAll()) {
+        for (AnnuaireDesCentres.CentreNomme center : annuaireDesCentres.tousAvecNom()) {
             // La clé éphémère change à chaque démarrage : une licence émise lors d'un run précédent
             // existe encore en base mais sa signature ne se vérifie plus. On ne la conserve que si elle
             // est réellement valide (ou révoquée volontairement) ; sinon on en réémet une.
-            LicenseService.LicenseVerdict verdict = licenseService.verify(center.getId());
+            LicenseService.LicenseVerdict verdict = licenseService.verify(center.id());
             boolean revoked = verdict.entity() != null
                     && LicenseService.STATUS_REVOKED.equals(verdict.entity().getStatus());
             if (verdict.valid() || revoked) {
                 continue;
             }
             licenseService.issue(
-                    center.getId(), "STANDARD", 50,
+                    center.id(), "STANDARD", 50,
                     Instant.now(), Instant.now().plus(365, ChronoUnit.DAYS),
                     null
             );
             log.warn("[DEV] Licence de développement auto-émise pour le centre '{}' (clé éphémère, non valable en production).",
-                    center.getName());
+                    center.nom());
         }
     }
 }

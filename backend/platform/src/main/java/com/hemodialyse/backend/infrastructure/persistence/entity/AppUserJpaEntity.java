@@ -1,6 +1,8 @@
 package com.hemodialyse.backend.infrastructure.persistence.entity;
 
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
@@ -53,13 +55,14 @@ public class AppUserJpaEntity {
     )
     private Set<AppRoleJpaEntity> roles = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "app_user_center",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "center_id")
-    )
-    private Set<CenterJpaEntity> centers = new HashSet<>();
+    /**
+     * Rattachements aux centres, par identifiant (IDN-licence, ADR 0175) : l'entité du centre appartient à Organisation, les noms se
+     * lisent par son langage publié ({@code AnnuaireDesCentres}).
+     */
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "app_user_center", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "center_id", nullable = false)
+    private Set<UUID> centerIds = new HashSet<>();
 
     public UUID getId() {
         return id;
@@ -129,12 +132,12 @@ public class AppUserJpaEntity {
         this.roles = roles;
     }
 
-    public Set<CenterJpaEntity> getCenters() {
-        return centers;
+    public Set<UUID> getCenterIds() {
+        return centerIds;
     }
 
-    public void setCenters(Set<CenterJpaEntity> centers) {
-        this.centers = centers;
+    public void setCenterIds(Set<UUID> centerIds) {
+        this.centerIds = centerIds;
     }
 }
 

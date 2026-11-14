@@ -64,23 +64,34 @@ public class UserRestController {
         int page = req.page();
         int size = req.size();
         var pageable = PageRequest.of(page, size, Sort.by(Sort.Order.asc("username")));
-        var result = userRepository.findAll(UserSpecifications.from(req), pageable);
+        var result = userRepository.findAll(UserSpecifications.from(req, annuaireDesCentres), pageable);
 
-        List<Map<String, Object>> items = result.getContent().stream().map(this::toUserPayload).toList();
+        Map<UUID, String> noms = nomsDesCentres();
+        List<Map<String, Object>> items = result.getContent().stream().map(u -> toUserPayload(u, noms)).toList();
         return ResponseEntity.ok(Map.of("items", items, "total", result.getTotalElements(), "page", page, "size", size));
     }
 
     private List<Map<String, Object>> loadUsers(UUID centerId) {
+        Map<UUID, String> noms = nomsDesCentres();
         if (centerId == null) {
-            return userRepository.findAll(Sort.by(Sort.Order.asc("username"))).stream().map(this::toUserPayload).toList();
+            return userRepository.findAll(Sort.by(Sort.Order.asc("username"))).stream().map(u -> toUserPayload(u, noms)).toList();
         }
         UserSearchRequest request = new UserSearchRequest(centerId, 0, 1000, null, null, null, null, null, null, null);
-        return userRepository.findAll(UserSpecifications.from(request), Sort.by(Sort.Order.asc("username"))).stream()
-                .map(this::toUserPayload)
+        return userRepository.findAll(UserSpecifications.from(request, annuaireDesCentres), Sort.by(Sort.Order.asc("username"))).stream()
+                .map(u -> toUserPayload(u, noms))
                 .toList();
     }
 
-    private Map<String, Object> toUserPayload(AppUserJpaEntity user) {
+    /** Les noms des centres (langage publié d'Organisation), lus une fois par requête ; un centre sans nom est absent. */
+    private Map<UUID, String> nomsDesCentres() {
+        Map<UUID, String> noms = new LinkedHashMap<>();
+        for (AnnuaireDesCentres.CentreNomme c : annuaireDesCentres.tousAvecNom()) {
+            if (c.nom() != null) noms.put(c.id(), c.nom());
+        }
+        return noms;
+    }
+
+    private Map<String, Object> toUserPayload(AppUserJpaEntity user, Map<UUID, String> noms) {
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("id", user.getId());
         payload.put("username", user.getUsername());
@@ -91,9 +102,13 @@ public class UserRestController {
         payload.put("roles", user.getRoles().stream()
                 .map(r -> Map.<String, Object>of("id", r.getId(), "code", r.getCode(), "name", r.getName()))
                 .toList());
-        payload.put("centers", user.getCenters().stream()
-                .map(c -> Map.<String, Object>of("id", c.getId(), "name", c.getName()))
-                .toList());
+        // Les noms viennent du langage publié d'Organisation (IDN-licence, ADR 0175) ; un rattachement à un centre sans nom est omis.
+        List<Map<String, Object>> centres = new ArrayList<>();
+        for (UUID centreId : user.getCenterIds()) {
+            String nom = noms.get(centreId);
+            if (nom != null) centres.add(Map.<String, Object>of("id", centreId, "name", nom));
+        }
+        payload.put("centers", centres);
         return payload;
     }
 

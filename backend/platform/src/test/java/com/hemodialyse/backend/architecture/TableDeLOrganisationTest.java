@@ -142,9 +142,7 @@ class TableDeLOrganisationTest {
      * Les entités JPA des tables de l'Organisation (chemins depuis {@code backend/}) : seules exclues de la garde (revue globale
      * 2026-11-10, constat mineur : l'exclusion du dossier {@code /entity/} entier cachait toute autre entité).
      */
-    private static final Set<String> ENTITES_JPA_CONNUES = Set.of(
-            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/SocieteJpaEntity.java",
-            "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/CenterJpaEntity.java");
+    private static final Set<String> ENTITES_JPA_CONNUES = Set.of(); // IDN-licence (ADR 0175) : les deux entités sont supprimées, aucun report
 
     @Test
     void chaque_lecteur_connu_porte_un_butoir_lisible_et_aucun_n_est_depasse_a_la_date_du_jour() {
@@ -160,8 +158,11 @@ class TableDeLOrganisationTest {
     @Test
     void l_exclusion_est_nominative_les_autres_entites_jpa_sont_scannees() throws IOException {
         List<String> scannes = sourcesDeProduction(backend()).stream().map(TableDeLOrganisationTest::relatif).toList();
-        assertThat(ENTITES_JPA_CONNUES).allSatisfy(entite -> assertThat(Files.isRegularFile(backend().resolve(entite))).as(entite).isTrue());
-        assertThat(scannes).doesNotContainAnyElementsOf(ENTITES_JPA_CONNUES);
+        assertThat(ENTITES_JPA_CONNUES).as("plus aucune entité JPA d'Organisation dans platform (ADR 0175)").isEmpty();
+        assertThat(Files.exists(backend().resolve(
+                "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/CenterJpaEntity.java"))).isFalse();
+        assertThat(Files.exists(backend().resolve(
+                "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/SocieteJpaEntity.java"))).isFalse();
         assertThat(scannes).as("une entité JPA non nommée est scannée").anyMatch(s -> s.contains("/entity/"));
         assertThat(ButoirsDesGardesDeTables.estUneEntiteJpaConnue("platform/src/main/java/x/entity/Inconnue.java", ENTITES_JPA_CONNUES)).isFalse();
     }

@@ -534,6 +534,10 @@ CREATE TABLE IF NOT EXISTS app_user_center (
     CONSTRAINT fk_app_user_center_center FOREIGN KEY (center_id) REFERENCES centers (id)
 );
 
+-- IDN-licence (ADR 0175) : app_user_center est désormais une collection de valeurs de app_user (@ElementCollection), que Hibernate crée
+-- AVANT ce script sans clé étrangère vers centers (il n'y a plus d'entité de centre) : la clé de la production (Flyway V1) est posée ici.
+ALTER TABLE app_user_center ADD CONSTRAINT IF NOT EXISTS fk_app_user_center_center FOREIGN KEY (center_id) REFERENCES centers (id);
+
 CREATE TABLE IF NOT EXISTS auth_refresh_token
 (
     id         UUID PRIMARY KEY,

@@ -118,8 +118,25 @@ class DatesIllisiblesDeLaDirectionAdvice {
         return reponse(erreur, requete, "Paramètre obligatoire absent : " + erreur.getParameterName());
     }
 
+    /**
+     * IDN-licence (ADR 0175, KB-LIC-2 « CORRIGÉ 2026-11-14 ») : l'émission d'une licence ({@code /api/v1/licenses/issue} et
+     * {@code /issue-societe}) avec un corps illisible (dates) répond 403 AVANT 400, puis 400 (c'était un 500 pour tous les rôles).
+     */
+    private static final java.util.regex.Pattern EMISSION_DE_LICENCE =
+            java.util.regex.Pattern.compile("/api/v1/licenses/issue(-societe)?");
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     ProblemDetail corpsIllisible(HttpMessageNotReadableException erreur, HttpServletRequest requete) {
+        if (correspond(EMISSION_DE_LICENCE, requete)) {
+            if (!droitsSuffisants(requete)) {
+                return refus();
+            }
+            ProblemDetail probleme = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+            probleme.setTitle("Requete invalide");
+            probleme.setDetail("Corps de la requête illisible");
+            probleme.setProperty("code", "BAD_REQUEST");
+            return probleme;
+        }
         if (!estUneRouteDeLAdministrationGenerique(requete)) {
             return gestionnaireCommun.handleUnexpected(erreur);
         }

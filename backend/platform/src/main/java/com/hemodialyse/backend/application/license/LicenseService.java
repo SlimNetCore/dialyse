@@ -1,8 +1,8 @@
 package com.hemodialyse.backend.application.license;
 
-import com.hemodialyse.backend.infrastructure.persistence.entity.CenterJpaEntity;
+import com.hemodialyse.backend.contexts.organisation.publishedlanguage.AnnuaireDesCentres;
+import com.hemodialyse.backend.contexts.organisation.publishedlanguage.AnnuaireDesSocietes;
 import com.hemodialyse.backend.infrastructure.persistence.entity.LicenseJpaEntity;
-import com.hemodialyse.backend.infrastructure.persistence.repository.CenterJpaRepository;
 import com.hemodialyse.backend.infrastructure.persistence.repository.LicenseJpaRepository;
 import com.hemodialyse.backend.infrastructure.security.license.LicenseKeyProperties;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -35,18 +35,22 @@ public class LicenseService {
     public static final String STATUS_REVOKED = "REVOKED";
 
     private final LicenseJpaRepository licenseRepository;
-    private final CenterJpaRepository centerRepository;
+    /** Centres et sociétés : langage publié d'Organisation (IDN-licence, ADR 0175) ; plus d'entité ni de dépôt des centres ici. */
+    private final AnnuaireDesCentres annuaireDesCentres;
+    private final AnnuaireDesSocietes annuaireDesSocietes;
     private final LicenseTokenService tokenService;
     private final LicenseKeyProperties keyProperties;
     private final JdbcTemplate jdbc;
 
     public LicenseService(LicenseJpaRepository licenseRepository,
-                          CenterJpaRepository centerRepository,
+                          AnnuaireDesCentres annuaireDesCentres,
+                          AnnuaireDesSocietes annuaireDesSocietes,
                           LicenseTokenService tokenService,
                           LicenseKeyProperties keyProperties,
                           JdbcTemplate jdbc) {
         this.licenseRepository = licenseRepository;
-        this.centerRepository = centerRepository;
+        this.annuaireDesCentres = annuaireDesCentres;
+        this.annuaireDesSocietes = annuaireDesSocietes;
         this.keyProperties = keyProperties;
         this.tokenService = tokenService;
         this.jdbc = jdbc;
@@ -55,11 +59,13 @@ public class LicenseService {
     @Transactional
     public LicenseJpaEntity issue(UUID centerId, String type, int maxUsers, Instant validFrom, Instant validUntil,
                                   UUID createdBy) {
-        CenterJpaEntity center = centerRepository.findById(centerId)
+        // Un centre existe tant qu'il est rattaché à une société (societe_id NOT NULL) ; le code est celui de sa fiche.
+        annuaireDesSocietes.societeDuCentre(centerId)
                 .orElseThrow(() -> new IllegalArgumentException("Centre introuvable : " + centerId));
+        String code = annuaireDesCentres.codeDuCentre(centerId).orElse(null);
 
         LicenseTokenService.IssuedToken issued = tokenService.issue(
-                centerId, center.getCode(), type, maxUsers, validFrom, validUntil);
+                centerId, code, type, maxUsers, validFrom, validUntil);
 
         LicenseJpaEntity entity = new LicenseJpaEntity();
         entity.setId(UUID.randomUUID());
@@ -87,16 +93,17 @@ public class LicenseService {
     @Transactional
     public List<LicenseJpaEntity> issueForSociete(UUID societeId, java.util.Collection<UUID> centerIds, String type,
                                                   int maxUsers, Instant validFrom, Instant validUntil, UUID createdBy) {
-        java.util.Map<UUID, CenterJpaEntity> actifs = new java.util.LinkedHashMap<>();
-        for (CenterJpaEntity c : centerRepository.findBySocieteIdOrderByNameAsc(societeId)) {
-            if (c.isActif()) actifs.put(c.getId(), c);
+        java.util.Set<UUID> actifs = new java.util.LinkedHashSet<>();
+        for (AnnuaireDesSocietes.CentreDeLaSociete c : annuaireDesSocietes.societe(societeId)
+                .map(AnnuaireDesSocietes.SocieteAvecSesCentres::centres).orElse(List.of())) {
+            if (c.actif()) actifs.add(c.id());
         }
         if (actifs.isEmpty()) {
             throw new IllegalArgumentException("Cette société n'a aucun centre actif à licencier");
         }
-        java.util.Collection<UUID> targets = centerIds == null || centerIds.isEmpty() ? actifs.keySet() : centerIds;
+        java.util.Collection<UUID> targets = centerIds == null || centerIds.isEmpty() ? actifs : centerIds;
         for (UUID id : targets) {
-            if (!actifs.containsKey(id)) {
+            if (!actifs.contains(id)) {
                 throw new IllegalArgumentException("Le centre " + id + " n'est pas un centre actif de cette société");
             }
         }

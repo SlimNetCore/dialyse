@@ -160,7 +160,16 @@
   seule transaction (tous ou aucun) ; société sans centre actif ou centre étranger/inactif : refus. *Source :*
   `LicenseService.issueForSociete`.
 - **RG-SEC-034** — Activation hors ligne : la licence doit avoir été émise pour ce centre et ne peut être activée deux
-  fois. *Source :* `LicenseService.activate`.
+  fois. Un refus (autre centre, déjà activée, clé illisible, expirée, vide ou absente) répond **400** avec son motif
+  (corrigé le 2026-11-14, IDN-licence, ADR 0175, KB-LIC-1 : c'était un 500 sans motif). *Source :*
+  `LicenseService.activate`, `LicenseRestController.activate`.
+- **RG-SEC-067** — Émission d'une licence (`/licenses/issue`, `/issue-societe`) : réservée au SUPERADMIN ; un corps
+  illisible (dates) répond **403 avant 400** (403 pour un profil sans droit, sinon 400 ; corrigé le 2026-11-14,
+  KB-LIC-2 : c'était un 500 pour tous). Le centre est reconnu et son code lu par le langage publié d'Organisation
+  (`AnnuaireDesCentres.codeDuCentre`, centre inconnu : 400). **À confirmer métiers/DPO avant le 2026-12-15 (KB-LIC-3,
+  reproduit) :** l'émission pour un centre ne contrôle ni l'état du centre ni celui de sa société (seule l'émission
+  « par société » refuse un centre désactivé) ; l'amorçage de développement licencie tous les centres.
+  *Sources :* `LicenseService.issue`, `DatesIllisiblesDeLaDirectionAdvice`.
 - **RG-SEC-035** — Verdict d'un centre : aucune licence, révoquée, signature/expiration invalide, jeton d'un autre
   centre (falsification), vérification en ligne trop ancienne → licence invalide. *Source :* `LicenseService.verify`.
 - **RG-SEC-036** — Tant qu'un centre n'a pas de licence valide, toute route d'un utilisateur non-SUPERADMIN répond
