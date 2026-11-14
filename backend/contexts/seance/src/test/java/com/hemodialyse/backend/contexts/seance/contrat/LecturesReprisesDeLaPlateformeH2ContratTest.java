@@ -29,7 +29,9 @@ class LecturesReprisesDeLaPlateformeH2ContratTest extends LecturesReprisesDeLaPl
 
     @Override
     HistoriqueDesSeances historique() {
-        return new HistoriqueDesSeancesJdbc(jdbc);
+        return new HistoriqueDesSeancesJdbc(jdbc, new com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture
+                .PatientsDeLHistoriqueParLaFiche(new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence
+                .LotsDePatientsJdbc(jdbc)));
     }
 
     @Override

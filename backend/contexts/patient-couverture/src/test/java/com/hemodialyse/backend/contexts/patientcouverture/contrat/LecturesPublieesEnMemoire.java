@@ -28,7 +28,8 @@ import java.util.function.Supplier;
  */
 class LecturesPublieesEnMemoire implements FichesDesPatients, CouvertureDesPatients, CompteursDeCouverture,
         com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.ProgrammationDesPatients,
-        com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.LotsDePatients {
+        com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.LotsDePatients,
+        com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.EffectifDesPatients {
 
     record Forfait(UUID centre, String code, String libelle, BigDecimal prix) {
     }
@@ -316,15 +317,103 @@ class LecturesPublieesEnMemoire implements FichesDesPatients, CouvertureDesPatie
 
     @Override
     public long patientsPresentsLe(UUID centre, LocalDate jour) {
-        return patients.get().stream().filter(p -> p.centre().valeur().equals(centre)).filter(p -> {
-            LocalDate admission = p.fiche().dateAdmission();
-            if (admission != null && admission.isAfter(jour)) return false;
-            EtatDuPatient etat = p.etat();
-            LocalDate evenement = p.fiche().dateEvenement();
-            if (etat == null || (!etat.sortie() && !etat.sejourLimite())) return true;
-            if (etat.sejourLimite()) return evenement == null || !evenement.isBefore(jour);
-            if (etat == EtatDuPatient.TRANSFERE || etat == EtatDuPatient.GUERRI) return evenement != null && !evenement.isBefore(jour);
-            return evenement != null && evenement.isAfter(jour);
-        }).count();
+        return patients.get().stream().filter(p -> p.centre().valeur().equals(centre)).filter(p -> presentSur(p, jour, jour)).count();
+    }
+
+    /** La règle de présence (RG-PAT-032) sur une période : admis au plus tard le dernier jour, pas sorti avant le premier. */
+    private static boolean presentSur(Patient p, LocalDate debut, LocalDate fin) {
+        LocalDate admission = p.fiche().dateAdmission();
+        if (admission != null && admission.isAfter(fin)) return false;
+        EtatDuPatient etat = p.etat();
+        LocalDate evenement = p.fiche().dateEvenement();
+        if (etat == null || (!etat.sortie() && !etat.sejourLimite())) return true;
+        if (etat.sejourLimite()) return evenement == null || !evenement.isBefore(debut);
+        if (etat == EtatDuPatient.TRANSFERE || etat == EtatDuPatient.GUERRI) return evenement != null && !evenement.isBefore(debut);
+        return evenement != null && evenement.isAfter(debut);
+    }
+
+    // ---- EffectifDesPatients
+
+    private List<Patient> effectif(Collection<UUID> centres, LocalDate debut, LocalDate fin) {
+        return patients.get().stream().filter(p -> centres.contains(p.centre().valeur())).filter(p -> presentSur(p, debut, fin)).toList();
+    }
+
+    @Override
+    public Map<UUID, EffectifDuCentre> parCentre(Collection<UUID> centres, LocalDate debut, LocalDate fin) {
+        Map<UUID, EffectifDuCentre> effectifs = new HashMap<>();
+        for (Patient p : effectif(centres, debut, fin)) {
+            effectifs.merge(p.centre().valeur(), new EffectifDuCentre(1, p.fiche().suivi().sousKt() ? 1 : 0),
+                    (a, b) -> new EffectifDuCentre(a.patients() + b.patients(), a.sousKt() + b.sousKt()));
+        }
+        return effectifs;
+    }
+
+    @Override
+    public List<ProfilDuPatient> profils(Collection<UUID> centres, LocalDate debut, LocalDate fin) {
+        return effectif(centres, debut, fin).stream().map(p -> new ProfilDuPatient(p.centre().valeur(), p.fiche().identite().sexe(),
+                p.fiche().identite().dateNaissance())).toList();
+    }
+
+    @Override
+    public List<PatientsDuCentrePayeur> parCentrePayeur(Collection<UUID> centres, LocalDate debut, LocalDate fin) {
+        record Cle(UUID centre, UUID payeur) {
+        }
+        Map<Cle, Long> nombres = new java.util.LinkedHashMap<>();
+        for (Patient p : effectif(centres, debut, fin)) {
+            nombres.merge(new Cle(p.centre().valeur(), p.fiche().couverture().centrePayeurId()), 1L, Long::sum);
+        }
+        return nombres.entrySet().stream().map(e -> new PatientsDuCentrePayeur(e.getKey().centre(), e.getKey().payeur(), e.getValue()))
+                .toList();
+    }
+
+    @Override
+    public Map<UUID, PrescriptionsDeLAnemie> prescriptionsDeLAnemie(Collection<UUID> centres, LocalDate debut, LocalDate fin) {
+        Map<UUID, PrescriptionsDeLAnemie> prescriptions = new HashMap<>();
+        for (Patient p : effectif(centres, debut, fin)) {
+            prescriptions.merge(p.centre().valeur(),
+                    new PrescriptionsDeLAnemie(p.fiche().suivi().epoActive() ? 1 : 0, p.fiche().suivi().ferActif() ? 1 : 0),
+                    (a, b) -> new PrescriptionsDeLAnemie(a.sousEpo() + b.sousEpo(), a.sousFer() + b.sousFer()));
+        }
+        return prescriptions;
+    }
+
+    // ---- LotsDePatients : recherche de l'historique (LEC-PAT iii)
+
+    @Override
+    public List<PatientDeLaRecherche> rechercherDuCentre(UUID centre, String texte, OrdreDeRecherche ordre, boolean decroissant) {
+        List<String> mots = texte == null || texte.isBlank() ? List.of()
+                : List.of(texte.toLowerCase(java.util.Locale.ROOT).split("\\s+"));
+        Comparator<String> naturel = decroissant ? Comparator.nullsFirst(Comparator.<String>naturalOrder()).reversed()
+                : Comparator.nullsFirst(Comparator.<String>naturalOrder());
+        Comparator<Patient> comparateur = switch (ordre) {
+            case NOM_PUIS_PRENOM -> Comparator.comparing((Patient p) -> p.fiche().identite().nom(), naturel)
+                    .thenComparing(p -> p.fiche().identite().prenom(), naturel);
+            case CODE -> Comparator.comparing(Patient::code, naturel);
+            case AUCUN -> PAR_IDENTIFIANT;
+        };
+        List<Patient> tries = patientsDuCentre(centre).stream().filter(p -> mots.stream().allMatch(mot -> contient(p, mot)))
+                .sorted(comparateur).toList();
+        List<PatientDeLaRecherche> rendus = new java.util.ArrayList<>();
+        int rang = 0;
+        Patient precedent = null;
+        for (Patient p : tries) {
+            boolean change = precedent == null || switch (ordre) {
+                case NOM_PUIS_PRENOM -> !java.util.Objects.equals(precedent.fiche().identite().nom(), p.fiche().identite().nom())
+                        || !java.util.Objects.equals(precedent.fiche().identite().prenom(), p.fiche().identite().prenom());
+                case CODE -> !java.util.Objects.equals(precedent.code(), p.code());
+                case AUCUN -> false;
+            };
+            if (change) rang++;
+            rendus.add(new PatientDeLaRecherche(p.id().valeur(), p.code(), p.fiche().identite().nom(), p.fiche().identite().prenom(), rang));
+            precedent = p;
+        }
+        return rendus;
+    }
+
+    private static boolean contient(Patient p, String mot) {
+        for (String champ : new String[]{p.fiche().identite().nom(), p.fiche().identite().prenom(), p.code() == null ? "" : p.code()}) {
+            if (champ != null && champ.toLowerCase(java.util.Locale.ROOT).contains(mot)) return true;
+        }
+        return false;
     }
 }

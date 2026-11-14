@@ -19,6 +19,7 @@ import com.hemodialyse.backend.contexts.patientcouverture.domain.StatutPec;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.CompteursDeCouverture;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.CouvertureDesPatients;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.CouvertureDesPatients.CauseDeNonFacturation;
+import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.EffectifDesPatients;
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.FichesDesPatients;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.junit.jupiter.api.Test;
@@ -422,6 +423,140 @@ public abstract class LecturesPublieesContrat {
 
         assertThat(payeurs).containsOnlyKeys(avec.id().valeur()).containsEntry(avec.id().valeur(), payeur);
         assertThat(lots().centresPayeursDuCentre(CENTRE.valeur(), List.of())).isEmpty();
+    }
+
+    // ---- LotsDePatients : recherche de l'historique des séances (LEC-PAT iii, ADR 0178), BORNÉE au centre
+
+    @Test
+    void should_rechercher_les_patients_du_centre_seulement_dans_l_ordre_nom_prenom_avec_les_rangs_des_homonymes() {
+        patientNomme(CENTRE, "Martin", "Paul");
+        patientNomme(CENTRE, "Dupont", "Marie");
+        patientNomme(CENTRE, "Martin", "Paul");
+        patientNomme(CENTRE, "Dupont", "Anne");
+        Patient etranger = patientNomme(AUTRE, "Aubert", "Eve");
+
+        var croissant = lots().rechercherDuCentre(CENTRE.valeur(), null, LotsDePatients.OrdreDeRecherche.NOM_PUIS_PRENOM, false);
+        var decroissant = lots().rechercherDuCentre(CENTRE.valeur(), "  ", LotsDePatients.OrdreDeRecherche.NOM_PUIS_PRENOM, true);
+
+        assertThat(croissant).extracting(LotsDePatients.PatientDeLaRecherche::prenom).containsExactly("Anne", "Marie", "Paul", "Paul");
+        assertThat(croissant).extracting(LotsDePatients.PatientDeLaRecherche::rang).containsExactly(1, 2, 3, 3);
+        assertThat(croissant).extracting(LotsDePatients.PatientDeLaRecherche::patient).doesNotContain(etranger.id().valeur());
+        assertThat(croissant.get(0).code()).isNotBlank();
+        assertThat(decroissant).extracting(LotsDePatients.PatientDeLaRecherche::prenom).containsExactly("Paul", "Paul", "Marie", "Anne");
+        assertThat(decroissant).extracting(LotsDePatients.PatientDeLaRecherche::rang).as("rangs dans l'ordre rendu").containsExactly(1, 1, 2, 3);
+        assertThat(lots().rechercherDuCentre(UUID.randomUUID(), null, LotsDePatients.OrdreDeRecherche.NOM_PUIS_PRENOM, false)).isEmpty();
+    }
+
+    @Test
+    void should_rechercher_par_code_et_sans_ordre_avec_un_rang_par_valeur() {
+        Patient premier = patientNomme(CENTRE, "Martin", "Paul");
+        Patient second = patientNomme(CENTRE, "Dupont", "Anne");
+
+        var parCode = lots().rechercherDuCentre(CENTRE.valeur(), null, LotsDePatients.OrdreDeRecherche.CODE, false);
+        var parCodeDecroissant = lots().rechercherDuCentre(CENTRE.valeur(), null, LotsDePatients.OrdreDeRecherche.CODE, true);
+        var sansOrdre = lots().rechercherDuCentre(CENTRE.valeur(), null, LotsDePatients.OrdreDeRecherche.AUCUN, false);
+
+        assertThat(parCode).extracting(LotsDePatients.PatientDeLaRecherche::patient).containsExactly(premier.id().valeur(), second.id().valeur());
+        assertThat(parCode).extracting(LotsDePatients.PatientDeLaRecherche::rang).containsExactly(1, 2);
+        assertThat(parCodeDecroissant).extracting(LotsDePatients.PatientDeLaRecherche::patient)
+                .containsExactly(second.id().valeur(), premier.id().valeur());
+        assertThat(sansOrdre).extracting(LotsDePatients.PatientDeLaRecherche::patient)
+                .containsExactlyInAnyOrder(premier.id().valeur(), second.id().valeur());
+        assertThat(sansOrdre).extracting(LotsDePatients.PatientDeLaRecherche::rang).containsOnly(1);
+    }
+
+    @Test
+    void should_filtrer_la_recherche_sur_chaque_mot_du_nom_du_prenom_ou_du_code_sans_casse_et_avec_des_jokers_litteraux() {
+        Patient paul = patientNomme(CENTRE, "Martin", "Paul");
+        Patient marie = patientNomme(CENTRE, "Dupont", "Marie");
+        patientNomme(AUTRE, "Martin", "Paul");
+
+        assertThat(trouves("paul MARTIN")).containsExactly(paul.id().valeur());
+        assertThat(trouves("mar")).as("le prénom Marie et le nom Martin").containsExactlyInAnyOrder(paul.id().valeur(), marie.id().valeur());
+        assertThat(trouves(paul.code().toLowerCase())).as("le code, sans casse").containsExactly(paul.id().valeur());
+        assertThat(trouves("martin dupont")).as("chaque mot doit correspondre").isEmpty();
+        assertThat(trouves("%")).as("joker littéral").isEmpty();
+        assertThat(trouves("_")).as("joker littéral").isEmpty();
+        assertThat(trouves("mart_n")).isEmpty();
+        assertThat(trouves("inconnu")).isEmpty();
+    }
+
+    private List<UUID> trouves(String texte) {
+        return lots().rechercherDuCentre(CENTRE.valeur(), texte, LotsDePatients.OrdreDeRecherche.NOM_PUIS_PRENOM, false).stream()
+                .map(LotsDePatients.PatientDeLaRecherche::patient).toList();
+    }
+
+    // ---- EffectifDesPatients (LEC-PAT iii, ADR 0178)
+
+    protected abstract EffectifDesPatients effectif();
+
+    private static final LocalDate DEBUT = LocalDate.of(2026, 9, 1);
+    private static final LocalDate FIN = LocalDate.of(2026, 9, 30);
+
+    private Patient patientDeLEffectif(CentreId centre, String sexe, EtatDuPatient etat, LocalDate evenement, LocalDate admission,
+                                       boolean sousKt, boolean epo, boolean fer, UUID centrePayeur) {
+        Fiche base = Fiches.avec("LP-" + SEQUENCE.incrementAndGet(), etat, evenement, admission, NAISSANCE);
+        Fiche fiche = new Fiche(Identite.saisie("M", "Nom", "Prenom", sexe, "O+", 2, NAISSANCE, "Alger", "MARIE"), base.coordonnees(),
+                new SuiviMedical(sousKt, epo, null, fer, null, false, null, null),
+                new com.hemodialyse.backend.contexts.patientcouverture.domain.Couverture(base.couverture().numeroAssurance(),
+                        base.couverture().qualiteAssure(), centrePayeur, null, null, null, null),
+                base.affectation(), admission, etat, evenement);
+        Patient p = Patient.admettre(new PatientId(UUID.randomUUID()), "PAT-" + String.format("%08X", SEQUENCE.incrementAndGet()), centre,
+                fiche, JOUR, T0, UUID::randomUUID);
+        patients().enregistrer(p);
+        return p;
+    }
+
+    private Patient present(CentreId centre) {
+        return patientDeLEffectif(centre, "M", null, null, Fiches.ADMISSION, false, false, false, null);
+    }
+
+    @Test
+    void should_compter_l_effectif_de_la_periode_aux_bornes_des_sorties_des_sejours_et_de_l_admission() {
+        present(CENTRE);
+        patientDeLEffectif(CENTRE, "M", EtatDuPatient.TRANSFERE, DEBUT, Fiches.ADMISSION, true, false, false, null);
+        patientDeLEffectif(CENTRE, "M", EtatDuPatient.TRANSFERE, DEBUT.minusDays(1), Fiches.ADMISSION, false, false, false, null);
+        patientDeLEffectif(CENTRE, "M", EtatDuPatient.GUERRI, DEBUT, Fiches.ADMISSION, false, false, false, null);
+        patientDeLEffectif(CENTRE, "M", EtatDuPatient.DECEDE, DEBUT, Fiches.ADMISSION, false, false, false, null);
+        patientDeLEffectif(CENTRE, "M", EtatDuPatient.GREFFE, DEBUT.plusDays(1), Fiches.ADMISSION, false, false, false, null);
+        patientDeLEffectif(CENTRE, "M", EtatDuPatient.VACANCIER_LOCAL, DEBUT.minusDays(1), Fiches.ADMISSION, false, false, false, null);
+        patientDeLEffectif(CENTRE, "M", EtatDuPatient.OCCASIONNEL, FIN.plusDays(10), Fiches.ADMISSION, false, false, false, null);
+        patientDeLEffectif(CENTRE, "M", null, null, FIN, true, false, false, null);
+        patientDeLEffectif(CENTRE, "M", null, null, FIN.plusDays(1), true, false, false, null);
+        present(AUTRE);
+
+        var effectifs = effectif().parCentre(List.of(CENTRE.valeur(), AUTRE.valeur(), UUID.randomUUID()), DEBUT, FIN);
+
+        assertThat(effectifs).containsOnlyKeys(CENTRE.valeur(), AUTRE.valeur());
+        // présents : permanent, transféré le premier jour, guéri le premier jour, greffé le lendemain, séjour occasionnel non échu,
+        // admis le dernier jour ; absents : transféré la veille, décédé le premier jour, vacancier échu, admis le lendemain de la fin
+        assertThat(effectifs.get(CENTRE.valeur()).patients()).isEqualTo(6);
+        assertThat(effectifs.get(CENTRE.valeur()).sousKt()).isEqualTo(2);
+        assertThat(effectifs.get(AUTRE.valeur()).patients()).isEqualTo(1);
+        assertThat(effectif().parCentre(List.of(CENTRE.valeur()), LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 9)))
+                .as("personne n'est encore admis").isEmpty();
+    }
+
+    @Test
+    void should_rendre_sexe_et_naissance_de_l_effectif_sans_identifier_le_patient_et_les_patients_par_centre_payeur() {
+        UUID payeur = UUID.randomUUID();
+        patientDeLEffectif(CENTRE, "M", null, null, Fiches.ADMISSION, false, true, false, payeur);
+        patientDeLEffectif(CENTRE, "F", null, null, Fiches.ADMISSION, false, false, true, payeur);
+        patientDeLEffectif(CENTRE, "F", null, null, Fiches.ADMISSION, false, true, true, null);
+        patientDeLEffectif(CENTRE, "F", EtatDuPatient.DECEDE, DEBUT.minusDays(5), Fiches.ADMISSION, false, true, true, payeur);
+        patientDeLEffectif(AUTRE, "M", null, null, Fiches.ADMISSION, false, false, false, null);
+
+        var profils = effectif().profils(List.of(CENTRE.valeur()), DEBUT, FIN);
+        var parPayeur = effectif().parCentrePayeur(List.of(CENTRE.valeur(), AUTRE.valeur()), DEBUT, FIN);
+        var anemie = effectif().prescriptionsDeLAnemie(List.of(CENTRE.valeur(), AUTRE.valeur()), DEBUT, FIN);
+
+        assertThat(profils).hasSize(3).allMatch(p -> p.centre().equals(CENTRE.valeur()) && NAISSANCE.equals(p.dateNaissance()));
+        assertThat(profils).extracting(EffectifDesPatients.ProfilDuPatient::sexe).containsExactlyInAnyOrder("M", "F", "F");
+        assertThat(parPayeur).containsExactlyInAnyOrder(new EffectifDesPatients.PatientsDuCentrePayeur(CENTRE.valeur(), payeur, 2),
+                new EffectifDesPatients.PatientsDuCentrePayeur(CENTRE.valeur(), null, 1),
+                new EffectifDesPatients.PatientsDuCentrePayeur(AUTRE.valeur(), null, 1));
+        assertThat(anemie.get(CENTRE.valeur())).isEqualTo(new EffectifDesPatients.PrescriptionsDeLAnemie(2, 2));
+        assertThat(anemie.get(AUTRE.valeur())).isEqualTo(new EffectifDesPatients.PrescriptionsDeLAnemie(0, 0));
     }
 
     // ---- CouvertureDesPatients : forfait applicable

@@ -221,6 +221,46 @@ abstract class LecturesReprisesDeLaPlateformeContrat {
     }
 
     @Test
+    void l_ordre_par_patient_departage_les_homonymes_par_creation_decroissante_et_ne_porte_que_sur_les_patients_du_centre() {
+        PatientId premierAlpha = new PatientId(new UUID(1, 3));
+        patient(CENTRE, premierAlpha, "Alpha", "Anne", "SE1-ALPHA2");
+        PatientId etranger = new PatientId(new UUID(1, 4));
+        patient(AUTRE_CENTRE, etranger, "Aaron", "Zoe", "SE1-AARON");
+        SeanceId a1 = seance(CENTRE, ALPHA, JOUR, "CREE", T0);
+        SeanceId a2 = seance(CENTRE, premierAlpha, JOUR, "CREE", T0.plusHours(3));
+        SeanceId a3 = seance(CENTRE, ALPHA, JOUR.plusDays(1), "CREE", T0.plusHours(2));
+        SeanceId b1 = seance(CENTRE, BRAVO, JOUR, "CREE", T0.plusHours(5));
+        seance(CENTRE, etranger, JOUR, "CREE", T0.plusHours(9));
+
+        var croissant = historique().rechercher(CENTRE, recherche(Set.of(), null, "patientNom", false, null, null, null), new Pagination(0, 20));
+        var decroissant = historique().rechercher(CENTRE, recherche(Set.of(), null, "patientNom", true, null, null, null), new Pagination(0, 20));
+        var parCode = historique().rechercher(CENTRE, recherche(Set.of(), null, "patientCode", false, null, null, null), new Pagination(0, 20));
+        var deuxiemePage = historique().rechercher(CENTRE, recherche(Set.of(), null, "patientNom", false, null, null, null), new Pagination(1, 2));
+
+        assertThat(croissant.total()).isEqualTo(4);
+        assertThat(croissant.items()).extracting(HistoriqueDesSeances.LigneDeSeance::id)
+                .as("les deux Alpha Anne sont à égalité : création décroissante").containsExactly(a2, a3, a1, b1);
+        assertThat(decroissant.items()).extracting(HistoriqueDesSeances.LigneDeSeance::id).containsExactly(b1, a2, a3, a1);
+        assertThat(parCode.items()).extracting(HistoriqueDesSeances.LigneDeSeance::id).containsExactly(a3, a1, a2, b1);
+        assertThat(deuxiemePage.total()).isEqualTo(4);
+        assertThat(deuxiemePage.items()).extracting(HistoriqueDesSeances.LigneDeSeance::id).containsExactly(a1, b1);
+    }
+
+    @Test
+    void le_texte_libre_ne_retient_que_les_seances_des_patients_du_centre_qui_le_contiennent() {
+        PatientId etranger = new PatientId(new UUID(1, 4));
+        patient(AUTRE_CENTRE, etranger, "Alpha", "Anne", "SE1-ALPHA");
+        SeanceId duCentre = seance(CENTRE, ALPHA, JOUR, "CREE", T0);
+        seance(CENTRE, etranger, JOUR, "CREE", T0);
+        seance(CENTRE, BRAVO, JOUR, "CREE", T0);
+
+        var page = historique().rechercher(CENTRE, recherche(Set.of(), "alpha", "date", true, null, null, null), new Pagination(0, 20));
+
+        assertThat(page.total()).isEqualTo(1);
+        assertThat(page.items()).extracting(HistoriqueDesSeances.LigneDeSeance::id).containsExactly(duCentre);
+    }
+
+    @Test
     void une_seance_d_un_autre_centre_ou_d_un_patient_disparu_est_absente_et_un_statut_illisible_est_exclu_du_total() {
         seance(CENTRE, ALPHA, JOUR, "CREE", T0);
         seance(AUTRE_CENTRE, ALPHA, JOUR, "CREE", T0);

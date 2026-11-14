@@ -88,6 +88,11 @@ abstract class LecturesPublieesJdbcContrat extends LecturesPublieesContrat {
     }
 
     @Override
+    protected com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.EffectifDesPatients effectif() {
+        return new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.EffectifDesPatientsJdbc(jdbc());
+    }
+
+    @Override
     protected com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.LotsDePatients lots() {
         return new LotsDePatientsJdbc(jdbc());
     }

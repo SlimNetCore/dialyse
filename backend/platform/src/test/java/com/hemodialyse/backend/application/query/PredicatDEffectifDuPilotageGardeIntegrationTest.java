@@ -2,7 +2,8 @@ package com.hemodialyse.backend.application.query;
 
 import com.hemodialyse.backend.characterization.patientcouverture.pc4.EffectifDeReference;
 import com.hemodialyse.backend.contexts.pilotagedirection.domain.Periode;
-import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.persistence.PatientsDesCentresJdbc;
+import com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.EffectifDesPatientsJdbc;
+import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.patientcouverture.EffectifsParLaFiche;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,8 +23,8 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Garde de dérive de l'effectif (RG-PAT-032, revue du lot A du Pilotage direction, m2) : le prédicat d'effectif du module Pilotage direction
- * (copie nº 1, {@code PredicatDEffectif}, package privé : atteint par {@code PatientsDesCentresJdbc.parCentre}) et la référence des tests
+ * Garde de dérive de l'effectif (RG-PAT-032, revue du lot A du Pilotage direction, m2) : le prédicat d'effectif de la période de Patient et
+ * couverture (copie nº 1, {@code EffectifDesPatientsJdbc} depuis LEC-PAT iii, ADR 0178 : le Pilotage le lit par {@code EffectifsParLaFiche}) et la référence des tests
  * PC4 / PC5 ({@link EffectifDeReference}, copie nº 2) doivent compter les mêmes patients sur un jeu de sorties, de séjours et de dates
  * limites. Un patient par centre : l'effectif de chaque centre vaut 0 ou 1. La copie nº 3 (Patient et couverture,
  * {@code CompteursDeCouvertureJdbc}) est comparée à la référence par PC4 / PC5. Convergence : langage publié du Patient (PD5).
@@ -80,7 +81,7 @@ class PredicatDEffectifDuPilotageGardeIntegrationTest {
         centres.add(unPatient(rang++, "PERMANENT", null, FIN.plusDays(1)));
 
         Map<UUID, Long> duPilotage = new HashMap<>();
-        new PatientsDesCentresJdbc(jdbc, centre -> java.util.Map.of()).parCentre(centres, new Periode(DEBUT, FIN))
+        new EffectifsParLaFiche(new EffectifDesPatientsJdbc(jdbc), centre -> java.util.Map.of()).parCentre(centres, new Periode(DEBUT, FIN))
                 .forEach((centre, effectif) -> duPilotage.put(centre, effectif.patients()));
 
         var reference = EffectifDeReference.presentSur("p", DEBUT, FIN);

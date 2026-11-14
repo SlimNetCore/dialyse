@@ -69,23 +69,18 @@ class TableDuPatientCouvertureTest {
             "2026-11-04 : lecture de la fiche par la Planification (transporteurs, date de naissance : règle des 18 ans, RG-PLN-097), pas une lecture de fiche publiée ; les abords vasculaires viennent de dossier-medical.v1 depuis DM9 (ADR 0101) ; échéance : langage publié du Patient",
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacypatient/NomsDesPatientsJdbc.java", CYCLE + " (port FichesDesPatients.noms)",
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacypatient/PatientsDuCentreJdbc.java", CYCLE + " (port FichesDesPatients.situation)",
-            "contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/SituationsDesFacturesJdbc.java", JOINTURE + " : six tables de Facturation, KB-FAC-49",
-            "contexts/pilotage-direction/src/main/java/com/hemodialyse/backend/contexts/pilotagedirection/infrastructure/persistence/PatientsDesCentresJdbc.java",
-            "2026-11-09 (déplacée de platform/.../DirectionDashboardQueryService et DirectionBreakdownQueryService, PD1, ADR 0102) : effectif de "
-                    + "la période (prédicat RG-PAT-032), sexe et naissance, patients par caisse (jointure patients x centre payeur x agence x caisse "
-                    + "dans un GROUP BY : la découper changerait le résultat) et prescriptions d'EPO / de fer, agrégats anonymes de la Direction, "
-                    + "requêtes reprises mot pour mot ; échéance : lecture publiée de l'effectif par le Patient, revue au plus tard le 2026-12-15, "
-                    + "butoir 2027-03-31",
+            // PatientsDesCentresJdbc (Pilotage direction) et HistoriqueDesSeancesJdbc (Séance) : entrées SOLDÉES par LEC-PAT (iii) (2026-11-14,
+            // ADR 0178), lecture par EffectifDesPatients et LotsDePatients.rechercherDuCentre ; leurs butoirs (2027-03-31) ne sont pas reportés.
             // PlanningDesPatientsJdbc, PatientsDuJourJdbc, PatientsDuTableauDeBordJdbc : entrées SOLDÉES par LEC-PAT (i) (2026-11-14, ADR 0176),
             // lecture par ProgrammationDesPatients et LotsDePatients ; leurs butoirs (2027-03-31) ne sont pas reportés.
             // MigrationRollbackJdbcAdapter : entrée SOLDÉE par RP1 (2026-11-13, ADR 0169), l'annulation passe par AnnulationDeLaReprise.
             // ---- accès que la première version de la garde ne voyait pas (SQL construit, JPA), ajoutés par la revue du 2026-11-05
             // HistoricalRecordJdbcAdapter : entrée SOLDÉE par RP3a (2026-11-13, ADR 0171), attestations et prises en charge passent par
             // RepriseDeLHistoriqueDeCouverture ; le butoir (2027-03-31 / 2027-06-30 des lecteurs de la reprise) n'est pas reporté.
-            "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/persistence/HistoriqueDesSeancesJdbc.java",
-            "2026-11-08 (déplacée de platform/.../acl/seance/HistoriqueFourniLegacy, SE7f, ADR 0100) : historique des séances (SE1, ADR 0088) : jointure "
-                    + "séances-patients avec filtre, tri et pagination en SQL (la découper changerait le résultat), requête reprise mot pour mot ; "
-                    + "échéance : lecture publiée jointe du Patient, revue au plus tard le 2026-12-15, butoir 2027-03-31");
+            // SituationsDesFacturesJdbc : conservée, LEC-PAT (iii) (2026-11-14, ADR 0178) a établi que la lecture de patients n'est PAS isolable
+            // sans changer le résultat (tri sans départage sur une jointure dans un GROUP BY, KB-FAC-49).
+            "contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/SituationsDesFacturesJdbc.java",
+            JOINTURE + " : six tables de Facturation, KB-FAC-49");
 
     private static Map<String, String> jalons(String... couples) {
         Map<String, String> m = new TreeMap<>();
@@ -260,6 +255,27 @@ class TableDuPatientCouvertureTest {
             assertThat(lecteurs).doesNotContain(lecteur);
             assertThat(Files.exists(backend.resolve(lecteur))).isTrue();
         }
+    }
+
+    /**
+     * LEC-PAT (iii) (2026-11-14, ADR 0178) : l'historique des séances lit la fiche par {@code LotsDePatients.rechercherDuCentre} et l'effectif
+     * du Pilotage direction par {@code EffectifDesPatients} ; les deux jalons (butoir 2027-03-31) sont SOLDÉS (entrées supprimées, jamais
+     * reportées). Verrou : {@code HistoriqueDesSeancesJdbc} ne revient ni dans la liste ni dans les lecteurs SQL, et le lecteur SQL de
+     * l'effectif du Pilotage est supprimé. {@code SituationsDesFacturesJdbc} (KB-FAC-49) RESTE : sa lecture de patients n'est pas isolable.
+     */
+    @Test
+    void l_historique_des_seances_et_l_effectif_du_pilotage_ne_lisent_plus_les_tables_du_patient_couverture() throws IOException {
+        String historique = "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/persistence/HistoriqueDesSeancesJdbc.java";
+        String ancienLecteurDuPilotage = "contexts/pilotage-direction/src/main/java/com/hemodialyse/backend/contexts/pilotagedirection/"
+                + "infrastructure/persistence/PatientsDesCentresJdbc.java";
+        Path backend = backend();
+        Set<String> lecteurs = sourcesFautives(backend, racinesHorsDuContexte(backend));
+
+        assertThat(JALONS).doesNotContainKey(historique).doesNotContainKey(ancienLecteurDuPilotage);
+        assertThat(lecteurs).doesNotContain(historique).doesNotContain(ancienLecteurDuPilotage);
+        assertThat(Files.exists(backend.resolve(historique))).isTrue();
+        assertThat(Files.exists(backend.resolve(ancienLecteurDuPilotage))).isFalse();
+        assertThat(JALONS).containsKey("contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/SituationsDesFacturesJdbc.java");
     }
 
     @Test

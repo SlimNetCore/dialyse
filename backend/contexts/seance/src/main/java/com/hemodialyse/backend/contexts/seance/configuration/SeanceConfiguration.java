@@ -310,8 +310,10 @@ public class SeanceConfiguration {
     }
 
     @Bean
-    HistoriqueDesSeances historiqueDesSeances(JdbcTemplate jdbc) {
-        return new HistoriqueDesSeancesJdbc(jdbc);
+    HistoriqueDesSeances historiqueDesSeances(JdbcTemplate jdbc, LotsDePatients lots) {
+        // LEC-PAT (iii), ADR 0178 : la fiche des patients (texte, tri, collation) vient du langage publié de Patient et couverture
+        return new HistoriqueDesSeancesJdbc(jdbc,
+                new com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture.PatientsDeLHistoriqueParLaFiche(lots));
     }
 
     /** Place habituelle par le langage publié de la Planification ; déplacement temporaire du jour lu par la Séance (transitoire). */

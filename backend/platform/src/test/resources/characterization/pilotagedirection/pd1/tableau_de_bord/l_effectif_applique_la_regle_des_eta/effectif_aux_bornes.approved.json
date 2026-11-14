@@ -1,0 +1,190 @@
+{
+  "01 vue d'ensemble : effectif de A (permanents, guerison et greffe aux bornes, sejours limites, admis le dernier jour) ; B effectif nul ; aucun patient de l'autre societe" : {
+    "body" : {
+      "centres" : [ {
+        "actif" : true,
+        "caHt" : 0.0,
+        "caTtc" : 0.0,
+        "centerId" : "<CENTRE_A>",
+        "encaisse" : 0.0,
+        "factures" : 0,
+        "nom" : "Centre A",
+        "patients" : 17,
+        "patientsSousKt" : null,
+        "resteARecouvrer" : 0.0,
+        "seances" : 0,
+        "tauxEncaissement" : null
+      }, {
+        "actif" : true,
+        "caHt" : 0.0,
+        "caTtc" : 0.0,
+        "centerId" : "<CENTRE_B>",
+        "encaisse" : 0.0,
+        "factures" : 0,
+        "nom" : "Centre B",
+        "patients" : 0,
+        "patientsSousKt" : 0,
+        "resteARecouvrer" : 0.0,
+        "seances" : 0,
+        "tauxEncaissement" : null
+      } ],
+      "from" : "<D+0>",
+      "generatedAt" : "<HORODATAGE>",
+      "mensuel" : [ ],
+      "periodePrecedente" : {
+        "caHt" : 0,
+        "caTtc" : 0,
+        "encaisse" : 0,
+        "from" : "<D-101>",
+        "resteARecouvrer" : 0,
+        "seances" : 0,
+        "tauxEncaissement" : null,
+        "to" : "<D-1>"
+      },
+      "seuilAnonymat" : 5,
+      "societeId" : "<SOCIETE>",
+      "societeNom" : "Clinique Pilotage & Fils",
+      "to" : "<D+100>",
+      "totaux" : {
+        "actif" : true,
+        "caHt" : 0.0,
+        "caTtc" : 0.0,
+        "centerId" : null,
+        "encaisse" : 0.0,
+        "factures" : 0,
+        "nom" : null,
+        "patients" : 17,
+        "patientsSousKt" : null,
+        "resteARecouvrer" : 0.0,
+        "seances" : 0,
+        "tauxEncaissement" : null
+      }
+    },
+    "cacheControl" : "no-store",
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "02 repartition : sexe, age, caisses (centre payeur d'un autre centre : caisse vide), anemie" : {
+    "body" : {
+      "ages" : [ {
+        "centerId" : "<CENTRE_A>",
+        "nom" : "Centre A",
+        "tranches" : [ {
+          "code" : "0_17",
+          "count" : 0
+        }, {
+          "code" : "18_29",
+          "count" : 0
+        }, {
+          "code" : "30_44",
+          "count" : 0
+        }, {
+          "code" : "45_59",
+          "count" : 5
+        }, {
+          "code" : "60_PLUS",
+          "count" : 12
+        }, {
+          "code" : "INCONNU",
+          "count" : 0
+        } ]
+      }, {
+        "centerId" : "<CENTRE_B>",
+        "nom" : "Centre B",
+        "tranches" : [ {
+          "code" : "0_17",
+          "count" : 0
+        }, {
+          "code" : "18_29",
+          "count" : 0
+        }, {
+          "code" : "30_44",
+          "count" : 0
+        }, {
+          "code" : "45_59",
+          "count" : 0
+        }, {
+          "code" : "60_PLUS",
+          "count" : 0
+        }, {
+          "code" : "INCONNU",
+          "count" : 0
+        } ]
+      } ],
+      "anemie" : [ {
+        "administreesEpo" : 0,
+        "administreesFer" : 0,
+        "centerId" : "<CENTRE_A>",
+        "nom" : "Centre A",
+        "nonAdministrees" : 0,
+        "patientsEpo" : 0,
+        "patientsFer" : 0,
+        "patientsSousEpo" : 5,
+        "patientsSousFer" : 5,
+        "tauxAdministration" : null
+      }, {
+        "administreesEpo" : 0,
+        "administreesFer" : 0,
+        "centerId" : "<CENTRE_B>",
+        "nom" : "Centre B",
+        "nonAdministrees" : 0,
+        "patientsEpo" : 0,
+        "patientsFer" : 0,
+        "patientsSousEpo" : 0,
+        "patientsSousFer" : 0,
+        "tauxAdministration" : null
+      } ],
+      "caisseTotaux" : [ {
+        "caHt" : 0.0,
+        "caisse" : null,
+        "caisseCode" : "",
+        "patients" : 12,
+        "seances" : 0
+      }, {
+        "caHt" : 0.0,
+        "caisse" : "CNAS Nationale",
+        "caisseCode" : "CNAS",
+        "patients" : 5,
+        "seances" : 0
+      } ],
+      "caisses" : [ {
+        "caHt" : 0.0,
+        "caisse" : null,
+        "caisseCode" : "",
+        "centerId" : "<CENTRE_A>",
+        "centre" : "Centre A",
+        "patients" : 12,
+        "seances" : 0
+      }, {
+        "caHt" : 0.0,
+        "caisse" : "CNAS Nationale",
+        "caisseCode" : "CNAS",
+        "centerId" : "<CENTRE_A>",
+        "centre" : "Centre A",
+        "patients" : 5,
+        "seances" : 0
+      } ],
+      "from" : "<D+0>",
+      "generatedAt" : "<HORODATAGE>",
+      "seuilAnonymat" : 5,
+      "sexe" : [ {
+        "autre" : 0,
+        "centerId" : "<CENTRE_A>",
+        "feminin" : 5,
+        "masculin" : 12,
+        "nom" : "Centre A"
+      }, {
+        "autre" : 0,
+        "centerId" : "<CENTRE_B>",
+        "feminin" : 0,
+        "masculin" : 0,
+        "nom" : "Centre B"
+      } ],
+      "societeId" : "<SOCIETE>",
+      "to" : "<D+100>"
+    },
+    "cacheControl" : "no-store",
+    "contentType" : "application/json",
+    "status" : 200
+  }
+}

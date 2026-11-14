@@ -6,9 +6,9 @@
 #       aucune des tables paralleles du module gele contexts/pilotage-direction ;
 #   (2) le jeu FICTIF minimal des goldens H2 de backend/platform/src/test/resources/characterization/pilotagedirection/ (memes cas) et les requetes
 #       de production A L'IDENTIQUE (parametres remplaces par des litteraux), la ou la semantique H2/PostgreSQL peut differer :
-#       D1  PatientsDesCentresJdbc.parCentre + PredicatDEffectif (module pilotage-direction, PD1, ADR 0102 ; repris mot pour mot de
+#       D1  EffectifDesPatientsJdbc.parCentre (patient-couverture depuis LEC-PAT iii, ADR 0178 ; ex PatientsDesCentresJdbc + PredicatDEffectif, PD1, ADR 0102 ; repris mot pour mot de
 #           DirectionDashboardQueryService.java:112-113 + EffectifSql.presentSur, retires) : effectif de la periode par centre
-#       D2  PatientsDesCentresJdbc.parCaisse (repris de DirectionBreakdownQueryService.java:186-188, retire) : patients par caisse,
+#       D2  EffectifDesPatientsJdbc.parCentrePayeur puis EffectifsParLaFiche.parCaisse (ex PatientsDesCentresJdbc.parCaisse ; repris de DirectionBreakdownQueryService.java:186-188, retire) : patients par caisse,
 #           COALESCE(ca.code,'') + MAX(ca.nom) dans un GROUP BY
 #       D3  SeancesRealiseesDesCentresJdbc.java:49-50, 68-70, 80-83 (lues par la Direction, SE7e) : par centre, par mois (EXTRACT), par caisse
 #       D4  SyntheseFinanciereDesCentresJdbc.java:36-38, 42-43, 75-79 : factures, encaisse de toutes dates, CA par caisse (agence figee)

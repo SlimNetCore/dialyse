@@ -158,6 +158,11 @@ class LecturesPublieesEnMemoireContratTest extends LecturesPublieesContrat {
     }
 
     @Override
+    protected com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.EffectifDesPatients effectif() {
+        return lectures;
+    }
+
+    @Override
     protected com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.LotsDePatients lots() {
         return lectures;
     }

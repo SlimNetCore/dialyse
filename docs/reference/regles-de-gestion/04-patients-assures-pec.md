@@ -109,7 +109,9 @@
   période** et s'il n'est **pas sorti avant son premier jour**. La sortie (transfert, décès, greffe, guérison) ou la fin
   de séjour est lue à la date d'évènement selon RG-PAT-032 : un évènement **pendant ou après** la période garde le
   patient dans l'effectif, un évènement **antérieur** l'en retire ; un état de sortie sans date n'est jamais compté. La
-  file active de la capacité écarte en plus les patients « en sommeil » (RG-PAT-008).
+  file active de la capacité écarte en plus les patients « en sommeil » (RG-PAT-008). *Source des données (LEC-PAT iii,
+  2026-11-14, ADR 0178, comportement inchangé) :* le tableau de bord de la direction lit cet effectif par la lecture publiée
+  `EffectifDesPatients` de Patient et couverture (période, sans identifier un patient) ; le seuil d'anonymat reste celui de la direction.
 - **RG-PAT-035** — Le suivi des mouvements est consultable en **liste paginée** (page 0, taille 20 par défaut,
   100 maximum : une page négative ou une taille hors de 1 à 100 est refusée en 400), du plus récent au plus ancien,
   filtrable par patient, type et période de date d'effet, **limitée au centre courant**, pour les profils `ADMIN`,

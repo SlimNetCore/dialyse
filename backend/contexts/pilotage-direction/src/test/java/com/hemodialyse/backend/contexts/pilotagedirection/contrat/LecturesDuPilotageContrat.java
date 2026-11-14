@@ -2,7 +2,8 @@ package com.hemodialyse.backend.contexts.pilotagedirection.contrat;
 
 import com.hemodialyse.backend.contexts.pilotagedirection.application.SocietesSuivies;
 import com.hemodialyse.backend.contexts.pilotagedirection.domain.Periode;
-import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.persistence.PatientsDesCentresJdbc;
+import com.hemodialyse.backend.contexts.pilotagedirection.application.EffectifsDesPatients;
+import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.patientcouverture.EffectifsParLaFiche;
 import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.AnnuaireDesSocietesJdbc;
 import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.organisation.SocietesEtCentresPublies;
 import org.junit.jupiter.api.Test;
@@ -33,10 +34,12 @@ abstract class LecturesDuPilotageContrat {
     protected abstract JdbcTemplate jdbc();
 
     /** RF3b (ADR 0127) : la caisse d'un centre payeur est lue dans l'annuaire des payeurs de Patient et couverture, sur les mêmes tables. */
-    private PatientsDesCentresJdbc lecteurDesPatients() {
-        return new PatientsDesCentresJdbc(jdbc(), new com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.patientcouverture
-                .CaissesParLAnnuaireDesPayeurs(new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence
-                .PayeursDuCentreJdbc(jdbc())));
+    private EffectifsDesPatients lecteurDesPatients() {
+        return new EffectifsParLaFiche(
+                new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.EffectifDesPatientsJdbc(jdbc()),
+                new com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.patientcouverture
+                        .CaissesParLAnnuaireDesPayeurs(new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence
+                        .PayeursDuCentreJdbc(jdbc())));
     }
 
     protected void preparer() {

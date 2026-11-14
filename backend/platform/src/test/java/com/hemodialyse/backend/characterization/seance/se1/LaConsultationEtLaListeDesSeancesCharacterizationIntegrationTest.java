@@ -151,6 +151,49 @@ class LaConsultationEtLaListeDesSeancesCharacterizationIntegrationTest extends S
         arbre("filtres_nouveau_code", m);
     }
 
+    /**
+     * LEC-PAT (iii), filet complémentaire posé AVANT la lecture par le langage publié : homonymes (départage par création décroissante puis
+     * identifiant), patient transféré ou décédé (l'état n'exclut rien), patient sans code (ordre des valeurs nulles), prénom accentué
+     * (filtre de texte insensible à la casse), séance d'un centre rattachée à un patient d'un AUTRE centre (absente), séance sans patient.
+     */
+    @Test
+    void l_historique_departage_les_homonymes_et_ne_montre_que_les_patients_du_centre() throws Exception {
+        UUID martin1 = patientCouvert(CENTRE_A, "MARTIN1");
+        UUID martin2 = patientCouvert(CENTRE_A, "MARTIN2");
+        jdbc.update("UPDATE patients SET nom = 'Martin', prenom = 'Paul' WHERE id IN (?, ?)", martin1, martin2);
+        UUID dupont = patientCouvert(CENTRE_A, "DUPONT");
+        jdbc.update("UPDATE patients SET nom = 'Dupont', prenom = 'Anne', etat_patient = 'TRANSFERE', date_evenement_etat = ? WHERE id = ?",
+                java.sql.Date.valueOf(fixe(1)), dupont);
+        UUID decede = patientCouvert(CENTRE_A, "DECEDE");
+        jdbc.update("UPDATE patients SET nom = 'Zeta', prenom = 'Zoe', etat_patient = 'DECEDE', date_evenement_etat = ? WHERE id = ?",
+                java.sql.Date.valueOf(fixe(1)), decede);
+        UUID sansCode = patientCouvert(CENTRE_A, "SANSCODE");
+        jdbc.update("UPDATE patients SET nom = 'Aubert', prenom = 'Élodie', code_patient = NULL WHERE id = ?", sansCode);
+        UUID etranger = patientCouvert(CENTRE_B, "ETRANGER");
+        seanceEnBase(CENTRE_A, martin1, "M1A", fixe(1), "CREE");
+        seanceEnBase(CENTRE_A, martin1, "M1B", fixe(2), "VALIDEE");
+        seanceEnBase(CENTRE_A, martin2, "M2A", fixe(1), "CREE");
+        seanceEnBase(CENTRE_A, dupont, "D1", fixe(1), "SIGNEE");
+        seanceEnBase(CENTRE_A, decede, "Z1", fixe(3), "FACTUREE");
+        seanceEnBase(CENTRE_A, sansCode, "S1", fixe(2), "ABSENT");
+        seanceEnBase(CENTRE_A, etranger, "E1", fixe(1), "CREE");
+        seanceEnBase(CENTRE_A, idStable("patient", "disparu"), "X1", fixe(1), "CREE");
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("01 patient asc (homonymes departages par creation puis identifiant)", liste("&sortBy=patient&sortDir=asc"));
+        m.put("02 patient desc", liste("&sortBy=patient&sortDir=desc"));
+        m.put("03 code asc (code nul)", liste("&sortBy=code&sortDir=asc"));
+        m.put("04 code desc (code nul)", liste("&sortBy=code&sortDir=desc"));
+        m.put("05 q=martin", liste("&q=martin"));
+        m.put("06 q=paul martin", liste("&q=paul%20martin"));
+        m.put("07 q=ELODIE accentue en majuscules", liste("&q=%C3%89LODIE"));
+        m.put("08 q=SE1-DUPONT (patient transfere)", liste("&q=SE1-DUPONT"));
+        m.put("09 q=etranger (patient d'un autre centre)", liste("&q=ETRANGER"));
+        m.put("10 patient asc page=1 size=2", liste("&sortBy=patient&sortDir=asc&page=1&size=2"));
+        m.put("11 patient asc page=2 size=2", liste("&sortBy=patient&sortDir=asc&page=2&size=2"));
+        m.put("12 patient desc statut CREE,VALIDEE", liste("&sortBy=patient&status=CREE,VALIDEE"));
+        arbre("homonymes_et_patients_hors_centre", m);
+    }
+
     @Test
     void les_tris_et_la_pagination_de_la_liste_sont_bornes_sans_erreur() throws Exception {
         jeuDeSeances();

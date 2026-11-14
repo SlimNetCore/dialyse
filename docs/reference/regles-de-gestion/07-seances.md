@@ -250,6 +250,11 @@
   à la Planification avec le nom et le prénom de la fiche du centre (KB-SEA-80) ne sont plus lus en SQL sur les tables du patient, de la
   prise en charge et du forfait, mais par `LotsDePatients` et `CouvertureDesPatients` (langage publié `patientcouverture.v1`). Aucun
   écart de parité (goldens existants inchangés, un golden d'ordre de facturation ajouté avant le changement).
+  **LEC-PAT (iii), 2026-11-14, ADR 0178 : source des données, comportement inchangé** — l'historique des séances (filtre de texte sur le
+  nom, le prénom ou le code du patient, tri par patient ou par code) ne joint plus la table des patients : la Séance filtre et ordonne ses
+  séances, la fiche des patients DU CENTRE (texte, tri nom puis prénom ou code, collation de la base) vient de `LotsDePatients`
+  (`rechercherDuCentre`). Une séance dont le patient est d'un autre centre ou a disparu reste absente ; les homonymes restent départagés par
+  création décroissante puis identifiant de séance. Le total et les pages sont inchangés.
   *Source :* `ConsulterLeTableauDeBord`, `ConsulterLeDetailDuTableauDeBord`, `ExporterLeTableauDeBord`, `MoisDuTableauDeBord`,
   `SeancesAttendues`, `EffectifDuMois`, `FinDeLaPriseEnCharge`, `TrancheDAge`, `LigneDuDetail`, `FormatDExport`, `SeancesRealiseesJdbc`,
   `PatientsDuTableauDeBordJdbc`, `AbsencesDuCentreParLePilotage`, `ExportsDuTableauDeBordCsvPdfXlsx`, `TableauDeBordDesSeancesControleur`,

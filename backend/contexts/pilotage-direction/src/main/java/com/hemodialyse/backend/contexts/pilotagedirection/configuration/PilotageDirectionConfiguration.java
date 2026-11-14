@@ -53,7 +53,6 @@ import com.hemodialyse.backend.contexts.pilotagedirection.application.Traitement
 import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.dossiermedical.AnemieParLeDossierMedical;
 import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.facturation.FacturationParLaFacturation;
 import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.seance.SeancesRealiseesParLaSeance;
-import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.persistence.PatientsDesCentresJdbc;
 import com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.organisation.SocietesEtCentresPublies;
 import com.hemodialyse.backend.contexts.pilotagedirection.interfaces.publie.RapportDeSynthesePublie;
 import com.hemodialyse.backend.contexts.pilotagedirection.interfaces.publie.TableauDeBordPublie;
@@ -167,9 +166,11 @@ public class PilotageDirectionConfiguration {
     }
 
     @Bean
-    EffectifsDesPatients effectifsDesPatients(JdbcTemplate jdbc,
+    EffectifsDesPatients effectifsDesPatients(
+            com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.EffectifDesPatients effectif,
             com.hemodialyse.backend.contexts.pilotagedirection.application.CaissesDesCentresPayeurs caisses) {
-        return new PatientsDesCentresJdbc(jdbc, caisses);
+        // LEC-PAT (iii), ADR 0178 : l'effectif vient du langage publié de Patient et couverture, plus d'SQL sur patients
+        return new com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.patientcouverture.EffectifsParLaFiche(effectif, caisses);
     }
 
     /** RF3b (ADR 0127) : la caisse d'un centre payeur est lue dans l'annuaire de Patient et couverture, plus par jointure SQL. */

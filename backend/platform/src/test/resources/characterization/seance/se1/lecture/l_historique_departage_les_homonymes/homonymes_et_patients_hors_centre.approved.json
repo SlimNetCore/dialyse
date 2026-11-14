@@ -1,0 +1,14 @@
+{
+  "01 patient asc (homonymes departages par creation puis identifiant)" : "200 total=6 page=0 size=20 [ <D+2> ABSENT, SE1-DUPONT <D+1> SIGNEE, SE1-MARTIN2 <D+1> CREE, SE1-MARTIN1 <D+1> CREE, SE1-MARTIN1 <D+2> VALIDEE, SE1-DECEDE <D+3> FACTUREE]",
+  "02 patient desc" : "200 total=6 page=0 size=20 [SE1-DECEDE <D+3> FACTUREE, SE1-MARTIN2 <D+1> CREE, SE1-MARTIN1 <D+1> CREE, SE1-MARTIN1 <D+2> VALIDEE, SE1-DUPONT <D+1> SIGNEE,  <D+2> ABSENT]",
+  "03 code asc (code nul)" : "200 total=6 page=0 size=20 [ <D+2> ABSENT, SE1-DECEDE <D+3> FACTUREE, SE1-DUPONT <D+1> SIGNEE, SE1-MARTIN1 <D+1> CREE, SE1-MARTIN1 <D+2> VALIDEE, SE1-MARTIN2 <D+1> CREE]",
+  "04 code desc (code nul)" : "200 total=6 page=0 size=20 [SE1-MARTIN2 <D+1> CREE, SE1-MARTIN1 <D+1> CREE, SE1-MARTIN1 <D+2> VALIDEE, SE1-DUPONT <D+1> SIGNEE, SE1-DECEDE <D+3> FACTUREE,  <D+2> ABSENT]",
+  "05 q=martin" : "200 total=3 page=0 size=20 [SE1-MARTIN1 <D+2> VALIDEE, SE1-MARTIN2 <D+1> CREE, SE1-MARTIN1 <D+1> CREE]",
+  "06 q=paul martin" : "200 total=3 page=0 size=20 [SE1-MARTIN1 <D+2> VALIDEE, SE1-MARTIN2 <D+1> CREE, SE1-MARTIN1 <D+1> CREE]",
+  "07 q=ELODIE accentue en majuscules" : "200 total=1 page=0 size=20 [ <D+2> ABSENT]",
+  "08 q=SE1-DUPONT (patient transfere)" : "200 total=1 page=0 size=20 [SE1-DUPONT <D+1> SIGNEE]",
+  "09 q=etranger (patient d'un autre centre)" : "200 total=0 page=0 size=20 []",
+  "10 patient asc page=1 size=2" : "200 total=6 page=1 size=2 [SE1-MARTIN2 <D+1> CREE, SE1-MARTIN1 <D+1> CREE]",
+  "11 patient asc page=2 size=2" : "200 total=6 page=2 size=2 [SE1-MARTIN1 <D+2> VALIDEE, SE1-DECEDE <D+3> FACTUREE]",
+  "12 patient desc statut CREE,VALIDEE" : "200 total=3 page=0 size=20 [SE1-MARTIN2 <D+1> CREE, SE1-MARTIN1 <D+1> CREE, SE1-MARTIN1 <D+2> VALIDEE]"
+}

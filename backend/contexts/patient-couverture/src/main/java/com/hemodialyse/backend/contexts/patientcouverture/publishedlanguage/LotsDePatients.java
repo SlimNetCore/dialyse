@@ -46,6 +46,24 @@ public interface LotsDePatients {
      */
     Map<UUID, UUID> centresPayeursDuCentre(UUID centre, Collection<UUID> patients);
 
+    /**
+     * LEC-PAT (iii), ADR 0178 : la recherche des patients DU CENTRE pour l'historique des séances. Rend les patients du centre (et d'eux
+     * seuls : un patient d'un autre centre est absent, comme un identifiant inconnu) dont le nom, le prénom ou le code contient CHAQUE mot
+     * de {@code texte} (mots séparés par des espaces, casse ignorée, {@code %} et {@code _} littéraux ; texte nul ou blanc : aucun filtre),
+     * dans l'ordre demandé, {@code decroissant} inversant le sens. Le tri, la collation et la place des valeurs nulles sont ceux de la base
+     * de Patient et couverture. {@code rang} numérote, dans l'ordre rendu et à partir de 1, les valeurs distinctes de la clé de tri (le couple
+     * nom, prénom, ou le code) : deux patients de même rang sont à égalité, que le consommateur départage par ses propres critères ; avec
+     * {@link OrdreDeRecherche#AUCUN} tous ont le rang 1 et l'ordre est indéterminé.
+     */
+    List<PatientDeLaRecherche> rechercherDuCentre(UUID centre, String texte, OrdreDeRecherche ordre, boolean decroissant);
+
+    enum OrdreDeRecherche {
+        NOM_PUIS_PRENOM, CODE, AUCUN
+    }
+
+    record PatientDeLaRecherche(UUID patient, String code, String nom, String prenom, int rang) {
+    }
+
     record PatientAFacturer(UUID patient, String code, String nom, String prenom, String etat, String numeroAssurance, UUID centrePayeur,
                             int rang) {
     }

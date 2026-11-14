@@ -115,6 +115,48 @@ public class LotsDePatientsJdbc implements LotsDePatients {
         return payeurs;
     }
 
+    @Override
+    public List<PatientDeLaRecherche> rechercherDuCentre(UUID centre, String texte, OrdreDeRecherche ordre, boolean decroissant) {
+        StringBuilder requete = new StringBuilder("SELECT p.id, p.code_patient, p.nom, p.prenom FROM patients p WHERE p.center_id = ?");
+        List<Object> parametres = new ArrayList<>();
+        parametres.add(centre);
+        if (texte != null && !texte.isBlank()) {
+            for (String mot : texte.toLowerCase(java.util.Locale.ROOT).split("\\s+")) {
+                String motif = "%" + mot.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%";
+                requete.append(" AND (LOWER(p.nom) LIKE ? ESCAPE '\\' OR LOWER(p.prenom) LIKE ? ESCAPE '\\'"
+                        + " OR LOWER(COALESCE(p.code_patient, '')) LIKE ? ESCAPE '\\')");
+                parametres.add(motif);
+                parametres.add(motif);
+                parametres.add(motif);
+            }
+        }
+        String sens = decroissant ? " DESC" : " ASC";
+        switch (ordre) {
+            case NOM_PUIS_PRENOM -> requete.append(" ORDER BY p.nom").append(sens).append(", p.prenom").append(sens);
+            case CODE -> requete.append(" ORDER BY p.code_patient").append(sens);
+            case AUCUN -> {
+            }
+        }
+        List<PatientDeLaRecherche> rendus = new ArrayList<>();
+        int[] rang = {0};
+        String[] precedent = {null, null};
+        jdbc.query(requete.toString(), rs -> {
+            String code = rs.getString("code_patient");
+            String nom = rs.getString("nom");
+            String prenom = rs.getString("prenom");
+            boolean change = switch (ordre) {
+                case NOM_PUIS_PRENOM -> !Objects.equals(nom, precedent[0]) || !Objects.equals(prenom, precedent[1]);
+                case CODE -> !Objects.equals(code, precedent[0]);
+                case AUCUN -> false;
+            };
+            if (rang[0] == 0 || change) rang[0]++;
+            precedent[0] = ordre == OrdreDeRecherche.CODE ? code : nom;
+            precedent[1] = prenom;
+            rendus.add(new PatientDeLaRecherche(rs.getObject("id", UUID.class), code, nom, prenom, rang[0]));
+        }, parametres.toArray());
+        return rendus;
+    }
+
     private static String marques(int nombre) {
         return String.join(",", java.util.Collections.nCopies(nombre, "?"));
     }

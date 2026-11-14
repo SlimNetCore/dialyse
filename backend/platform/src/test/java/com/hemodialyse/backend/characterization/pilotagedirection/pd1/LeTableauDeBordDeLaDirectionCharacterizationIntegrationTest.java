@@ -67,6 +67,44 @@ class LeTableauDeBordDeLaDirectionCharacterizationIntegrationTest extends Pilota
         arbrePd("overview_nouveau_code", m);
     }
 
+    /**
+     * LEC-PAT (iii), filet complémentaire posé AVANT la lecture de l'effectif par le langage publié : chaque état de sortie et de séjour limité
+     * aux dates limites de la période (greffe le premier jour exclue, guérison le premier jour comptée, séjour limité sans date compté, sortie sans
+     * date exclue), centre sans aucun patient présent (effectif nul), patients d'une autre société (non comptés), centre payeur d'un autre centre.
+     */
+    @Test
+    void l_effectif_applique_la_regle_des_etats_aux_bornes_de_la_periode_et_ignore_les_autres_centres_et_societes() throws Exception {
+        fixe(-1);
+        fixe(-10);
+        fixe(-101);
+        UUID[] cnas = caisse(CENTRE_A, "CNAS", "CNAS Nationale");
+        UUID[] ailleurs = caisse(CENTRE_B, "CASNOS", "CASNOS Independants");
+        for (int i = 0; i < 5; i++) patientPd(CENTRE_A, "A_CNAS_" + i, "M", LocalDate.of(1960, 6, 15), i < 2, true, false, cnas[2]);
+        for (int i = 0; i < 5; i++) patientPd(CENTRE_A, "A_PAYEUR_B_" + i, "F", LocalDate.of(1980, 6, 15), false, false, true, ailleurs[2]);
+        sortie(patientPd(CENTRE_A, "A_GREFFE_PREMIER_JOUR"), "GREFFE", fixe(0));
+        sortie(patientPd(CENTRE_A, "A_GREFFE_LENDEMAIN"), "GREFFE", fixe(1));
+        sortie(patientPd(CENTRE_A, "A_GUERI_PREMIER_JOUR"), "GUERRI", fixe(0));
+        sortie(patientPd(CENTRE_A, "A_GUERI_VEILLE"), "GUERRI", fixe(-1));
+        sortie(patientPd(CENTRE_A, "A_DECEDE_PREMIER_JOUR"), "DECEDE", fixe(0));
+        sortie(patientPd(CENTRE_A, "A_TRANSFERE_PREMIER_JOUR"), "TRANSFERE", fixe(0));
+        jdbc.update("UPDATE patients SET etat_patient = 'TRANSFERE' WHERE id = ?", patientPd(CENTRE_A, "A_TRANSFERE_SANS_DATE"));
+        jdbc.update("UPDATE patients SET etat_patient = 'OCCASIONNEL' WHERE id = ?", patientPd(CENTRE_A, "A_OCCASIONNEL_SANS_DATE"));
+        sortie(patientPd(CENTRE_A, "A_OCCASIONNEL_ECHU"), "OCCASIONNEL", fixe(-1));
+        sortie(patientPd(CENTRE_A, "A_VACANCIER_ETRANGER_FIN_DE_PERIODE"), "VACANCIER_ETRANGER", fixe(100));
+        sortie(patientPd(CENTRE_A, "A_VACANCIER_LOCAL_LE_PREMIER_JOUR"), "VACANCIER_LOCAL", fixe(0));
+        admission(patientPd(CENTRE_A, "A_ADMIS_LE_DERNIER_JOUR"), fixe(100));
+        admission(patientPd(CENTRE_A, "A_ADMIS_LE_LENDEMAIN"), fixe(101));
+        for (int i = 0; i < 3; i++) sortie(patientPd(CENTRE_B, "B_SORTI_" + i), "DECEDE", fixe(-10));
+        for (int i = 0; i < 6; i++) patientPd(CENTRE_AUTRE, "X_" + i);
+        Resp apercu = direction("/overview" + periode());
+        Resp repartition = direction("/breakdown" + periode());
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("01 vue d'ensemble : effectif de A (permanents, guerison et greffe aux bornes, sejours limites, admis le dernier jour) ; "
+                + "B effectif nul ; aucun patient de l'autre societe", reponse(apercu));
+        m.put("02 repartition : sexe, age, caisses (centre payeur d'un autre centre : caisse vide), anemie", reponse(repartition));
+        arbrePd("effectif_aux_bornes", m);
+    }
+
     @Test
     void la_repartition_detaille_sexe_age_caisse_et_anemie_par_centre_avec_masquage_nouveau_code() throws Exception {
         jeuComplet();

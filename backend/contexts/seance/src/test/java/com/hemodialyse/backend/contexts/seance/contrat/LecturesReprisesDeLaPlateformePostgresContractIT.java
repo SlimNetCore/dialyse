@@ -57,7 +57,9 @@ class LecturesReprisesDeLaPlateformePostgresContractIT extends LecturesReprisesD
 
     @Override
     HistoriqueDesSeances historique() {
-        return new HistoriqueDesSeancesJdbc(connexion());
+        return new HistoriqueDesSeancesJdbc(connexion(), new com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture
+                .PatientsDeLHistoriqueParLaFiche(new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence
+                .LotsDePatientsJdbc(connexion())));
     }
 
     @Override

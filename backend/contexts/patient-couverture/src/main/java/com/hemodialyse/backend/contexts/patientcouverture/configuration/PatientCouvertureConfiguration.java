@@ -195,6 +195,12 @@ public class PatientCouvertureConfiguration {
         return new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.CouvertureDesPatientsJdbc(jdbc);
     }
 
+    /** LEC-PAT (iii), ADR 0178 : effectif d'une période lu par le Pilotage direction (règle de présence RG-PAT-032). */
+    @Bean
+    com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.EffectifDesPatients effectifDesPatients(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.EffectifDesPatientsJdbc(jdbc);
+    }
+
     @Bean
     com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.CompteursDeCouverture compteursDeCouverture(JdbcTemplate jdbc) {
         return new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.CompteursDeCouvertureJdbc(jdbc);
