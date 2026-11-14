@@ -1,0 +1,84 @@
+{
+  "01 proprietaire : tous les centres, par nom, actifs ou non" : {
+    "contentType" : "application/json",
+    "elementsDeLaFixture" : [ {
+      "id" : "<CENTRE_ALPHA_FERME>",
+      "name" : "Alpha 0 ferme"
+    }, {
+      "id" : "<CENTRE_ALPHA_1>",
+      "name" : "Alpha 1"
+    }, {
+      "id" : "<CENTRE_ALPHA_2>",
+      "name" : "Alpha 2"
+    }, {
+      "id" : "<CENTRE_BETA_ALPHA>",
+      "name" : "Beta Alpha"
+    }, {
+      "id" : "<CENTRE_BETA_NORD>",
+      "name" : "Beta Nord"
+    }, {
+      "id" : "<CENTRE_DORMANTE_FERME>",
+      "name" : "Dormante fermee"
+    }, {
+      "id" : "<CENTRE_SOCIETE_INACTIVE>",
+      "name" : "Zeta centre"
+    } ],
+    "status" : 200
+  },
+  "02 administrateur d'Alpha : les centres actifs de sa societe, par nom" : {
+    "contentType" : "application/json",
+    "elementsDeLaFixture" : [ {
+      "id" : "<CENTRE_ALPHA_1>",
+      "name" : "Alpha 1"
+    }, {
+      "id" : "<CENTRE_ALPHA_2>",
+      "name" : "Alpha 2"
+    } ],
+    "status" : 200
+  },
+  "03 administrateur de Beta" : {
+    "contentType" : "application/json",
+    "elementsDeLaFixture" : [ {
+      "id" : "<CENTRE_BETA_ALPHA>",
+      "name" : "Beta Alpha"
+    }, {
+      "id" : "<CENTRE_BETA_NORD>",
+      "name" : "Beta Nord"
+    } ],
+    "status" : 200
+  },
+  "04 centre courant desactive : il disparait de sa propre liste" : {
+    "contentType" : "application/json",
+    "elementsDeLaFixture" : [ {
+      "id" : "<CENTRE_ALPHA_1>",
+      "name" : "Alpha 1"
+    }, {
+      "id" : "<CENTRE_ALPHA_2>",
+      "name" : "Alpha 2"
+    } ],
+    "status" : 200
+  },
+  "05 centre courant inconnu" : {
+    "contentType" : "application/json",
+    "elementsDeLaFixture" : [ ],
+    "status" : 200
+  },
+  "06 apres desactivation d'Alpha 2" : {
+    "contentType" : "application/json",
+    "elementsDeLaFixture" : [ {
+      "id" : "<CENTRE_ALPHA_1>",
+      "name" : "Alpha 1"
+    } ],
+    "status" : 200
+  },
+  "07 session sans centre (direction)" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 401
+  },
+  "08 sans session" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 403
+  }
+}

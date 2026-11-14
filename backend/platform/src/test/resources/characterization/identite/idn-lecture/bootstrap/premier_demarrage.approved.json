@@ -1,0 +1,37 @@
+{
+  "01 premier demarrage : role" : {
+    "lignes" : [ {
+      "code" : "SUPERADMIN",
+      "description" : "Éditeur : sociétés, centres, licences",
+      "name" : "Super administrateur"
+    } ]
+  },
+  "02 premier demarrage : compte" : {
+    "lignes" : [ {
+      "active" : "true",
+      "email" : "superadmin@hemodialyse.dz",
+      "full_name" : "Super administrateur (dev)",
+      "mot_de_passe_pose" : "true",
+      "username" : "superadmin"
+    } ]
+  },
+  "03 premier demarrage : roles du compte" : {
+    "lignes" : [ {
+      "code" : "SUPERADMIN"
+    } ]
+  },
+  "04 premier demarrage : centres de la fixture rattaches" : {
+    "lignes" : [ {
+      "center_id" : "<CENTRE_FERME>"
+    }, {
+      "center_id" : "<CENTRE_BETA>"
+    }, {
+      "center_id" : "<CENTRE_ACTIF>"
+    } ]
+  },
+  "05 premier demarrage : centres de la base sans rattachement" : {
+    "lignes" : [ {
+      "nombre" : "0"
+    } ]
+  }
+}

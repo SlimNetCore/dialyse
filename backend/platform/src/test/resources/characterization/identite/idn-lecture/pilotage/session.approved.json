@@ -1,0 +1,41 @@
+{
+  "01 aucune authentification" : {
+    "valeur" : "AccessDeniedException : Accès réservé à la direction"
+  },
+  "02 role ADMIN seul" : {
+    "valeur" : "AccessDeniedException : Accès réservé à la direction"
+  },
+  "03 principal d'un autre type" : {
+    "valeur" : "AccessDeniedException : Accès réservé à la direction"
+  },
+  "04 jeton sans societe" : {
+    "valeur" : "AccessDeniedException : Session sans société"
+  },
+  "05 jeton avec societe blanche" : {
+    "valeur" : "AccessDeniedException : Session sans société"
+  },
+  "06 societe illisible" : {
+    "valeur" : "IllegalArgumentException : Jeton de session illisible"
+  },
+  "07 compte illisible" : {
+    "valeur" : "IllegalArgumentException : Jeton de session illisible"
+  },
+  "08 compte habilite" : {
+    "valeur" : "societe <SOCIETE_ALPHA>"
+  },
+  "09 compte habilite, jeton avec centre et deux roles" : {
+    "valeur" : "societe <SOCIETE_ALPHA>"
+  },
+  "10 societe du jeton autre que celle du compte" : {
+    "valeur" : "AccessDeniedException : Accès à cette société refusé"
+  },
+  "11 compte desactive" : {
+    "valeur" : "AccessDeniedException : Accès à cette société refusé"
+  },
+  "12 compte detache" : {
+    "valeur" : "AccessDeniedException : Accès à cette société refusé"
+  },
+  "13 societe desactivee" : {
+    "valeur" : "AccessDeniedException : Accès à cette société refusé"
+  }
+}

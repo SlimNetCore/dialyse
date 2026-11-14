@@ -1,0 +1,131 @@
+{
+  "01 retrait d'Alpha 2 : le centre de Beta n'est pas touche" : {
+    "body" : {
+      "active" : true,
+      "centres" : [ {
+        "id" : "<CENTRE_ALPHA_1>",
+        "name" : "Alpha 1"
+      } ],
+      "email" : "deux@example.test",
+      "fullName" : "Admin deux",
+      "userId" : "<COMPTE_ADMIN_DEUX_SOCIETES>",
+      "username" : "idn-admin-deux"
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "02 rattachements apres le retrait" : {
+    "lignes" : [ {
+      "center_id" : "<CENTRE_ALPHA_1>"
+    }, {
+      "center_id" : "<CENTRE_BETA_SUD>"
+    } ]
+  },
+  "03 jetons : seul celui d'Alpha 2 est coupe" : {
+    "lignes" : [ {
+      "revoked" : "false",
+      "token_hash" : "idn-jeton-alpha1"
+    }, {
+      "revoked" : "true",
+      "token_hash" : "idn-jeton-alpha2"
+    }, {
+      "revoked" : "false",
+      "token_hash" : "idn-jeton-beta"
+    } ]
+  },
+  "04 ajout d'un centre de la societe" : {
+    "body" : {
+      "active" : true,
+      "centres" : [ {
+        "id" : "<CENTRE_ALPHA_1>",
+        "name" : "Alpha 1"
+      }, {
+        "id" : "<CENTRE_ALPHA_2>",
+        "name" : "Alpha 2"
+      } ],
+      "email" : null,
+      "fullName" : "idn-admin-deux",
+      "userId" : "<COMPTE_ADMIN_DEUX_SOCIETES>",
+      "username" : "idn-admin-deux"
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "05 centre d'une autre societe" : {
+    "body" : {
+      "code" : "CENTRE_HORS_SOCIETE",
+      "detail" : "Ce centre n'appartient pas à cette société",
+      "instance" : "/api/v1/societes/<SOCIETE_ALPHA>/admin-accounts/<COMPTE_ADMIN_DEUX_SOCIETES>",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "06 liste de centres vide" : {
+    "body" : {
+      "code" : "VALIDATION_ERROR",
+      "detail" : "Invalid request content.",
+      "instance" : "/api/v1/societes/<SOCIETE_ALPHA>/admin-accounts/<COMPTE_ADMIN_DEUX_SOCIETES>",
+      "status" : 400,
+      "title" : "Validation echouee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "07 adresse invalide" : {
+    "body" : {
+      "code" : "EMAIL_INVALID",
+      "detail" : "Adresse email invalide",
+      "instance" : "/api/v1/societes/<SOCIETE_ALPHA>/admin-accounts/<COMPTE_ADMIN_DEUX_SOCIETES>",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "08 administrateur d'une autre societe" : {
+    "body" : {
+      "code" : "COMPTE_INTROUVABLE",
+      "detail" : "Administrateur introuvable dans cette société",
+      "instance" : "/api/v1/societes/<SOCIETE_BETA>/admin-accounts/<COMPTE_ADMIN_ALPHA>",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "09 compte direction sur la route des administrateurs" : {
+    "body" : {
+      "code" : "COMPTE_INTROUVABLE",
+      "detail" : "Administrateur introuvable dans cette société",
+      "instance" : "/api/v1/societes/<SOCIETE_ALPHA>/admin-accounts/<COMPTE_DIRECTION_ALPHA>",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "10 compte inconnu" : {
+    "body" : {
+      "code" : "COMPTE_INTROUVABLE",
+      "detail" : "Administrateur introuvable dans cette société",
+      "instance" : "/api/v1/societes/<SOCIETE_ALPHA>/admin-accounts/<UUID_GENERE_1>",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "11 l'administrateur ne se modifie pas lui-meme (403)" : {
+    "body" : {
+      "code" : "ACCESS_DENIED",
+      "detail" : "Access Denied",
+      "instance" : "/api/v1/societes/<SOCIETE_ALPHA>/admin-accounts/<COMPTE_ADMIN_DEUX_SOCIETES>",
+      "status" : 403,
+      "title" : "Acces refuse"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 403
+  }
+}

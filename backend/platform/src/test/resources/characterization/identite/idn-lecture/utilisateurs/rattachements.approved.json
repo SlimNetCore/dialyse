@@ -1,0 +1,153 @@
+{
+  "01 creation avec deux centres (dont un d'une autre societe)" : {
+    "body" : {
+      "id" : "<COMPTE_NOUVEAU>"
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "02 fiche du nouveau compte" : {
+    "body" : {
+      "active" : true,
+      "centers" : [ {
+        "id" : "<CENTRE_ALPHA_1>",
+        "name" : "Alpha 1"
+      }, {
+        "id" : "<CENTRE_BETA_NORD>",
+        "name" : "Beta Nord"
+      } ],
+      "created_at" : null,
+      "email" : "nouveau@example.test",
+      "full_name" : "Nouveau compte",
+      "id" : "<COMPTE_NOUVEAU>",
+      "roles" : [ {
+        "code" : "INFIRMIER",
+        "id" : "<UUID_GENERE_1>",
+        "name" : "Infirmier"
+      } ],
+      "username" : "idn-nouveau"
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "03 creation d'un identifiant deja pris" : {
+    "body" : {
+      "error" : "Nom d'utilisateur déjà existant"
+    },
+    "contentType" : "application/json",
+    "status" : 400
+  },
+  "04 modification : les centres sont remplaces" : {
+    "body" : {
+      "id" : "<COMPTE_NOUVEAU>"
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "05 fiche apres remplacement" : {
+    "body" : {
+      "active" : true,
+      "centers" : [ {
+        "id" : "<CENTRE_ALPHA_2>",
+        "name" : "Alpha 2"
+      }, {
+        "id" : "<CENTRE_ALPHA_FERME>",
+        "name" : "Alpha ferme"
+      } ],
+      "created_at" : null,
+      "email" : "nouveau@example.test",
+      "full_name" : "Nouveau compte",
+      "id" : "<COMPTE_NOUVEAU>",
+      "roles" : [ {
+        "code" : "INFIRMIER",
+        "id" : "<UUID_GENERE_1>",
+        "name" : "Infirmier"
+      } ],
+      "username" : "idn-nouveau"
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "06 modification sans liste de centres : rattachements conserves" : {
+    "body" : {
+      "id" : "<COMPTE_NOUVEAU>"
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "07 fiche apres modification sans liste" : {
+    "body" : {
+      "active" : true,
+      "centers" : [ {
+        "id" : "<CENTRE_ALPHA_2>",
+        "name" : "Alpha 2"
+      }, {
+        "id" : "<CENTRE_ALPHA_FERME>",
+        "name" : "Alpha ferme"
+      } ],
+      "created_at" : null,
+      "email" : "nouveau@example.test",
+      "full_name" : "Nouveau compte renomme",
+      "id" : "<COMPTE_NOUVEAU>",
+      "roles" : [ {
+        "code" : "INFIRMIER",
+        "id" : "<UUID_GENERE_1>",
+        "name" : "Infirmier"
+      } ],
+      "username" : "idn-nouveau"
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "08 modification : liste vide de centres" : {
+    "body" : {
+      "id" : "<COMPTE_NOUVEAU>"
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "09 fiche apres liste vide" : {
+    "body" : {
+      "active" : true,
+      "centers" : [ ],
+      "created_at" : null,
+      "email" : "nouveau@example.test",
+      "full_name" : "Nouveau compte",
+      "id" : "<COMPTE_NOUVEAU>",
+      "roles" : [ {
+        "code" : "INFIRMIER",
+        "id" : "<UUID_GENERE_1>",
+        "name" : "Infirmier"
+      } ],
+      "username" : "idn-nouveau"
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "10 rattachement a un centre inconnu" : {
+    "body" : {
+      "code" : "DATA_ACCESS_ERROR",
+      "detail" : "<message technique Spring/Jackson/SGBD non verrouille>",
+      "instance" : "/api/v1/users/<COMPTE_NOUVEAU>",
+      "status" : 500,
+      "title" : "Erreur technique"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 500
+  },
+  "11 rattachements en base apres le refus" : {
+    "lignes" : [ ]
+  },
+  "12 suppression d'un compte sans role ni centre" : {
+    "body" : {
+      "deleted" : true
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "13 fiche apres suppression" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 404
+  }
+}

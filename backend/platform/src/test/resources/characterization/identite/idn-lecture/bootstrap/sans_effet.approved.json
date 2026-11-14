@@ -1,0 +1,26 @@
+{
+  "01 desactive par defaut : role" : {
+    "lignes" : [ ]
+  },
+  "02 desactive par defaut : compte" : {
+    "lignes" : [ ]
+  },
+  "03 desactive par defaut : roles du compte" : {
+    "lignes" : [ ]
+  },
+  "04 desactive par defaut : centres de la fixture rattaches" : {
+    "lignes" : [ ]
+  },
+  "05 active mais cles de licence reelles : role" : {
+    "lignes" : [ ]
+  },
+  "06 active mais cles de licence reelles : compte" : {
+    "lignes" : [ ]
+  },
+  "07 active mais cles de licence reelles : roles du compte" : {
+    "lignes" : [ ]
+  },
+  "08 active mais cles de licence reelles : centres de la fixture rattaches" : {
+    "lignes" : [ ]
+  }
+}

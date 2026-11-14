@@ -1,0 +1,35 @@
+{
+  "01 compte actif rattache a une societe active" : {
+    "valeur" : "true"
+  },
+  "02 compte actif rattache, autre societe demandee" : {
+    "valeur" : "false"
+  },
+  "03 compte desactive" : {
+    "valeur" : "false"
+  },
+  "04 compte sans rattachement" : {
+    "valeur" : "false"
+  },
+  "05 compte d'une autre societe" : {
+    "valeur" : "false"
+  },
+  "06 societe desactivee" : {
+    "valeur" : "false"
+  },
+  "07 compte inconnu" : {
+    "valeur" : "false"
+  },
+  "08 societe inconnue" : {
+    "valeur" : "false"
+  },
+  "09 societe desactivee depuis" : {
+    "valeur" : "false"
+  },
+  "10 compte desactive depuis" : {
+    "valeur" : "false"
+  },
+  "11 compte detache depuis" : {
+    "valeur" : "false"
+  }
+}

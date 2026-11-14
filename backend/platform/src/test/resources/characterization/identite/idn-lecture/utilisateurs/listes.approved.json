@@ -1,0 +1,399 @@
+{
+  "01 tous les utilisateurs, par identifiant" : {
+    "contentType" : "application/json",
+    "elementsDeLaFixture" : [ {
+      "active" : true,
+      "centers" : [ {
+        "id" : "<CENTRE_ALPHA_1>",
+        "name" : "Alpha 1"
+      } ],
+      "created_at" : null,
+      "email" : null,
+      "full_name" : "Compte COMPTE_ADMIN",
+      "id" : "<COMPTE_ADMIN>",
+      "roles" : [ {
+        "code" : "ADMIN",
+        "id" : "<UUID_GENERE_1>",
+        "name" : "Administrateur"
+      } ],
+      "username" : "idn-admin"
+    }, {
+      "active" : true,
+      "centers" : [ ],
+      "created_at" : null,
+      "email" : null,
+      "full_name" : "Compte COMPTE_ISOLE",
+      "id" : "<COMPTE_ISOLE>",
+      "roles" : [ ],
+      "username" : "idn-isole"
+    }, {
+      "active" : true,
+      "centers" : [ {
+        "id" : "<CENTRE_ALPHA_1>",
+        "name" : "Alpha 1"
+      }, {
+        "id" : "<CENTRE_ALPHA_2>",
+        "name" : "Alpha 2"
+      }, {
+        "id" : "<CENTRE_ALPHA_FERME>",
+        "name" : "Alpha ferme"
+      } ],
+      "created_at" : null,
+      "email" : null,
+      "full_name" : "Compte COMPTE_MARIE",
+      "id" : "<COMPTE_MARIE>",
+      "roles" : [ {
+        "code" : "INFIRMIER",
+        "id" : "<UUID_GENERE_2>",
+        "name" : "Infirmier"
+      } ],
+      "username" : "idn-marie"
+    }, {
+      "active" : false,
+      "centers" : [ {
+        "id" : "<CENTRE_BETA_NORD>",
+        "name" : "Beta Nord"
+      } ],
+      "created_at" : null,
+      "email" : null,
+      "full_name" : "Compte COMPTE_PAUL",
+      "id" : "<COMPTE_PAUL>",
+      "roles" : [ {
+        "code" : "INFIRMIER",
+        "id" : "<UUID_GENERE_2>",
+        "name" : "Infirmier"
+      }, {
+        "code" : "MEDECIN",
+        "id" : "<UUID_GENERE_3>",
+        "name" : "Médecin"
+      } ],
+      "username" : "idn-paul"
+    } ],
+    "status" : 200
+  },
+  "02 filtre sur le centre Alpha 1" : {
+    "contentType" : "application/json",
+    "elementsDeLaFixture" : [ {
+      "active" : true,
+      "centers" : [ {
+        "id" : "<CENTRE_ALPHA_1>",
+        "name" : "Alpha 1"
+      } ],
+      "created_at" : null,
+      "email" : null,
+      "full_name" : "Compte COMPTE_ADMIN",
+      "id" : "<COMPTE_ADMIN>",
+      "roles" : [ {
+        "code" : "ADMIN",
+        "id" : "<UUID_GENERE_1>",
+        "name" : "Administrateur"
+      } ],
+      "username" : "idn-admin"
+    }, {
+      "active" : true,
+      "centers" : [ {
+        "id" : "<CENTRE_ALPHA_1>",
+        "name" : "Alpha 1"
+      }, {
+        "id" : "<CENTRE_ALPHA_2>",
+        "name" : "Alpha 2"
+      }, {
+        "id" : "<CENTRE_ALPHA_FERME>",
+        "name" : "Alpha ferme"
+      } ],
+      "created_at" : null,
+      "email" : null,
+      "full_name" : "Compte COMPTE_MARIE",
+      "id" : "<COMPTE_MARIE>",
+      "roles" : [ {
+        "code" : "INFIRMIER",
+        "id" : "<UUID_GENERE_2>",
+        "name" : "Infirmier"
+      } ],
+      "username" : "idn-marie"
+    } ],
+    "status" : 200
+  },
+  "03 filtre sur le centre Beta Nord" : {
+    "contentType" : "application/json",
+    "elementsDeLaFixture" : [ {
+      "active" : false,
+      "centers" : [ {
+        "id" : "<CENTRE_BETA_NORD>",
+        "name" : "Beta Nord"
+      } ],
+      "created_at" : null,
+      "email" : null,
+      "full_name" : "Compte COMPTE_PAUL",
+      "id" : "<COMPTE_PAUL>",
+      "roles" : [ {
+        "code" : "INFIRMIER",
+        "id" : "<UUID_GENERE_2>",
+        "name" : "Infirmier"
+      }, {
+        "code" : "MEDECIN",
+        "id" : "<UUID_GENERE_3>",
+        "name" : "Médecin"
+      } ],
+      "username" : "idn-paul"
+    } ],
+    "status" : 200
+  },
+  "04 filtre sur un centre inconnu" : {
+    "contentType" : "application/json",
+    "elementsDeLaFixture" : [ ],
+    "status" : 200
+  },
+  "05 recherche : centre Alpha 2, page 0" : {
+    "contentType" : "application/json",
+    "elementsDeLaFixture" : [ {
+      "active" : true,
+      "centers" : [ {
+        "id" : "<CENTRE_ALPHA_1>",
+        "name" : "Alpha 1"
+      }, {
+        "id" : "<CENTRE_ALPHA_2>",
+        "name" : "Alpha 2"
+      }, {
+        "id" : "<CENTRE_ALPHA_FERME>",
+        "name" : "Alpha ferme"
+      } ],
+      "created_at" : null,
+      "email" : null,
+      "full_name" : "Compte COMPTE_MARIE",
+      "id" : "<COMPTE_MARIE>",
+      "roles" : [ {
+        "code" : "INFIRMIER",
+        "id" : "<UUID_GENERE_2>",
+        "name" : "Infirmier"
+      } ],
+      "username" : "idn-marie"
+    } ],
+    "status" : 200
+  },
+  "06 recherche : texte libre sur les identifiants du filet" : {
+    "contentType" : "application/json",
+    "elementsDeLaFixture" : [ {
+      "active" : true,
+      "centers" : [ {
+        "id" : "<CENTRE_ALPHA_1>",
+        "name" : "Alpha 1"
+      } ],
+      "created_at" : null,
+      "email" : null,
+      "full_name" : "Compte COMPTE_ADMIN",
+      "id" : "<COMPTE_ADMIN>",
+      "roles" : [ {
+        "code" : "ADMIN",
+        "id" : "<UUID_GENERE_1>",
+        "name" : "Administrateur"
+      } ],
+      "username" : "idn-admin"
+    }, {
+      "active" : true,
+      "centers" : [ ],
+      "created_at" : null,
+      "email" : null,
+      "full_name" : "Compte COMPTE_ISOLE",
+      "id" : "<COMPTE_ISOLE>",
+      "roles" : [ ],
+      "username" : "idn-isole"
+    }, {
+      "active" : true,
+      "centers" : [ {
+        "id" : "<CENTRE_ALPHA_1>",
+        "name" : "Alpha 1"
+      }, {
+        "id" : "<CENTRE_ALPHA_2>",
+        "name" : "Alpha 2"
+      }, {
+        "id" : "<CENTRE_ALPHA_FERME>",
+        "name" : "Alpha ferme"
+      } ],
+      "created_at" : null,
+      "email" : null,
+      "full_name" : "Compte COMPTE_MARIE",
+      "id" : "<COMPTE_MARIE>",
+      "roles" : [ {
+        "code" : "INFIRMIER",
+        "id" : "<UUID_GENERE_2>",
+        "name" : "Infirmier"
+      } ],
+      "username" : "idn-marie"
+    }, {
+      "active" : false,
+      "centers" : [ {
+        "id" : "<CENTRE_BETA_NORD>",
+        "name" : "Beta Nord"
+      } ],
+      "created_at" : null,
+      "email" : null,
+      "full_name" : "Compte COMPTE_PAUL",
+      "id" : "<COMPTE_PAUL>",
+      "roles" : [ {
+        "code" : "INFIRMIER",
+        "id" : "<UUID_GENERE_2>",
+        "name" : "Infirmier"
+      }, {
+        "code" : "MEDECIN",
+        "id" : "<UUID_GENERE_3>",
+        "name" : "Médecin"
+      } ],
+      "username" : "idn-paul"
+    } ],
+    "status" : 200
+  },
+  "07 recherche : nom de centre contenant ferme" : {
+    "contentType" : "application/json",
+    "elementsDeLaFixture" : [ {
+      "active" : true,
+      "centers" : [ {
+        "id" : "<CENTRE_ALPHA_1>",
+        "name" : "Alpha 1"
+      }, {
+        "id" : "<CENTRE_ALPHA_2>",
+        "name" : "Alpha 2"
+      }, {
+        "id" : "<CENTRE_ALPHA_FERME>",
+        "name" : "Alpha ferme"
+      } ],
+      "created_at" : null,
+      "email" : null,
+      "full_name" : "Compte COMPTE_MARIE",
+      "id" : "<COMPTE_MARIE>",
+      "roles" : [ {
+        "code" : "INFIRMIER",
+        "id" : "<UUID_GENERE_2>",
+        "name" : "Infirmier"
+      } ],
+      "username" : "idn-marie"
+    } ],
+    "status" : 200
+  },
+  "08 recherche : nom de centre contenant beta, comptes inactifs" : {
+    "contentType" : "application/json",
+    "elementsDeLaFixture" : [ {
+      "active" : false,
+      "centers" : [ {
+        "id" : "<CENTRE_BETA_NORD>",
+        "name" : "Beta Nord"
+      } ],
+      "created_at" : null,
+      "email" : null,
+      "full_name" : "Compte COMPTE_PAUL",
+      "id" : "<COMPTE_PAUL>",
+      "roles" : [ {
+        "code" : "INFIRMIER",
+        "id" : "<UUID_GENERE_2>",
+        "name" : "Infirmier"
+      }, {
+        "code" : "MEDECIN",
+        "id" : "<UUID_GENERE_3>",
+        "name" : "Médecin"
+      } ],
+      "username" : "idn-paul"
+    } ],
+    "status" : 200
+  },
+  "09 recherche : role infirmier" : {
+    "contentType" : "application/json",
+    "elementsDeLaFixture" : [ {
+      "active" : true,
+      "centers" : [ {
+        "id" : "<CENTRE_ALPHA_1>",
+        "name" : "Alpha 1"
+      }, {
+        "id" : "<CENTRE_ALPHA_2>",
+        "name" : "Alpha 2"
+      }, {
+        "id" : "<CENTRE_ALPHA_FERME>",
+        "name" : "Alpha ferme"
+      } ],
+      "created_at" : null,
+      "email" : null,
+      "full_name" : "Compte COMPTE_MARIE",
+      "id" : "<COMPTE_MARIE>",
+      "roles" : [ {
+        "code" : "INFIRMIER",
+        "id" : "<UUID_GENERE_2>",
+        "name" : "Infirmier"
+      } ],
+      "username" : "idn-marie"
+    }, {
+      "active" : false,
+      "centers" : [ {
+        "id" : "<CENTRE_BETA_NORD>",
+        "name" : "Beta Nord"
+      } ],
+      "created_at" : null,
+      "email" : null,
+      "full_name" : "Compte COMPTE_PAUL",
+      "id" : "<COMPTE_PAUL>",
+      "roles" : [ {
+        "code" : "INFIRMIER",
+        "id" : "<UUID_GENERE_2>",
+        "name" : "Infirmier"
+      }, {
+        "code" : "MEDECIN",
+        "id" : "<UUID_GENERE_3>",
+        "name" : "Médecin"
+      } ],
+      "username" : "idn-paul"
+    } ],
+    "status" : 200
+  },
+  "10 recherche : taille hors bornes" : {
+    "body" : {
+      "code" : "VALIDATION_ERROR",
+      "detail" : "Invalid request content.",
+      "instance" : "/api/v1/users/search",
+      "status" : 400,
+      "title" : "Validation echouee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "11 apres renommage du centre Alpha 1 : les listes relisent le nom" : {
+    "contentType" : "application/json",
+    "elementsDeLaFixture" : [ {
+      "active" : true,
+      "centers" : [ {
+        "id" : "<CENTRE_ALPHA_1>",
+        "name" : "Alpha 1 renomme"
+      } ],
+      "created_at" : null,
+      "email" : null,
+      "full_name" : "Compte COMPTE_ADMIN",
+      "id" : "<COMPTE_ADMIN>",
+      "roles" : [ {
+        "code" : "ADMIN",
+        "id" : "<UUID_GENERE_1>",
+        "name" : "Administrateur"
+      } ],
+      "username" : "idn-admin"
+    }, {
+      "active" : true,
+      "centers" : [ {
+        "id" : "<CENTRE_ALPHA_1>",
+        "name" : "Alpha 1 renomme"
+      }, {
+        "id" : "<CENTRE_ALPHA_2>",
+        "name" : "Alpha 2"
+      }, {
+        "id" : "<CENTRE_ALPHA_FERME>",
+        "name" : "Alpha ferme"
+      } ],
+      "created_at" : null,
+      "email" : null,
+      "full_name" : "Compte COMPTE_MARIE",
+      "id" : "<COMPTE_MARIE>",
+      "roles" : [ {
+        "code" : "INFIRMIER",
+        "id" : "<UUID_GENERE_2>",
+        "name" : "Infirmier"
+      } ],
+      "username" : "idn-marie"
+    } ],
+    "status" : 200
+  }
+}

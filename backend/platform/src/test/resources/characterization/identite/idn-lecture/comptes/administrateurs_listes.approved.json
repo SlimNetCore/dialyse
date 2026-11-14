@@ -1,0 +1,160 @@
+{
+  "01 societe Alpha : tri par identifiant puis par nom de centre, centres de la seule societe" : {
+    "body" : [ {
+      "active" : true,
+      "centres" : [ {
+        "id" : "<CENTRE_ALPHA_1>",
+        "name" : "Alpha 1"
+      } ],
+      "email" : null,
+      "fullName" : "Compte COMPTE_ADMIN_ALPHA",
+      "userId" : "<COMPTE_ADMIN_ALPHA>",
+      "username" : "idn-admin-alpha"
+    }, {
+      "active" : true,
+      "centres" : [ {
+        "id" : "<CENTRE_ALPHA_1>",
+        "name" : "Alpha 1"
+      }, {
+        "id" : "<CENTRE_ALPHA_2>",
+        "name" : "Alpha 2"
+      } ],
+      "email" : null,
+      "fullName" : "Compte COMPTE_ADMIN_DEUX_SOCIETES",
+      "userId" : "<COMPTE_ADMIN_DEUX_SOCIETES>",
+      "username" : "idn-admin-deux"
+    } ],
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "02 societe Beta : l'administrateur n'y porte que son centre de Beta" : {
+    "body" : [ {
+      "active" : true,
+      "centres" : [ {
+        "id" : "<CENTRE_BETA_SUD>",
+        "name" : "Beta Sud"
+      } ],
+      "email" : null,
+      "fullName" : "Compte COMPTE_ADMIN_DEUX_SOCIETES",
+      "userId" : "<COMPTE_ADMIN_DEUX_SOCIETES>",
+      "username" : "idn-admin-deux"
+    } ],
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "03 societe inconnue" : {
+    "body" : {
+      "code" : "SOCIETE_INTROUVABLE",
+      "detail" : "Société introuvable",
+      "instance" : "/api/v1/societes/<UUID_GENERE_1>/admin-accounts",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "04 administrateur desactive : toujours liste" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "05 liste apres desactivation" : {
+    "body" : [ {
+      "active" : false,
+      "centres" : [ {
+        "id" : "<CENTRE_ALPHA_1>",
+        "name" : "Alpha 1"
+      } ],
+      "email" : null,
+      "fullName" : "Compte COMPTE_ADMIN_ALPHA",
+      "userId" : "<COMPTE_ADMIN_ALPHA>",
+      "username" : "idn-admin-alpha"
+    }, {
+      "active" : true,
+      "centres" : [ {
+        "id" : "<CENTRE_ALPHA_1>",
+        "name" : "Alpha 1"
+      }, {
+        "id" : "<CENTRE_ALPHA_2>",
+        "name" : "Alpha 2"
+      } ],
+      "email" : null,
+      "fullName" : "Compte COMPTE_ADMIN_DEUX_SOCIETES",
+      "userId" : "<COMPTE_ADMIN_DEUX_SOCIETES>",
+      "username" : "idn-admin-deux"
+    } ],
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "06 liste apres renommage d'Alpha 1" : {
+    "body" : [ {
+      "active" : false,
+      "centres" : [ {
+        "id" : "<CENTRE_ALPHA_1>",
+        "name" : "Alpha 1 renomme"
+      } ],
+      "email" : null,
+      "fullName" : "Compte COMPTE_ADMIN_ALPHA",
+      "userId" : "<COMPTE_ADMIN_ALPHA>",
+      "username" : "idn-admin-alpha"
+    }, {
+      "active" : true,
+      "centres" : [ {
+        "id" : "<CENTRE_ALPHA_1>",
+        "name" : "Alpha 1 renomme"
+      }, {
+        "id" : "<CENTRE_ALPHA_2>",
+        "name" : "Alpha 2"
+      } ],
+      "email" : null,
+      "fullName" : "Compte COMPTE_ADMIN_DEUX_SOCIETES",
+      "userId" : "<COMPTE_ADMIN_DEUX_SOCIETES>",
+      "username" : "idn-admin-deux"
+    } ],
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "07 liste Alpha apres le transfert du centre Alpha 2 vers Beta" : {
+    "body" : [ {
+      "active" : false,
+      "centres" : [ {
+        "id" : "<CENTRE_ALPHA_1>",
+        "name" : "Alpha 1 renomme"
+      } ],
+      "email" : null,
+      "fullName" : "Compte COMPTE_ADMIN_ALPHA",
+      "userId" : "<COMPTE_ADMIN_ALPHA>",
+      "username" : "idn-admin-alpha"
+    }, {
+      "active" : true,
+      "centres" : [ {
+        "id" : "<CENTRE_ALPHA_1>",
+        "name" : "Alpha 1 renomme"
+      } ],
+      "email" : null,
+      "fullName" : "Compte COMPTE_ADMIN_DEUX_SOCIETES",
+      "userId" : "<COMPTE_ADMIN_DEUX_SOCIETES>",
+      "username" : "idn-admin-deux"
+    } ],
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "08 liste Beta apres ce transfert" : {
+    "body" : [ {
+      "active" : true,
+      "centres" : [ {
+        "id" : "<CENTRE_ALPHA_2>",
+        "name" : "Alpha 2"
+      }, {
+        "id" : "<CENTRE_BETA_SUD>",
+        "name" : "Beta Sud"
+      } ],
+      "email" : null,
+      "fullName" : "Compte COMPTE_ADMIN_DEUX_SOCIETES",
+      "userId" : "<COMPTE_ADMIN_DEUX_SOCIETES>",
+      "username" : "idn-admin-deux"
+    } ],
+    "contentType" : "application/json",
+    "status" : 200
+  }
+}

@@ -1,0 +1,134 @@
+{
+  "01 fiche de marie : roles et centres (y compris le centre desactive)" : {
+    "body" : {
+      "active" : true,
+      "centers" : [ {
+        "id" : "<CENTRE_ALPHA_1>",
+        "name" : "Alpha 1"
+      }, {
+        "id" : "<CENTRE_ALPHA_2>",
+        "name" : "Alpha 2"
+      }, {
+        "id" : "<CENTRE_ALPHA_FERME>",
+        "name" : "Alpha ferme"
+      } ],
+      "created_at" : null,
+      "email" : null,
+      "full_name" : "Compte COMPTE_MARIE",
+      "id" : "<COMPTE_MARIE>",
+      "roles" : [ {
+        "code" : "INFIRMIER",
+        "id" : "<UUID_GENERE_1>",
+        "name" : "Infirmier"
+      } ],
+      "username" : "idn-marie"
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "02 fiche de paul : deux roles, un centre d'une autre societe" : {
+    "body" : {
+      "active" : false,
+      "centers" : [ {
+        "id" : "<CENTRE_BETA_NORD>",
+        "name" : "Beta Nord"
+      } ],
+      "created_at" : null,
+      "email" : null,
+      "full_name" : "Compte COMPTE_PAUL",
+      "id" : "<COMPTE_PAUL>",
+      "roles" : [ {
+        "code" : "INFIRMIER",
+        "id" : "<UUID_GENERE_1>",
+        "name" : "Infirmier"
+      }, {
+        "code" : "MEDECIN",
+        "id" : "<UUID_GENERE_2>",
+        "name" : "Médecin"
+      } ],
+      "username" : "idn-paul"
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "03 fiche d'un compte sans centre ni role" : {
+    "body" : {
+      "active" : true,
+      "centers" : [ ],
+      "created_at" : null,
+      "email" : null,
+      "full_name" : "Compte COMPTE_ISOLE",
+      "id" : "<COMPTE_ISOLE>",
+      "roles" : [ ],
+      "username" : "idn-isole"
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "04 fiche d'un utilisateur inconnu" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 404
+  },
+  "05 fiche de marie apres renommage d'Alpha 2" : {
+    "body" : {
+      "active" : true,
+      "centers" : [ {
+        "id" : "<CENTRE_ALPHA_1>",
+        "name" : "Alpha 1"
+      }, {
+        "id" : "<CENTRE_ALPHA_2>",
+        "name" : "Alpha 2 renomme"
+      }, {
+        "id" : "<CENTRE_ALPHA_FERME>",
+        "name" : "Alpha ferme"
+      } ],
+      "created_at" : null,
+      "email" : null,
+      "full_name" : "Compte COMPTE_MARIE",
+      "id" : "<COMPTE_MARIE>",
+      "roles" : [ {
+        "code" : "INFIRMIER",
+        "id" : "<UUID_GENERE_1>",
+        "name" : "Infirmier"
+      } ],
+      "username" : "idn-marie"
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "06 sans session" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 403
+  },
+  "07 role COMPTABLE" : {
+    "body" : {
+      "code" : "ACCESS_DENIED",
+      "detail" : "Access Denied",
+      "instance" : "/api/v1/users/<COMPTE_MARIE>",
+      "status" : 403,
+      "title" : "Acces refuse"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 403
+  },
+  "08 role DIRECTION" : {
+    "body" : {
+      "code" : "ROLE_SCOPE",
+      "detail" : "Ce profil n'a pas accès à cette ressource.",
+      "title" : "Accès refusé"
+    },
+    "contentType" : "application/json",
+    "status" : 403
+  },
+  "09 role SUPERADMIN seul (la route est reservee a ADMIN)" : {
+    "body" : {
+      "code" : "ROLE_SCOPE",
+      "detail" : "Ce profil n'a pas accès à cette ressource.",
+      "title" : "Accès refusé"
+    },
+    "contentType" : "application/json",
+    "status" : 403
+  }
+}

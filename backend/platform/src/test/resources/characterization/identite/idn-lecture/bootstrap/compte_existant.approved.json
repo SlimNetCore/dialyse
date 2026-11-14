@@ -1,0 +1,37 @@
+{
+  "01 compte et role preexistants : role" : {
+    "lignes" : [ {
+      "code" : "SUPERADMIN",
+      "description" : "deja la",
+      "name" : "Role existant"
+    } ]
+  },
+  "02 compte et role preexistants : compte" : {
+    "lignes" : [ {
+      "active" : "false",
+      "email" : "ancien@example.test",
+      "full_name" : "Compte existant",
+      "mot_de_passe_pose" : "true",
+      "username" : "superadmin"
+    } ]
+  },
+  "03 compte et role preexistants : roles du compte" : {
+    "lignes" : [ {
+      "code" : "SUPERADMIN"
+    } ]
+  },
+  "04 compte et role preexistants : centres de la fixture rattaches" : {
+    "lignes" : [ {
+      "center_id" : "<CENTRE_FERME>"
+    }, {
+      "center_id" : "<CENTRE_BETA>"
+    }, {
+      "center_id" : "<CENTRE_ACTIF>"
+    } ]
+  },
+  "05 compte et role preexistants : centres de la base sans rattachement" : {
+    "lignes" : [ {
+      "nombre" : "0"
+    } ]
+  }
+}

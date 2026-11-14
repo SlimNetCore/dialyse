@@ -1,0 +1,124 @@
+{
+  "01 connexion" : {
+    "body" : {
+      "centerId" : "<CENTRE_ALPHA_1>",
+      "centerName" : "Alpha 1",
+      "fullName" : "Compte COMPTE_ADMIN",
+      "mustChangePassword" : false,
+      "roles" : [ "ROLE_ADMIN" ],
+      "scope" : "CENTRE",
+      "societeId" : null,
+      "societeName" : null,
+      "userId" : "<COMPTE_ADMIN>",
+      "username" : "idn-admin"
+    },
+    "contentType" : "application/json",
+    "cookiesPoses" : [ "HEMO_AUTH", "HEMO_REFRESH" ],
+    "status" : 200
+  },
+  "02 /me d'une session de centre" : {
+    "body" : {
+      "centerId" : "<CENTRE_ALPHA_1>",
+      "centerName" : "Alpha 1",
+      "fullName" : "Compte COMPTE_ADMIN",
+      "mustChangePassword" : false,
+      "roles" : [ "ROLE_ADMIN" ],
+      "scope" : "CENTRE",
+      "societeId" : null,
+      "societeName" : null,
+      "userId" : "<COMPTE_ADMIN>",
+      "username" : "idn-admin"
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "03 rafraichissement" : {
+    "body" : {
+      "refreshed" : true
+    },
+    "contentType" : "application/json",
+    "cookiesPoses" : [ "HEMO_AUTH", "HEMO_REFRESH" ],
+    "status" : 200
+  },
+  "04 rafraichissement avec le jeton deja consomme" : {
+    "body" : {
+      "refreshed" : false
+    },
+    "contentType" : "application/json",
+    "cookiesPoses" : [ ],
+    "status" : 401
+  },
+  "05 /me : le nom du centre est relu" : {
+    "body" : {
+      "centerId" : "<CENTRE_ALPHA_1>",
+      "centerName" : "Alpha 1 renomme",
+      "fullName" : "Compte COMPTE_ADMIN",
+      "mustChangePassword" : false,
+      "roles" : [ "ROLE_ADMIN" ],
+      "scope" : "CENTRE",
+      "societeId" : null,
+      "societeName" : null,
+      "userId" : "<COMPTE_ADMIN>",
+      "username" : "idn-admin"
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "06 /me : centre desactive depuis" : {
+    "body" : {
+      "code" : "BUSINESS_RULE_VIOLATION",
+      "detail" : "Ce centre est désactivé",
+      "instance" : "/api/v1/auth/me",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "07 /me : societe desactivee depuis" : {
+    "body" : {
+      "code" : "BUSINESS_RULE_VIOLATION",
+      "detail" : "Cette société est désactivée",
+      "instance" : "/api/v1/auth/me",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "08 /me : centre non rattache" : {
+    "body" : {
+      "code" : "BUSINESS_RULE_VIOLATION",
+      "detail" : "Utilisateur non autorisé sur ce centre",
+      "instance" : "/api/v1/auth/me",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "09 /me : compte inconnu" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Session invalide",
+      "instance" : "/api/v1/auth/me",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "10 /me : sans session" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 403
+  },
+  "11 rafraichissement apres desactivation du centre" : {
+    "body" : {
+      "refreshed" : false
+    },
+    "contentType" : "application/json",
+    "cookiesPoses" : [ ],
+    "status" : 401
+  }
+}

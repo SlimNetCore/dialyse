@@ -1,0 +1,211 @@
+{
+  "01 direction de sa societe" : {
+    "body" : {
+      "centerId" : null,
+      "centerName" : null,
+      "fullName" : "Compte COMPTE_DIRECTION",
+      "mustChangePassword" : false,
+      "roles" : [ "ROLE_DIRECTION" ],
+      "scope" : "SOCIETE",
+      "societeId" : "<SOCIETE_ALPHA>",
+      "societeName" : "Alpha Sante",
+      "userId" : "<COMPTE_DIRECTION>",
+      "username" : "idn-direction"
+    },
+    "contentType" : "application/json",
+    "cookiesPoses" : [ "HEMO_AUTH", "HEMO_REFRESH" ],
+    "status" : 200
+  },
+  "02 direction : societe inconnue" : {
+    "body" : {
+      "code" : "BUSINESS_RULE_VIOLATION",
+      "detail" : "Ce compte n'est pas rattaché à cette société",
+      "instance" : "/api/v1/auth/login",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "cookiesPoses" : [ ],
+    "status" : 422
+  },
+  "03 direction : societe a laquelle le compte n'est pas rattache" : {
+    "body" : {
+      "code" : "BUSINESS_RULE_VIOLATION",
+      "detail" : "Ce compte n'est pas rattaché à cette société",
+      "instance" : "/api/v1/auth/login",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "cookiesPoses" : [ ],
+    "status" : 422
+  },
+  "04 direction sans societe (reserve au proprietaire)" : {
+    "body" : {
+      "code" : "BUSINESS_RULE_VIOLATION",
+      "detail" : "Sélectionnez votre société pour accéder à l'espace direction",
+      "instance" : "/api/v1/auth/login",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "cookiesPoses" : [ ],
+    "status" : 422
+  },
+  "05 proprietaire sans societe" : {
+    "body" : {
+      "centerId" : null,
+      "centerName" : null,
+      "fullName" : "Compte COMPTE_PROPRIETAIRE",
+      "mustChangePassword" : false,
+      "roles" : [ "ROLE_SUPERADMIN" ],
+      "scope" : "PLATEFORME",
+      "societeId" : null,
+      "societeName" : null,
+      "userId" : "<COMPTE_PROPRIETAIRE>",
+      "username" : "idn-proprietaire"
+    },
+    "contentType" : "application/json",
+    "cookiesPoses" : [ "HEMO_AUTH", "HEMO_REFRESH" ],
+    "status" : 200
+  },
+  "06 proprietaire avec une societe (il n'a pas le role direction)" : {
+    "body" : {
+      "code" : "BUSINESS_RULE_VIOLATION",
+      "detail" : "Ce compte n'a pas accès à l'espace direction",
+      "instance" : "/api/v1/auth/login",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "cookiesPoses" : [ ],
+    "status" : 422
+  },
+  "07 administrateur de centre sans centre ni societe" : {
+    "body" : {
+      "code" : "BUSINESS_RULE_VIOLATION",
+      "detail" : "Sélectionnez votre société pour accéder à l'espace direction",
+      "instance" : "/api/v1/auth/login",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "cookiesPoses" : [ ],
+    "status" : 422
+  },
+  "08 mot de passe errone" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Identifiants invalides",
+      "instance" : "/api/v1/auth/login",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "cookiesPoses" : [ ],
+    "status" : 400
+  },
+  "09 /me de la direction" : {
+    "body" : {
+      "centerId" : null,
+      "centerName" : null,
+      "fullName" : "Compte COMPTE_DIRECTION",
+      "mustChangePassword" : false,
+      "roles" : [ "ROLE_DIRECTION" ],
+      "scope" : "SOCIETE",
+      "societeId" : "<SOCIETE_ALPHA>",
+      "societeName" : "Alpha Sante",
+      "userId" : "<COMPTE_DIRECTION>",
+      "username" : "idn-direction"
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "10 rafraichissement de la direction" : {
+    "body" : {
+      "refreshed" : true
+    },
+    "contentType" : "application/json",
+    "cookiesPoses" : [ "HEMO_AUTH", "HEMO_REFRESH" ],
+    "status" : 200
+  },
+  "11 /me du proprietaire" : {
+    "body" : {
+      "centerId" : null,
+      "centerName" : null,
+      "fullName" : "Compte COMPTE_PROPRIETAIRE",
+      "mustChangePassword" : false,
+      "roles" : [ "ROLE_SUPERADMIN" ],
+      "scope" : "PLATEFORME",
+      "societeId" : null,
+      "societeName" : null,
+      "userId" : "<COMPTE_PROPRIETAIRE>",
+      "username" : "idn-proprietaire"
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "12 /me de la direction : la raison sociale est relue" : {
+    "body" : {
+      "centerId" : null,
+      "centerName" : null,
+      "fullName" : "Compte COMPTE_DIRECTION",
+      "mustChangePassword" : false,
+      "roles" : [ "ROLE_DIRECTION" ],
+      "scope" : "SOCIETE",
+      "societeId" : "<SOCIETE_ALPHA>",
+      "societeName" : "Alpha Sante renommee",
+      "userId" : "<COMPTE_DIRECTION>",
+      "username" : "idn-direction"
+    },
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "13 direction : societe desactivee" : {
+    "body" : {
+      "code" : "BUSINESS_RULE_VIOLATION",
+      "detail" : "Cette société est désactivée",
+      "instance" : "/api/v1/auth/login",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "cookiesPoses" : [ ],
+    "status" : 422
+  },
+  "14 /me de la direction : societe desactivee" : {
+    "body" : {
+      "code" : "BUSINESS_RULE_VIOLATION",
+      "detail" : "Cette société est désactivée",
+      "instance" : "/api/v1/auth/me",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "15 direction : compte desactive, bon mot de passe" : {
+    "body" : {
+      "code" : "BUSINESS_RULE_VIOLATION",
+      "detail" : "Compte utilisateur désactivé",
+      "instance" : "/api/v1/auth/login",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "cookiesPoses" : [ ],
+    "status" : 422
+  },
+  "16 direction : compte desactive, mauvais mot de passe" : {
+    "body" : {
+      "code" : "BAD_REQUEST",
+      "detail" : "Identifiants invalides",
+      "instance" : "/api/v1/auth/login",
+      "status" : 400,
+      "title" : "Requete invalide"
+    },
+    "contentType" : "application/problem+json",
+    "cookiesPoses" : [ ],
+    "status" : 400
+  }
+}

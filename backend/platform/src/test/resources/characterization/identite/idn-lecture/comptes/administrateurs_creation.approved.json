@@ -1,0 +1,209 @@
+{
+  "01 creation dans un centre de la societe" : {
+    "body" : {
+      "active" : true,
+      "centres" : [ {
+        "id" : "<CENTRE_ALPHA_1>",
+        "name" : "Alpha 1"
+      } ],
+      "email" : "cree@example.test",
+      "fullName" : "Administrateur cree",
+      "userId" : "<UUID_GENERE_1>",
+      "username" : "idn-cree"
+    },
+    "contentType" : "application/json",
+    "status" : 201
+  },
+  "02 identifiant deja pris" : {
+    "body" : {
+      "code" : "USERNAME_TAKEN",
+      "detail" : "Cet identifiant est déjà utilisé",
+      "instance" : "/api/v1/societes/<SOCIETE_ALPHA>/admin-accounts",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "03 centre d'une autre societe" : {
+    "body" : {
+      "code" : "CENTRE_HORS_SOCIETE",
+      "detail" : "Ce centre n'appartient pas à cette société",
+      "instance" : "/api/v1/societes/<SOCIETE_ALPHA>/admin-accounts",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "04 centre inconnu" : {
+    "body" : {
+      "code" : "CENTRE_HORS_SOCIETE",
+      "detail" : "Ce centre n'appartient pas à cette société",
+      "instance" : "/api/v1/societes/<SOCIETE_ALPHA>/admin-accounts",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "05 centre absent" : {
+    "body" : {
+      "code" : "VALIDATION_ERROR",
+      "detail" : "Invalid request content.",
+      "instance" : "/api/v1/societes/<SOCIETE_ALPHA>/admin-accounts",
+      "status" : 400,
+      "title" : "Validation echouee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "06 societe inconnue, corps valide" : {
+    "body" : {
+      "code" : "SOCIETE_INTROUVABLE",
+      "detail" : "Société introuvable",
+      "instance" : "/api/v1/societes/<UUID_GENERE_2>/admin-accounts",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "07 societe inconnue et centre d'une autre societe : la societe est controlee en premier" : {
+    "body" : {
+      "code" : "SOCIETE_INTROUVABLE",
+      "detail" : "Société introuvable",
+      "instance" : "/api/v1/societes/<UUID_GENERE_2>/admin-accounts",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "08 centre de la societe desactive : accepte" : {
+    "body" : {
+      "active" : true,
+      "centres" : [ {
+        "id" : "<CENTRE_ALPHA_2>",
+        "name" : "Alpha 2"
+      } ],
+      "email" : null,
+      "fullName" : "idn-ferme",
+      "userId" : "<UUID_GENERE_3>",
+      "username" : "idn-ferme"
+    },
+    "contentType" : "application/json",
+    "status" : 201
+  },
+  "09 identifiant invalide" : {
+    "body" : {
+      "code" : "USERNAME_INVALID",
+      "detail" : "Identifiant invalide (3 à 50 caractères : lettres minuscules, chiffres, point, tiret, souligné)",
+      "instance" : "/api/v1/societes/<SOCIETE_ALPHA>/admin-accounts",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "10 mot de passe faible" : {
+    "body" : {
+      "code" : "PASSWORD_TOO_SHORT",
+      "detail" : "Mot de passe refusé (12 caractères minimum, lettres et chiffres)",
+      "instance" : "/api/v1/societes/<SOCIETE_ALPHA>/admin-accounts",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "11 adresse invalide" : {
+    "body" : {
+      "code" : "EMAIL_INVALID",
+      "detail" : "Adresse email invalide",
+      "instance" : "/api/v1/societes/<SOCIETE_ALPHA>/admin-accounts",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "12 role ADMIN, corps invalide" : {
+    "body" : {
+      "code" : "VALIDATION_ERROR",
+      "detail" : "Invalid request content.",
+      "instance" : "/api/v1/societes/<SOCIETE_ALPHA>/admin-accounts",
+      "status" : 400,
+      "title" : "Validation echouee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "13 role ADMIN, corps valide" : {
+    "body" : {
+      "code" : "ACCESS_DENIED",
+      "detail" : "Access Denied",
+      "instance" : "/api/v1/societes/<SOCIETE_ALPHA>/admin-accounts",
+      "status" : 403,
+      "title" : "Acces refuse"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 403
+  },
+  "14 role DIRECTION, corps invalide" : {
+    "body" : {
+      "code" : "ROLE_SCOPE",
+      "detail" : "Ce profil n'a pas accès à cette ressource.",
+      "title" : "Accès refusé"
+    },
+    "contentType" : "application/json",
+    "status" : 403
+  },
+  "15 role DIRECTION, corps valide" : {
+    "body" : {
+      "code" : "ROLE_SCOPE",
+      "detail" : "Ce profil n'a pas accès à cette ressource.",
+      "title" : "Accès refusé"
+    },
+    "contentType" : "application/json",
+    "status" : 403
+  },
+  "16 role MEDECIN, corps invalide" : {
+    "body" : {
+      "code" : "VALIDATION_ERROR",
+      "detail" : "Invalid request content.",
+      "instance" : "/api/v1/societes/<SOCIETE_ALPHA>/admin-accounts",
+      "status" : 400,
+      "title" : "Validation echouee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 400
+  },
+  "17 role MEDECIN, corps valide" : {
+    "body" : {
+      "code" : "ACCESS_DENIED",
+      "detail" : "Access Denied",
+      "instance" : "/api/v1/societes/<SOCIETE_ALPHA>/admin-accounts",
+      "status" : 403,
+      "title" : "Acces refuse"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 403
+  },
+  "18 sans session" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 403
+  },
+  "19 comptes crees et leurs centres" : {
+    "lignes" : [ {
+      "active" : "true",
+      "center_id" : "<CENTRE_ALPHA_1>",
+      "username" : "idn-cree"
+    }, {
+      "active" : "true",
+      "center_id" : "<CENTRE_ALPHA_2>",
+      "username" : "idn-ferme"
+    } ]
+  }
+}

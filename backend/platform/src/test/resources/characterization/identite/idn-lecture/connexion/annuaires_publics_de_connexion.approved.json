@@ -1,0 +1,106 @@
+{
+  "01 societes proposees (actives, avec au moins un centre actif, par raison sociale)" : {
+    "contentType" : "application/json",
+    "elementsDeLaFixture" : [ {
+      "id" : "<SOCIETE_ALPHA>",
+      "name" : "Alpha Sante"
+    }, {
+      "id" : "<SOCIETE_BETA>",
+      "name" : "Beta Clinique"
+    } ],
+    "status" : 200
+  },
+  "02 centres de la societe Alpha (actifs, par nom)" : {
+    "body" : [ {
+      "id" : "<CENTRE_ALPHA_1>",
+      "name" : "Alpha 1"
+    }, {
+      "id" : "<CENTRE_ALPHA_2>",
+      "name" : "Alpha 2"
+    } ],
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "03 centres de la societe Beta" : {
+    "body" : [ {
+      "id" : "<CENTRE_BETA_ALPHA>",
+      "name" : "Beta Alpha"
+    }, {
+      "id" : "<CENTRE_BETA_NORD>",
+      "name" : "Beta Nord"
+    } ],
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "04 societe dormante : seul un centre inactif" : {
+    "body" : [ ],
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "05 societe sans centre" : {
+    "body" : [ ],
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "06 societe inactive : son centre actif n'est pas propose" : {
+    "body" : [ ],
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "07 societe inconnue" : {
+    "body" : [ ],
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "08 identifiant de societe illisible" : {
+    "body" : {
+      "code" : "INTERNAL_ERROR",
+      "detail" : "<message technique Spring/Jackson/SGBD non verrouille>",
+      "instance" : "/api/v1/auth/societes/pas-un-identifiant/centres",
+      "status" : 500,
+      "title" : "Erreur interne"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 500
+  },
+  "09 Alpha apres desactivation du centre Alpha 2" : {
+    "body" : [ {
+      "id" : "<CENTRE_ALPHA_1>",
+      "name" : "Alpha 1"
+    } ],
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "10 societes proposees : Alpha n'a plus aucun centre actif" : {
+    "contentType" : "application/json",
+    "elementsDeLaFixture" : [ {
+      "id" : "<SOCIETE_BETA>",
+      "name" : "Beta Clinique"
+    } ],
+    "status" : 200
+  },
+  "11 societes proposees : Alpha desactivee" : {
+    "contentType" : "application/json",
+    "elementsDeLaFixture" : [ {
+      "id" : "<SOCIETE_BETA>",
+      "name" : "Beta Clinique"
+    } ],
+    "status" : 200
+  },
+  "12 centres d'une societe desactivee" : {
+    "body" : [ ],
+    "contentType" : "application/json",
+    "status" : 200
+  },
+  "13 societes proposees : la societe reactivee reapparait" : {
+    "contentType" : "application/json",
+    "elementsDeLaFixture" : [ {
+      "id" : "<SOCIETE_BETA>",
+      "name" : "Beta Clinique"
+    }, {
+      "id" : "<SOCIETE_INACTIVE>",
+      "name" : "Zeta Inactive"
+    } ],
+    "status" : 200
+  }
+}

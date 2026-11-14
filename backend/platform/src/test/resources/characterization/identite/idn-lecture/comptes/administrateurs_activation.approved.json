@@ -1,0 +1,84 @@
+{
+  "01 activation d'un compte deja actif" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "02 jetons apres l'activation" : {
+    "lignes" : [ {
+      "revoked" : "false",
+      "token_hash" : "idn-jeton-a"
+    } ]
+  },
+  "03 mot de passe faible" : {
+    "body" : {
+      "code" : "PASSWORD_TOO_SHORT",
+      "detail" : "Mot de passe refusé (12 caractères minimum, lettres et chiffres)",
+      "instance" : "/api/v1/societes/<SOCIETE_ALPHA>/admin-accounts/<COMPTE_ADMIN_ALPHA>/password",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "04 mot de passe valide" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "05 jetons apres le mot de passe" : {
+    "lignes" : [ {
+      "revoked" : "true",
+      "token_hash" : "idn-jeton-a"
+    } ]
+  },
+  "06 la connexion avec le nouveau mot de passe" : {
+    "body" : {
+      "centerId" : "<CENTRE_ALPHA_1>",
+      "centerName" : "Alpha 1",
+      "fullName" : "Compte COMPTE_ADMIN_ALPHA",
+      "mustChangePassword" : false,
+      "roles" : [ "ROLE_ADMIN" ],
+      "scope" : "CENTRE",
+      "societeId" : null,
+      "societeName" : null,
+      "userId" : "<COMPTE_ADMIN_ALPHA>",
+      "username" : "idn-admin-alpha"
+    },
+    "contentType" : "application/json",
+    "cookiesPoses" : [ "HEMO_AUTH", "HEMO_REFRESH" ],
+    "status" : 200
+  },
+  "07 administrateur d'une autre societe" : {
+    "body" : {
+      "code" : "COMPTE_INTROUVABLE",
+      "detail" : "Administrateur introuvable dans cette société",
+      "instance" : "/api/v1/societes/<SOCIETE_BETA>/admin-accounts/<COMPTE_ADMIN_ALPHA>/desactiver",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  },
+  "08 desactivation" : {
+    "body" : null,
+    "contentType" : null,
+    "status" : 204
+  },
+  "09 etat apres la desactivation" : {
+    "lignes" : [ {
+      "active" : "false"
+    } ]
+  },
+  "10 compte direction sur la route des administrateurs" : {
+    "body" : {
+      "code" : "COMPTE_INTROUVABLE",
+      "detail" : "Administrateur introuvable dans cette société",
+      "instance" : "/api/v1/societes/<SOCIETE_ALPHA>/admin-accounts/<COMPTE_DIRECTION_ALPHA>/desactiver",
+      "status" : 422,
+      "title" : "Regle metier violee"
+    },
+    "contentType" : "application/problem+json",
+    "status" : 422
+  }
+}
