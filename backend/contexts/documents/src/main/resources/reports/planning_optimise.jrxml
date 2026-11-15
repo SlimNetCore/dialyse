@@ -24,14 +24,6 @@
     <parameter name="CENTRE_SITE_WEB" class="java.lang.String"/>
     <parameter name="CENTRE_CONTACT" class="java.lang.String"/>
     <parameter name="CENTRE_LIGNE" class="java.lang.String"/>
-    <queryString><![CDATA[
-      SELECT semaine_debut, salle_nom, creneau_libelle, creneau_ordre,
-             entete_0, entete_1, entete_2, entete_3, entete_4, entete_5, entete_6,
-             cell_0, cell_1, cell_2, cell_3, cell_4, cell_5, cell_6
-      FROM planification_calendrier_case
-      WHERE center_id = CAST($P{CENTER_ID} AS UUID) AND run_id = CAST($P{RUN_ID} AS UUID)
-      ORDER BY semaine_debut, creneau_ordre, salle_ordre
-    ]]></queryString>
 
     <field name="SEMAINE_DEBUT" class="java.sql.Date"/>
     <field name="SALLE_NOM" class="java.lang.String"/>

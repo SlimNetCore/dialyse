@@ -21,6 +21,12 @@ public interface CalendriersDesPropositions {
     /** Les débuts de semaine du calendrier, dans l'ordre. */
     List<LocalDate> semaines(CentreId centre, ExecutionId execution);
 
+    /**
+     * Toutes les lignes du calendrier en texte imprimable, dans l'ordre semaine, créneau, salle (DOC5c, ADR 0195) ; vide si le calendrier
+     * n'a pas été construit ou si l'exécution est d'un autre centre.
+     */
+    List<CaseImprimableDuCalendrier> imprimables(CentreId centre, ExecutionId execution);
+
     /** Supprime les calendriers dont l'exécution n'existe plus. */
     void purgerOrphelins(CentreId centre);
 }

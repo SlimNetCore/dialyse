@@ -17,7 +17,7 @@ import java.util.Map;
  * {@code cell_i}) pour le modèle de document : en-tête d'une colonne (« Lun 28/09 ») et contenu d'une case (patients et générateurs,
  * infirmiers, effectif). Polices standard : aucun symbole spécial, des abréviations expliquées dans la légende du modèle.
  */
-final class CalendrierEnTexte {
+public final class CalendrierEnTexte {
 
     private static final Map<JourDeLaSemaine, String> JOURS = Map.of(
             JourDeLaSemaine.DIMANCHE, "Dim", JourDeLaSemaine.LUNDI, "Lun", JourDeLaSemaine.MARDI, "Mar",
@@ -28,11 +28,11 @@ final class CalendrierEnTexte {
     private CalendrierEnTexte() {
     }
 
-    static String entete(JourDuCalendrier jour) {
+    public static String entete(JourDuCalendrier jour) {
         return JOURS.get(jour.jour()) + " " + JOUR_MOIS.format(jour.date());
     }
 
-    static String cellule(JourDuCalendrier jour) {
+    public static String cellule(JourDuCalendrier jour) {
         if (jour.ferme()) {
             return jour.motifFermeture() == null || jour.motifFermeture().isBlank()
                     ? "FERMÉ" : "FERMÉ\n" + jour.motifFermeture();

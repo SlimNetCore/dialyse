@@ -2,6 +2,7 @@ package com.hemodialyse.backend.contexts.planification.contrat;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.planification.application.CalendriersDesPropositions;
+import com.hemodialyse.backend.contexts.planification.application.CaseImprimableDuCalendrier;
 import com.hemodialyse.backend.contexts.planification.domain.CalendrierDeLaProposition.CaseDuCalendrier;
 import com.hemodialyse.backend.contexts.planification.domain.CalendrierDeLaProposition.InfirmierDuCalendrier;
 import com.hemodialyse.backend.contexts.planification.domain.CalendrierDeLaProposition.JourDuCalendrier;
@@ -50,6 +51,7 @@ import static com.hemodialyse.backend.contexts.planification.domain.JeuDePlaces.
 import static com.hemodialyse.backend.contexts.planification.domain.JeuDePlaces.id;
 import static com.hemodialyse.backend.contexts.planification.domain.JeuDePlaces.patient;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 /**
  * Contrat de la persistance de l'optimisation (P8), exécuté contre le double en mémoire ET contre l'adapter JDBC (H2 et PostgreSQL 16) :
@@ -380,6 +382,31 @@ abstract class OptimisationContrat {
         assertThat(semaine.getFirst().jours().get(1).motifFermeture()).isEqualTo("Férié");
         assertThat(calendriers().semaines(CENTRE, execution(1))).containsExactly(dimanche, dimanche.plusWeeks(1));
         assertThat(calendriers().lire(CENTRE, execution(1), dimanche.plusWeeks(5))).isEmpty();
+    }
+
+    @Test
+    void should_serve_the_printable_lines_of_all_weeks_ordered_by_week_slot_then_room_and_scoped_to_the_centre() {
+        executions().creer(lancee(1, CENTRE, T0));
+        executions().creer(lancee(2, CENTRE, T0.plusSeconds(1)));
+        LocalDate dimanche = LocalDate.of(2026, 11, 1);
+        calendriers().enregistrer(CENTRE, execution(1), List.of(ligne(dimanche.plusWeeks(1), A.valeur(), 1, MATIN.valeur(), 1),
+                ligne(dimanche, A.valeur(), 2, SOIR.valeur(), 2), ligne(dimanche, B.valeur(), 3, MATIN.valeur(), 1),
+                ligne(dimanche, A.valeur(), 1, MATIN.valeur(), 1)));
+        calendriers().enregistrer(CENTRE, execution(2), List.of(ligne(dimanche, A.valeur(), 1, MATIN.valeur(), 1)));
+
+        List<CaseImprimableDuCalendrier> lignes = calendriers().imprimables(CENTRE, execution(1));
+
+        assertThat(lignes).extracting(CaseImprimableDuCalendrier::semaineDebut, CaseImprimableDuCalendrier::salleNom)
+                .containsExactly(tuple(dimanche, "Salle 1"), tuple(dimanche, "Salle 3"), tuple(dimanche, "Salle 2"),
+                        tuple(dimanche.plusWeeks(1), "Salle 1"));
+        CaseImprimableDuCalendrier premiere = lignes.getFirst();
+        assertThat(premiere.creneauLibelle()).isEqualTo("Créneau 1");
+        assertThat(premiere.entetes()).containsExactly("Lun 02/11", "Mar 03/11", null, null, null, null, null);
+        assertThat(premiere.cellules().get(0)).startsWith("- Patient 1 - G-A1 (R) (dépl.)");
+        assertThat(premiere.cellules().get(1)).isEqualTo("FERMÉ\nFérié");
+        assertThat(premiere.cellules().subList(2, 7)).containsOnlyNulls();
+        assertThat(calendriers().imprimables(AUTRE_CENTRE, execution(1))).isEmpty();
+        assertThat(calendriers().imprimables(CENTRE, execution(3))).isEmpty();
     }
 
     @Test

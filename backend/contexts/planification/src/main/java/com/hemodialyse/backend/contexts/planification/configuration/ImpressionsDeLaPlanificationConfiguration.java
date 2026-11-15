@@ -1,6 +1,7 @@
 package com.hemodialyse.backend.contexts.planification.configuration;
 
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.RenduDeDocument;
+import com.hemodialyse.backend.contexts.planification.application.CalendriersDesPropositions;
 import com.hemodialyse.backend.contexts.planification.infrastructure.acl.documents.CalendrierDeLaPropositionImprimeParDocuments;
 import com.hemodialyse.backend.contexts.planification.infrastructure.acl.documents.PresenceImprimeeParDocuments;
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.ImpressionDeLaPresence;
@@ -18,7 +19,8 @@ public class ImpressionsDeLaPlanificationConfiguration {
     }
 
     @Bean
-    ImpressionDuCalendrierDeLaProposition planificationImpressionDuCalendrierDeLaProposition(RenduDeDocument documents) {
-        return new CalendrierDeLaPropositionImprimeParDocuments(documents);
+    ImpressionDuCalendrierDeLaProposition planificationImpressionDuCalendrierDeLaProposition(RenduDeDocument documents,
+                                                                                              CalendriersDesPropositions calendriers) {
+        return new CalendrierDeLaPropositionImprimeParDocuments(documents, calendriers);
     }
 }

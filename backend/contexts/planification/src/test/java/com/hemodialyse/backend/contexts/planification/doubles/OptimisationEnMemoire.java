@@ -3,7 +3,9 @@ package com.hemodialyse.backend.contexts.planification.doubles;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.planification.application.CalendriersDesPropositions;
+import com.hemodialyse.backend.contexts.planification.application.CaseImprimableDuCalendrier;
 import com.hemodialyse.backend.contexts.planification.application.DonneesDeLOptimisation;
+import com.hemodialyse.backend.contexts.planification.infrastructure.persistence.CalendrierEnTexte;
 import com.hemodialyse.backend.contexts.planification.application.NotificationsDeLOptimisation;
 import com.hemodialyse.backend.contexts.planification.application.NouveauxIdentifiantsDeLOptimisation;
 import com.hemodialyse.backend.contexts.planification.application.Optimiseur;
@@ -76,6 +78,23 @@ public final class OptimisationEnMemoire implements UniteDeTravail {
         @Override
         public List<LocalDate> semaines(CentreId centre, ExecutionId execution) {
             return duCentre(centre, execution).stream().map(CaseDuCalendrier::semaineDebut).distinct().sorted().toList();
+        }
+
+        @Override
+        public List<CaseImprimableDuCalendrier> imprimables(CentreId centre, ExecutionId execution) {
+            return duCentre(centre, execution).stream()
+                    .sorted(Comparator.comparing(CaseDuCalendrier::semaineDebut).thenComparingInt(CaseDuCalendrier::creneauOrdre)
+                            .thenComparingInt(CaseDuCalendrier::salleOrdre))
+                    .map(c -> {
+                        List<String> entetes = new ArrayList<>();
+                        List<String> cellules = new ArrayList<>();
+                        for (int i = 0; i < CaseImprimableDuCalendrier.NB_JOURS; i++) {
+                            entetes.add(i < c.jours().size() ? CalendrierEnTexte.entete(c.jours().get(i)) : null);
+                            cellules.add(i < c.jours().size() ? CalendrierEnTexte.cellule(c.jours().get(i)) : null);
+                        }
+                        return new CaseImprimableDuCalendrier(c.semaineDebut(), c.salleNom(), c.creneauLibelle(), c.creneauOrdre(),
+                                entetes, cellules);
+                    }).toList();
         }
 
         @Override

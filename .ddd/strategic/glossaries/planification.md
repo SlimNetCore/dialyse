@@ -15,6 +15,7 @@ sources: [.ddd/discovery/glossary.md, .ddd/discovery/event-storming.md §3]
 | Créneau / Salle | Plage horaire / local (référence Organisation) | `CreneauRef`, `SalleRef` | `CreneauRef`, `SalleRef` | — | conformiste à Organisation | validated |
 | Jours de dialyse | Jours de la semaine où le patient est attendu | `JoursDeDialyse` | — | — | base de la détection d'absence | validated |
 | Optimisation du planning | Calcul automatique d'un planning, appliqué sur décision | `RunOptimisation` | `RunOptimisation`, Timefold | — | `PropositionAppliquee` | validated |
+| Case imprimable du calendrier | Ligne (salle x créneau d'une semaine) du planning calendaire figé d'une proposition, en texte prêt à imprimer : sept en-têtes et sept contenus de jour (un jour absent de la semaine est nul) ; la Planification la fournit au gabarit `planning_optimise` (DOC5c, ADR 0195) | `CaseImprimableDuCalendrier`, `CalendriersDesPropositions.imprimables` | colonnes `entete_i`/`cell_i` de `planification_calendrier_case` | — | RG-PLN-101 ; ordre semaine, créneau, salle ; bornée au centre | proposed |
 | Replanification automatique | Optimisation nocturne pour les centres qui l'activent | politique `ReplanificationNocturne` | `ReplanificationAutomatiqueScheduler` | — | RG-PLN-100 | validated |
 | Roulement | Affectation des infirmiers aux créneaux | `Roulement` | — | — | — | validated |
 | Absence d'infirmier | Indisponibilité d'un infirmier (congé, maladie, formation) | `AbsenceInfirmier` | `AbsenceInfirmier` | absence (seul) | déclenche la recherche de remplaçant | validated |

@@ -2,6 +2,7 @@ package com.hemodialyse.backend.contexts.planification.infrastructure.persistenc
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 
 import com.hemodialyse.backend.contexts.planification.application.CalendriersDesPropositions;
+import com.hemodialyse.backend.contexts.planification.application.CaseImprimableDuCalendrier;
 import com.hemodialyse.backend.contexts.planification.domain.CalendrierDeLaProposition.CaseDuCalendrier;
 import com.hemodialyse.backend.contexts.planification.domain.CalendrierDeLaProposition.JourDuCalendrier;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.ExecutionId;
@@ -71,6 +72,25 @@ public class CalendriersDesPropositionsJdbc implements CalendriersDesProposition
         return jdbc.query("SELECT DISTINCT semaine_debut FROM planification_calendrier_case WHERE center_id = ? "
                         + "AND run_id = ? ORDER BY semaine_debut", (rs, i) -> rs.getDate(1).toLocalDate(), centre.valeur(),
                 execution.valeur());
+    }
+
+    @Override
+    public List<CaseImprimableDuCalendrier> imprimables(CentreId centre, ExecutionId execution) {
+        return jdbc.query("SELECT semaine_debut, salle_nom, creneau_libelle, creneau_ordre, "
+                        + "entete_0, entete_1, entete_2, entete_3, entete_4, entete_5, entete_6, "
+                        + "cell_0, cell_1, cell_2, cell_3, cell_4, cell_5, cell_6 "
+                        + "FROM planification_calendrier_case WHERE center_id = ? AND run_id = ? "
+                        + "ORDER BY semaine_debut, creneau_ordre, salle_ordre",
+                (rs, i) -> {
+                    List<String> entetes = new ArrayList<>();
+                    List<String> cellules = new ArrayList<>();
+                    for (int j = 0; j < NB_JOURS; j++) {
+                        entetes.add(rs.getString("entete_" + j));
+                        cellules.add(rs.getString("cell_" + j));
+                    }
+                    return new CaseImprimableDuCalendrier(rs.getDate("semaine_debut").toLocalDate(), rs.getString("salle_nom"),
+                            rs.getString("creneau_libelle"), rs.getInt("creneau_ordre"), entetes, cellules);
+                }, centre.valeur(), execution.valeur());
     }
 
     @Override

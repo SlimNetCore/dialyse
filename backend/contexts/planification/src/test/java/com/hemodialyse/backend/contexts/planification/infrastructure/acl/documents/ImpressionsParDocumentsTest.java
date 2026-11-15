@@ -3,7 +3,12 @@ package com.hemodialyse.backend.contexts.planification.infrastructure.acl.docume
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.DocumentRendu;
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.RenduDeDocument;
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.RenduRefuse;
+import com.hemodialyse.backend.contexts.planification.application.CalendriersDesPropositions;
+import com.hemodialyse.backend.contexts.planification.application.CaseImprimableDuCalendrier;
+import com.hemodialyse.backend.contexts.planification.domain.CalendrierDeLaProposition.CaseDuCalendrier;
+import com.hemodialyse.backend.contexts.planification.domain.Identifiants.ExecutionId;
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.ImpressionDeLaPresence;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -26,6 +31,7 @@ class ImpressionsParDocumentsTest {
         RenduRefuse refus;
         final List<String> appels = new ArrayList<>();
         Map<String, Object> donnees;
+        Map<String, Object> donneesRendues;
 
         @Override
         public String formatDImpression(UUID centre, String type) {
@@ -45,6 +51,7 @@ class ImpressionsParDocumentsTest {
         @Override
         public DocumentRendu rendre(UUID centre, String type, Map<String, Object> donnees, String format) {
             appels.add("rendre " + type + " " + format);
+            donneesRendues = donnees;
             if (refus != null) throw refus;
             return new DocumentRendu(new byte[]{1}, type.equals("X") ? "text/html" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "x");
         }
@@ -102,10 +109,67 @@ class ImpressionsParDocumentsTest {
         assertThat(CalendrierDeLaPropositionImprimeParDocuments.format(null)).isEqualTo("PDF");
     }
 
+    /** Calendriers factice : ne sert que les lignes imprimables. */
+    static CalendriersDesPropositions calendriers(List<CaseImprimableDuCalendrier> cases) {
+        return new CalendriersDesPropositions() {
+            @Override
+            public void enregistrer(CentreId centre, ExecutionId execution, List<CaseDuCalendrier> cases) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public List<CaseDuCalendrier> lire(CentreId centre, ExecutionId execution, LocalDate semaineDebut) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public List<LocalDate> semaines(CentreId centre, ExecutionId execution) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public List<CaseImprimableDuCalendrier> imprimables(CentreId centre, ExecutionId execution) {
+                return cases;
+            }
+
+            @Override
+            public void purgerOrphelins(CentreId centre) {
+                throw new UnsupportedOperationException();
+            }
+        };
+    }
+
+    private static List<String> sept(String prefixe, int renseignes) {
+        List<String> l = new ArrayList<>();
+        for (int i = 0; i < 7; i++) l.add(i < renseignes ? prefixe + i : null);
+        return l;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    void les_lignes_du_calendrier_sont_fournies_au_gabarit_champ_par_champ_dans_les_types_declares() {
+        DocumentsFactice documents = new DocumentsFactice();
+        var cases = List.of(
+                new CaseImprimableDuCalendrier(DIMANCHE, "Salle 1", "Matin", 1, sept("E", 7), sept("C", 7)),
+                new CaseImprimableDuCalendrier(DIMANCHE.plusWeeks(1), "Salle é", "Soir", 2, sept("E", 2), sept("C", 2)));
+        UUID execution = UUID.randomUUID();
+        new CalendrierDeLaPropositionImprimeParDocuments(documents, calendriers(cases)).imprimer(CENTRE, execution, "t", "r");
+        assertThat(documents.donneesRendues).containsEntry("RUN_ID", execution.toString()).containsEntry("TITRE_PROPOSITION", "t")
+                .containsEntry("RESUME_INDICATEURS", "r");
+        List<Map<String, Object>> lignes = (List<Map<String, Object>>) documents.donneesRendues.get("LIGNES");
+        assertThat(lignes).hasSize(2);
+        assertThat(lignes.get(0)).hasSize(18).containsEntry("SEMAINE_DEBUT", java.sql.Date.valueOf(DIMANCHE))
+                .containsEntry("SALLE_NOM", "Salle 1").containsEntry("CRENEAU_LIBELLE", "Matin").containsEntry("CRENEAU_ORDRE", 1)
+                .containsEntry("ENTETE_0", "E0").containsEntry("ENTETE_6", "E6").containsEntry("CELL_0", "C0").containsEntry("CELL_6", "C6");
+        assertThat(lignes.get(1)).containsEntry("SEMAINE_DEBUT", java.sql.Date.valueOf(DIMANCHE.plusWeeks(1)))
+                .containsEntry("SALLE_NOM", "Salle é").containsEntry("CRENEAU_ORDRE", 2).containsEntry("ENTETE_1", "E1")
+                .containsEntry("ENTETE_2", null).containsEntry("CELL_2", null).containsEntry("CELL_6", null);
+    }
+
     @Test
     void le_calendrier_est_rendu_par_type_avec_le_titre_et_le_resume_et_un_refus_devient_un_refus_du_contexte() {
         DocumentsFactice documents = new DocumentsFactice();
-        var impression = new CalendrierDeLaPropositionImprimeParDocuments(documents);
+        var impression = new CalendrierDeLaPropositionImprimeParDocuments(documents, calendriers(List.of()));
         assertThat(impression.imprimer(CENTRE, UUID.randomUUID(), "t", "r").format()).isEqualTo("EXCEL");
         assertThat(documents.appels).containsExactly("rendre PLANNING_OPTIMISE null");
         documents.refus = new RenduRefuse("DOCUMENT_MODEL_INACTIVE", "désactivé");

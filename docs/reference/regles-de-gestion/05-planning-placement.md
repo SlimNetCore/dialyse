@@ -516,7 +516,10 @@
   l'optimisation » (`planning_optimise`, §11.1 des règles du dépôt), A4 paysage, une page par semaine, identité de la
   société
   et du centre, indicateurs avant/après en en-tête ; le rendu passe par le port publié de Documents (PLN-DOC, ADR 0167), le format
-  suit le modèle du centre (`EXCEL` : classeur, `HTML`, sinon PDF en ligne) et un modèle désactivé refuse (422). **Isolation par centre** : chaque exécution, historique, calendrier,
+  suit le modèle du centre (`EXCEL` : classeur, `HTML`, sinon PDF en ligne) et un modèle désactivé refuse (422). **DOC5c (ADR 0195,
+  2026-11-15)** : le gabarit n'embarque plus de requête ; la Planification fournit les lignes du calendrier figé (une par salle et créneau de
+  chaque semaine, ordre semaine, créneau, salle, bornées au centre) ; un modèle déjà stocké avec l'ancienne requête s'imprime sans changement,
+  un nouveau téléversement qui la porte est refusé `QUERY_MODIFIED` (KB-DOC5C-1, RG-DOC-004). **Isolation par centre** : chaque exécution, historique, calendrier,
   impression et application est borné au centre de la session ; seul le nombre de calculs en parallèle
   (`PLANNING_OPTIMISATION_WORKERS`) est partagé, jamais les données.
 - **RG-PLN-102** — **Suppression d'une exécution** (`DELETE /api/v1/planning/optimisations/{id}`, `ADMIN`) : une
