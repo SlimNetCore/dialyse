@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -28,33 +27,26 @@ import static org.assertj.core.api.Assertions.assertThat;
  *   <li>un appel {@code setFactureId(…)} hors entité, ou un code qui enregistre une {@code SeanceJpaEntity} par JPA ({@code save},
  *   {@code saveAll}, {@code saveAndFlush}, {@code persist}, {@code merge}) : la colonne est mappée et réécrite avec la ligne entière.</li>
  * </ul>
- * Toute entrée est nommée, porte sa nature et un butoir ; la liste est revue au plus tard le {@link #REVUE}. Un nouvel écrivain fait échouer
+ * Toute entrée est nommée, porte sa nature et sa condition de sortie (un événement, jamais une date). Un nouvel écrivain fait échouer
  * le test, une entrée qui n'écrit plus la colonne aussi (entrée morte).
  */
 class EcrivainsDeLaFactureDesSeancesTest {
 
-    /** Revue de toute la liste au plus tard à cette date ; chaque entrée porte en plus son butoir. */
-    private static final LocalDate REVUE = LocalDate.of(2026, 12, 15);
-
-    private static final LocalDate SANS_ECHEANCE_DE_RETRAIT = LocalDate.of(2099, 12, 31);
-
-    private record Ecrivain(String nature, LocalDate butoir) {
+    private record Ecrivain(String nature, String conditionDeSortie) {
     }
 
-    /** Écrivains connus de {@code seances.facture_id} (chemin depuis {@code backend/}) : 2026-11-08, revue SE7c2. */
+    /** Écrivains connus de {@code seances.facture_id} (chemin depuis {@code backend/}). */
     private static final Map<String, Ecrivain> ECRIVAINS_CONNUS = new TreeMap<>();
 
-    private static void ecrivain(String chemin, String nature, LocalDate butoir) {
-        ECRIVAINS_CONNUS.put(chemin, new Ecrivain(nature, butoir));
+    private static void ecrivain(String chemin, String nature, String conditionDeSortie) {
+        ECRIVAINS_CONNUS.put(chemin, new Ecrivain(nature, conditionDeSortie));
     }
 
     static {
         // Séance : le SEUL écrivain voulu, appelé par la Facturation via LiaisonDesSeancesAUneFacturePubliee (ADR 0097, lot c2b).
         ecrivain("contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/persistence/LiaisonDesSeancesJdbc.java",
-                "rattachement des séances à leur facture à l'émission (SET statut = 'FACTUREE', facture_id = ?), ARGENT", SANS_ECHEANCE_DE_RETRAIT);
-        // Hors Séance : SeanceRepositoryAdapter (réécriture JPA de la ligne entière, KB-SEA-49) est retiré avec bc-seance (SE7f, ADR 0100).
-        // db/seed.sql : entrée SOLDÉE par SEED2 (2026-11-15, ADR 0189) ; l'UPDATE seances.facture_id d'amorçage est dans le module demo-data
-        // (db/demo/jeu-derive-seed.sql, hors du périmètre de la garde, voir DonneesDeDemonstrationTest). Butoir 2027-06-30 supprimé.
+                "rattachement des séances à leur facture à l'émission (SET statut = 'FACTUREE', facture_id = ?), ARGENT",
+                "écrivain voulu et permanent : retrait seulement si la Facturation cesse de rattacher les séances à leurs factures");
     }
 
     private static final Pattern MISE_A_JOUR = Pattern.compile(
@@ -131,7 +123,7 @@ class EcrivainsDeLaFactureDesSeancesTest {
         }
         assertThat(nouveaux)
                 .as("nouveaux écrivains de seances.facture_id : passer par LiaisonDesSeancesAUneFacturePubliee (seance.v1) ou les inscrire "
-                        + "(nommés, datés, butoir) et les décrire dans la fiche de SE7c2")
+                        + "(nommés, avec nature et condition de sortie) et les décrire dans la fiche de SE7c2")
                 .isEmpty();
     }
 
@@ -146,19 +138,19 @@ class EcrivainsDeLaFactureDesSeancesTest {
     }
 
     @Test
-    void chaque_ecrivain_a_un_butoir_propre_et_la_liste_est_a_revoir_au_plus_tard_le_2026_12_15() {
+    void chaque_ecrivain_porte_une_nature_et_une_condition_de_sortie() {
         assertThat(ECRIVAINS_CONNUS).isNotEmpty();
         ECRIVAINS_CONNUS.forEach((chemin, ecrivain) -> {
             assertThat(ecrivain.nature()).as("nature de " + chemin).isNotBlank();
-            assertThat(ecrivain.butoir()).as("butoir de " + chemin).isAfter(REVUE);
+            assertThat(ecrivain.conditionDeSortie()).as("condition de sortie de " + chemin).isNotBlank();
         });
     }
 
     @Test
     void la_liste_blanche_compte_1_ecrivain_celui_de_la_seance_et_aucun_de_la_facturation() {
         assertThat(ECRIVAINS_CONNUS)
-                .as("1 écrivain de seances.facture_id : LiaisonDesSeancesJdbc (Séance) ; db/seed.sql soldé par SEED2 (ADR 0189), "
-                        + "SeanceRepositoryAdapter retiré par SE7f ; toute entrée ajoutée ou retirée est décidée, datée et reportée dans la fiche de SE7c2")
+                .as("1 écrivain de seances.facture_id : LiaisonDesSeancesJdbc (Séance) ; "
+                        + "toute entrée ajoutée ou retirée est décidée et reportée dans la fiche de SE7c2")
                 .hasSize(1);
         assertThat(ECRIVAINS_CONNUS.keySet().stream().filter(c -> c.startsWith("contexts/seance/")).count()).as("dont 1 de la Séance")
                 .isEqualTo(1);

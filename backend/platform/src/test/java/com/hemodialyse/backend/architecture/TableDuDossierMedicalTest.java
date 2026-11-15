@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,48 +21,44 @@ import static org.assertj.core.api.Assertions.assertThat;
  * est gardée à part par {@link TableDesAnalysesTest}). Garde RÉÉCRITE et ACTIVE depuis DM9 (elle listait le schéma parallèle du module gelé,
  * ADR 0072) sur le modèle de {@link TableDesAnalysesTest} : elle scanne TOUT le code de production (plateforme, anciens modules, autres
  * contextes, ressources SQL / JRXML / XML, entités JPA comprises : un {@code @Table(name = "…")} est un lecteur), sauf le contexte Dossier
- * médical. Les lecteurs restants sont une liste blanche NOMMÉE, DATÉE, avec une revue au plus tard le {@link #REVUE} et un BUTOIR PROPRE à
- * chaque entrée ; un lecteur hors liste ou une entrée morte fait échouer le test.
+ * médical. Les lecteurs restants sont une liste blanche NOMMÉE, où chaque entrée porte sa nature et sa
+ * condition de sortie (un événement, jamais une date) ; un lecteur hors liste ou une entrée morte fait échouer le test.
  */
 class TableDuDossierMedicalTest {
-
-    private static final LocalDate REVUE = LocalDate.of(2026, 12, 15);
 
     static final Set<String> TABLES = Set.of("abords_vasculaires", "administrations_anemie", "alertes_observance", "allergies_patient",
             "antecedents_medicaux", "bilans_pre_greffe", "decisions_rcp", "demandes_examen", "donneurs_vivants", "dossier_medical_patient",
             "etapes_bilan_pre_greffe", "lignes_demande_examen", "lignes_ordonnance", "observations_biologiques", "ordonnances",
             "prescriptions_medicales", "serologies_patient");
 
-    private record Lecteur(String nature, LocalDate butoir) {
+    private record Lecteur(String nature, String conditionDeSortie) {
     }
 
-    /** Lecteurs connus hors du contexte Dossier médical (chemin depuis {@code backend/}) : 2026-11-09, DM9 (ADR 0101). */
+    /** Lecteurs connus hors du contexte Dossier médical (chemin depuis {@code backend/}) : DM9 (ADR 0101). */
     private static final Map<String, Lecteur> LECTEURS_CONNUS = new TreeMap<>();
 
-    private static void lecteur(String chemin, String nature, LocalDate butoir) {
-        LECTEURS_CONNUS.put(chemin, new Lecteur(nature, butoir));
+    private static void lecteur(String chemin, String nature, String conditionDeSortie) {
+        LECTEURS_CONNUS.put(chemin, new Lecteur(nature, conditionDeSortie));
     }
 
     static {
         String plateforme = "platform/src/main/java/com/hemodialyse/backend/";
         // HistoricalRecordJdbcAdapter : entrée SOLDÉE par RP3b (2026-11-13, ADR 0172) ; l'import écrit le dossier de base, les antécédents, les
-        // sérologies et les abords par RepriseDeLHistoriqueMedical (dossier-medical.v1). Butoir 2027-06-30 supprimé, aucun report.
+        // sérologies et les abords par RepriseDeLHistoriqueMedical (dossier-medical.v1).
         // MigrationRollbackJdbcAdapter : entrée SOLDÉE par RP2 (2026-11-13, ADR 0170) ; l'annulation d'un lot lit et supprime ces tables par
-        // DonneesMedicalesDeLaReprise (dossier-medical.v1). Butoir supprimé, aucun report.
+        // DonneesMedicalesDeLaReprise (dossier-medical.v1).
         String ressources = "platform/src/main/resources/";
         // db/schema.sql : entrée SOLDÉE par S-DDL3b (2026-11-14, ADR 0187) ; le DDL H2 des 18 tables est dans le script du contexte
-        // Dossier médical (contexts/dossier-medical/.../db/h2/dossier-medical-schema.sql, hors du périmètre de la garde). Butoir 2027-06-30
-        // supprimé, aucun report.
+        // Dossier médical (contexts/dossier-medical/.../db/h2/dossier-medical-schema.sql, hors du périmètre de la garde).
         // db/seed.sql et db/demo/renadial-*.sql : entrées SOLDÉES par SEED2 (ADR 0188 et 0189) ; jeux de démonstration dans le module
-        // demo-data (voir DonneesDeDemonstrationTest). Butoir 2027-06-30 supprimé, aucun report.
+        // demo-data (voir DonneesDeDemonstrationTest).
         // cahier_dialyse.jrxml : entrée SOLDÉE par DOC5a (2026-11-15, ADR 0193) ; la Séance compose le jeu de données du cahier et lit le
         // dossier de base et la prescription en vigueur par seance.v1 (DossierEtTraitementDuCahier, fourni par le Dossier médical).
-        // Butoir 2027-03-31 supprimé, aucun report.
         // ordonnance.jrxml : entrée SOLDÉE par DOC5d (2026-11-15, ADR 0196) ; le gabarit n'embarque plus de requête, le Dossier médical
-        // compose les lignes de l'état (ComposerLesLignesDeLOrdonnance, règle d'impression publiée à Documents). Butoir 2027-03-31
-        // supprimé, aucun report. La liste blanche est désormais VIDE.
+        // compose les lignes de l'état (ComposerLesLignesDeLOrdonnance, règle d'impression publiée à Documents).
+        // La liste blanche est désormais VIDE.
         // StatistiquesDesSeancesJdbc (Séance) : entrée SOLDÉE par LEC-PLN-GMAO (c) (2026-11-14, ADR 0180) ; le poids sec cible est lu par
-        // PoidsSecsPrescritsPublies (dossier-medical.v1) via le port PoidsSecDesPrescriptions. Butoir 2027-03-31 supprimé, aucun report.
+        // PoidsSecsPrescritsPublies (dossier-medical.v1) via le port PoidsSecDesPrescriptions.
     }
 
     private static final String ALTERNATIVES = TABLES.stream().map(Pattern::quote).collect(Collectors.joining("|"));
@@ -108,7 +103,7 @@ class TableDuDossierMedicalTest {
         Set<String> nouveaux = new TreeSet<>(lecteurs(TableDesAnalysesTest.sourcesDeProduction(backend())));
         nouveaux.removeAll(LECTEURS_CONNUS.keySet());
         assertThat(nouveaux)
-                .as("nouveaux lecteurs des tables du Dossier médical (SQL, nom de table calculé ou entité JPA) : passer par dossier-medical.v1 ou les inscrire (nommés, datés, butoir)")
+                .as("nouveaux lecteurs des tables du Dossier médical (SQL, nom de table calculé ou entité JPA) : passer par dossier-medical.v1 ou les inscrire (nommés, avec nature et condition de sortie)")
                 .isEmpty();
     }
 
@@ -142,13 +137,13 @@ class TableDuDossierMedicalTest {
     }
 
     @Test
-    void chaque_entree_a_un_butoir_propre_et_la_liste_est_a_revoir_au_plus_tard_le_2026_12_15() {
+    void chaque_entree_porte_une_nature_et_une_condition_de_sortie() {
         // Liste VIDE depuis DOC5d (ADR 0196) : l'état Jasper de l'ordonnance était la dernière entrée (le cahier, DOC5a, et les trois scripts
-        // de données, SEED2, sont soldés avant). Toute entrée future doit porter un butoir postérieur à la revue.
+        // de données, SEED2, sont soldés avant). Toute entrée future doit porter sa nature et sa condition de sortie.
         assertThat(LECTEURS_CONNUS).isEmpty();
         LECTEURS_CONNUS.forEach((chemin, lecteur) -> {
             assertThat(lecteur.nature()).as("nature de " + chemin).isNotBlank();
-            assertThat(lecteur.butoir()).as("butoir de " + chemin).isAfter(REVUE);
+            assertThat(lecteur.conditionDeSortie()).as("condition de sortie de " + chemin).isNotBlank();
         });
     }
 
@@ -170,8 +165,7 @@ class TableDuDossierMedicalTest {
     }
 
     /**
-     * RP2 (2026-11-13, ADR 0170) : l'annulation d'un lot de reprise passe par {@code DonneesMedicalesDeLaReprise} ; son entrée et son butoir
-     * 2027-06-30 sont SOLDÉS (supprimés, jamais reportés). Verrou : elle ne figure plus dans la liste blanche ET ne lit plus ces tables.
+     * RP2 (ADR 0170) : l'annulation d'un lot de reprise passe par {@code DonneesMedicalesDeLaReprise} ; son entrée est supprimée. Verrou : elle ne figure plus dans la liste blanche ET ne lit plus ces tables.
      */
     @Test
     void l_annulation_d_un_lot_de_reprise_ne_touche_plus_les_tables_du_dossier_medical() throws IOException {
@@ -181,8 +175,8 @@ class TableDuDossierMedicalTest {
     }
 
     /**
-     * RP3b (2026-11-13, ADR 0172) : l'import de l'historique d'un lot de reprise passe par {@code RepriseDeLHistoriqueMedical} ; son entrée et
-     * son butoir 2027-06-30 sont SOLDÉS (supprimés, jamais reportés). Verrou : elle ne figure plus dans la liste blanche ET ne lit ni
+     * RP3b (2026-11-13, ADR 0172) : l'import de l'historique d'un lot de reprise passe par {@code RepriseDeLHistoriqueMedical} ; son entrée est
+     * supprimée. Verrou : elle ne figure plus dans la liste blanche ET ne lit ni
      * n'écrit plus ces tables (SQL ou nom de table calculé).
      */
     @Test

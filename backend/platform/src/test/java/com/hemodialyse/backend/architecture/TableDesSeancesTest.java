@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * les volets suivent le cycle de vie de la séance). Garde réécrite par SE7c1 (ADR 0096), étendue par SE7f aux volets et aux entités JPA
  * (KB-SEA-98 : un {@code @Table(name = "seances")} est un lecteur ; le dossier {@code /entity/} n'est plus exclu). Elle scanne TOUT le code
  * de production (plateforme, anciens modules, autres contextes, ACL et adapters de persistance compris), sauf le contexte Séance. Les lecteurs
- * actuels sont une liste blanche NOMMÉE, DATÉE, avec une revue au plus tard le {@link #REVUE} et un BUTOIR PROPRE à chaque entrée :
+ * actuels sont une liste blanche NOMMÉE, où chaque entrée porte sa nature et sa condition de sortie (un événement, jamais une date) :
  * <ul>
  *   <li>un nouveau lecteur, ou un lecteur qui n'est pas listé, fait échouer le test ;</li>
  *   <li>une entrée qui ne lit plus {@code seances} (fichier disparu ou migré) est une entrée morte : le test échoue, la liste doit
@@ -33,15 +32,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class TableDesSeancesTest {
 
-    /** Revue de toute la liste au plus tard à cette date ; chaque entrée porte en plus son butoir. */
-    private static final LocalDate REVUE = LocalDate.of(2026, 12, 15);
-
-    private record Lecteur(String nature, LocalDate butoir) {
+    private record Lecteur(String nature, String conditionDeSortie) {
     }
 
-    /* Résidu E-R3 (ADR 0099), butoir 2027-06-30 : requête embarquée du cahier de dialyse, SOLDÉ par DOC5a (ADR 0193), constante supprimée. */
-
-    /** Lecteurs SQL connus hors du contexte Séance (chemin depuis {@code backend/}) : 2026-11-08, SE7c1 ; réduite par SE7e (ADR 0099). */
+    /** Lecteurs SQL connus hors du contexte Séance (chemin depuis {@code backend/}) : SE7c1 ; réduite par SE7e (ADR 0099). */
     private static final Map<String, Lecteur> LECTEURS_CONNUS = new TreeMap<>();
 
     /**
@@ -51,8 +45,8 @@ class TableDesSeancesTest {
      */
     private static final Map<String, String> MENTIONS_NON_SQL = new TreeMap<>();
 
-    private static void lecteur(String chemin, String nature, LocalDate butoir) {
-        LECTEURS_CONNUS.put(chemin, new Lecteur(nature, butoir));
+    private static void lecteur(String chemin, String nature, String conditionDeSortie) {
+        LECTEURS_CONNUS.put(chemin, new Lecteur(nature, conditionDeSortie));
     }
 
     static {
@@ -67,17 +61,16 @@ class TableDesSeancesTest {
         // données, le schéma H2 et les deux lecteurs des volets de la reprise (résidu E-R6).
         String plateforme = "platform/src/main/java/com/hemodialyse/backend/";
         // MigrationRollbackJdbcAdapter : entrée SOLDÉE par RP2 (2026-11-13, ADR 0170) ; le contrôle « complétée » lit les volets par
-        // SeancesDeLaReprisePubliees.laSeanceEstCompletee (butoir 2027-03-31 supprimé, aucun report).
+        // SeancesDeLaReprisePubliees.laSeanceEstCompletee.
         // Ressources SQL de production hors Flyway, révélées par le durcissement de la garde (revue SE7c1, 2026-11-08).
         String ressources = "platform/src/main/resources/";
         // db/schema.sql : entrée SOLDÉE par S-DDL3b (2026-11-14, ADR 0187) ; le DDL H2 des séances et des volets est dans le script du contexte
-        // Séance (contexts/seance/.../db/h2/seance-schema.sql, hors du périmètre de la garde). Butoir 2027-06-30 supprimé, aucun report.
+        // Séance (contexts/seance/.../db/h2/seance-schema.sql, hors du périmètre de la garde).
         // contexts/documents/.../reports/cahier_dialyse.jrxml : entrée SOLDÉE par DOC5a (2026-11-15, ADR 0193). Le gabarit n'embarque plus de
         // requête : la Séance compose le jeu de données du cahier (SeancesImprimablesDuCahierJdbc, dans son contexte) et le fournit au moteur.
-        // Butoir 2027-06-30 supprimé, aucun report.
         // db/seed.sql, db/demo/renadial-seed.sql, db/demo/renadial-purge.sql : entrées SOLDÉES par SEED2 (2026-11-15, ADR 0188 et 0189). Le
         // jeu dérivé et le jeu RENADIAL vivent dans le module demo-data (hors du périmètre de la garde, voir DonneesDeDemonstrationTest) ;
-        // db/seed.sql ne garde que l'identité. Butoir 2027-06-30 supprimé, aucun report.
+        // db/seed.sql ne garde que l'identité.
 
         // MigrationEntity.java (faux positif nommé de la détection des noms calculés : SEANCES("seances", …), segment d'URL /import/seances) :
         // exemption SOLDÉE par RP3b (2026-11-13, ADR 0172) ; plus aucun constructeur de SQL de la reprise ne la nomme (aucun report).
@@ -174,7 +167,7 @@ class TableDesSeancesTest {
         nouveaux.removeAll(MENTIONS_NON_SQL.keySet());
         assertThat(nouveaux)
                 .as("nouveaux lecteurs SQL de seances (littéraux, noms de table calculés ou indirects) : passer par seance.v1 "
-                        + "(publishedlanguage) ou les inscrire (nommés, datés, butoir)")
+                        + "(publishedlanguage) ou les inscrire (nommés, avec nature et condition de sortie)")
                 .isEmpty();
     }
 
@@ -214,7 +207,7 @@ class TableDesSeancesTest {
 
     /**
      * RP2 (2026-11-13, ADR 0170) : l'annulation d'un lot de reprise lit « volet complété » par {@code SeancesDeLaReprisePubliees} ; son
-     * entrée et son butoir 2027-03-31 sont SOLDÉS (supprimés, jamais reportés). Verrou : elle ne figure plus dans la liste blanche ET ne
+     * entrée est supprimée. Verrou : elle ne figure plus dans la liste blanche ET ne
      * lit plus les trois tables de la Séance (volets compris).
      */
     @Test
@@ -317,11 +310,11 @@ class TableDesSeancesTest {
     }
 
     @Test
-    void chaque_entree_a_un_butoir_propre_et_la_liste_est_a_revoir_au_plus_tard_le_2026_12_15() {
-        // DOC5a (ADR 0193) : la liste blanche est vide ; si une entrée revient, elle porte sa nature et un butoir postérieur à la revue
+    void chaque_entree_porte_une_nature_et_une_condition_de_sortie() {
+        // DOC5a (ADR 0193) : la liste blanche est vide ; si une entrée revient, elle porte sa nature et sa condition de sortie
         LECTEURS_CONNUS.forEach((chemin, lecteur) -> {
             assertThat(lecteur.nature()).as("nature de " + chemin).isNotBlank();
-            assertThat(lecteur.butoir()).as("butoir de " + chemin).isAfter(REVUE);
+            assertThat(lecteur.conditionDeSortie()).as("condition de sortie de " + chemin).isNotBlank();
         });
     }
 
@@ -332,7 +325,7 @@ class TableDesSeancesTest {
                         + "SE7d, 0 lecteur Java du pilotage, des statistiques, du cahier, de la reprise ni du référentiel sur seances depuis SE7e, "
                         + "0 fournisseur de seance.v1 ni entité JPA depuis SE7f, 0 lecteur Java des volets depuis RP2, 0 schéma H2 depuis S-DDL3b "
                         + "(ADR 0187), 0 script de données depuis SEED2 (ADR 0189), 0 état Jasper depuis DOC5a (ADR 0193 : la Séance compose le jeu "
-                        + "de données du cahier)) : toute entrée ajoutée doit être décidée, datée et reportée dans la fiche de la slice et l'annexe 16")
+                        + "de données du cahier)) : toute entrée ajoutée doit être décidée et reportée dans la fiche de la slice et l'annexe 16")
                 .isEmpty();
         assertThat(LECTEURS_CONNUS.keySet().stream().filter(c -> c.startsWith("contexts/")).count())
                 .as("dont 0 d'un autre contexte (SE7d), ni module Documents (DOC5a)").isZero();

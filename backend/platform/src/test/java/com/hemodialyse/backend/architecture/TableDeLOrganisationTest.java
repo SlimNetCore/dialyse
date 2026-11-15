@@ -24,7 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * <ul>
  *   <li>elle scanne TOUT le code de production (plateforme, anciens modules, autres contextes, ACL et adapters de persistance
  *   compris), sauf le contexte Organisation et les entités JPA ;</li>
- *   <li>les lecteurs actuels sont une liste blanche NOMMÉE et DATÉE ({@link #LECTEURS_CONNUS}) : un nouveau lecteur, ou un lecteur
+ *   <li>les lecteurs actuels sont une liste blanche NOMMÉE ({@link #LECTEURS_CONNUS}) : un nouveau lecteur, ou un lecteur
  *   qui change de table sans être listé, fait échouer le test ;</li>
  *   <li>une entrée de la liste qui ne lit plus aucune table de l'Organisation (fichier disparu ou migré) est une entrée morte :
  *   le test échoue, la liste doit être réduite (c'est ainsi que l'avancement de O4 se mesure).</li>
@@ -115,7 +115,7 @@ class TableDeLOrganisationTest {
             }
         }
         assertThat(nouveaux)
-                .as("nouveaux lecteurs SQL des tables de l'Organisation : passer par organisation.v1 ou les inscrire (nommés, datés)")
+                .as("nouveaux lecteurs SQL des tables de l'Organisation : passer par organisation.v1 ou les inscrire (nommés, avec nature et condition de sortie)")
                 .isEmpty();
     }
 

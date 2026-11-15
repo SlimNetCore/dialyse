@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * salles et les médecins (migrés par PL11-2 à PL11-4). Les descripteurs des transporteurs, forfaits, caisses, agences et centres
  * payeurs sont publiés par Patient et couverture ({@code DescripteursDeReferentiels}) ; la plateforme ne fait que les recevoir (SPI
  * {@code ReferentialAdminDelegate#descripteurs()}) et les référencer par {@code ReferentielsDePatientCouverture}. Ce test remplace
- * la liste de butoirs « descripteurs résiduels » du 2027-03-31 (soldée, sans report).
+ * la liste « descripteurs résiduels » (soldée).
  */
 class LaFacadeDesReferentielsNeDecritQueLesReferentielsEncoreDirectsTest {
 

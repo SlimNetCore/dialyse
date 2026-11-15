@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * {@code patientcouverture.v1} ({@code FichesDesPatients}, {@code CouvertureDesPatients}, {@code CompteursDeCouverture}).
  * <p>
  * Garde de NON-RÉGRESSION sur le modèle de {@code TableDeLOrganisationTest} : les lecteurs et écrivains restants sont une LISTE
- * BLANCHE NOMMÉE, DATÉE, avec la raison et l'échéance de chaque jalon (acceptés le 2026-11-04). Un nouveau lecteur hors liste fait
+ * BLANCHE NOMMÉE, avec la raison et la condition de sortie (un événement, jamais une date) de chaque jalon. Un nouveau lecteur hors liste fait
  * échouer le test ; une entrée morte (fichier disparu ou migré) aussi : la liste doit être réduite.
  */
 class TableDuPatientCouvertureTest {
@@ -47,12 +47,12 @@ class TableDuPatientCouvertureTest {
     private static final Pattern ENTITE_JPA = Pattern.compile(
             "\\b(PatientJpaEntity|AssureJpaEntity|AssurePatientJpaEntity|PatientJpaRepository|AssureJpaRepository|AssurePatientJpaRepository)\\b");
 
-    private static final String PLACE ="2026-11-04 : colonnes de PLACE de patients, propriété de la Planification (ADR 0052) ; "
-            + "échéance : inversion de la propriété de la place, hors périmètre (aucune échéance)";
-    private static final String CYCLE = "2026-11-04 : dépendance Maven CIRCULAIRE (contexts-patient-couverture dépend de "
-            + "contexts-planification) ; échéance : extraction des interfaces publiées dans un module d'API partagé (le port est prêt)";
+    private static final String PLACE = "colonnes de PLACE de patients, propriété de la Planification (ADR 0052) ; "
+            + "condition de sortie : inversion de la propriété de la place, hors périmètre tant qu'elle n'est pas décidée";
+    private static final String CYCLE = "dépendance Maven CIRCULAIRE (contexts-patient-couverture dépend de "
+            + "contexts-planification) ; condition de sortie : extraction des interfaces publiées dans un module d'API partagé (le port est prêt)";
 
-    /** Lecteurs et écrivains restants hors du contexte (chemin depuis {@code backend/}) : jalons acceptés le 2026-11-04. */
+    /** Lecteurs et écrivains restants hors du contexte (chemin depuis {@code backend/}) : jalons acceptés, chacun avec sa condition de sortie. */
     private static final Map<String, String> JALONS = jalons(
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacypatient/PlacesDuCentreJdbc.java", PLACE + " ; ÉCRIT la place",
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacypatient/PlacesTenuesJdbc.java", PLACE + " ; ÉCRIT la place",
@@ -60,24 +60,22 @@ class TableDuPatientCouvertureTest {
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacypatient/PlanningDesPlacesDuCentreJdbc.java", PLACE,
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacypatient/SejoursDesPatientsJdbc.java", PLACE,
             // LecturesDesSeancesRealiseesJdbc, SeancesRealiseesDesCentresJdbc, FacturationDesSeancesJdbc, ForfaitsDeSeanceJdbc : entrées SOLDÉES
-            // par LEC-PAT (ii) (2026-11-14, ADR 0177), lecture par LotsDePatients et CouvertureDesPatients ; leurs butoirs (2027-03-31) ne sont
-            // pas reportés.
+            // par LEC-PAT (ii) (ADR 0177), lecture par LotsDePatients et CouvertureDesPatients.
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/persistence/LectureDesPreferencesJdbc.java", PLACE,
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacypatient/ContraintesDesPatientsJdbc.java",
-            "2026-11-04 : lecture de la fiche par la Planification (transporteurs, date de naissance : règle des 18 ans, RG-PLN-097), pas une lecture de fiche publiée ; les abords vasculaires viennent de dossier-medical.v1 depuis DM9 (ADR 0101) ; échéance : langage publié du Patient",
+            "lecture de la fiche par la Planification (transporteurs, date de naissance : règle des 18 ans, RG-PLN-097), pas une lecture de fiche publiée ; les abords vasculaires viennent de dossier-medical.v1 depuis DM9 (ADR 0101) ; condition de sortie : langage publié du Patient",
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacypatient/NomsDesPatientsJdbc.java", CYCLE + " (port FichesDesPatients.noms)",
             "contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacypatient/PatientsDuCentreJdbc.java", CYCLE + " (port FichesDesPatients.situation)");
-    // PatientsDesCentresJdbc (Pilotage direction) et HistoriqueDesSeancesJdbc (Séance) : entrées SOLDÉES par LEC-PAT (iii) (2026-11-14,
-            // ADR 0178), lecture par EffectifDesPatients et LotsDePatients.rechercherDuCentre ; leurs butoirs (2027-03-31) ne sont pas reportés.
-            // PlanningDesPatientsJdbc, PatientsDuJourJdbc, PatientsDuTableauDeBordJdbc : entrées SOLDÉES par LEC-PAT (i) (2026-11-14, ADR 0176),
-            // lecture par ProgrammationDesPatients et LotsDePatients ; leurs butoirs (2027-03-31) ne sont pas reportés.
-            // MigrationRollbackJdbcAdapter : entrée SOLDÉE par RP1 (2026-11-13, ADR 0169), l'annulation passe par AnnulationDeLaReprise.
-            // ---- accès que la première version de la garde ne voyait pas (SQL construit, JPA), ajoutés par la revue du 2026-11-05
-            // HistoricalRecordJdbcAdapter : entrée SOLDÉE par RP3a (2026-11-13, ADR 0171), attestations et prises en charge passent par
-            // RepriseDeLHistoriqueDeCouverture ; le butoir (2027-03-31 / 2027-06-30 des lecteurs de la reprise) n'est pas reporté.
-            // SituationsDesFacturesJdbc : entrée JOINTURE (KB-FAC-49) SOLDÉE par LEC-PAT-GMAO (3) (2026-11-14, ADR 0181) : la fiche du patient est
+    // PatientsDesCentresJdbc (Pilotage direction) et HistoriqueDesSeancesJdbc (Séance) : entrées SOLDÉES par LEC-PAT (iii)
+            // (ADR 0178), lecture par EffectifDesPatients et LotsDePatients.rechercherDuCentre.
+            // PlanningDesPatientsJdbc, PatientsDuJourJdbc, PatientsDuTableauDeBordJdbc : entrées SOLDÉES par LEC-PAT (i) (ADR 0176),
+            // lecture par ProgrammationDesPatients et LotsDePatients.
+            // MigrationRollbackJdbcAdapter : entrée SOLDÉE par RP1 (ADR 0169), l'annulation passe par AnnulationDeLaReprise.
+            // HistoricalRecordJdbcAdapter : entrée SOLDÉE par RP3a (ADR 0171), attestations et prises en charge passent par
+            // RepriseDeLHistoriqueDeCouverture.
+            // SituationsDesFacturesJdbc : entrée JOINTURE (KB-FAC-49) SOLDÉE par LEC-PAT-GMAO (3) (ADR 0181) : la fiche du patient est
             // lue par LotsDePatients.aFacturerDuCentre (bornée au centre) et appliquée en mémoire, le tri est départagé par l'identifiant de la
-            // facture. Butoir 2027-03-31 non reporté. La liste blanche ne contient plus que PLACE et CYCLE (propriété de la Planification).
+            // facture. La liste blanche ne contient plus que PLACE et CYCLE (propriété de la Planification).
 
     private static Map<String, String> jalons(String... couples) {
         Map<String, String> m = new TreeMap<>();
@@ -152,7 +150,7 @@ class TableDuPatientCouvertureTest {
 
         assertThat(nouveaux)
                 .as("nouveaux lecteurs SQL des tables de Patient & couverture : passer par patientcouverture.v1 (FichesDesPatients, "
-                        + "CouvertureDesPatients, CompteursDeCouverture) ou les inscrire (nommés, datés, avec raison et échéance)")
+                        + "CouvertureDesPatients, CompteursDeCouverture) ou les inscrire (nommés, avec nature et condition de sortie)")
                 .isEmpty();
     }
 
@@ -169,17 +167,18 @@ class TableDuPatientCouvertureTest {
     }
 
     @Test
-    void chaque_jalon_porte_une_date_et_une_echeance() {
+    void chaque_jalon_porte_une_nature_et_une_condition_de_sortie() {
         assertThat(JALONS.values()).allSatisfy(raison -> {
-            // Les entrées restantes (PLACE, CYCLE) datent du 2026-11-04 et portent une condition de sortie, sans butoir daté.
-            assertThat(raison).matches("(?s)2026-11-0[457].*");
-            assertThat(raison).contains("échéance");
+            // Les entrées restantes (PLACE, CYCLE) portent une raison et une condition de sortie événementielle, sans date.
+            assertThat(raison).isNotBlank();
+            assertThat(raison).contains("condition de sortie :");
+            assertThat(raison).doesNotContainPattern("\\b20\\d\\d-\\d\\d-\\d\\d\\b");
         });
     }
 
     /**
      * RP1 (2026-11-13, ADR 0169) : l'annulation d'un lot de reprise passe par le langage publié {@code AnnulationDeLaReprise} ;
-     * le jalon de {@code MigrationRollbackJdbcAdapter} et son butoir 2027-03-31 sont SOLDÉS (entrée supprimée, jamais reportée).
+     * le jalon de {@code MigrationRollbackJdbcAdapter} est SOLDÉ (entrée supprimée).
      * Verrou : l'adaptateur ne figure plus dans la liste blanche ET ne lit plus ces tables.
      */
     @Test
@@ -251,8 +250,7 @@ class TableDuPatientCouvertureTest {
 
     /**
      * LEC-PAT (iii) (2026-11-14, ADR 0178) : l'historique des séances lit la fiche par {@code LotsDePatients.rechercherDuCentre} et l'effectif
-     * du Pilotage direction par {@code EffectifDesPatients} ; les deux jalons (butoir 2027-03-31) sont SOLDÉS (entrées supprimées, jamais
-     * reportées). Verrou : {@code HistoriqueDesSeancesJdbc} ne revient ni dans la liste ni dans les lecteurs SQL, et le lecteur SQL de
+     * du Pilotage direction par {@code EffectifDesPatients} ; les deux jalons sont SOLDÉS (entrées supprimées). Verrou : {@code HistoriqueDesSeancesJdbc} ne revient ni dans la liste ni dans les lecteurs SQL, et le lecteur SQL de
      * l'effectif du Pilotage est supprimé. {@code SituationsDesFacturesJdbc} (KB-FAC-49) est SOLDÉ par LEC-PAT-GMAO (3) : voir le test suivant.
      */
     @Test
@@ -272,7 +270,7 @@ class TableDuPatientCouvertureTest {
     /**
      * LEC-PAT-GMAO (3) (2026-11-14, ADR 0181) : la lecture des situations de règlement des factures lit la fiche du patient par
      * {@code LotsDePatients.aFacturerDuCentre} (bornée au centre, appliquée en mémoire) ; le jalon JOINTURE de {@code SituationsDesFacturesJdbc}
-     * (KB-FAC-49, butoir 2027-03-31) est SOLDÉ (entrée supprimée, jamais reportée). Verrou : le lecteur ne figure plus dans la liste ni dans
+     * (KB-FAC-49) est SOLDÉ (entrée supprimée). Verrou : le lecteur ne figure plus dans la liste ni dans
      * les lecteurs SQL des tables du contexte ; il lit encore {@code factures} (il existe) et la liste blanche ne garde que PLACE et CYCLE.
      */
     @Test

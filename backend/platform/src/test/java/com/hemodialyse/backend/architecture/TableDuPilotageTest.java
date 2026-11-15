@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * <p>
  * Liste blanche NOMINATIVE des lecteurs et écrivains actuels : les deux propriétaires, adaptateurs JDBC du contexte
  * ({@code direction_snapshot} depuis le lot B, {@code direction_alert_history} depuis le lot C, PD3, ADR 0104) ; chaque entrée porte sa
- * date et son butoir. Une entrée dont le fichier ne lit plus la table est « morte » : elle est à retirer. Les tables du tableau de bord ne sont PAS ici : le module ne possède pas de table, il lit celles des autres
+ * nature et sa condition de sortie. Une entrée dont le fichier ne lit plus la table est « morte » : elle est à retirer. Les tables du tableau de bord ne sont PAS ici : le module ne possède pas de table, il lit celles des autres
  * contextes par leurs langages publiés (ou, pour {@code patients} et {@code centers}, par les entrées nommées de leurs gardes).
  * <p>
  * PD5 (ADR 0105, clôture) puis PL10b2 + PL10c (ADR 0152) : règle PERMANENTE (sans date de revue) sur {@code application/direction} de la
@@ -34,12 +33,12 @@ class TableDuPilotageTest {
 
     private static final Set<String> TABLES_DU_PILOTAGE = Set.of("direction_snapshot", "direction_alert_history");
 
-    private record Lecteur(String nature, LocalDate butoir) {
+    private record Lecteur(String nature, String conditionDeSortie) {
     }
 
     /**
      * PROPRIÉTAIRE de {@code direction_snapshot} depuis le lot B (PD2, ADR 0103) : l'adaptateur JDBC du contexte, seul lecteur et seul
-     * écrivain des instantanés mensuels (aucun butoir : c'est le chez-soi de la table).
+     * écrivain des instantanés mensuels (c'est le chez-soi de la table).
      */
     private static final String PROPRIETAIRE_DES_INSTANTANES =
             "contexts/pilotage-direction/src/main/java/com/hemodialyse/backend/contexts/pilotagedirection/infrastructure/persistence/"
@@ -47,7 +46,7 @@ class TableDuPilotageTest {
 
     /**
      * PROPRIÉTAIRE de {@code direction_alert_history} depuis le lot C (PD3, ADR 0104) : l'adaptateur JDBC du contexte, seul lecteur et seul
-     * écrivain de l'historique des alertes (aucun butoir : c'est le chez-soi de la table).
+     * écrivain de l'historique des alertes (c'est le chez-soi de la table).
      */
     private static final String PROPRIETAIRE_DE_L_HISTORIQUE =
             "contexts/pilotage-direction/src/main/java/com/hemodialyse/backend/contexts/pilotagedirection/infrastructure/persistence/"
@@ -55,11 +54,13 @@ class TableDuPilotageTest {
 
     private static final Map<String, Lecteur> LECTEURS_CONNUS = new TreeMap<>(Map.of(
             PROPRIETAIRE_DES_INSTANTANES,
-            new Lecteur("2026-11-09 : propriétaire de direction_snapshot (PD2, ADR 0103) : liste, relit et fige les instantanés mensuels ; "
-                    + "SQL repris mot pour mot du service retiré", LocalDate.of(2099, 12, 31)),
+            new Lecteur("propriétaire de direction_snapshot (PD2, ADR 0103) : liste, relit et fige les instantanés mensuels ; "
+                    + "SQL repris mot pour mot du service retiré",
+                    "aucune : propriétaire de la table, l'entrée disparaît seulement si la table quitte le Pilotage direction"),
             PROPRIETAIRE_DE_L_HISTORIQUE,
-            new Lecteur("2026-11-09 : propriétaire de direction_alert_history (PD3, ADR 0104) : ouvre, résout et relit l'historique des "
-                    + "alertes tant que la direction est connectée ; SQL repris mot pour mot du service retiré", LocalDate.of(2099, 12, 31))));
+            new Lecteur("propriétaire de direction_alert_history (PD3, ADR 0104) : ouvre, résout et relit l'historique des "
+                    + "alertes tant que la direction est connectée ; SQL repris mot pour mot du service retiré",
+                    "aucune : propriétaire de la table, l'entrée disparaît seulement si la table quitte le Pilotage direction")));
 
     private static final Pattern LECTURE_SQL = Pattern.compile(
             "\\b(FROM|JOIN|INTO|UPDATE|TABLE)\\s+([A-Za-z_][A-Za-z0-9_]*)", Pattern.CASE_INSENSITIVE);
@@ -110,7 +111,7 @@ class TableDuPilotageTest {
         }
         assertThat(nouveaux)
                 .as("nouveaux lecteurs SQL de direction_snapshot / direction_alert_history : passer par le Pilotage direction ou les inscrire "
-                        + "(nommés, datés, butoir)")
+                        + "(nommés, avec nature et condition de sortie)")
                 .isEmpty();
     }
 
@@ -145,11 +146,11 @@ class TableDuPilotageTest {
     }
 
     @Test
-    void la_liste_blanche_compte_deux_proprietaires_dates_et_sans_echeance() {
+    void la_liste_blanche_compte_deux_proprietaires_avec_nature_et_condition_de_sortie() {
         assertThat(LECTEURS_CONNUS).hasSize(2);
         LECTEURS_CONNUS.forEach((chemin, lecteur) -> {
-            assertThat(lecteur.nature()).as("nature de " + chemin).startsWith("2026-");
-            assertThat(lecteur.butoir()).as("butoir de " + chemin + " : un propriétaire n'a pas d'échéance").isEqualTo(LocalDate.of(2099, 12, 31));
+            assertThat(lecteur.nature()).as("nature de " + chemin).isNotBlank();
+            assertThat(lecteur.conditionDeSortie()).as("condition de sortie de " + chemin).isNotBlank();
         });
     }
 
@@ -162,7 +163,7 @@ class TableDuPilotageTest {
     /**
      * PL10b2 + PL10c (ADR 0152) : les quatre services de lecture (GMAO, Stock, Planification, Absences) et l'anonymat de la plateforme ont
      * quitté {@code application/direction} ; il ne reste que les comptes de l'Organisation / IAM (leur retrait est suivi par
-     * {@code TableDeLOrganisationTest}, qui porte sa propre échéance). Cette garde est PERMANENTE : plus aucune date de revue.
+     * {@code TableDeLOrganisationTest}). Cette garde est PERMANENTE : aucune date de revue.
      */
     private static final Set<String> COMPTES = Set.of("DirectionAccountService.java", "SocieteAdminAccountService.java", "PasswordPolicy.java");
 

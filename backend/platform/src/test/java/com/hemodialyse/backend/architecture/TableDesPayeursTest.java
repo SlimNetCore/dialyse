@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * <p>
  * Historique : onze lecteurs connus à l'ouverture de la garde (RF3a, 2026-11-10), sept après RF3b, quatre après RF3c, trois après PL8
  * (ADR 0147), AUCUN après PL8b (ADR 0149 : tableau de bord, situations des factures et synthèse financière lisent la chaîne des payeurs
- * publiée). Le tableau d'exceptions, ses raisons datées et ses butoirs sont supprimés : toute nouvelle jointure échoue ici.
+ * publiée). Le tableau d'exceptions est supprimé : toute nouvelle jointure échoue ici.
  */
 class TableDesPayeursTest {
 
@@ -86,7 +86,7 @@ class TableDesPayeursTest {
         }
         assertThat(fautifs)
                 .as("lecteurs/écrivains des tables caisse_assurance, agence, centre_payeur hors patient-couverture : passer par patientcouverture.v1 "
-                        + "(PayeursDuCentre), sans exception ni butoir (ADR 0149)")
+                        + "(PayeursDuCentre), sans exception (ADR 0149)")
                 .isEmpty();
     }
 

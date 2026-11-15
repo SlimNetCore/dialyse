@@ -44,8 +44,8 @@ class TableDeLaPlanificationTest {
      * fichiers) ne désignait aucun lecteur réel ; elle est vide. Une entrée n'est admise que si elle correspond à un lecteur réel
      * (test {@code chaque_entree_de_la_liste_blanche_est_un_lecteur_reel}) et se retire avec son jalon.
      */
-    // LEC-PLN-GMAO (2026-11-14, ADR 0179) : l'entrée de PlaceDuPatientJdbc (Séance, déplacement temporaire du jour, butoir 2027-03-31) est
-    // SOLDÉE, supprimée sans report ; la Séance lit DeplacementsDuJourDesPatients (planification.v1). La liste blanche est vide.
+    // LEC-PLN-GMAO (ADR 0179) : l'entrée de PlaceDuPatientJdbc (Séance, déplacement temporaire du jour) est
+    // SOLDÉE, supprimée ; la Séance lit DeplacementsDuJourDesPatients (planification.v1). La liste blanche est vide.
     private static final Set<String> LISTE_BLANCHE = Set.of();
 
     private static final Pattern LECTURE_SQL = Pattern.compile(

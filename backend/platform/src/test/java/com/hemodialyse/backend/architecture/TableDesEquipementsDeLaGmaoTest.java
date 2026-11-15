@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Garde de NON-RÉGRESSION de la table {@code gmao_equipements} (propriété du contexte GMAO, revue SE1 du 2026-11-07) : les lecteurs SQL
- * hors du contexte GMAO sont une LISTE BLANCHE NOMMÉE, DATÉE, avec la raison et l'échéance de chaque jalon. Un nouveau lecteur hors
+ * hors du contexte GMAO sont une LISTE BLANCHE NOMMÉE, avec la raison et la condition de sortie (un événement, jamais une date) de chaque jalon. Un nouveau lecteur hors
  * liste fait échouer le test ; une entrée morte aussi (la liste doit être réduite). Modèle : {@link TableDuPatientCouvertureTest}.
  */
 class TableDesEquipementsDeLaGmaoTest {
@@ -25,7 +25,7 @@ class TableDesEquipementsDeLaGmaoTest {
     private static final Pattern TABLE = Pattern.compile("\\bgmao_equipements\\b", Pattern.CASE_INSENSITIVE);
 
     // GenerateursDesPatientsJdbc (Séance) : entrée SOLDÉE par LEC-PLN-GMAO (2026-11-14, ADR 0179) ; le générateur du patient est lu par
-    // FichesDesGenerateurs (gmao.v1, fabricant compris). Butoir 2027-03-31 supprimé, aucun report. Verrou : voir le test dédié ci-dessous.
+    // FichesDesGenerateurs (gmao.v1, fabricant compris). Verrou : voir le test dédié ci-dessous.
     // GenerateursDuCentreJdbc et LectureDesMouvementsJdbc (Patient et couverture) : entrées SOLDÉES par LEC-PAT-GMAO (2026-11-14, ADR 0181) ;
     // les deux lisent DescriptionsDesEquipements (gmao.v1, lecture par lot bornée au centre, supprimés compris). Aucun report. La liste
     // blanche est VIDE : tout lecteur de gmao_equipements hors du contexte GMAO fait échouer le test.
@@ -58,7 +58,7 @@ class TableDesEquipementsDeLaGmaoTest {
         Path backend = Path.of("..").toAbsolutePath().normalize();
         Set<String> nouveaux = new TreeSet<>(lecteurs(backend));
         nouveaux.removeAll(JALONS.keySet());
-        assertThat(nouveaux).as("lecteurs de gmao_equipements hors du contexte GMAO et hors jalon daté").isEmpty();
+        assertThat(nouveaux).as("lecteurs de gmao_equipements hors du contexte GMAO et hors jalon nommé (avec nature et condition de sortie)").isEmpty();
     }
 
     @Test
@@ -85,10 +85,10 @@ class TableDesEquipementsDeLaGmaoTest {
     }
 
     @Test
-    void chaque_jalon_porte_une_date_et_une_echeance() {
+    void chaque_jalon_porte_une_nature_et_une_condition_de_sortie() {
         assertThat(JALONS.values()).allSatisfy(raison -> {
-            assertThat(raison).matches("^2026-11-0[78] (\\(.*\\) )?: .*");
-            assertThat(raison).contains("échéance");
+            assertThat(raison).isNotBlank();
+            assertThat(raison).contains("condition de sortie :");
         });
     }
 }
