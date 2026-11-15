@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -21,12 +20,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * La table {@code forfait} appartient au contexte patient-couverture (slice RF2, ADR 0124 : catalogue de forfaits). Hors de ce
  * contexte (et des entités JPA), plus aucun code de production ne la nomme, ni en SQL, ni comme nom de table d'une description de
- * table ({@code new Table("forfait", …)}), à une exception nominative et datée ({@link #LECTEURS_CONNUS}). Le descripteur
+ * table ({@code new Table("forfait", …)}), à une exception nominative ({@link #LECTEURS_CONNUS}). Le descripteur
  * {@code DescripteursDeReferentiels.FORFAIT} (champs, alias d'en-têtes, modèle d'import), publié par Patient et couverture depuis PL11-1 : c'était le résiduel
  * nominatif RF2-R1 de la fiche. Les lecteurs passent par le langage publié {@code patientcouverture.v1} ({@code ForfaitsDuCentre}),
  * l'administration générique par {@code GestionDuCatalogueDeForfaits}.
  * <ul>
- *   <li>liste blanche NOMMÉE et DATÉE ({@link #LECTEURS_CONNUS}), effectif asserté : 1 à la livraison de RF2 ;</li>
+ *   <li>liste blanche NOMMÉE, sans échéance ({@link #LECTEURS_CONNUS}), effectif asserté : 1 à la livraison de RF2 ;</li>
  *   <li>une entrée qui ne nomme plus la table est une entrée morte : le test échoue.</li>
  * </ul>
  */
@@ -38,7 +37,7 @@ class TableDesForfaitsTest {
     private static final Map<String, String> LECTEURS_CONNUS = new TreeMap<>();
 
     // ForfaitsDeSeanceJdbc : entrée SOLDÉE par LEC-PAT (ii) (2026-11-14, ADR 0177), le forfait de la prise en charge est lu par
-    // CouvertureDesPatients.forfaitApplicable ; son butoir (2027-03-31) n'est pas reporté. Plus aucun lecteur connu hors patient-couverture.
+    // CouvertureDesPatients.forfaitApplicable ; aucune échéance n'est reportée. Plus aucun lecteur connu hors patient-couverture.
 
     /** Aucune entité JPA connue ne porte la table {@code forfait} : l'exclusion nominative est vide (RF4, constat 3 de la revue). */
     private static final Set<String> ENTITES_JPA_CONNUES = Set.of();
@@ -71,7 +70,7 @@ class TableDesForfaitsTest {
                 try (Stream<Path> fichiers = Files.walk(java)) {
                     fichiers.filter(p -> p.toString().endsWith(".java"))
                             // RF4 : aucune entité JPA ne porte cette table ; plus d'exclusion du dossier /entity/ entier
-                            .filter(p -> !ButoirsDesGardesDeTables.estUneEntiteJpaConnue(relatif(p), ENTITES_JPA_CONNUES))
+                            .filter(p -> !ExclusionsDesGardesDeTables.estUneEntiteJpaConnue(relatif(p), ENTITES_JPA_CONNUES))
                             .forEach(trouves::add);
                 }
             }
@@ -121,13 +120,11 @@ class TableDesForfaitsTest {
     }
 
     @Test
-    void le_butoir_2027_03_31_du_dernier_lecteur_est_solde_et_non_reporte() throws IOException {
+    void le_dernier_lecteur_est_solde_et_non_reporte() throws IOException {
         Path ancien = backend().resolve(
                 "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/persistence/ForfaitsDeSeanceJdbc.java");
         assertThat(LECTEURS_CONNUS).isEmpty();
-        assertThat(nommeLaTableDesForfaits(ancien)).as("ForfaitsDeSeanceJdbc ne nomme plus la table forfait").isFalse();
-        assertThat(ButoirsDesGardesDeTables.butoirsAbsentsOuDepasses(LECTEURS_CONNUS, LocalDate.of(2027, 4, 1))).isEmpty();
-    }
+        assertThat(nommeLaTableDesForfaits(ancien)).as("ForfaitsDeSeanceJdbc ne nomme plus la table forfait").isFalse();    }
 
     @Test
     void les_entites_jpa_ne_sont_plus_exclues_en_bloc() throws IOException {

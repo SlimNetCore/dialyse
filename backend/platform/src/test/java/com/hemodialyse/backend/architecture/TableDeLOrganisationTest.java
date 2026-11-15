@@ -78,7 +78,7 @@ class TableDeLOrganisationTest {
                 if (!Files.isDirectory(java) || chemin(module).endsWith("/contexts/organisation")) continue;
                 try (Stream<Path> fichiers = Files.walk(java)) {
                     fichiers.filter(p -> p.toString().endsWith(".java"))
-                            .filter(p -> !ButoirsDesGardesDeTables.estUneEntiteJpaConnue(relatif(p), ENTITES_JPA_CONNUES))
+                            .filter(p -> !ExclusionsDesGardesDeTables.estUneEntiteJpaConnue(relatif(p), ENTITES_JPA_CONNUES))
                             .forEach(trouves::add);
                 }
             }
@@ -152,7 +152,7 @@ class TableDeLOrganisationTest {
         assertThat(Files.exists(backend().resolve(
                 "platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/entity/SocieteJpaEntity.java"))).isFalse();
         assertThat(scannes).as("une entité JPA non nommée est scannée").anyMatch(s -> s.contains("/entity/"));
-        assertThat(ButoirsDesGardesDeTables.estUneEntiteJpaConnue("platform/src/main/java/x/entity/Inconnue.java", ENTITES_JPA_CONNUES)).isFalse();
+        assertThat(ExclusionsDesGardesDeTables.estUneEntiteJpaConnue("platform/src/main/java/x/entity/Inconnue.java", ENTITES_JPA_CONNUES)).isFalse();
     }
 
     @Test

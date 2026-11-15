@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Les lecteurs passent par le langage publié {@code patientcouverture.v1} ({@code Transporteurs}, {@code CategoriesDeTransport}),
  * l'administration générique par {@code GestionDesTransporteurs}.
  * <ul>
- *   <li>liste blanche NOMMÉE et DATÉE ({@link #LECTEURS_CONNUS}) : vide à la livraison de RF1 ;</li>
+ *   <li>liste blanche NOMMÉE, sans échéance ({@link #LECTEURS_CONNUS}) : vide à la livraison de RF1 ;</li>
  *   <li>une entrée qui ne nomme plus aucune des deux tables est une entrée morte : le test échoue.</li>
  * </ul>
  */
@@ -68,7 +68,7 @@ class TableDesTransporteursTest {
                 try (Stream<Path> fichiers = Files.walk(java)) {
                     fichiers.filter(p -> p.toString().endsWith(".java"))
                             // RF4 : aucune entité JPA ne porte ces tables ; plus d'exclusion du dossier /entity/ entier
-                            .filter(p -> !ButoirsDesGardesDeTables.estUneEntiteJpaConnue(relatif(p), ENTITES_JPA_CONNUES))
+                            .filter(p -> !ExclusionsDesGardesDeTables.estUneEntiteJpaConnue(relatif(p), ENTITES_JPA_CONNUES))
                             .forEach(trouves::add);
                 }
             }
@@ -118,9 +118,7 @@ class TableDesTransporteursTest {
     }
 
     @Test
-    void aucun_butoir_n_est_a_comparer_et_les_entites_jpa_ne_sont_plus_exclues_en_bloc() throws IOException {
-        // Liste blanche vide : rien à reconduire. Si une entrée apparaît, elle devra porter un butoir lisible et non dépassé.
-        assertThat(ButoirsDesGardesDeTables.butoirsAbsentsOuDepasses(LECTEURS_CONNUS, java.time.LocalDate.now())).isEmpty();
+    void les_entites_jpa_ne_sont_plus_exclues_en_bloc() throws IOException {
         assertThat(sourcesDeProduction(backend()).stream().map(TableDesTransporteursTest::relatif)).anyMatch(s -> s.contains("/entity/"));
     }
 
