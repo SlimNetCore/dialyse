@@ -292,6 +292,19 @@ class TableDuPatientCouvertureTest {
         assertThat(JALONS.keySet()).allMatch(c -> c.startsWith("contexts/planification/"));
     }
 
+    /**
+     * DOC5f (ADR 0198) : la liste des patients imprimée ne lit plus aucune table dans le gabarit (sans requête) ; Patient et couverture en
+     * fournit les lignes. Aucune entrée de garde ne le concernait (la garde ne scrute que le Java) : rien à retirer, aucun report.
+     */
+    @Test
+    void la_liste_imprimee_des_patients_n_embarque_plus_de_requete() throws IOException {
+        Path gabarit = backend().resolve("contexts/documents/src/main/resources/reports/liste_patients.jrxml");
+        String xml = Files.readString(gabarit);
+        assertThat(xml).doesNotContain("queryString");
+        assertThat(LECTURE_SQL.matcher(xml).results().map(m -> m.group(2).toLowerCase()))
+                .noneMatch(TABLES_DU_PATIENT_COUVERTURE::contains);
+    }
+
     @Test
     void la_garde_detecte_une_lecture_directe_meme_sur_deux_lignes_et_ignore_les_autres_tables() throws IOException {
         Path bac = Files.createTempDirectory("garde-patient-couverture-pc5");

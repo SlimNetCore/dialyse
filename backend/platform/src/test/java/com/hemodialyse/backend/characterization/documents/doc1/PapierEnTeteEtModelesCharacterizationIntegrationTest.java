@@ -2,6 +2,7 @@ package com.hemodialyse.backend.characterization.documents.doc1;
 
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.MoteurDeRendu;
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.PapierEnTeteDuCentre;
+import com.hemodialyse.backend.contexts.documents.publishedlanguage.RegleDImpressionDUnType;
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.RenduRefuse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,19 @@ class PapierEnTeteEtModelesCharacterizationIntegrationTest extends Doc1Support {
     private PapierEnTeteDuCentre identite;
     @Autowired
     private MoteurDeRendu imprimeur;
+    @Autowired
+    private List<RegleDImpressionDUnType> regles;
+
+    /**
+     * DOC5f (ADR 0198) : le gabarit de la liste des patients n'embarque plus de requete ; ce test appelle le moteur directement, sans le
+     * cas d'usage d'impression : il pose lui-meme les lignes que la regle de Patient et couverture fournit au serveur sur les routes.
+     */
+    private Map<String, Object> avecLesLignesDeLaListe(UUID centre, Map<String, Object> params) {
+        Map<String, Object> donnees = new LinkedHashMap<>(params);
+        donnees.putAll(regles.stream().filter(r -> "LISTE_PATIENTS".equals(r.type())).findFirst().orElseThrow()
+                .donneesDuServeur(centre, Map.of()));
+        return donnees;
+    }
 
     private Map<String, Object> parametres(UUID centre) throws Exception {
         Map<String, Object> p = new TreeMap<>(identite.parametresDeLEnTete(centre));
@@ -128,11 +142,11 @@ class PapierEnTeteEtModelesCharacterizationIntegrationTest extends Doc1Support {
     void imprimer_par_type_provisionne_le_modele_du_centre_a_la_premiere_impression() throws Exception {
         Map<String, Object> cas = new LinkedHashMap<>();
         cas.put("modeles avant", modelesDuCentre(CENTRE_D));
-        MoteurDeRendu.Rendu doc = imprimeur.rendreParType(CENTRE_D, "LISTE_PATIENTS", Map.of(), null);
+        MoteurDeRendu.Rendu doc = imprimeur.rendreParType(CENTRE_D, "LISTE_PATIENTS", avecLesLignesDeLaListe(CENTRE_D, Map.of()), null);
         cas.put("format du document", doc.format());
         cas.put("document", pdf(doc.octets()));
         cas.put("modeles apres", modelesDuCentre(CENTRE_D));
-        MoteurDeRendu.Rendu encore = imprimeur.rendreParType(CENTRE_D, "liste_patients", Map.of(), null);
+        MoteurDeRendu.Rendu encore = imprimeur.rendreParType(CENTRE_D, "liste_patients", avecLesLignesDeLaListe(CENTRE_D, Map.of()), null);
         cas.put("seconde impression (casse differente) : modeles", modelesDuCentre(CENTRE_D).size());
         cas.put("seconde impression : meme texte", pdf(encore.octets()).equals(pdf(doc.octets())));
         golden("provisionnement", cas);
@@ -145,7 +159,7 @@ class PapierEnTeteEtModelesCharacterizationIntegrationTest extends Doc1Support {
         params.put("SOCIETE_NOM", "Usurpation SA");
         params.put("centre_ligne", "Faux");
         params.put("CENTER_ID", CENTRE_E.toString());
-        MoteurDeRendu.Rendu doc = imprimeur.rendreParType(CENTRE_D, "LISTE_PATIENTS", params, null);
+        MoteurDeRendu.Rendu doc = imprimeur.rendreParType(CENTRE_D, "LISTE_PATIENTS", avecLesLignesDeLaListe(CENTRE_D, params), null);
         Map<String, Object> cas = new LinkedHashMap<>();
         cas.put("format", doc.format());
         cas.put("tableur", xlsx(doc.octets()));

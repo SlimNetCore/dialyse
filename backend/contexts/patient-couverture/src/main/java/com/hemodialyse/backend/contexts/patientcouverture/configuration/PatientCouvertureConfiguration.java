@@ -513,4 +513,12 @@ public class PatientCouvertureConfiguration {
     public com.hemodialyse.backend.contexts.organisation.publishedlanguage.UsageDeLaSalle usageDeLaSalleParLesPatients(JdbcTemplate jdbc) {
         return new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.UsageDeLaSalleParLesPatients(jdbc);
     }
+
+    /** DOC5f (ADR 0198) : la liste des patients imprimée est un jeu de données fourni par Patient et couverture, plus une requête du gabarit. */
+    @Bean
+    com.hemodialyse.backend.contexts.documents.publishedlanguage.RegleDImpressionDUnType patientCouvertureRegleDImpressionDeLaListeDesPatients(
+            JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.interfaces.publie.RegleDImpressionDeLaListeDesPatients(
+                new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.ListeDesPatientsAImprimerJdbc(jdbc));
+    }
 }

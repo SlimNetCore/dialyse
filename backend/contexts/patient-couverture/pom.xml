@@ -79,6 +79,13 @@
             <artifactId>contexts-shared-kernel</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!-- Langage publié de Documents (documents.v1) : la règle d'impression de la liste des patients, DOC5f, ADR 0198. Aucun cycle :
+             documents-api ne dépend d'aucun contexte. -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-documents-api</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <!-- Langage publié d'Organisation (AnnuaireDesCentres, O4 lot A, ADR 0107) : seul point d'entrée (ArchUnit). -->
         <dependency>
             <groupId>com.hemodialyse</groupId>

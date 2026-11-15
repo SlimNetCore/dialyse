@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Liste des patients du centre (type de document LISTE_PATIENTS, personnalisable par centre).
+  DOC5f (ADR 0198) : le gabarit n'embarque plus de requête ; Patient et couverture fournit les lignes dans le paramètre LIGNES
+  (champs CODE_PATIENT, NOM, PRENOM, SEXE, GROUPE_SANGUIN, DATE_NAISSANCE, DATE_ADMISSION, NUMERO_ASSURANCE, TEL_MOBILE, ETAT_PATIENT :
+  une par patient du centre, dans l'ordre nom, prénom). Le paramètre CENTER_ID reste déclaré (modèles personnalisés déjà stockés).
+  Contraintes « modèle personnalisable » (JrxmlSecurityValidator) : aucune requête, expressions simples, police standard.
+-->
 <jasperReport xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xmlns="http://jasperreports.sourceforge.net/jasperreports"
               xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports
@@ -25,17 +32,6 @@
     <parameter name="CENTRE_SITE_WEB" class="java.lang.String"/>
     <parameter name="CENTRE_CONTACT" class="java.lang.String"/>
     <parameter name="CENTRE_LIGNE" class="java.lang.String"/>
-
-    <queryString>
-        <![CDATA[
-        SELECT p.code_patient, p.nom, p.prenom, p.sexe, p.groupe_sanguin,
-               p.date_naissance, p.date_admission, p.numero_assurance,
-               p.tel_mobile, p.etat_patient, p.adresse
-        FROM patients p
-        WHERE p.center_id = CAST($P{CENTER_ID} AS UUID)
-        ORDER BY p.nom, p.prenom
-        ]]>
-    </queryString>
 
     <field name="CODE_PATIENT" class="java.lang.String"/>
     <field name="NOM" class="java.lang.String"/>

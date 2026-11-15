@@ -65,7 +65,8 @@ public class MoteurDeRenduJasper implements MoteurDeRendu {
 
     @Override
     public byte[] rendreSansModele(String cheminDuGabarit, Map<String, Object> parametres, String format) throws Exception {
-        return jasper.generateReport(cheminDuGabarit, parametres, format);
+        // DOC5 (correction DOC5f) : le gabarit sans requête reçoit ses lignes comme source de données aussi quand le centre n'a aucun modèle
+        return jasper.generateReport(cheminDuGabarit, avecSourceDeDonnees(parametres), format);
     }
 
     @Override

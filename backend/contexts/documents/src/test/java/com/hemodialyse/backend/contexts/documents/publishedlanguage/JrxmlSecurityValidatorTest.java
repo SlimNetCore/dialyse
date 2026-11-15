@@ -110,6 +110,18 @@ class JrxmlSecurityValidatorTest {
         assertThat(codes(validator.validate(candidate, reference))).contains("QUERY_MODIFIED");
     }
 
+    /** DOC5f (ADR 0198, KB-DOC5F-1) : la liste des patients livrée n'a plus de requête ; un téléversement qui porte l'ancienne est refusé. */
+    @Test
+    void uneListeDesPatientsQuiPorteEncoreL_ancienneRequeteEstRefusee() throws IOException {
+        String reference = load("liste_patients.jrxml");
+        assertThat(reference).doesNotContain("queryString");
+        String ancienne = "<queryString><![CDATA[SELECT p.code_patient, p.nom, p.prenom FROM patients p "
+                + "WHERE p.center_id = CAST($P{CENTER_ID} AS UUID) ORDER BY p.nom, p.prenom]]></queryString>";
+        String candidate = reference.replace("<field name=\"CODE_PATIENT\"", ancienne + "<field name=\"CODE_PATIENT\"");
+        assertThat(candidate).isNotEqualTo(reference);
+        assertThat(codes(validator.validate(candidate, reference))).contains("QUERY_MODIFIED");
+    }
+
     @Test
     void uneRequeteSurUneAutreTableEstRefusee() throws IOException {
         String reference = load("attestation.jrxml");
