@@ -1,0 +1,48 @@
+{
+  "identifiant inconnu" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "" ]
+  },
+  "ordonnance du centre B demandee pour le centre A" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "" ]
+  },
+  "par modele : identifiant absent" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "" ]
+  },
+  "par modele : identifiant illisible" : {
+    "contentType" : "text/plain",
+    "statut" : 500,
+    "texte" : "Erreur: Error executing SQL statement for: ordonnance."
+  },
+  "par modele : identifiant inconnu" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "" ]
+  },
+  "par modele : identifiant vide" : {
+    "contentType" : "text/plain",
+    "statut" : 500,
+    "texte" : "Erreur: Error executing SQL statement for: ordonnance."
+  },
+  "patient d'un autre centre" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "" ]
+  },
+  "sans aucune ligne" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "" ]
+  }
+}

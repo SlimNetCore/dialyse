@@ -28,7 +28,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 class TableDuDossierMedicalTest {
 
     private static final LocalDate REVUE = LocalDate.of(2026, 12, 15);
-    private static final LocalDate LECTURES_PUBLIEES = LocalDate.of(2027, 3, 31);
     private static final LocalDate RETRAIT_DU_PILOTAGE_LEGACY = LocalDate.of(2027, 6, 30);
 
     static final Set<String> TABLES = Set.of("abords_vasculaires", "administrations_anemie", "alertes_observance", "allergies_patient",
@@ -61,8 +60,9 @@ class TableDuDossierMedicalTest {
         // cahier_dialyse.jrxml : entrée SOLDÉE par DOC5a (2026-11-15, ADR 0193) ; la Séance compose le jeu de données du cahier et lit le
         // dossier de base et la prescription en vigueur par seance.v1 (DossierEtTraitementDuCahier, fourni par le Dossier médical).
         // Butoir 2027-03-31 supprimé, aucun report.
-        lecteur("contexts/documents/src/main/resources/reports/ordonnance.jrxml", "état imprimé d'une ordonnance (RG-MED-055) : lit ordonnances et lignes_ordonnance en SQL "
-                + "Jasper ; échéance : impression par le module ou lecture publiée", LECTURES_PUBLIEES);
+        // ordonnance.jrxml : entrée SOLDÉE par DOC5d (2026-11-15, ADR 0196) ; le gabarit n'embarque plus de requête, le Dossier médical
+        // compose les lignes de l'état (ComposerLesLignesDeLOrdonnance, règle d'impression publiée à Documents). Butoir 2027-03-31
+        // supprimé, aucun report. La liste blanche est désormais VIDE.
         // StatistiquesDesSeancesJdbc (Séance) : entrée SOLDÉE par LEC-PLN-GMAO (c) (2026-11-14, ADR 0180) ; le poids sec cible est lu par
         // PoidsSecsPrescritsPublies (dossier-medical.v1) via le port PoidsSecDesPrescriptions. Butoir 2027-03-31 supprimé, aucun report.
     }
@@ -144,15 +144,22 @@ class TableDuDossierMedicalTest {
 
     @Test
     void chaque_entree_a_un_butoir_propre_et_la_liste_est_a_revoir_au_plus_tard_le_2026_12_15() {
-        // 1 entrée depuis DOC5a (ADR 0193) : l'état Jasper de l'ordonnance ; le cahier est soldé, les 3 scripts de données le sont (SEED2).
-        assertThat(LECTEURS_CONNUS).hasSize(1);
+        // Liste VIDE depuis DOC5d (ADR 0196) : l'état Jasper de l'ordonnance était la dernière entrée (le cahier, DOC5a, et les trois scripts
+        // de données, SEED2, sont soldés avant). Toute entrée future doit porter un butoir postérieur à la revue.
+        assertThat(LECTEURS_CONNUS).isEmpty();
         LECTEURS_CONNUS.forEach((chemin, lecteur) -> {
             assertThat(lecteur.nature()).as("nature de " + chemin).isNotBlank();
             assertThat(lecteur.butoir()).as("butoir de " + chemin).isAfter(REVUE);
         });
-        // Plus aucun lecteur Java dans un autre contexte (la Séance est soldée, ADR 0180) ; seul reste l'état Jasper de l'ordonnance.
-        assertThat(LECTEURS_CONNUS.keySet().stream().filter(c -> c.startsWith("contexts/")).toList())
-                .containsExactly("contexts/documents/src/main/resources/reports/ordonnance.jrxml");
+    }
+
+    /** DOC5d (ADR 0196) : l'état imprimé de l'ordonnance ne lit plus aucune table ; ni entrée, ni lecteur (jrxml sans requête). */
+    @Test
+    void l_etat_imprime_de_l_ordonnance_ne_lit_plus_les_tables_du_dossier_medical() throws IOException {
+        String gabarit = "contexts/documents/src/main/resources/reports/ordonnance.jrxml";
+        assertThat(LECTEURS_CONNUS).doesNotContainKey(gabarit);
+        assertThat(lecteurs(TableDesAnalysesTest.sourcesDeProduction(backend()))).doesNotContain(gabarit);
+        assertThat(Files.readString(backend().resolve(gabarit))).doesNotContain("queryString");
     }
 
     /** LEC-PLN-GMAO (c), ADR 0180 : la Séance ne lit plus les prescriptions ; ni entrée, ni lecteur. */

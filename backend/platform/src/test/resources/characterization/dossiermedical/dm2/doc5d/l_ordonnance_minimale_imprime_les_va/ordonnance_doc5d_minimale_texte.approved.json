@@ -1,0 +1,8 @@
+{
+  "par type" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "Centre P2 A", "Centre P2 A", "ORDONNANCE", "N° null", "Patient : Patient NU Test Né(e) le :", "N° Assurance : Date : 04/01/2026 00:00", "  Médicament", "Seul médicament", "1 par jour", "Imprimé le <HORODATAGE_IMPRESSION> Prescripteur : null", "Centre P2 A" ]
+  }
+}

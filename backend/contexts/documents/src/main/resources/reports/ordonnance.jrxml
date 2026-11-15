@@ -26,23 +26,6 @@
     <parameter name="CENTRE_CONTACT" class="java.lang.String"/>
     <parameter name="CENTRE_LIGNE" class="java.lang.String"/>
 
-    <queryString>
-        <![CDATA[
-        SELECT p.nom, p.prenom, p.date_naissance, p.numero_assurance,
-               c.name AS center_name,
-               o.numero, o.date_prescription, o.medecin_id,
-               COALESCE(l.medicament_code_display, l.libelle) AS medicament_libelle,
-               l.posologie, l.voie, l.duree_jours, l.quantite, l.instructions
-        FROM ordonnances o
-        JOIN patients p ON p.id = o.patient_id AND p.center_id = o.center_id
-        JOIN centers c ON c.id = o.center_id
-        JOIN lignes_ordonnance l ON l.ordonnance_id = o.id
-        WHERE o.center_id = CAST($P{CENTER_ID} AS UUID)
-          AND o.id = CAST($P{ordonnanceId} AS UUID)
-        ORDER BY p.nom
-        ]]>
-    </queryString>
-
     <field name="NOM" class="java.lang.String"/>
     <field name="PRENOM" class="java.lang.String"/>
     <field name="DATE_NAISSANCE" class="java.sql.Date"/>

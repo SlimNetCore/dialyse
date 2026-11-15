@@ -188,9 +188,20 @@ public class DossierMedicalConfiguration {
     /** La règle d'impression de l'ordonnance, publiée à Documents (DOC4c, ADR 0166). */
     @Bean
     com.hemodialyse.backend.contexts.documents.publishedlanguage.RegleDImpressionDUnType dossierMedicalRegleDImpressionDeLOrdonnance(
-            com.hemodialyse.backend.contexts.dossiermedical.application.ProfilDeLaSession profil, SessionCourante session) {
+            com.hemodialyse.backend.contexts.dossiermedical.application.ProfilDeLaSession profil, SessionCourante session,
+            com.hemodialyse.backend.contexts.dossiermedical.application.ComposerLesLignesDeLOrdonnance lignes) {
         return new com.hemodialyse.backend.contexts.dossiermedical.interfaces.publie.RegleDImpressionDeLOrdonnance(
-                new com.hemodialyse.backend.contexts.dossiermedical.application.GarderLImpressionDeLOrdonnance(profil, session));
+                new com.hemodialyse.backend.contexts.dossiermedical.application.GarderLImpressionDeLOrdonnance(profil, session), lignes);
+    }
+
+    /** Les lignes de l'état imprimé de l'ordonnance, composées par ports (DOC5d, ADR 0196) : plus aucune requête dans le gabarit. */
+    @Bean
+    com.hemodialyse.backend.contexts.dossiermedical.application.ComposerLesLignesDeLOrdonnance composerLesLignesDeLOrdonnance(
+            JdbcTemplate jdbc, com.hemodialyse.backend.contexts.dossiermedical.application.IdentitesDesPatients identites,
+            AnnuaireDesCentres annuaire) {
+        return new com.hemodialyse.backend.contexts.dossiermedical.application.ComposerLesLignesDeLOrdonnance(
+                new com.hemodialyse.backend.contexts.dossiermedical.infrastructure.persistence.OrdonnancesAImprimerJdbc(jdbc), identites,
+                new com.hemodialyse.backend.contexts.dossiermedical.infrastructure.acl.organisation.NomsDesCentresPublies(annuaire));
     }
 
     @Bean

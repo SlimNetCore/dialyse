@@ -258,7 +258,12 @@ en isolement** un patient devenu à risque et **alerte** le médecin.
   sinon) : elle n'est ni créée sous un identifiant inconnu ni réaffectée à un autre centre ou patient (ADR 0081, KB-MED-17). La
   modification remplace tout le contenu. La suppression d'une prescription sans correspondance répond 204 sans rien supprimer.
 - **RG-MED-055** — **Imprimer une ordonnance** (`POST /documents/print`, type `ORDONNANCE`) exige le profil MEDECIN ou ADMIN et le
-  centre de la session (403 sinon, avant tout accès aux données ; ADR 0081, KB-MED-18, à confirmer avec les métiers).
+  centre de la session (403 sinon, avant tout accès aux données ; ADR 0081, KB-MED-18, à confirmer avec les métiers). **DOC5d (ADR 0196,
+  2026-11-15)** : le gabarit n'embarque plus de requête ; le Dossier médical compose les lignes de l'état (une par ligne d'ordonnance : état
+  civil du patient du centre, nom du centre, en-tête et médicament, le libellé du code affiché primant sur le nom saisi), sans contrôle de
+  statut, dans l'ordre où la base rend les lignes ; rien n'est imprimé (page blanche) si l'ordonnance est inconnue, d'un autre centre ou sans
+  ligne ; un modèle déjà stocké avec l'ancienne requête s'imprime sans changement, un nouveau téléversement qui la porte est refusé
+  `QUERY_MODIFIED` (KB-DOC5D-1, RG-DOC-004) ; identifiant illisible sur la voie par modèle : échec 500 inchangé (KB-DOC5D-2).
 
 ## 11.7 Prescription médicale de séance, abords vasculaires, dossier médical
 
