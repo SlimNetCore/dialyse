@@ -68,7 +68,18 @@ class ImprimerLeCahierDeDialyseTest {
                 (centre, demande) -> {
                     demandes.add(demande);
                     return new CahierImprime(new byte[]{1}, CahierImprime.Format.PDF);
-                }, HORLOGE);
+                }, new ComposerLesLignesDuCahier((centre, patient, periode, visible) -> List.of(), (centre, patient, jour) -> Optional.empty(),
+                        (centre, forfait) -> Optional.empty(), (centre, seance) -> List.of(), new DossierEtTraitementDuPatient() {
+                    @Override
+                    public Optional<Dossier> dossier(CentreId centre, PatientId patient) {
+                        return Optional.empty();
+                    }
+
+                    @Override
+                    public Optional<Traitement> traitementEnVigueur(CentreId centre, PatientId patient, LocalDate jour) {
+                        return Optional.empty();
+                    }
+                }), HORLOGE);
     }
 
     @Test

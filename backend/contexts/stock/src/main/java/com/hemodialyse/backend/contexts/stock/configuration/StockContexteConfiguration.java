@@ -307,6 +307,12 @@ public class StockContexteConfiguration {
         return new com.hemodialyse.backend.contexts.stock.interfaces.consommations.ConsommationsDeSeanceDuStock(consommations, jdbc);
     }
 
+    /** stock.v1 : les sorties valorisées d'une séance, lues par la Séance pour le cahier de dialyse imprimé (DOC5a, ADR 0193). */
+    @Bean
+    com.hemodialyse.backend.contexts.stock.publishedlanguage.SortiesValoriseesDesSeances stockSortiesValoriseesDesSeances(JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.stock.interfaces.consommations.SortiesValoriseesDesSeancesDuStock(jdbc);
+    }
+
     @Bean
     com.hemodialyse.backend.contexts.stock.application.reception.RecalculMassifDuPmp stockRecalculMassifDuPmp(
             com.hemodialyse.backend.contexts.stock.application.reception.RejeuDuPmp rejeu,

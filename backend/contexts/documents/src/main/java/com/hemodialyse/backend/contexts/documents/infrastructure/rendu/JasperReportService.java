@@ -9,11 +9,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 
-import javax.sql.DataSource;
+import com.hemodialyse.backend.contexts.documents.application.ConnexionDeRendu;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.Connection;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
@@ -31,7 +31,8 @@ import java.util.Map;
 public class JasperReportService {
 
     private static final Logger log = LoggerFactory.getLogger(JasperReportService.class);
-    private final DataSource dataSource;
+    /** Port transitoire (DOC5a, ADR 0193) : la connexion de lecture des gabarits qui embarquent encore leur requête. */
+    private final ConnexionDeRendu connexions;
 
     /**
      * Modèles livrés (classpath, immuables) déjà compilés : la compilation Jasper est coûteuse.
@@ -43,8 +44,8 @@ public class JasperReportService {
     @Value("${app.reports.base-dir:}")
     private String reportsBaseDir;
 
-    public JasperReportService(DataSource dataSource) {
-        this.dataSource = dataSource;
+    public JasperReportService(ConnexionDeRendu connexions) {
+        this.connexions = connexions;
     }
 
     // ──────────────────────────── Compile ────────────────────────────────
@@ -118,9 +119,7 @@ public class JasperReportService {
         if (params.get(JRParameter.REPORT_DATA_SOURCE) instanceof JRDataSource fournie) {
             return JasperFillManager.fillReport(report, params, fournie);
         }
-        try (Connection conn = dataSource.getConnection()) {
-            return JasperFillManager.fillReport(report, params, conn);
-        }
+        return connexions.avecLaConnexion(conn -> JasperFillManager.fillReport(report, params, conn));
     }
 
     // ──────────────────────────── Export ─────────────────────────────────

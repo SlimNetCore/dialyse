@@ -7,8 +7,12 @@
     conclusion ; prescription en vigueur à la date de la séance : poids sec, EPO, fer ; volet médical de la séance).
   - En-tête (logo, société, centre, patient) et pied de page (édition, pagination, centre, pied de page société) sur
     chaque page ; mêmes couleurs que les autres documents de l'application.
-  Contraintes « modèle personnalisable » (JrxmlSecurityValidator) : une seule requête, expressions simples, police
-  standard.
+  DOC5a (ADR 0193) : ce gabarit n'embarque plus de requête SQL. Ses lignes (un enregistrement par séance et par
+  consommable, champs ci-dessous) sont composées par la Séance, propriétaire du cahier, et fournies au moteur sous le
+  paramètre LIGNES ; les paramètres CENTER_ID, PATIENT_ID, DATE_DEBUT et DATE_FIN restent déclarés (modèles
+  personnalisés déjà stockés) mais ne servent plus de critère de lecture.
+  Contraintes « modèle personnalisable » (JrxmlSecurityValidator) : aucune requête (identique à l'original), expressions
+  simples, police standard.
 -->
 <jasperReport xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xmlns="http://jasperreports.sourceforge.net/jasperreports"
@@ -41,104 +45,6 @@
     <parameter name="CENTRE_SITE_WEB" class="java.lang.String"/>
     <parameter name="CENTRE_CONTACT" class="java.lang.String"/>
     <parameter name="CENTRE_LIGNE" class="java.lang.String"/>
-    <queryString><![CDATA[
-      SELECT CAST(s.id AS VARCHAR(36)) AS seance_id,
-             s.date_seance AS date_seance,
-             CASE s.statut WHEN 'VALIDEE' THEN 'Validée' WHEN 'SIGNEE' THEN 'Signée' WHEN 'FACTUREE' THEN 'Facturée' ELSE s.statut END AS statut,
-             CASE WHEN s.forfait_override_id IS NOT NULL THEN COALESCE(s.forfait_override_code, fo.code) ELSE f.code END AS forfait_code,
-             CASE WHEN s.forfait_override_id IS NOT NULL THEN COALESCE(s.forfait_override_nom, fo.libelle) ELSE f.libelle END AS forfait_nom,
-             CASE WHEN s.forfait_override_id IS NOT NULL THEN s.forfait_override_prix ELSE f.prix END AS forfait_prix,
-             COALESCE(REPLACE(CASE WHEN POSITION('.' IN CAST(v.poids_avant_kg AS VARCHAR(40))) > 0 THEN TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM CAST(v.poids_avant_kg AS VARCHAR(40)))) ELSE CAST(v.poids_avant_kg AS VARCHAR(40)) END, '.', ','), '-') AS poids_avant,
-             COALESCE(REPLACE(CASE WHEN POSITION('.' IN CAST(v.poids_apres_kg AS VARCHAR(40))) > 0 THEN TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM CAST(v.poids_apres_kg AS VARCHAR(40)))) ELSE CAST(v.poids_apres_kg AS VARCHAR(40)) END, '.', ','), '-') AS poids_apres,
-             COALESCE(NULLIF(TRIM(v.ta_avant), ''), '-') AS ta_avant,
-             COALESCE(NULLIF(TRIM(v.ta_apres), ''), '-') AS ta_apres,
-             COALESCE(NULLIF(TRIM(CAST(v.duree_minutes AS VARCHAR(40))), ''), '-') AS duree,
-             COALESCE(NULLIF(TRIM(CAST(v.debit_sang_ml_min AS VARCHAR(40))), ''), '-') AS debit_sang,
-             COALESCE(REPLACE(CASE WHEN POSITION('.' IN CAST(v.ultrafiltration_ml AS VARCHAR(40))) > 0 THEN TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM CAST(v.ultrafiltration_ml AS VARCHAR(40)))) ELSE CAST(v.ultrafiltration_ml AS VARCHAR(40)) END, '.', ','), '-') AS uf,
-             COALESCE(NULLIF(TRIM(v.type_dialysat), ''), '-') AS dialysat,
-             COALESCE(NULLIF(TRIM(v.anticoagulant), ''), '-') AS anticoagulant,
-             COALESCE(NULLIF(TRIM(v.incidents), ''), '-') AS incidents,
-             ac.code AS article_code,
-             ac.libelle AS article_libelle,
-             ac.unite AS article_unite,
-             c.quantite AS quantite,
-             c.prix_unitaire AS valeur_unitaire,
-             c.total_valorise AS total_valorise,
-             COALESCE(NULLIF(TRIM(d.nephropathie_initiale), ''), '-') AS nephropathie,
-             d.date_mise_en_dialyse AS date_mise_dialyse,
-             CASE d.hepatite_b_statut WHEN 'NEGATIF' THEN 'Négatif' WHEN 'PORTEUR' THEN 'Porteur' WHEN 'VACCINE' THEN 'Vacciné' WHEN 'IMMUNE' THEN 'Immunisé' WHEN 'INCONNU' THEN 'Inconnu' ELSE COALESCE(NULLIF(TRIM(d.hepatite_b_statut), ''), '-') END AS hepatite_b,
-             CASE d.hepatite_c_statut WHEN 'NEGATIF' THEN 'Négatif' WHEN 'PORTEUR' THEN 'Porteur' WHEN 'VACCINE' THEN 'Vacciné' WHEN 'IMMUNE' THEN 'Immunisé' WHEN 'INCONNU' THEN 'Inconnu' ELSE COALESCE(NULLIF(TRIM(d.hepatite_c_statut), ''), '-') END AS hepatite_c,
-             COALESCE(NULLIF(TRIM(d.observation_globale), ''), '-') AS observation_globale,
-             COALESCE(NULLIF(TRIM(d.conclusion_medicale), ''), '-') AS conclusion_dossier,
-             CASE WHEN pm.poids_sec_cible_kg IS NOT NULL
-                  THEN REPLACE(CASE WHEN POSITION('.' IN CAST(pm.poids_sec_cible_kg AS VARCHAR(20))) > 0 THEN TRIM(TRAILING '.' FROM TRIM(TRAILING '0' FROM CAST(pm.poids_sec_cible_kg AS VARCHAR(20)))) ELSE CAST(pm.poids_sec_cible_kg AS VARCHAR(20)) END, '.', ',') || ' kg'
-                  ELSE '-' END AS poids_sec,
-             CASE WHEN pm.id IS NULL THEN '-'
-                  ELSE COALESCE(ea.libelle, ea.code, '-')
-                       || CASE WHEN COALESCE(pm.epo_dose_ui, 0) > 0
-                               THEN ' — ' || CAST(pm.epo_dose_ui AS VARCHAR(20)) || ' UI ' || COALESCE(pm.epo_voie, '') || ' '
-                                    || COALESCE(CAST(pm.epo_frequence_valeur AS VARCHAR(10)), '') || '/'
-                                    || CASE pm.epo_frequence_unite WHEN 'HEURE' THEN 'heure' WHEN 'JOUR' THEN 'jour' WHEN 'SEMAINE' THEN 'semaine' WHEN 'MOIS' THEN 'mois' WHEN 'ANNEE' THEN 'année' ELSE COALESCE(pm.epo_frequence_unite, '') END
-                               ELSE '' END
-             END AS epo_ligne,
-             CASE WHEN pm.id IS NULL THEN '-'
-                  ELSE COALESCE(fa.libelle, fa.code, '-')
-                       || CASE WHEN COALESCE(pm.fer_dose_mg, 0) > 0
-                               THEN ' — ' || CAST(pm.fer_dose_mg AS VARCHAR(20)) || ' mg ' || COALESCE(pm.fer_voie, '') || ' '
-                                    || COALESCE(CAST(pm.fer_frequence_valeur AS VARCHAR(10)), '') || '/'
-                                    || CASE pm.fer_frequence_unite WHEN 'HEURE' THEN 'heure' WHEN 'JOUR' THEN 'jour' WHEN 'SEMAINE' THEN 'semaine' WHEN 'MOIS' THEN 'mois' WHEN 'ANNEE' THEN 'année' ELSE COALESCE(pm.fer_frequence_unite, '') END
-                               ELSE '' END
-             END AS fer_ligne,
-             COALESCE(NULLIF(TRIM(vm.prescription), ''), '-') AS med_prescription,
-             COALESCE(NULLIF(TRIM(vm.tolerance_seance), ''), '-') AS med_tolerance,
-             COALESCE(NULLIF(TRIM(vm.examen_clinique), ''), '-') AS med_examen,
-             COALESCE(NULLIF(TRIM(vm.resultats_biologiques), ''), '-') AS med_resultats,
-             COALESCE(NULLIF(TRIM(vm.ajustements_therapeutiques), ''), '-') AS med_ajustements,
-             COALESCE(NULLIF(TRIM(vm.conclusion_medicale), ''), '-') AS med_conclusion
-      FROM seances s
-      LEFT JOIN volet_paramedical v ON v.seance_id = s.id AND v.center_id = s.center_id
-      LEFT JOIN volet_medical vm ON vm.seance_id = s.id AND vm.center_id = s.center_id AND CAST($P{VOLET_MEDICAL_VISIBLE} AS BOOLEAN) = TRUE
-      LEFT JOIN dossier_medical_patient d ON d.patient_id = s.patient_id AND d.center_id = s.center_id AND CAST($P{VOLET_MEDICAL_VISIBLE} AS BOOLEAN) = TRUE
-      LEFT JOIN forfait fo ON fo.id = s.forfait_override_id AND fo.center_id = s.center_id
-      LEFT JOIN forfait f ON f.center_id = s.center_id AND f.id = COALESCE(
-             (SELECT COALESCE(p.forfait_effectif_id, p.forfait_demande_id)
-                FROM prise_en_charge p
-               WHERE p.center_id = s.center_id AND p.patient_id = s.patient_id
-                 AND COALESCE(p.forfait_effectif_id, p.forfait_demande_id) IS NOT NULL
-                 AND ((p.date_debut_effectif IS NOT NULL AND s.date_seance >= p.date_debut_effectif
-                       AND (s.date_seance <= p.date_fin_effectif OR p.date_fin_effectif IS NULL))
-                   OR (p.date_debut_demande IS NOT NULL AND s.date_seance >= p.date_debut_demande
-                       AND (s.date_seance <= p.date_fin_demande OR p.date_fin_demande IS NULL)))
-               ORDER BY CASE WHEN p.forfait_effectif_id IS NOT NULL THEN 0 ELSE 1 END, p.created_at DESC
-               FETCH FIRST 1 ROWS ONLY),
-             (SELECT COALESCE(p2.forfait_effectif_id, p2.forfait_demande_id)
-                FROM prise_en_charge p2
-               WHERE p2.center_id = s.center_id AND p2.patient_id = s.patient_id
-                 AND COALESCE(p2.forfait_effectif_id, p2.forfait_demande_id) IS NOT NULL
-               ORDER BY CASE WHEN p2.forfait_effectif_id IS NOT NULL THEN 0 ELSE 1 END, p2.created_at DESC
-               FETCH FIRST 1 ROWS ONLY))
-      LEFT JOIN prescriptions_medicales pm ON CAST($P{VOLET_MEDICAL_VISIBLE} AS BOOLEAN) = TRUE AND pm.id = (
-             SELECT p3.id FROM prescriptions_medicales p3
-              WHERE p3.patient_id = s.patient_id AND p3.center_id = s.center_id AND p3.date_prescription <= s.date_seance
-              ORDER BY p3.date_prescription DESC, p3.created_at DESC
-              FETCH FIRST 1 ROWS ONLY)
-      LEFT JOIN articles ea ON ea.id = pm.epo_article_id AND ea.center_id = pm.center_id
-      LEFT JOIN articles fa ON fa.id = pm.fer_article_id AND fa.center_id = pm.center_id
-      LEFT JOIN (SELECT sm.center_id AS center_id, sm.seance_id AS seance_id, sm.article_id AS article_id,
-                        sm.prix_unitaire AS prix_unitaire,
-                        SUM(CASE WHEN sm.mouvement_type = 'SORTIE' THEN sm.quantite ELSE -sm.quantite END) AS quantite,
-                        SUM(CASE WHEN sm.mouvement_type = 'SORTIE' THEN 1 ELSE -1 END * COALESCE(sm.quantite, 0) * COALESCE(sm.prix_unitaire, 0)) AS total_valorise
-                   FROM stock_movements sm
-                  WHERE sm.center_id = CAST($P{CENTER_ID} AS UUID) AND sm.mouvement_type IN ('SORTIE', 'ENTREE', 'AJUSTEMENT')
-                  GROUP BY sm.center_id, sm.seance_id, sm.article_id, sm.prix_unitaire) c
-             ON c.seance_id = s.id AND c.center_id = s.center_id
-      LEFT JOIN articles ac ON ac.id = c.article_id AND ac.center_id = c.center_id
-      WHERE s.center_id = CAST($P{CENTER_ID} AS UUID)
-        AND s.patient_id = CAST($P{PATIENT_ID} AS UUID)
-        AND s.statut IN ('VALIDEE', 'SIGNEE', 'FACTUREE')
-        AND s.date_seance BETWEEN CAST($P{DATE_DEBUT} AS DATE) AND CAST($P{DATE_FIN} AS DATE)
-      ORDER BY s.date_seance DESC, s.id, ac.code
-    ]]></queryString>
 
     <field name="SEANCE_ID" class="java.lang.String"/>
     <field name="DATE_SEANCE" class="java.sql.Date"/>

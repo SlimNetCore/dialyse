@@ -1,7 +1,12 @@
 package com.hemodialyse.backend.infrastructure.reporting;
 
-import com.hemodialyse.backend.application.erreur.BusinessException;
+import com.hemodialyse.backend.contexts.seance.application.ComposerLesLignesDuCahier;
+import com.hemodialyse.backend.contexts.seance.domain.PatientId;
+import com.hemodialyse.backend.contexts.seance.domain.PeriodeDuCahier;
+import com.hemodialyse.backend.contexts.seance.infrastructure.acl.documents.CahierRenduParDocuments;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import net.sf.jasperreports.engine.JRPrintElement;
+import net.sf.jasperreports.engine.data.JRMapCollectionDataSource;
 import net.sf.jasperreports.engine.JRPrintPage;
 import net.sf.jasperreports.engine.JRPrintText;
 import net.sf.jasperreports.engine.JasperCompileManager;
@@ -54,7 +59,7 @@ class CahierDialyseReportIntegrationTest {
     @Autowired
     private JdbcTemplate jdbc;
     @Autowired
-    private DataSource dataSource;
+    private ComposerLesLignesDuCahier composeur;
     private static final LocalDate DEBUT_PAR_DEFAUT = LocalDate.of(1900, 1, 1);
     private static final LocalDate FIN_PAR_DEFAUT = LocalDate.of(2999, 12, 31);
 
@@ -159,7 +164,11 @@ class CahierDialyseReportIntegrationTest {
                 poidsSec, epo, doseUi, "SC", 1, "SEMAINE");
     }
 
-    private List<String> textes(UUID centre, UUID patientId) throws Exception {
+    /**
+     * DOC5a (ADR 0193) : le gabarit n'embarque plus de requête ; l'état est rempli avec le jeu de données que compose la Séance (les mêmes
+     * lignes que celles fournies au moteur de rendu), traduit en champs du gabarit.
+     */
+    private JasperPrint remplir(UUID centre, UUID patientId, boolean voletMedicalVisible) throws Exception {
         JasperReport compiled;
         try (InputStream is = Files.newInputStream(Path.of("../contexts/documents/src/main/resources/reports/cahier_dialyse.jrxml"))) {
             compiled = JasperCompileManager.compileReport(is);
@@ -169,28 +178,25 @@ class CahierDialyseReportIntegrationTest {
         params.put("PATIENT_ID", patientId.toString());
         params.put("DATE_DEBUT", Date.valueOf(DEBUT_PAR_DEFAUT));
         params.put("DATE_FIN", Date.valueOf(FIN_PAR_DEFAUT));
-        try (Connection connection = dataSource.getConnection()) {
-            JasperPrint print = JasperFillManager.fillReport(compiled, params, connection);
-            return print.getPages().stream().map(JRPrintPage::getElements).flatMap(List::stream)
-                    .filter((JRPrintElement e) -> e instanceof JRPrintText).map(e -> ((JRPrintText) e).getFullText())
-                    .collect(Collectors.toList());
-        }
+        params.put("VOLET_MEDICAL_VISIBLE", voletMedicalVisible);
+        List<Map<String, ?>> lignes = new java.util.ArrayList<>();
+        composeur.composer(new CentreId(centre), new PatientId(patientId), new PeriodeDuCahier(DEBUT_PAR_DEFAUT, FIN_PAR_DEFAUT),
+                voletMedicalVisible).forEach(l -> lignes.add(CahierRenduParDocuments.champs(l)));
+        return JasperFillManager.fillReport(compiled, params, new JRMapCollectionDataSource(lignes));
+    }
+
+    private List<String> textes(UUID centre, UUID patientId) throws Exception {
+        return textes(remplir(centre, patientId, true));
+    }
+
+    private static List<String> textes(JasperPrint print) {
+        return print.getPages().stream().map(JRPrintPage::getElements).flatMap(List::stream)
+                .filter((JRPrintElement e) -> e instanceof JRPrintText).map(e -> ((JRPrintText) e).getFullText())
+                .collect(Collectors.toList());
     }
 
     private List<Integer> pagesParSeance(UUID centre, UUID patientId) throws Exception {
-        JasperReport compiled;
-        try (InputStream is = Files.newInputStream(Path.of("../contexts/documents/src/main/resources/reports/cahier_dialyse.jrxml"))) {
-            compiled = JasperCompileManager.compileReport(is);
-        }
-        Map<String, Object> params = new HashMap<>();
-        params.put("CENTER_ID", centre.toString());
-        params.put("PATIENT_ID", patientId.toString());
-        params.put("DATE_DEBUT", Date.valueOf(DEBUT_PAR_DEFAUT));
-        params.put("DATE_FIN", Date.valueOf(FIN_PAR_DEFAUT));
-        try (Connection connection = dataSource.getConnection()) {
-            JasperPrint print = JasperFillManager.fillReport(compiled, params, connection);
-            return List.of(print.getPages().size());
-        }
+        return List.of(remplir(centre, patientId, true).getPages().size());
     }
 
     @Test
@@ -256,24 +262,9 @@ class CahierDialyseReportIntegrationTest {
 
     @Test
     void the_volet_medical_is_not_read_when_it_is_not_visible() throws Exception {
-        Map<String, Object> params = new HashMap<>();
-        params.put("CENTER_ID", C1.toString());
-        params.put("PATIENT_ID", patient.toString());
-        params.put("DATE_DEBUT", Date.valueOf(DEBUT_PAR_DEFAUT));
-        params.put("DATE_FIN", Date.valueOf(FIN_PAR_DEFAUT));
-        params.put("VOLET_MEDICAL_VISIBLE", Boolean.FALSE);
-        JasperReport compiled;
-        try (InputStream is = Files.newInputStream(Path.of("../contexts/documents/src/main/resources/reports/cahier_dialyse.jrxml"))) {
-            compiled = JasperCompileManager.compileReport(is);
-        }
-        try (Connection connection = dataSource.getConnection()) {
-            JasperPrint print = JasperFillManager.fillReport(compiled, params, connection);
-            List<String> textes = print.getPages().stream().map(JRPrintPage::getElements).flatMap(List::stream)
-                    .filter((JRPrintElement e) -> e instanceof JRPrintText).map(e -> ((JRPrintText) e).getFullText())
-                    .collect(Collectors.toList());
-            assertThat(textes).isNotEmpty();
-            assertThat(textes).noneMatch(t -> t.startsWith("Statut hépatite") || t.startsWith("Poids sec") || t.startsWith("EPO")
-                    || t.startsWith("Conclusion") || t.contains("Volet médical"));
-        }
+        List<String> textes = textes(remplir(C1, patient, false));
+        assertThat(textes).isNotEmpty();
+        assertThat(textes).noneMatch(t -> t.startsWith("Statut hépatite") || t.startsWith("Poids sec") || t.startsWith("EPO")
+                || t.startsWith("Conclusion") || t.contains("Volet médical"));
     }
 }

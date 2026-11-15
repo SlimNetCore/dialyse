@@ -58,8 +58,9 @@ class TableDuDossierMedicalTest {
         // supprimé, aucun report.
         // db/seed.sql et db/demo/renadial-*.sql : entrées SOLDÉES par SEED2 (ADR 0188 et 0189) ; jeux de démonstration dans le module
         // demo-data (voir DonneesDeDemonstrationTest). Butoir 2027-06-30 supprimé, aucun report.
-        lecteur("contexts/documents/src/main/resources/reports/cahier_dialyse.jrxml", "état imprimé du cahier de dialyse (SE7e, résidu E-R3) : lit dossier_medical_patient "
-                + "(hépatites) et prescriptions_medicales (cibles de séance) en SQL Jasper ; échéance : lecture publiée du Dossier médical", LECTURES_PUBLIEES);
+        // cahier_dialyse.jrxml : entrée SOLDÉE par DOC5a (2026-11-15, ADR 0193) ; la Séance compose le jeu de données du cahier et lit le
+        // dossier de base et la prescription en vigueur par seance.v1 (DossierEtTraitementDuCahier, fourni par le Dossier médical).
+        // Butoir 2027-03-31 supprimé, aucun report.
         lecteur("contexts/documents/src/main/resources/reports/ordonnance.jrxml", "état imprimé d'une ordonnance (RG-MED-055) : lit ordonnances et lignes_ordonnance en SQL "
                 + "Jasper ; échéance : impression par le module ou lecture publiée", LECTURES_PUBLIEES);
         // StatistiquesDesSeancesJdbc (Séance) : entrée SOLDÉE par LEC-PLN-GMAO (c) (2026-11-14, ADR 0180) ; le poids sec cible est lu par
@@ -143,17 +144,15 @@ class TableDuDossierMedicalTest {
 
     @Test
     void chaque_entree_a_un_butoir_propre_et_la_liste_est_a_revoir_au_plus_tard_le_2026_12_15() {
-        // 2 entrées depuis SEED2 (ADR 0189) : les deux états Jasper ; les 3 scripts de données sont soldés.
-        assertThat(LECTEURS_CONNUS).hasSize(2);
+        // 1 entrée depuis DOC5a (ADR 0193) : l'état Jasper de l'ordonnance ; le cahier est soldé, les 3 scripts de données le sont (SEED2).
+        assertThat(LECTEURS_CONNUS).hasSize(1);
         LECTEURS_CONNUS.forEach((chemin, lecteur) -> {
             assertThat(lecteur.nature()).as("nature de " + chemin).isNotBlank();
             assertThat(lecteur.butoir()).as("butoir de " + chemin).isAfter(REVUE);
         });
-        // Plus aucun lecteur Java dans un autre contexte (la Séance est soldée, ADR 0180) ; seuls restent les deux états Jasper.
-        // DOC2 (ADR 0162) : les deux états Jasper (cahier, ordonnance) ont changé d'emplacement (module Documents) sans changer de nature
+        // Plus aucun lecteur Java dans un autre contexte (la Séance est soldée, ADR 0180) ; seul reste l'état Jasper de l'ordonnance.
         assertThat(LECTEURS_CONNUS.keySet().stream().filter(c -> c.startsWith("contexts/")).toList())
-                .containsExactly("contexts/documents/src/main/resources/reports/cahier_dialyse.jrxml",
-                        "contexts/documents/src/main/resources/reports/ordonnance.jrxml");
+                .containsExactly("contexts/documents/src/main/resources/reports/ordonnance.jrxml");
     }
 
     /** LEC-PLN-GMAO (c), ADR 0180 : la Séance ne lit plus les prescriptions ; ni entrée, ni lecteur. */

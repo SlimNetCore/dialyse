@@ -42,6 +42,7 @@ import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.Traitem
 import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.acl.seance.PoidsSecsPourLaSeance;
 import com.hemodialyse.backend.contexts.dossiermedical.infrastructure.persistence.PoidsSecsPrescritsJdbc;
 import com.hemodialyse.backend.contexts.dossiermedical.publishedlanguage.PoidsSecsPrescritsPublies;
+import com.hemodialyse.backend.contexts.seance.publishedlanguage.DossierEtTraitementDuCahier;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.PoidsSecDesPrescriptions;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.SaisiesDeSeanceFournies;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -174,6 +175,13 @@ public class IndicateursEtStatistiquesConfiguration {
     @Bean
     PoidsSecDesPrescriptions poidsSecDesPrescriptionsDeLaSeance(PoidsSecsPrescritsPublies prescrits) {
         return new PoidsSecsPourLaSeance(prescrits);
+    }
+
+    /** seance.v1 : fourni à la Séance pour le jeu de données du cahier de dialyse imprimé (DOC5a, ADR 0193). */
+    @Bean
+    DossierEtTraitementDuCahier dossierEtTraitementDuCahierPourLaSeance(JdbcTemplate jdbc,
+                                                                        com.hemodialyse.backend.contexts.dossiermedical.application.CatalogueDesArticles articles) {
+        return new com.hemodialyse.backend.contexts.dossiermedical.infrastructure.acl.seance.DossierEtTraitementPourLeCahier(jdbc, articles);
     }
 
     /** seance.v1 : fourni à la Séance pour la suppression d'une séance (SE6). */

@@ -18,6 +18,8 @@ import com.hemodialyse.backend.contexts.documents.publishedlanguage.MoteurDeRend
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.PapierEnTeteDuCentre;
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.RenduDeDocument;
 import com.hemodialyse.backend.contexts.documents.application.CatalogueDesTypesLivres;
+import com.hemodialyse.backend.contexts.documents.application.ConnexionDeRendu;
+import com.hemodialyse.backend.contexts.documents.infrastructure.rendu.ConnexionDeRenduDeLaBase;
 import com.hemodialyse.backend.contexts.documents.application.ReglesDImpression;
 import com.hemodialyse.backend.contexts.documents.application.ReglesDesTypesDeclares;
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.RegleDImpressionDUnType;
@@ -76,8 +78,13 @@ public class DocumentsConfiguration {
     }
 
     @Bean
-    JasperReportService jasperReportService(DataSource dataSource) {
-        return new JasperReportService(dataSource);
+    ConnexionDeRendu connexionDeRendu(DataSource dataSource) {
+        return new ConnexionDeRenduDeLaBase(dataSource);
+    }
+
+    @Bean
+    JasperReportService jasperReportService(ConnexionDeRendu connexions) {
+        return new JasperReportService(connexions);
     }
 
     @Bean

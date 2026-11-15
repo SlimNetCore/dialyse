@@ -164,6 +164,11 @@ chaque ligne** avant d'écrire, **n'enregistre rien tant qu'un fichier
   `DOCUMENT_TYPE_UNKNOWN`, modèle désactivé `DOCUMENT_MODEL_INACTIVE`, génération impossible `DOCUMENT_GENERATION_FAILED`)
   répond `422` avec ce code. Les caractères hors de la police du document (japonais, étoile, arabe) restent perdus sans
   erreur (dette KB-PL6-4, KB-PL7-3, KB-PL8-3, KB-PL9-6 : décision de l'utilisateur en attente, ADR 0162).
+  **DOC5a (ADR 0193)** : les gabarits qui embarquent encore une requête SQL (11 sur 14) la lisent par un **port de connexion transitoire**
+  (`ConnexionDeRendu` : connexion de lecture seule, valable le temps du rendu, refermée) ; le moteur ne connaît aucune table. Un gabarit dont
+  le contexte propriétaire fournit les lignes (`LIGNES`) n'ouvre aucune connexion : déjà le rapport de la direction et la synthèse
+  mensuelle, désormais le **cahier de dialyse** (RG-SEA-045b). Règle de transition de RG-DOC-004 : la requête d'un gabarit livré sans requête
+  est « identique » quand elle est absente ; un modèle personnalisé déjà stocké avec l'ancienne requête continue de s'imprimer (KB-DOC5A-1).
 - **RG-DOC-009** — **Versions de gabarit par centre (contexte Documents, DOC3, ADR 0163)** : mêmes URL, mêmes rôles
   (`ADMIN`, `SUPERADMIN`) et mêmes codes qu'avant (RG-DOC-003, 004). Chaque dépôt prend le numéro suivant (jamais réutilisé, même
   après un retour au modèle d'origine), désactive les autres et devient la version en vigueur ; réactiver un numéro inexistant

@@ -41,8 +41,7 @@ class TableDesSeancesTest {
 
     private static final LocalDate LECTURES_PUBLIEES = LocalDate.of(2027, 3, 31);
     private static final LocalDate RETRAIT_DU_PILOTAGE_LEGACY = LocalDate.of(2027, 6, 30);
-    /** Résidu E-R3 (ADR 0099) : requête embarquée du modèle de document PERSONNALISABLE du cahier de dialyse. */
-    private static final LocalDate CAHIER_PERSONNALISABLE = LocalDate.of(2027, 6, 30);
+    /* Résidu E-R3 (ADR 0099), butoir 2027-06-30 : requête embarquée du cahier de dialyse, SOLDÉ par DOC5a (ADR 0193), constante supprimée. */
 
     /** Lecteurs SQL connus hors du contexte Séance (chemin depuis {@code backend/}) : 2026-11-08, SE7c1 ; réduite par SE7e (ADR 0099). */
     private static final Map<String, Lecteur> LECTEURS_CONNUS = new TreeMap<>();
@@ -75,9 +74,9 @@ class TableDesSeancesTest {
         String ressources = "platform/src/main/resources/";
         // db/schema.sql : entrée SOLDÉE par S-DDL3b (2026-11-14, ADR 0187) ; le DDL H2 des séances et des volets est dans le script du contexte
         // Séance (contexts/seance/.../db/h2/seance-schema.sql, hors du périmètre de la garde). Butoir 2027-06-30 supprimé, aucun report.
-        lecteur("contexts/documents/src/main/resources/reports/cahier_dialyse.jrxml", "état Jasper du cahier de dialyse (lecture, jointure séances ; KB-SEA-47, 88) : modèle "
-                        + "de document PERSONNALISABLE par centre, dont la requête unique est embarquée (ADR 0099, décision 3, résidu E-R3)",
-                CAHIER_PERSONNALISABLE);
+        // contexts/documents/.../reports/cahier_dialyse.jrxml : entrée SOLDÉE par DOC5a (2026-11-15, ADR 0193). Le gabarit n'embarque plus de
+        // requête : la Séance compose le jeu de données du cahier (SeancesImprimablesDuCahierJdbc, dans son contexte) et le fournit au moteur.
+        // Butoir 2027-06-30 supprimé, aucun report.
         // db/seed.sql, db/demo/renadial-seed.sql, db/demo/renadial-purge.sql : entrées SOLDÉES par SEED2 (2026-11-15, ADR 0188 et 0189). Le
         // jeu dérivé et le jeu RENADIAL vivent dans le module demo-data (hors du périmètre de la garde, voir DonneesDeDemonstrationTest) ;
         // db/seed.sql ne garde que l'identité. Butoir 2027-06-30 supprimé, aucun report.
@@ -321,7 +320,7 @@ class TableDesSeancesTest {
 
     @Test
     void chaque_entree_a_un_butoir_propre_et_la_liste_est_a_revoir_au_plus_tard_le_2026_12_15() {
-        assertThat(LECTEURS_CONNUS).isNotEmpty();
+        // DOC5a (ADR 0193) : la liste blanche est vide ; si une entrée revient, elle porte sa nature et un butoir postérieur à la revue
         LECTEURS_CONNUS.forEach((chemin, lecteur) -> {
             assertThat(lecteur.nature()).as("nature de " + chemin).isNotBlank();
             assertThat(lecteur.butoir()).as("butoir de " + chemin).isAfter(REVUE);
@@ -329,18 +328,16 @@ class TableDesSeancesTest {
     }
 
     @Test
-    void la_liste_blanche_compte_1_lecteur_l_etat_jasper_du_cahier() {
+    void la_liste_blanche_est_vide_depuis_que_le_cahier_ne_porte_plus_de_requete() {
         assertThat(LECTEURS_CONNUS)
-                .as("la liste blanche des lecteurs des tables de la Séance compte 1 entrée (0 Facturation depuis SE7c2, 0 autre contexte depuis "
+                .as("la liste blanche des lecteurs des tables de la Séance est vide (0 Facturation depuis SE7c2, 0 autre contexte depuis "
                         + "SE7d, 0 lecteur Java du pilotage, des statistiques, du cahier, de la reprise ni du référentiel sur seances depuis SE7e, "
                         + "0 fournisseur de seance.v1 ni entité JPA depuis SE7f, 0 lecteur Java des volets depuis RP2, 0 schéma H2 depuis S-DDL3b "
-                        + "(ADR 0187), 0 script de données depuis SEED2 (ADR 0189) ; reste l'état Jasper du cahier (justifié)) : toute entrée ajoutée "
-                        + "ou retirée doit être décidée, datée et reportée dans la fiche de la slice et l'annexe 16")
-                .hasSize(1);
-        // DOC2 (ADR 0162) : l'état Jasper du cahier (déjà justifié) a changé d'emplacement (module Documents) sans changer de nature
-        assertThat(LECTEURS_CONNUS.keySet().stream()
-                .filter(c -> c.startsWith("contexts/") && !c.equals("contexts/documents/src/main/resources/reports/cahier_dialyse.jrxml")).count())
-                .as("dont 0 d'un autre contexte (SE7d)").isZero();
+                        + "(ADR 0187), 0 script de données depuis SEED2 (ADR 0189), 0 état Jasper depuis DOC5a (ADR 0193 : la Séance compose le jeu "
+                        + "de données du cahier)) : toute entrée ajoutée doit être décidée, datée et reportée dans la fiche de la slice et l'annexe 16")
+                .isEmpty();
+        assertThat(LECTEURS_CONNUS.keySet().stream().filter(c -> c.startsWith("contexts/")).count())
+                .as("dont 0 d'un autre contexte (SE7d), ni module Documents (DOC5a)").isZero();
         assertThat(LECTEURS_CONNUS.keySet().stream().filter(c -> c.startsWith("platform/src/main/java/")))
                 .as("dont 0 source Java : l'annulation d'un lot de reprise lit les volets par la Séance depuis RP2 (ADR 0170)").isEmpty();
         assertThat(LECTEURS_CONNUS.keySet().stream().filter(c -> c.startsWith("platform/src/main/resources/")).count())

@@ -665,3 +665,16 @@
   de document personnalisé par le centre n'a pas le masque du volet médical (question ouverte de l'ADR 0144).
   *Source :* `CahierDeDialyseControleur`, `ImprimerLeCahierDeDialyse`, `CahierRenduParDocuments`, `SessionLegacy`, `AuditActionResolver`,
   `cahier_dialyse.jrxml`.
+- **RG-SEA-045b** — *Cahier de dialyse : jeu de données composé par la Séance, DOC5a (ADR 0193, 2026-11-15)* : le gabarit
+  `cahier_dialyse.jrxml` n'embarque plus de requête SQL ; la Séance, propriétaire du cahier, compose ses lignes (une par séance et par
+  consommable, une seule sans consommable) par ses ports et les fournit à Documents (paramètre `LIGNES`) : ses séances et volets, le forfait
+  imposé (code et nom recopiés, à défaut ceux du référentiel ; prix de la séance), le forfait de la prise en charge (Patient et couverture),
+  les sorties du Stock (`SortiesValoriseesDesSeances` : sorties moins entrées et ajustements, par article et prix unitaire ; les consommations
+  imputées sans mouvement ne sont toujours pas imprimées), le dossier de base et la prescription en vigueur à la date de la séance (Dossier
+  médical, `DossierEtTraitementDuCahier`). **Aucun comportement ne change** : texte du PDF identique (filet `doc5a/cahier`, 3 profils, 2
+  scénarios, et goldens PL5 et SE7e inchangés) ; même mise en forme (tiret pour une valeur absente, virgule décimale, libellés des statuts et
+  des fréquences). Le dossier, la prescription et le volet médical ne sont pas lus quand le profil n'y a pas droit (KB-PL5-4). Un modèle
+  personnalisé déjà stocké qui porte l'ancienne requête reçoit les mêmes lignes (la source de données prime) ; un nouveau téléversement doit
+  suivre le gabarit livré, sans requête (KB-DOC5A-1).
+  *Source :* `ComposerLesLignesDuCahier`, `SeancesImprimablesDuCahierJdbc`, `CahierRenduParDocuments`, `DossierEtTraitementPourLeCahier`,
+  `SortiesValoriseesDesSeancesDuStock`.

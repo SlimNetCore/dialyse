@@ -19,8 +19,8 @@ import java.util.UUID;
 /**
  * Imprime le cahier de dialyse d'un patient du centre de la session : une page par séance validée, signée ou facturée, éventuellement
  * limitée à une période. Gardes, dans l'ordre : le centre de la session (403) ; la période (422 {@code CAHIER_PERIODE_INVALIDE}) ; le patient
- * du centre (404 {@code PATIENT_INTROUVABLE}, KB-PL5-6e : c'était 422) ; au moins une séance imprimable (422 {@code CAHIER_VIDE}). Le rendu
- * est confié à Documents ; le volet médical n'est imprimé qu'aux profils habilités (KB-PL5-4). L'impression est journalisée par la
+ * du centre (404 {@code PATIENT_INTROUVABLE}, KB-PL5-6e : c'était 422) ; au moins une séance imprimable (422 {@code CAHIER_VIDE}). Les lignes du
+ * cahier sont composées par la Séance (DOC5a, ADR 0193) et le rendu est confié à Documents ; le volet médical n'est imprimé qu'aux profils habilités (KB-PL5-4). L'impression est journalisée par la
  * plateforme sous l'action de lecture {@code CAHIER_DIALYSE_IMPRESSION} (KB-PL5-3).
  */
 public class ImprimerLeCahierDeDialyse {
@@ -31,14 +31,16 @@ public class ImprimerLeCahierDeDialyse {
     private final PatientsDeLaSeance patients;
     private final SeancesDuCahier seances;
     private final RenduDuCahier rendu;
+    private final ComposerLesLignesDuCahier lignes;
     private final Clock horloge;
 
     public ImprimerLeCahierDeDialyse(SessionCourante session, PatientsDeLaSeance patients, SeancesDuCahier seances, RenduDuCahier rendu,
-                                     Clock horloge) {
+                                     ComposerLesLignesDuCahier lignes, Clock horloge) {
         this.session = session;
         this.patients = patients;
         this.seances = seances;
         this.rendu = rendu;
+        this.lignes = lignes;
         this.horloge = horloge;
     }
 
@@ -59,7 +61,8 @@ public class ImprimerLeCahierDeDialyse {
         FicheDuPatient fiche = patients.fiche(centre, patient).orElseThrow(PatientIntrouvable::new);
         if (seances.nombreAImprimer(centre, patient, periode) == 0) throw CahierRefuse.vide();
         String edite = EDITION.format(ZonedDateTime.now(horloge).withZoneSameInstant(fuseau(tz)));
+        boolean voletMedicalVisible = session.peutLireLeVoletMedical();
         return rendu.rendre(centre, new DemandeDeCahier(patient, periode, LigneDIdentiteDuCahier.de(fiche), edite, session.utilisateur(),
-                session.peutLireLeVoletMedical()));
+                voletMedicalVisible, lignes.composer(centre, patient, periode, voletMedicalVisible)));
     }
 }

@@ -1,0 +1,6 @@
+{
+  "medecin" : {
+    "status" : 200,
+    "texte" : [ "Centre P2 A", "CAHIER DE DIALYSE", "Patient : Test Patient PNU  ·  Code SE1-PNU  ·  Sexe M  ·  N° assurance ASS-SE1-PNU", "Page 1 du cahier — Séance d'hémodialyse du 01/02/2026 Statut : Validée", "Forfait : FORFAIT_SE1 — Forfait fictif Prix : 100,00 DA", "Saisie infirmier — Volet paramédical", "Poids avant (kg) : - Poids après (kg) : -", "TA avant : - TA après : -", "Durée (min) : - Débit sang (mL/min) : -", "Ultrafiltration (mL) : -", "Type de dialysat : -", "Anticoagulant : -", "Incidents / remarques : -", "Consommables / sorties de stock", "Article Qté  Unité Val. unitaire (PMP) Val. totale", "Aucun article sorti pour cette séance. Valorisation totale (DA) :", "Saisie médecin — Volet médical", "Date de mise en dialyse : - Statut hépatite B : -", "Statut hépatite C : -", "Néphropathie initiale : -", "Observation globale : -", "Conclusion du médecin : -", "Prescription en vigueur (EPO / Fer)", "Poids sec : -", "EPO : -", "Fer : -", "Volet médical de la séance", "Prescription : -", "Tolérance de séance : -", "Examen clinique : -", "Résultats biologiques : -", "Ajustements thérapeutiques : -", "Conclusion médicale : -", "Édité le <EDITE_LE> par u-medecin Page 1 /  1", "Centre P2 A", "pages=1" ]
+  }
+}

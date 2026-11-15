@@ -754,13 +754,31 @@ public class SeanceConfiguration {
         return new com.hemodialyse.backend.contexts.seance.infrastructure.acl.documents.CahierRenduParDocuments(documents);
     }
 
+    /**
+     * DOC5a (ADR 0193) : le jeu de données du cahier de dialyse est composé par la Séance (le gabarit n'embarque plus de requête) : ses
+     * séances et volets, le forfait de Patient et couverture, les sorties du Stock, le dossier et la prescription du Dossier médical.
+     */
+    @Bean
+    com.hemodialyse.backend.contexts.seance.application.ComposerLesLignesDuCahier composerLesLignesDuCahier(
+            JdbcTemplate jdbc,
+            @Qualifier("forfaitDeLaPriseEnChargeDeLaSeance") com.hemodialyse.backend.contexts.seance.application.ForfaitDeLaPriseEnCharge priseEnCharge,
+            @Qualifier("forfaitsDuCentreDeLaSeance") ForfaitsDuCentre referentiel,
+            com.hemodialyse.backend.contexts.stock.publishedlanguage.SortiesValoriseesDesSeances sorties,
+            com.hemodialyse.backend.contexts.seance.publishedlanguage.DossierEtTraitementDuCahier medical) {
+        return new com.hemodialyse.backend.contexts.seance.application.ComposerLesLignesDuCahier(
+                new com.hemodialyse.backend.contexts.seance.infrastructure.persistence.SeancesImprimablesDuCahierJdbc(jdbc), priseEnCharge,
+                referentiel, new com.hemodialyse.backend.contexts.seance.infrastructure.acl.stock.SortiesDeLaSeanceDuStock(sorties),
+                new com.hemodialyse.backend.contexts.seance.infrastructure.acl.dossiermedical.DossierEtTraitementParLeDossierMedical(medical));
+    }
+
     @Bean
     com.hemodialyse.backend.contexts.seance.application.ImprimerLeCahierDeDialyse imprimerLeCahierDeDialyse(
             @Qualifier("sessionCouranteDeLaSeance") SessionCourante session,
             @Qualifier("patientsDeLaSeance") PatientsDeLaSeance patients,
             @Qualifier("seancesDuCahierDeLaSeance") com.hemodialyse.backend.contexts.seance.application.SeancesDuCahier seances,
-            @Qualifier("renduDuCahierDeLaSeance") com.hemodialyse.backend.contexts.seance.application.RenduDuCahier rendu) {
-        return new com.hemodialyse.backend.contexts.seance.application.ImprimerLeCahierDeDialyse(session, patients, seances, rendu, Clock.systemUTC());
+            @Qualifier("renduDuCahierDeLaSeance") com.hemodialyse.backend.contexts.seance.application.RenduDuCahier rendu,
+            com.hemodialyse.backend.contexts.seance.application.ComposerLesLignesDuCahier lignes) {
+        return new com.hemodialyse.backend.contexts.seance.application.ImprimerLeCahierDeDialyse(session, patients, seances, rendu, lignes, Clock.systemUTC());
     }
 
     /** PL11-2 (ADR 0158) : ce que les séances retiennent d'un créneau de l'Organisation (suppression ou désactivation). */
