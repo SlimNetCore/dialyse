@@ -369,6 +369,13 @@ public class StockContexteConfiguration {
         return new com.hemodialyse.backend.contexts.stock.infrastructure.acl.documents.ProcesVerbalRenduParDocuments(documents);
     }
 
+    /** DOC5j (ADR 0202) : règle d'impression du procès-verbal par l'impression directe de Documents (fournit les lignes, aucune garde). */
+    @Bean
+    com.hemodialyse.backend.contexts.documents.publishedlanguage.RegleDImpressionDUnType stockRegleDImpressionDuProcesVerbal(
+            com.hemodialyse.backend.contexts.stock.domain.inventaire.Inventaires inventaires) {
+        return new com.hemodialyse.backend.contexts.stock.infrastructure.acl.documents.RegleDImpressionDuProcesVerbalDInventaire(inventaires);
+    }
+
     /** PL7 : feuille de comptage (classeur Excel). */
     @Bean
     com.hemodialyse.backend.contexts.stock.application.inventaire.FeuilleDeComptage stockFeuilleDeComptage() {

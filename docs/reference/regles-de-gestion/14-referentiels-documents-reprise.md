@@ -186,7 +186,10 @@ chaque ligne** avant d'écrire, **n'enregistre rien tant qu'un fichier
   non gardés par profil, KB-DOC1-3 ; KB-DOC5H-1) : 2 gabarits sur 14 embarquent encore une requête. **DOC5i (ADR 0201)** : la **fiche
   signalétique du patient** imprimée (Patient et couverture) est convertie à son tour (une ligne fournie par Patient et couverture, nom du
   centre lu par organisation.v1 ; type toujours non gardé par profil, KB-DOC1-3 ; KB-DOC5I-1) : 1 gabarit sur 14 (`inventaire_stock`)
-  embarque encore une requête.
+  embarque encore une requête. **DOC5j (ADR 0202)** : le **procès-verbal d'inventaire** (Stock) est converti à son tour (lignes fournies par
+  le Stock, un lot par ligne, dans l'ordre de libellé d'article sans casse, identifiant, péremption, position ; impression directe toujours
+  non gardée par profil, KB-DOC1-3 ; KB-DOC5J-1) : **aucun gabarit sur 14 n'embarque plus de requête** ; le moteur n'ouvre plus de connexion et
+  un modèle téléversé ne peut porter aucune requête (garde permanente).
 - **RG-DOC-009** — **Versions de gabarit par centre (contexte Documents, DOC3, ADR 0163)** : mêmes URL, mêmes rôles
   (`ADMIN`, `SUPERADMIN`) et mêmes codes qu'avant (RG-DOC-003, 004). Chaque dépôt prend le numéro suivant (jamais réutilisé, même
   après un retour au modèle d'origine), désactive les autres et devient la version en vigueur ; réactiver un numéro inexistant

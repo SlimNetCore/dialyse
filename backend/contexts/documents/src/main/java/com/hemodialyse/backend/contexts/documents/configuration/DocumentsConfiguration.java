@@ -18,8 +18,6 @@ import com.hemodialyse.backend.contexts.documents.publishedlanguage.MoteurDeRend
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.PapierEnTeteDuCentre;
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.RenduDeDocument;
 import com.hemodialyse.backend.contexts.documents.application.CatalogueDesTypesLivres;
-import com.hemodialyse.backend.contexts.documents.application.ConnexionDeRendu;
-import com.hemodialyse.backend.contexts.documents.infrastructure.rendu.ConnexionDeRenduDeLaBase;
 import com.hemodialyse.backend.contexts.documents.application.ReglesDImpression;
 import com.hemodialyse.backend.contexts.documents.application.ReglesDesTypesDeclares;
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.RegleDImpressionDUnType;
@@ -41,7 +39,6 @@ import com.hemodialyse.backend.contexts.documents.infrastructure.transaction.Uni
 import com.hemodialyse.backend.contexts.documents.application.GererLesModeles;
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.VerificationDeGabarit;
 import com.hemodialyse.backend.contexts.organisation.publishedlanguage.AnnuaireDesCentres;
-import javax.sql.DataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -78,13 +75,8 @@ public class DocumentsConfiguration {
     }
 
     @Bean
-    ConnexionDeRendu connexionDeRendu(DataSource dataSource) {
-        return new ConnexionDeRenduDeLaBase(dataSource);
-    }
-
-    @Bean
-    JasperReportService jasperReportService(ConnexionDeRendu connexions) {
-        return new JasperReportService(connexions);
+    JasperReportService jasperReportService() {
+        return new JasperReportService();
     }
 
     @Bean

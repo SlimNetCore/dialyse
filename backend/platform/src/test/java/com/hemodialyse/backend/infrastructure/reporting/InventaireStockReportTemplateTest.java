@@ -60,34 +60,10 @@ class InventaireStockReportTemplateTest {
         }
     }
 
-    /**
-     * Même forme que la requête du modèle : 3 lots par article, un écart de -2 (casse) un article sur quatre.
-     */
-    private static Collection<Map<String, ?>> rows(int articles) {
-        List<Map<String, ?>> rows = new ArrayList<>();
-        for (int a = 0; a < articles; a++) {
-            for (int lot = 0; lot < 3; lot++) {
-                boolean gap = lot == 0 && a % 4 == 0;
-                Map<String, Object> r = new HashMap<>();
-                r.put("ARTICLE_KEY", "A" + a);
-                r.put("ARTICLE_CODE", "ART-" + a);
-                r.put("ARTICLE_LIBELLE", "Dialyseur haute perméabilité n° " + a);
-                r.put("UNITE", "U");
-                r.put("LOT_LIBELLE", "L" + a + "-" + lot);
-                r.put("DATE_PEREMPTION", Date.valueOf(LocalDate.of(2027, 1, 1).plusDays(a)));
-                r.put("PEREMPTION_ETAT", a == 1 ? "EXPIRE" : null);
-                r.put("QUANTITE_THEORIQUE", new BigDecimal("10"));
-                r.put("QUANTITE_COMPTEE", gap ? new BigDecimal("8") : new BigDecimal("10"));
-                r.put("NON_COMPTE", 0);
-                r.put("ECART", gap ? new BigDecimal("-2") : BigDecimal.ZERO);
-                r.put("PMP", new BigDecimal("1500.00"));
-                r.put("VAL_ECART", gap ? new BigDecimal("-3000.00") : new BigDecimal("0.00"));
-                r.put("COMPTE_PAR", "infirmier");
-                r.put("MOTIF", gap ? "Casse" : null);
-                rows.add(r);
-            }
-        }
-        return rows;
+    /** Les lignes que le Stock fournit au gabarit (DOC5j) : 3 lots par article, un écart de -2 (casse) un article sur quatre. */
+    @SuppressWarnings("unchecked")
+    private static Collection<Map<String, ?>> rows(Map<String, Object> params) {
+        return (Collection<Map<String, ?>>) params.get("LIGNES");
     }
 
     private static Map<String, Object> params(int articles) throws Exception {
@@ -104,7 +80,7 @@ class InventaireStockReportTemplateTest {
         Inventaire inv = Inventaire.ouvrir(UUID.randomUUID(), new CentreId(UUID.randomUUID()), "INV-00042", LocalDate.of(2026, 9, 30),
                 "Inventaire annuel", "pharma", NOW, lignes).cloturer("pharma", NOW);
 
-        Map<String, Object> p = com.hemodialyse.backend.contexts.stock.infrastructure.acl.documents.ProcesVerbalRenduParDocuments.params(inv, "admin", NOW);
+        Map<String, Object> p = new HashMap<>(com.hemodialyse.backend.contexts.stock.infrastructure.acl.documents.ProcesVerbalRenduParDocuments.params(inv, "admin", NOW));
         p.put("CENTER_ID", inv.centre().valeur().toString());
         p.put("SOCIETE_NOM", "Clinique Néphro Santé");
         p.put("SOCIETE_PIED_PAGE", "SARL au capital de 1 000 000 DA");
@@ -124,7 +100,8 @@ class InventaireStockReportTemplateTest {
 
     @Test
     void everyPageCarriesLogoIdentityAndPageNumberAndTheReportExportsToPdf() throws Exception {
-        JasperPrint print = JasperFillManager.fillReport(compile(), params(60), new JRMapCollectionDataSource(rows(60)));
+        Map<String, Object> params = params(60);
+        JasperPrint print = JasperFillManager.fillReport(compile(), params, new JRMapCollectionDataSource(rows(params)));
 
         assertThat(print.getPages()).hasSizeGreaterThan(2);
         int total = print.getPages().size();

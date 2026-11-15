@@ -5,8 +5,8 @@
   - Page 1 : titre, statut, indicateurs clés (calculés par le serveur).
   - Détail du comptage par article et par lot (sous-totaux), analyse des écarts par motif, observations, validation.
   - Filigrane « PROVISOIRE » / « ANNULÉ » tant que l'inventaire n'est pas clôturé.
-  Contraintes « modèle personnalisable » (JrxmlSecurityValidator) : une seule requête, expressions simples, police
-  standard. Valorisation au PMP figé à l'ouverture de l'inventaire.
+  Contraintes « modèle personnalisable » (JrxmlSecurityValidator) : aucune requête (les lignes sont fournies par le
+  Stock), expressions simples, police standard. Valorisation au PMP figé à l'ouverture de l'inventaire.
 -->
 <jasperReport xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xmlns="http://jasperreports.sourceforge.net/jasperreports"
@@ -170,40 +170,7 @@
     <parameter name="CENTRE_CONTACT" class="java.lang.String"/>
     <parameter name="CENTRE_LIGNE" class="java.lang.String"/>
 
-    <queryString>
-        <![CDATA[
-        SELECT CAST(l.article_id AS VARCHAR(36)) AS ARTICLE_KEY,
-               l.article_code AS ARTICLE_CODE, l.article_libelle AS ARTICLE_LIBELLE, l.unite AS UNITE,
-               COALESCE(l.numero_lot, 'sans lot') || CASE WHEN l.ajoutee THEN ' (trouvé)' ELSE '' END AS LOT_LIBELLE,
-               l.date_peremption AS DATE_PEREMPTION,
-               CASE WHEN l.date_peremption IS NULL THEN NULL
-                    WHEN l.date_peremption < CURRENT_DATE THEN 'EXPIRE'
-                    WHEN l.date_peremption <= CURRENT_DATE + INTERVAL '90' DAY THEN 'PROCHE'
-                    ELSE NULL END AS PEREMPTION_ETAT,
-               l.quantite_theorique AS QUANTITE_THEORIQUE, l.quantite_comptee AS QUANTITE_COMPTEE,
-               CASE WHEN l.quantite_comptee IS NULL THEN 1 ELSE 0 END AS NON_COMPTE,
-               l.quantite_comptee - l.quantite_theorique AS ECART,
-               COALESCE(l.pmp, 0) AS PMP,
-               ROUND((l.quantite_comptee - l.quantite_theorique) * COALESCE(l.pmp, 0), 2) AS VAL_ECART,
-               l.compte_par AS COMPTE_PAR,
-               CASE
-                   WHEN l.motif_ecart = 'CASSE' THEN 'Casse'
-                   WHEN l.motif_ecart = 'PEREMPTION' THEN 'Péremption'
-                   WHEN l.motif_ecart = 'ERREUR_SAISIE' THEN 'Erreur de saisie'
-                   WHEN l.motif_ecart = 'PERTE' THEN 'Perte / vol'
-                   WHEN l.motif_ecart = 'NON_ENREGISTRE' THEN 'Mouvement non enregistré'
-                   WHEN l.motif_ecart = 'RETOUR' THEN 'Retour'
-                   WHEN l.motif_ecart = 'AUTRE' THEN 'Autre'
-                   WHEN l.motif_ecart IS NOT NULL THEN l.motif_ecart
-                   WHEN l.quantite_comptee IS NOT NULL AND l.quantite_comptee <> l.quantite_theorique THEN 'À justifier'
-                   ELSE NULL END AS MOTIF
-        FROM inventaire_lignes l
-        WHERE l.inventaire_id = CAST($P{INVENTAIRE_ID} AS UUID)
-          AND l.center_id = CAST($P{CENTER_ID} AS UUID)
-        ORDER BY LOWER(COALESCE(l.article_libelle, '')), l.article_id, l.date_peremption, l.position_ligne
-        ]]>
-    </queryString>
-
+    <!-- DOC5j (ADR 0202) : aucune requête ; le Stock fournit les lignes (un lot par ligne) comme source de données. -->
     <field name="ARTICLE_KEY" class="java.lang.String"/>
     <field name="ARTICLE_CODE" class="java.lang.String"/>
     <field name="ARTICLE_LIBELLE" class="java.lang.String"/>

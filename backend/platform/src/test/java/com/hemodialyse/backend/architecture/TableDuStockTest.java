@@ -130,6 +130,19 @@ class TableDuStockTest {
     }
 
     /**
+     * DOC5j (ADR 0202) : le procès-verbal d'inventaire livré n'embarque plus de requête ; le Stock fournit les lignes de l'inventaire
+     * ({@code LignesDuProcesVerbal}). Le gabarit ne nomme aucune table du Stock.
+     */
+    @Test
+    void le_proces_verbal_d_inventaire_n_embarque_plus_de_requete() throws IOException {
+        Path backend = Path.of("..").toAbsolutePath().normalize();
+        String xml = Files.readString(backend.resolve("contexts/documents/src/main/resources/reports/inventaire_stock.jrxml"));
+
+        assertThat(xml).doesNotContain("queryString");
+        assertThat(LECTURE_SQL.matcher(xml).results().map(m -> m.group(2).toLowerCase())).noneMatch(TABLES_DU_STOCK::contains);
+    }
+
+    /**
      * Preuve de non-régression de la garde : un source qui lit directement une table du Stock doit être signalé.
      */
     @Test

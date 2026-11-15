@@ -9,8 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 
-import com.hemodialyse.backend.contexts.documents.application.ConnexionDeRendu;
-
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,7 +18,7 @@ import java.util.Map;
 /**
  * Service Jasper simplifié :
  *   1. Compile un fichier .jrxml (depuis un chemin disque ou classpath)
- *   2. Remplit le rapport via une connexion JDBC + paramètres
+ *   2. Remplit le rapport via la source de données fournie + paramètres
  *   3. Exporte en PDF, Excel (XLSX) ou HTML (PDF embarqué)
  *
  *  Résolution du chemin (par ordre de priorité) :
@@ -31,8 +29,6 @@ import java.util.Map;
 public class JasperReportService {
 
     private static final Logger log = LoggerFactory.getLogger(JasperReportService.class);
-    /** Port transitoire (DOC5a, ADR 0193) : la connexion de lecture des gabarits qui embarquent encore leur requête. */
-    private final ConnexionDeRendu connexions;
 
     /**
      * Modèles livrés (classpath, immuables) déjà compilés : la compilation Jasper est coûteuse.
@@ -43,10 +39,6 @@ public class JasperReportService {
     /** Configurable via REPORTS_DIR env var or app.reports.base-dir property */
     @Value("${app.reports.base-dir:}")
     private String reportsBaseDir;
-
-    public JasperReportService(ConnexionDeRendu connexions) {
-        this.connexions = connexions;
-    }
 
     // ──────────────────────────── Compile ────────────────────────────────
 
@@ -111,15 +103,15 @@ public class JasperReportService {
     // ──────────────────────────── Fill ───────────────────────────────────
 
     /**
-     * Remplit le rapport avec les paramètres et une connexion JDBC.
-     * La requête SQL est définie DANS le fichier .jrxml lui-même.
+     * Remplit le rapport avec les paramètres. Les lignes sont fournies par le contexte demandeur (source de données, clé
+     * {@code REPORT_DATA_SOURCE}) : aucun gabarit n'embarque de requête et le moteur n'ouvre aucune connexion (DOC5j, ADR 0202). Sans
+     * source de données, le rapport est rempli sans ligne (comportement de {@code whenNoDataType} du gabarit).
      */
     public JasperPrint fillReport(JasperReport report, Map<String, Object> params) throws Exception {
-        // PL8 : données fournies par le contexte demandeur (source de données) : le gabarit n'a alors pas de requête
         if (params.get(JRParameter.REPORT_DATA_SOURCE) instanceof JRDataSource fournie) {
             return JasperFillManager.fillReport(report, params, fournie);
         }
-        return connexions.avecLaConnexion(conn -> JasperFillManager.fillReport(report, params, conn));
+        return JasperFillManager.fillReport(report, params);
     }
 
     // ──────────────────────────── Export ─────────────────────────────────

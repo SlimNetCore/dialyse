@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
  * <ul>
  *   <li>le XML est lu sans DOCTYPE ni entités externes (pas de XXE) et sa taille est bornée ;</li>
  *   <li>seuls les éléments de mise en page sont autorisés (pas de scriptlet, sous-rapport, image, graphique ajouté…) ;</li>
- *   <li>la requête SQL doit être <b>strictement identique</b> à celle du modèle d'origine livré avec l'application ;</li>
+ *   <li>aucune requête SQL n'est admise (DOC5j) : les données sont fournies par le contexte propriétaire du type ;</li>
  *   <li>les paramètres et champs doivent être un sous-ensemble de ceux du modèle d'origine, avec les mêmes types ;</li>
  *   <li>l'en-tête d'identité (société + centre) ne peut pas être retiré, et la seule image autorisée est le
  *       logo de la société ({@code $P{SOCIETE_LOGO}}) : jamais de chemin ni d'URL (lecture de fichier, SSRF) ;</li>
@@ -132,10 +132,6 @@ public final class JrxmlSecurityValidator {
         for (int i = 0; i < kids.getLength(); i++) {
             if (kids.item(i) instanceof Element child) walk(child, visitor);
         }
-    }
-
-    private static String normalizeSql(String sql) {
-        return sql == null ? "" : sql.replaceAll("\\s+", " ").trim();
     }
 
     /**
@@ -262,7 +258,7 @@ public final class JrxmlSecurityValidator {
 
         Reference ref = Reference.of(reference);
         checkStructure(candidate, ref, violations);
-        checkQuery(candidate, ref, violations);
+        checkQuery(candidate, violations);
         checkDeclarations(candidate, ref, violations);
         checkExpressions(candidate, ref, violations);
         return violations;
@@ -294,20 +290,12 @@ public final class JrxmlSecurityValidator {
         }
     }
 
-    private void checkQuery(Document candidate, Reference ref, List<Violation> out) {
-        NodeList queries = candidate.getElementsByTagNameNS("*", "queryString");
-        if (queries.getLength() > 1) {
-            out.add(new Violation("QUERY_MODIFIED", "Plusieurs requêtes déclarées."));
-            return;
-        }
-        String candidateQuery = queries.getLength() == 0 ? "" : normalizeSql(queries.item(0).getTextContent());
-        if (queries.getLength() == 1) {
-            String language = ((Element) queries.item(0)).getAttribute("language");
-            if (!language.isEmpty() && !"sql".equalsIgnoreCase(language)) {
-                out.add(new Violation("QUERY_MODIFIED", "language=\"" + language + "\""));
-            }
-        }
-        if (!candidateQuery.equals(ref.query())) {
+    /**
+     * Garde permanente (DOC5j, ADR 0202) : aucun modèle ne porte de requête, quel que soit le modèle d'origine. Les données d'un document
+     * sont toujours fournies par le contexte qui possède le type ; seule la mise en page est personnalisable.
+     */
+    private void checkQuery(Document candidate, List<Violation> out) {
+        if (candidate.getElementsByTagNameNS("*", "queryString").getLength() > 0) {
             out.add(new Violation("QUERY_MODIFIED",
                     "La requête de données ne peut pas être modifiée : seule la mise en page est personnalisable."));
         }
@@ -378,17 +366,15 @@ public final class JrxmlSecurityValidator {
     }
 
     /**
-     * Éléments, attributs, paramètres, champs et requête du modèle d'origine (base de confiance).
+     * Éléments, attributs, paramètres et champs du modèle d'origine (base de confiance).
      */
     private record Reference(Set<String> elements, Map<String, Set<String>> attributes,
-                             Map<String, String> parameters, Map<String, String> fields, String query,
-                             boolean usesIdentity) {
+                             Map<String, String> parameters, Map<String, String> fields, boolean usesIdentity) {
         static Reference of(Document doc) {
             Set<String> elements = new HashSet<>();
             Map<String, Set<String>> attributes = new HashMap<>();
             Map<String, String> params = new LinkedHashMap<>();
             Map<String, String> fields = new LinkedHashMap<>();
-            String[] query = {""};
             StringBuilder expressions = new StringBuilder();
             walk(doc.getDocumentElement(), (e) -> {
                 String name = localName(e);
@@ -399,11 +385,9 @@ public final class JrxmlSecurityValidator {
                 }
                 if ("parameter".equals(name)) params.put(e.getAttribute("name"), e.getAttribute("class"));
                 if ("field".equals(name)) fields.put(e.getAttribute("name"), e.getAttribute("class"));
-                if ("queryString".equals(name)) query[0] = normalizeSql(e.getTextContent());
                 if (name.endsWith("Expression")) expressions.append(e.getTextContent()).append('\n');
             });
-            return new Reference(elements, attributes, params, fields, query[0],
-                    expressions.indexOf(IDENTITY_MARKER) >= 0);
+            return new Reference(elements, attributes, params, fields, expressions.indexOf(IDENTITY_MARKER) >= 0);
         }
     }
 }

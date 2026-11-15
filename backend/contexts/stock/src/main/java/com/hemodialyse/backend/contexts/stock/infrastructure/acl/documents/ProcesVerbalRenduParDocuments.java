@@ -26,8 +26,8 @@ import java.util.Objects;
 /**
  * ACL vers Documents (documents.v1, PL7) : le procès-verbal d'inventaire est rendu par le port {@link RenduDeDocument}, type
  * {@value #TYPE_DE_DOCUMENT}, avec le modèle actif du centre (format du modèle). Traduit l'inventaire en paramètres du modèle
- * (en-tête, indicateurs, analyse des écarts par motif) ; les lignes sont lues par la requête du modèle ; Documents pose le papier
- * en-tête. Les refus du rendu (modèle désactivé, génération impossible) remontent tels quels.
+ * (en-tête, indicateurs, analyse des écarts par motif) ; DOC5j (ADR 0202) : le gabarit n'embarque plus de requête, le Stock lui fournit
+ * les lignes de l'inventaire ({@code LIGNES}, {@link LignesDuProcesVerbal}) ; Documents pose le papier en-tête. Les refus du rendu (modèle désactivé, génération impossible) remontent tels quels.
  */
 public class ProcesVerbalRenduParDocuments implements ProcesVerbalDInventaire {
 
@@ -36,9 +36,7 @@ public class ProcesVerbalRenduParDocuments implements ProcesVerbalDInventaire {
     private static final String TYPE_TABLEUR = "spreadsheetml";
     private static final DateTimeFormatter DAY = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final DateTimeFormatter STAMP = DateTimeFormatter.ofPattern("dd/MM/yyyy 'à' HH:mm");
-    private static final Map<String, String> MOTIFS = Map.of(
-            "CASSE", "Casse", "PEREMPTION", "Péremption", "ERREUR_SAISIE", "Erreur de saisie", "PERTE", "Perte / vol",
-            "NON_ENREGISTRE", "Mouvement non enregistré", "RETOUR", "Retour", "AUTRE", "Autre");
+    private static final Map<String, String> MOTIFS = LignesDuProcesVerbal.LIBELLES_DES_MOTIFS;
 
     private final RenduDeDocument documents;
 
@@ -216,6 +214,7 @@ public class ProcesVerbalRenduParDocuments implements ProcesVerbalDInventaire {
         p.put("EDITE_PAR", blankToNull(editePar));
         indicateurs(p, inv.lignes());
         motifs(p, inv.lignes());
+        p.put("LIGNES", LignesDuProcesVerbal.de(inv.lignes(), editeLe.toLocalDate()));
         return p;
     }
 }

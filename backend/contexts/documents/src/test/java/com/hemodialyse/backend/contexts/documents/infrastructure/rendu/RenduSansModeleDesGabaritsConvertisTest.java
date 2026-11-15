@@ -1,6 +1,5 @@
 package com.hemodialyse.backend.contexts.documents.infrastructure.rendu;
 
-import com.hemodialyse.backend.contexts.documents.application.ConnexionDeRendu;
 import net.sf.jasperreports.engine.JRField;
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperReport;
@@ -24,18 +23,11 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * DOC5 (correction DOC5f) : chaque gabarit converti en jeu de données (sans requête) rend ses lignes sur le chemin « centre sans modèle »
- * du moteur ({@code rendreSansModele}, utilisé par {@code rendreParTypeSansProvisionner}), sans ouvrir de connexion. Avant la correction
+ * DOC5 (correction DOC5f, DOC5j : les 12 gabarits à lignes) : chaque gabarit converti en jeu de données (sans requête) rend ses lignes sur le
+ * chemin « centre sans modèle » du moteur ({@code rendreSansModele}, utilisé par {@code rendreParTypeSansProvisionner}). Avant la correction
  * ce chemin ne transformait pas {@code LIGNES} en source de données : le gabarit sortait une page blanche.
  */
 class RenduSansModeleDesGabaritsConvertisTest {
-
-    private static final ConnexionDeRendu AUCUNE_CONNEXION = new ConnexionDeRendu() {
-        @Override
-        public <T> T avecLaConnexion(Travail<T> travail) {
-            throw new AssertionError("un gabarit qui reçoit ses lignes n'ouvre aucune connexion");
-        }
-    };
 
     private static Map<String, Object> uneLigneParChamp(String gabarit) throws Exception {
         JasperReport rapport;
@@ -71,9 +63,9 @@ class RenduSansModeleDesGabaritsConvertisTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"cahier_dialyse", "bon_intervention", "planning_optimise", "ordonnance", "planning_presence_infirmiers",
-            "liste_patients", "liste_attestations", "liste_pec", "attestation", "prise_en_charge", "fiche_patient"})
+            "liste_patients", "liste_attestations", "liste_pec", "attestation", "prise_en_charge", "fiche_patient", "inventaire_stock"})
     void un_gabarit_converti_rend_ses_lignes_pour_un_centre_sans_modele(String gabarit) throws Exception {
-        var moteur = new MoteurDeRenduJasper(null, new JasperReportService(AUCUNE_CONNEXION), null, null, null, null, null);
+        var moteur = new MoteurDeRenduJasper(null, new JasperReportService(), null, null, null, null, null);
         Map<String, Object> parametres = new HashMap<>();
         parametres.put("LIGNES", List.of(uneLigneParChamp(gabarit)));
 

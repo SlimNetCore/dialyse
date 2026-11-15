@@ -55,14 +55,28 @@ class JrxmlSecurityValidatorTest {
         assertThat(validator.validate(candidate, reference)).isEmpty();
     }
 
-    /** Le gabarit de l'inventaire de stock (dernier SQL embarqué, pas encore converti) sert de référence à la requête modifiée. */
+    /**
+     * DOC5j (ADR 0202, KB-DOC5J-1) : le procès-verbal d'inventaire livré n'a plus de requête ; un téléversement qui porte l'ancienne est
+     * refusé.
+     */
     @Test
-    void laRequeteSqlModifieeEstRefusee() throws IOException {
+    void unProcesVerbalQuiPorteEncoreL_ancienneRequeteEstRefuse() throws IOException {
         String reference = load("inventaire_stock.jrxml");
-        assertThat(reference).contains("<queryString>");
-        String candidate = reference.replace("FROM inventaire_lignes l", "FROM inventaire_lignes l WHERE 1 = 1 AND");
+        assertThat(reference).doesNotContain("queryString");
+        String ancienne = "<queryString><![CDATA[SELECT CAST(l.article_id AS VARCHAR(36)) AS ARTICLE_KEY FROM inventaire_lignes l "
+                + "WHERE l.inventaire_id = CAST($P{INVENTAIRE_ID} AS UUID) AND l.center_id = CAST($P{CENTER_ID} AS UUID)]]></queryString>";
+        String candidate = reference.replace("<field name=\"ARTICLE_KEY\"", ancienne + "<field name=\"ARTICLE_KEY\"");
         assertThat(candidate).isNotEqualTo(reference);
         assertThat(codes(validator.validate(candidate, reference))).contains("QUERY_MODIFIED");
+    }
+
+    /** Garde permanente (DOC5j) : aucune requête n'est admise, même si le modèle d'origine en déclarait une. */
+    @Test
+    void aucuneRequeteEstAdmiseMemeSiLeModeleDOrigineEnPorte() throws IOException {
+        String reference = load("attestation.jrxml").replace("<field name=\"NOM\"",
+                "<queryString><![CDATA[SELECT 1 FROM une_table]]></queryString><field name=\"NOM\"");
+        assertThat(reference).contains("<queryString>");
+        assertThat(codes(validator.validate(reference, reference))).contains("QUERY_MODIFIED");
     }
 
     /** DOC5i (ADR 0201, KB-DOC5I-1) : la fiche du patient livrée n'a plus de requête ; un téléversement qui porte l'ancienne est refusé. */
@@ -188,11 +202,10 @@ class JrxmlSecurityValidatorTest {
     @Test
     void uneRequeteSurUneAutreTableEstRefusee() throws IOException {
         String reference = load("inventaire_stock.jrxml");
-        int start = reference.indexOf("<![CDATA[", reference.indexOf("<queryString>"));
-        int end = reference.indexOf("]]>", start) + 3;
-        String candidate = reference.substring(0, start)
-                + "<![CDATA[SELECT username AS nom, password_hash AS prenom FROM app_user]]>"
-                + reference.substring(end);
+        String candidate = reference.replace("<field name=\"ARTICLE_KEY\"",
+                "<queryString><![CDATA[SELECT username AS nom, password_hash AS prenom FROM app_user]]></queryString>"
+                        + "<field name=\"ARTICLE_KEY\"");
+        assertThat(candidate).isNotEqualTo(reference);
         assertThat(codes(validator.validate(candidate, reference))).contains("QUERY_MODIFIED");
     }
 
