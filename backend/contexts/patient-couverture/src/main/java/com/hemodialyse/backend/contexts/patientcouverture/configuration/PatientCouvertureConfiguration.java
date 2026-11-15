@@ -561,4 +561,14 @@ public class PatientCouvertureConfiguration {
                 new com.hemodialyse.backend.contexts.patientcouverture.application.ComposerLaPriseEnChargeImprimee(
                         new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.PriseEnChargeAImprimerJdbc(jdbc), noms));
     }
+
+    /** DOC5i (ADR 0201) : la fiche signalétique du patient imprimée est un jeu de données fourni par Patient et couverture. */
+    @Bean
+    com.hemodialyse.backend.contexts.documents.publishedlanguage.RegleDImpressionDUnType patientCouvertureRegleDImpressionDeLaFicheSignaletique(
+            JdbcTemplate jdbc, com.hemodialyse.backend.contexts.patientcouverture.application.NomsDesCentres noms) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.interfaces.publie.RegleDImpressionDeLaFicheSignaletique(
+                new com.hemodialyse.backend.contexts.patientcouverture.application.ComposerLaFicheSignaletiqueImprimee(
+                        new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.FicheSignaletiqueAImprimerJdbc(jdbc),
+                        noms));
+    }
 }

@@ -24,6 +24,19 @@ final class IdentifiantsDuDocument {
         }
     }
 
+    /**
+     * Comme {@link #lire} mais sans tolérer le vide (DOC5i, ADR 0201) : l'ancienne requête de la fiche du patient n'avait pas de
+     * {@code NULLIF}, un identifiant vide échouait donc comme un identifiant illisible ; seul un identifiant absent ne désigne rien.
+     */
+    static UUID lireSansTolererLeVide(String brut, String gabarit) {
+        if (brut == null) return null;
+        try {
+            return UUID.fromString(brut);
+        } catch (IllegalArgumentException illisible) {
+            throw new IllegalStateException("Error executing SQL statement for: " + gabarit + ".", illisible);
+        }
+    }
+
     /** Une date du gabarit : {@code java.sql.Date} comme le champ déclaré, nulle si absente. */
     static Date date(LocalDate d) {
         return d == null ? null : Date.valueOf(d);

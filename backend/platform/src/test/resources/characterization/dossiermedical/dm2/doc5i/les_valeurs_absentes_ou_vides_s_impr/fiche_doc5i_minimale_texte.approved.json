@@ -1,0 +1,20 @@
+{
+  "par modele, patient aux valeurs absentes" : {
+    "contentType" : "application/pdf",
+    "pages" : 2,
+    "statut" : 200,
+    "texte" : [ "Centre P2 A", "Centre P2 A", "FICHE SIGNALÉTIQUE DU PATIENT", "Imprimé le <HORODATAGE_IMPRESSION> Page 1", "Centre P2 A", "  Identité du patient", "Code patient : N° Assurance :", "Civilité : Nom : Nom Prénom : Prenom", "Sexe : M Gr. sanguin : Date naissance :", "Lieu naissance : Date admission : <D+10> 00:00", "Sit. familiale : Profession :", "  Coordonnées", "Adresse :", "Tél personnel : Tél mobile : E-mail :", "  État et observations", "État patient : Patient sous KT : Non", "Observation :", "  Informations de l'assuré", "Qualité : Nom : Prénom :", "Imprimé le <HORODATAGE_IMPRESSION> Page 2", "Centre P2 A" ]
+  },
+  "par type, patient aux valeurs absentes" : {
+    "contentType" : "application/pdf",
+    "pages" : 2,
+    "statut" : 200,
+    "texte" : [ "Centre P2 A", "Centre P2 A", "FICHE SIGNALÉTIQUE DU PATIENT", "Imprimé le <HORODATAGE_IMPRESSION> Page 1", "Centre P2 A", "  Identité du patient", "Code patient : N° Assurance :", "Civilité : Nom : Nom Prénom : Prenom", "Sexe : M Gr. sanguin : Date naissance :", "Lieu naissance : Date admission : <D+10> 00:00", "Sit. familiale : Profession :", "  Coordonnées", "Adresse :", "Tél personnel : Tél mobile : E-mail :", "  État et observations", "État patient : Patient sous KT : Non", "Observation :", "  Informations de l'assuré", "Qualité : Nom : Prénom :", "Imprimé le <HORODATAGE_IMPRESSION> Page 2", "Centre P2 A" ]
+  },
+  "par type, patient aux valeurs vides" : {
+    "contentType" : "application/pdf",
+    "pages" : 2,
+    "statut" : 200,
+    "texte" : [ "Centre P2 A", "Centre P2 A", "FICHE SIGNALÉTIQUE DU PATIENT", "Imprimé le <HORODATAGE_IMPRESSION> Page 1", "Centre P2 A", "  Identité du patient", "Code patient : P5I-VIDE N° Assurance : ASS", "Civilité : Nom : Prénom :", "Sexe : Gr. sanguin : Date naissance :", "Lieu naissance : Date admission : <D+10> 00:00", "Sit. familiale : Profession :", "  Coordonnées", "Adresse :", "Tél personnel : Tél mobile : E-mail :", "  État et observations", "État patient : Patient sous KT : Non", "Observation :", "  Informations de l'assuré", "Qualité : Nom : Prénom :", "Imprimé le <HORODATAGE_IMPRESSION> Page 2", "Centre P2 A" ]
+  }
+}

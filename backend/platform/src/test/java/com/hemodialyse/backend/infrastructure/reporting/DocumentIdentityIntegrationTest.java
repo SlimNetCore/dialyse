@@ -180,8 +180,8 @@ class DocumentIdentityIntegrationTest {
                 params.put("patientId", patientId);
                 params.put("attestationId", "");
                 params.putAll(identity.parametresDeLEnTete(CENTRE));
-                if (template.equals("attestation")) {
-                    // DOC5h (ADR 0200) : le gabarit n'embarque plus de requête, la ligne de l'attestation est fournie (comme par le moteur).
+                {
+                    // DOC5h (ADR 0200), DOC5i (ADR 0201) : les gabarits n'embarquent plus de requête, la ligne est fournie (comme par le moteur).
                     Map<String, Object> ligne = new HashMap<>();
                     ligne.put("NOM", "DURAND");
                     ligne.put("PRENOM", "Amel");

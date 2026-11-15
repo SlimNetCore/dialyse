@@ -55,12 +55,24 @@ class JrxmlSecurityValidatorTest {
         assertThat(validator.validate(candidate, reference)).isEmpty();
     }
 
-    /** Le gabarit de la fiche du patient (SQL embarqué, pas encore converti) sert de référence à la requête modifiée. */
+    /** Le gabarit de l'inventaire de stock (dernier SQL embarqué, pas encore converti) sert de référence à la requête modifiée. */
     @Test
     void laRequeteSqlModifieeEstRefusee() throws IOException {
-        String reference = load("fiche_patient.jrxml");
+        String reference = load("inventaire_stock.jrxml");
         assertThat(reference).contains("<queryString>");
-        String candidate = reference.replace("FROM patients", "FROM patients WHERE 1 = 1");
+        String candidate = reference.replace("FROM inventaire_lignes l", "FROM inventaire_lignes l WHERE 1 = 1 AND");
+        assertThat(candidate).isNotEqualTo(reference);
+        assertThat(codes(validator.validate(candidate, reference))).contains("QUERY_MODIFIED");
+    }
+
+    /** DOC5i (ADR 0201, KB-DOC5I-1) : la fiche du patient livrée n'a plus de requête ; un téléversement qui porte l'ancienne est refusé. */
+    @Test
+    void uneFicheDuPatientQuiPorteEncoreL_ancienneRequeteEstRefusee() throws IOException {
+        String reference = load("fiche_patient.jrxml");
+        assertThat(reference).doesNotContain("queryString");
+        String ancienne = "<queryString><![CDATA[SELECT p.code_patient, p.nom, c.name AS center_name FROM patients p "
+                + "LEFT JOIN centers c ON c.id = p.center_id WHERE p.id = CAST($P{patientId} AS UUID)]]></queryString>";
+        String candidate = reference.replace("<field name=\"CODE_PATIENT\"", ancienne + "<field name=\"CODE_PATIENT\"");
         assertThat(candidate).isNotEqualTo(reference);
         assertThat(codes(validator.validate(candidate, reference))).contains("QUERY_MODIFIED");
     }
@@ -175,9 +187,9 @@ class JrxmlSecurityValidatorTest {
 
     @Test
     void uneRequeteSurUneAutreTableEstRefusee() throws IOException {
-        String reference = load("fiche_patient.jrxml");
-        int start = reference.indexOf("<![CDATA[");
-        int end = reference.indexOf("]]>") + 3;
+        String reference = load("inventaire_stock.jrxml");
+        int start = reference.indexOf("<![CDATA[", reference.indexOf("<queryString>"));
+        int end = reference.indexOf("]]>", start) + 3;
         String candidate = reference.substring(0, start)
                 + "<![CDATA[SELECT username AS nom, password_hash AS prenom FROM app_user]]>"
                 + reference.substring(end);

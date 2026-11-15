@@ -334,6 +334,18 @@ class TableDuPatientCouvertureTest {
         }
     }
 
+    /**
+     * DOC5i (ADR 0201) : la fiche signalétique imprimée ne lit plus aucune table dans le gabarit (sans requête) ; Patient et couverture en
+     * fournit la ligne (le nom du centre vient de l'annuaire d'Organisation). Aucune entrée de garde ne la concernait : rien à retirer.
+     */
+    @Test
+    void la_fiche_signaletique_imprimee_n_embarque_plus_de_requete() throws IOException {
+        String xml = Files.readString(backend().resolve("contexts/documents/src/main/resources/reports/fiche_patient.jrxml"));
+        assertThat(xml).doesNotContain("queryString");
+        assertThat(LECTURE_SQL.matcher(xml).results().map(m -> m.group(2).toLowerCase()))
+                .noneMatch(TABLES_DU_PATIENT_COUVERTURE::contains);
+    }
+
     @Test
     void la_garde_detecte_une_lecture_directe_meme_sur_deux_lignes_et_ignore_les_autres_tables() throws IOException {
         Path bac = Files.createTempDirectory("garde-patient-couverture-pc5");

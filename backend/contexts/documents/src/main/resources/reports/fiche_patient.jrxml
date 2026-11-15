@@ -23,24 +23,6 @@
     <parameter name="CENTRE_CONTACT" class="java.lang.String"/>
     <parameter name="CENTRE_LIGNE" class="java.lang.String"/>
 
-    <queryString>
-        <![CDATA[
-        SELECT p.code_patient, p.civilite, p.nom, p.prenom, p.sexe, p.groupe_sanguin,
-               p.date_naissance, p.lieu_naissance, p.date_admission, p.nombre_enfants,
-               p.situation_familiale, p.profession1, p.adresse,
-               p.tel_personnel, p.tel_mobile, p.tel_bureau, p.email,
-               p.numero_assurance, p.etat_patient, p.qualite_assure, p.observation,
-               p.sous_kt, p.epo_enabled, p.epo_date, p.fer_enabled, p.fer_date,
-               p.assure_nom, p.assure_prenom, p.assure_sexe, p.assure_date_naissance,
-               p.assure_tel_personnel, p.assure_adresse, p.assure_groupe_sanguin,
-               c.name AS center_name
-        FROM patients p
-        LEFT JOIN centers c ON c.id = p.center_id
-        WHERE p.id = CAST($P{patientId} AS UUID)
-          AND p.center_id = CAST($P{CENTER_ID} AS UUID)
-        ]]>
-    </queryString>
-
     <field name="CODE_PATIENT" class="java.lang.String"/>
     <field name="CIVILITE" class="java.lang.String"/>
     <field name="NOM" class="java.lang.String"/>

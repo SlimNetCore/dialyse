@@ -71,7 +71,7 @@ class RenduSansModeleDesGabaritsConvertisTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"cahier_dialyse", "bon_intervention", "planning_optimise", "ordonnance", "planning_presence_infirmiers",
-            "liste_patients", "liste_attestations", "liste_pec", "attestation", "prise_en_charge"})
+            "liste_patients", "liste_attestations", "liste_pec", "attestation", "prise_en_charge", "fiche_patient"})
     void un_gabarit_converti_rend_ses_lignes_pour_un_centre_sans_modele(String gabarit) throws Exception {
         var moteur = new MoteurDeRenduJasper(null, new JasperReportService(AUCUNE_CONNEXION), null, null, null, null, null);
         Map<String, Object> parametres = new HashMap<>();

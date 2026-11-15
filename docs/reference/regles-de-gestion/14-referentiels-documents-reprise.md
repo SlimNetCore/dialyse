@@ -183,7 +183,10 @@ chaque ligne** avant d'écrire, **n'enregistre rien tant qu'un fichier
   embarquent encore une requête. **DOC5h (ADR 0200)** : l'**attestation d'ouverture de droit** et la **prise en charge** imprimées (Patient et
   couverture) sont converties à leur tour (une ligne fournie par Patient et couverture ; l'identifiant de l'attestation, ou de la prise en
   charge, l'emporte sur celui du patient, dont la plus récente est désignée par le SGBD ; nom du centre lu par organisation.v1 ; types toujours
-  non gardés par profil, KB-DOC1-3 ; KB-DOC5H-1) : 2 gabarits sur 14 embarquent encore une requête.
+  non gardés par profil, KB-DOC1-3 ; KB-DOC5H-1) : 2 gabarits sur 14 embarquent encore une requête. **DOC5i (ADR 0201)** : la **fiche
+  signalétique du patient** imprimée (Patient et couverture) est convertie à son tour (une ligne fournie par Patient et couverture, nom du
+  centre lu par organisation.v1 ; type toujours non gardé par profil, KB-DOC1-3 ; KB-DOC5I-1) : 1 gabarit sur 14 (`inventaire_stock`)
+  embarque encore une requête.
 - **RG-DOC-009** — **Versions de gabarit par centre (contexte Documents, DOC3, ADR 0163)** : mêmes URL, mêmes rôles
   (`ADMIN`, `SUPERADMIN`) et mêmes codes qu'avant (RG-DOC-003, 004). Chaque dépôt prend le numéro suivant (jamais réutilisé, même
   après un retour au modèle d'origine), désactive les autres et devient la version en vigueur ; réactiver un numéro inexistant
