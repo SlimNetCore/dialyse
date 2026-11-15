@@ -169,6 +169,8 @@ chaque ligne** avant d'écrire, **n'enregistre rien tant qu'un fichier
   le contexte propriétaire fournit les lignes (`LIGNES`) n'ouvre aucune connexion : déjà le rapport de la direction et la synthèse
   mensuelle, désormais le **cahier de dialyse** (RG-SEA-045b). Règle de transition de RG-DOC-004 : la requête d'un gabarit livré sans requête
   est « identique » quand elle est absente ; un modèle personnalisé déjà stocké avec l'ancienne requête continue de s'imprimer (KB-DOC5A-1).
+  **DOC5b (ADR 0194)** : le **bon d'intervention** (GMAO, RG-GMA-068) est converti à son tour (jeu de données fourni par la GMAO, même règle de
+  transition, KB-DOC5B-1) : 10 gabarits sur 14 embarquent encore une requête.
 - **RG-DOC-009** — **Versions de gabarit par centre (contexte Documents, DOC3, ADR 0163)** : mêmes URL, mêmes rôles
   (`ADMIN`, `SUPERADMIN`) et mêmes codes qu'avant (RG-DOC-003, 004). Chaque dépôt prend le numéro suivant (jamais réutilisé, même
   après un retour au modèle d'origine), désactive les autres et devient la version en vigueur ; réactiver un numéro inexistant

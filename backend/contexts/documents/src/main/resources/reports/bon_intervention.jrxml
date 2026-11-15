@@ -4,8 +4,10 @@
   - En-tête (logo, société, centre) et pied de page (centre, pied de page société, édition, pagination) sur chaque page.
   - Équipement, période (début/fin/durée), états avant/après, constat et travaux, coûts (pièces, main d'œuvre,
     honoraires, autres), signatures, ligne de temps. Les dates sont mises en forme par le serveur (fuseau demandé).
-  Contraintes « modèle personnalisable » (JrxmlSecurityValidator) : une seule requête, expressions simples, police
-  standard.
+  DOC5b (ADR 0194) : le gabarit n'embarque plus de requête ; la GMAO fournit les lignes de coût dans le paramètre LIGNES
+  (champs LIGNE_TYPE, LIGNE_LIBELLE, LIGNE_QUANTITE, LIGNE_PRIX, LIGNE_MONTANT ; un enregistrement vide si le bon n'a aucune
+  ligne). Les paramètres CENTER_ID et INTERVENTION_ID restent déclarés (modèles personnalisés déjà stockés).
+  Contraintes « modèle personnalisable » (JrxmlSecurityValidator) : aucune requête, expressions simples, police standard.
 -->
 <jasperReport xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xmlns="http://jasperreports.sourceforge.net/jasperreports"
@@ -57,24 +59,6 @@
     <parameter name="CHRONOLOGIE" class="java.lang.String"/>
     <parameter name="EDITE_LE" class="java.lang.String"/>
     <parameter name="EDITE_PAR" class="java.lang.String"/>
-
-    <queryString>
-        <![CDATA[
-        SELECT CASE l.type WHEN 'PIECE' THEN 'Pièce'
-                           WHEN 'MAIN_OEUVRE' THEN 'Main d''œuvre'
-                           WHEN 'INTERVENANT' THEN 'Honoraires intervenant'
-                           ELSE 'Autre' END AS ligne_type,
-               l.libelle AS ligne_libelle,
-               l.quantite AS ligne_quantite,
-               l.prix_unitaire AS ligne_prix,
-               (l.quantite * l.prix_unitaire) AS ligne_montant
-        FROM gmao_interventions i
-        LEFT JOIN gmao_lignes_cout_intervention l ON l.intervention_id = i.id
-        WHERE i.centre_id = CAST($P{CENTER_ID} AS UUID)
-          AND i.id = CAST($P{INTERVENTION_ID} AS UUID)
-        ORDER BY l.libelle
-        ]]>
-    </queryString>
 
     <field name="LIGNE_TYPE" class="java.lang.String"/>
     <field name="LIGNE_LIBELLE" class="java.lang.String"/>

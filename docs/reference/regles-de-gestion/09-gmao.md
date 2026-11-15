@@ -174,5 +174,10 @@
   (RG-GMA-024) ; **KB-PL6-5** la désignation longue de l'équipement passe à la ligne ; **KB-PL6-6** l'impression est journalisée
   (action de lecture `BON_INTERVENTION_IMPRESSION`, la réponse 400/403 l'est aussi), une clôture rejouée par une rectification
   (même instant, même auteur) n'est imprimée qu'une fois et un motif blanc n'est pas imprimé. Reproduits : **KB-PL6-4** caractères
-  hors police perdus ; adresses `.../bon.pdf` et `.../bon/` en 500 (traitement transverse des routes inconnues). *Source :*
+  hors police perdus ; adresses `.../bon.pdf` et `.../bon/` en 500 (traitement transverse des routes inconnues).
+  **DOC5b (ADR 0194, 2026-11-15)** : le gabarit du bon n'embarque plus de requête ; la GMAO fournit les lignes de coût de l'intervention
+  (`LIGNES`) : une ligne par ligne de coût, dans l'ordre croissant des libellés (à libellé égal, ordre de l'intervention), avec le libellé
+  du type (Pièce, Main d'œuvre, Honoraires intervenant, Autre) et le montant quantité x prix sans arrondi ; un bon sans ligne imprime
+  quand même sa fiche, totaux à zéro. Rendu inchangé (filet `bon_doc5b_*`). Un modèle du bon déjà stocké avec l'ancienne requête
+  s'imprime sans changement ; un nouveau téléversement qui la porte est refusé `QUERY_MODIFIED` (KB-DOC5B-1, RG-DOC-004). *Source :*
   `BonRenduParDocuments`, `SuiviControleur`, `AuditActionResolver`.

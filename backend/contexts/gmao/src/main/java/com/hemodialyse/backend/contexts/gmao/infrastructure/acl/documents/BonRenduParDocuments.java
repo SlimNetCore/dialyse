@@ -27,6 +27,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -37,8 +38,10 @@ import java.util.Set;
 /**
  * ACL vers Documents (documents.v1, PL6) : le bon d'intervention est rendu par le port {@link RenduDeDocument}, type
  * {@value #TYPE_DE_DOCUMENT}, avec le modèle actif du centre (format du modèle). Traduit les données du bon en paramètres du
- * modèle (libellés, dates dans le fuseau demandé, coûts, chronologie) ; les lignes de coût sont lues par la requête du modèle ;
- * Documents pose le papier en-tête. Les refus du rendu (modèle désactivé, génération impossible) remontent tels quels.
+ * modèle (libellés, dates dans le fuseau demandé, coûts, chronologie) ; DOC5b (ADR 0194) : les lignes de coût sont FOURNIES au
+ * gabarit ({@code LIGNES}, {@link #lignesDuBon}), le gabarit n'embarque plus de requête (un modèle stocké qui porte encore l'ancienne
+ * requête reçoit les mêmes lignes). Documents pose le papier en-tête. Les refus du rendu (modèle désactivé, génération impossible)
+ * remontent tels quels.
  * Reproduit (KB-GMAO-70) : la première impression crée le modèle du centre.
  */
 public class BonRenduParDocuments implements ImpressionDuBon {
@@ -222,6 +225,43 @@ public class BonRenduParDocuments implements ImpressionDuBon {
         p.put("CHRONOLOGIE", chronologieTexte(chronologie, zone));
         p.put("EDITE_LE", stamp(donnees.editeLe(), zone));
         p.put("EDITE_PAR", blankToNull(editePar));
+        p.put("LIGNES", lignesDuBon(i));
         return p;
+    }
+
+    /**
+     * Le jeu de données du bon (DOC5b, ADR 0194) : une ligne par ligne de coût de l'intervention, dans l'ordre croissant des libellés
+     * (comme l'ancienne requête, {@code ORDER BY l.libelle} ; à libellé égal, l'ordre de l'intervention). Une intervention SANS ligne
+     * fournit UN enregistrement vide : le gabarit imprime alors sa fiche (titre, équipement, constat) comme le faisait la jointure
+     * externe de l'ancienne requête ; sans enregistrement, la fiche ne serait pas imprimée.
+     */
+    static List<Map<String, Object>> lignesDuBon(InterventionVue i) {
+        if (i.lignes().isEmpty()) {
+            Map<String, Object> vide = new HashMap<>();
+            vide.put("LIGNE_TYPE", null);
+            vide.put("LIGNE_LIBELLE", null);
+            vide.put("LIGNE_QUANTITE", null);
+            vide.put("LIGNE_PRIX", null);
+            vide.put("LIGNE_MONTANT", null);
+            return List.of(vide);
+        }
+        return i.lignes().stream().sorted(Comparator.comparing(InterventionVue.LigneVue::libelle)).map(l -> {
+            Map<String, Object> c = new HashMap<>();
+            c.put("LIGNE_TYPE", libelleDuType(l.type()));
+            c.put("LIGNE_LIBELLE", l.libelle());
+            c.put("LIGNE_QUANTITE", l.quantite());
+            c.put("LIGNE_PRIX", l.prixUnitaire());
+            c.put("LIGNE_MONTANT", l.montant());
+            return c;
+        }).toList();
+    }
+
+    private static String libelleDuType(TypeLigneCout type) {
+        return switch (type) {
+            case PIECE -> "Pièce";
+            case MAIN_OEUVRE -> "Main d'œuvre";
+            case INTERVENANT -> "Honoraires intervenant";
+            case AUTRE -> "Autre";
+        };
     }
 }
