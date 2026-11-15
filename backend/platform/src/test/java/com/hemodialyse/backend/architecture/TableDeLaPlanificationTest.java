@@ -129,6 +129,20 @@ class TableDeLaPlanificationTest {
         assertThat(sourcesFautives(backend, racinesHorsContexte(backend))).isEmpty();
     }
 
+    /**
+     * DOC5e (ADR 0197) : le planning de présence imprimé ne lit plus aucune table, ni de la Planification, ni d'Organisation (gabarit
+     * sans requête) ; la Planification en fournit les lignes. Aucune entrée de garde ne le concernait : rien à retirer.
+     */
+    @Test
+    void l_etat_imprime_du_planning_de_presence_n_embarque_plus_de_requete() throws IOException {
+        Path gabarit = Path.of("..").toAbsolutePath().normalize()
+                .resolve("contexts/documents/src/main/resources/reports/planning_presence_infirmiers.jrxml");
+        String xml = Files.readString(gabarit);
+        assertThat(xml).doesNotContain("queryString");
+        assertThat(LECTURE_SQL.matcher(xml).results().map(m -> m.group(2).toLowerCase()))
+                .noneMatch(TABLES_DE_LA_PLANIFICATION::contains);
+    }
+
     @Test
     void la_garde_des_entrees_mortes_echoue_pour_un_chemin_qui_ne_lit_rien() throws IOException {
         Path backend = Files.createTempDirectory("garde-planification-mortes");

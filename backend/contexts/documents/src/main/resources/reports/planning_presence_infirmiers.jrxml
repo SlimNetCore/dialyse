@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Planning de présence des infirmiers d'une semaine (modèle de document PLANNING_PRESENCE_INFIRMIERS, personnalisable par centre).
+  DOC5e (ADR 0197) : le gabarit n'embarque plus de requête ; la Planification fournit les lignes dans le paramètre LIGNES
+  (champs DATE_JOUR, SALLE, CRENEAU_CODE, CRENEAU, INFIRMIER, STATUT : une par infirmier prévu, absent ou remplaçant, dans l'ordre
+  jour, code du créneau, salle, situation, infirmier). Les paramètres CENTER_ID et DATE_0 à DATE_6 restent déclarés (modèles
+  personnalisés déjà stockés).
+  Contraintes « modèle personnalisable » (JrxmlSecurityValidator) : aucune requête, expressions simples, police standard.
+-->
 <jasperReport xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xmlns="http://jasperreports.sourceforge.net/jasperreports"
               xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
@@ -29,129 +37,6 @@
     <parameter name="CENTRE_SITE_WEB" class="java.lang.String"/>
     <parameter name="CENTRE_CONTACT" class="java.lang.String"/>
     <parameter name="CENTRE_LIGNE" class="java.lang.String"/>
-    <queryString><![CDATA[
-      SELECT * FROM (
-      SELECT CAST($P{DATE_0} AS DATE) AS date_jour, sa.nom AS salle, pc.code AS creneau_code, pc.libelle AS creneau, (COALESCE(i.prenom || ' ', '') || i.nom) AS infirmier,
-             CASE WHEN EXISTS (SELECT 1 FROM infirmier_absence ab WHERE ab.center_id = a.center_id
-                               AND ab.infirmier_id = a.infirmier_id AND CAST($P{DATE_0} AS DATE) BETWEEN ab.date_debut AND ab.date_fin)
-                  THEN 'Absent' ELSE 'Prévu' END AS statut
-      FROM infirmier_affectation a
-      JOIN infirmier i ON i.id = a.infirmier_id AND i.center_id = a.center_id
-      JOIN salle sa ON sa.id = a.salle_id
-      JOIN position_creneau pc ON pc.id = a.creneau_id
-      WHERE a.center_id = CAST($P{CENTER_ID} AS UUID) AND i.actif = TRUE AND a.jours LIKE '%DIMANCHE%'
-      UNION ALL
-      SELECT CAST($P{DATE_0} AS DATE), sa.nom, pc.code, pc.libelle, (COALESCE(i.prenom || ' ', '') || i.nom), 'Remplaçant'
-      FROM infirmier_remplacement r
-      JOIN infirmier i ON i.id = r.infirmier_id AND i.center_id = r.center_id
-      JOIN salle sa ON sa.id = r.salle_id
-      JOIN position_creneau pc ON pc.id = r.creneau_id
-      WHERE r.center_id = CAST($P{CENTER_ID} AS UUID) AND r.date_jour = CAST($P{DATE_0} AS DATE)
-      UNION ALL
-      SELECT CAST($P{DATE_1} AS DATE) AS date_jour, sa.nom AS salle, pc.code AS creneau_code, pc.libelle AS creneau, (COALESCE(i.prenom || ' ', '') || i.nom) AS infirmier,
-             CASE WHEN EXISTS (SELECT 1 FROM infirmier_absence ab WHERE ab.center_id = a.center_id
-                               AND ab.infirmier_id = a.infirmier_id AND CAST($P{DATE_1} AS DATE) BETWEEN ab.date_debut AND ab.date_fin)
-                  THEN 'Absent' ELSE 'Prévu' END AS statut
-      FROM infirmier_affectation a
-      JOIN infirmier i ON i.id = a.infirmier_id AND i.center_id = a.center_id
-      JOIN salle sa ON sa.id = a.salle_id
-      JOIN position_creneau pc ON pc.id = a.creneau_id
-      WHERE a.center_id = CAST($P{CENTER_ID} AS UUID) AND i.actif = TRUE AND a.jours LIKE '%LUNDI%'
-      UNION ALL
-      SELECT CAST($P{DATE_1} AS DATE), sa.nom, pc.code, pc.libelle, (COALESCE(i.prenom || ' ', '') || i.nom), 'Remplaçant'
-      FROM infirmier_remplacement r
-      JOIN infirmier i ON i.id = r.infirmier_id AND i.center_id = r.center_id
-      JOIN salle sa ON sa.id = r.salle_id
-      JOIN position_creneau pc ON pc.id = r.creneau_id
-      WHERE r.center_id = CAST($P{CENTER_ID} AS UUID) AND r.date_jour = CAST($P{DATE_1} AS DATE)
-      UNION ALL
-      SELECT CAST($P{DATE_2} AS DATE) AS date_jour, sa.nom AS salle, pc.code AS creneau_code, pc.libelle AS creneau, (COALESCE(i.prenom || ' ', '') || i.nom) AS infirmier,
-             CASE WHEN EXISTS (SELECT 1 FROM infirmier_absence ab WHERE ab.center_id = a.center_id
-                               AND ab.infirmier_id = a.infirmier_id AND CAST($P{DATE_2} AS DATE) BETWEEN ab.date_debut AND ab.date_fin)
-                  THEN 'Absent' ELSE 'Prévu' END AS statut
-      FROM infirmier_affectation a
-      JOIN infirmier i ON i.id = a.infirmier_id AND i.center_id = a.center_id
-      JOIN salle sa ON sa.id = a.salle_id
-      JOIN position_creneau pc ON pc.id = a.creneau_id
-      WHERE a.center_id = CAST($P{CENTER_ID} AS UUID) AND i.actif = TRUE AND a.jours LIKE '%MARDI%'
-      UNION ALL
-      SELECT CAST($P{DATE_2} AS DATE), sa.nom, pc.code, pc.libelle, (COALESCE(i.prenom || ' ', '') || i.nom), 'Remplaçant'
-      FROM infirmier_remplacement r
-      JOIN infirmier i ON i.id = r.infirmier_id AND i.center_id = r.center_id
-      JOIN salle sa ON sa.id = r.salle_id
-      JOIN position_creneau pc ON pc.id = r.creneau_id
-      WHERE r.center_id = CAST($P{CENTER_ID} AS UUID) AND r.date_jour = CAST($P{DATE_2} AS DATE)
-      UNION ALL
-      SELECT CAST($P{DATE_3} AS DATE) AS date_jour, sa.nom AS salle, pc.code AS creneau_code, pc.libelle AS creneau, (COALESCE(i.prenom || ' ', '') || i.nom) AS infirmier,
-             CASE WHEN EXISTS (SELECT 1 FROM infirmier_absence ab WHERE ab.center_id = a.center_id
-                               AND ab.infirmier_id = a.infirmier_id AND CAST($P{DATE_3} AS DATE) BETWEEN ab.date_debut AND ab.date_fin)
-                  THEN 'Absent' ELSE 'Prévu' END AS statut
-      FROM infirmier_affectation a
-      JOIN infirmier i ON i.id = a.infirmier_id AND i.center_id = a.center_id
-      JOIN salle sa ON sa.id = a.salle_id
-      JOIN position_creneau pc ON pc.id = a.creneau_id
-      WHERE a.center_id = CAST($P{CENTER_ID} AS UUID) AND i.actif = TRUE AND a.jours LIKE '%MERCREDI%'
-      UNION ALL
-      SELECT CAST($P{DATE_3} AS DATE), sa.nom, pc.code, pc.libelle, (COALESCE(i.prenom || ' ', '') || i.nom), 'Remplaçant'
-      FROM infirmier_remplacement r
-      JOIN infirmier i ON i.id = r.infirmier_id AND i.center_id = r.center_id
-      JOIN salle sa ON sa.id = r.salle_id
-      JOIN position_creneau pc ON pc.id = r.creneau_id
-      WHERE r.center_id = CAST($P{CENTER_ID} AS UUID) AND r.date_jour = CAST($P{DATE_3} AS DATE)
-      UNION ALL
-      SELECT CAST($P{DATE_4} AS DATE) AS date_jour, sa.nom AS salle, pc.code AS creneau_code, pc.libelle AS creneau, (COALESCE(i.prenom || ' ', '') || i.nom) AS infirmier,
-             CASE WHEN EXISTS (SELECT 1 FROM infirmier_absence ab WHERE ab.center_id = a.center_id
-                               AND ab.infirmier_id = a.infirmier_id AND CAST($P{DATE_4} AS DATE) BETWEEN ab.date_debut AND ab.date_fin)
-                  THEN 'Absent' ELSE 'Prévu' END AS statut
-      FROM infirmier_affectation a
-      JOIN infirmier i ON i.id = a.infirmier_id AND i.center_id = a.center_id
-      JOIN salle sa ON sa.id = a.salle_id
-      JOIN position_creneau pc ON pc.id = a.creneau_id
-      WHERE a.center_id = CAST($P{CENTER_ID} AS UUID) AND i.actif = TRUE AND a.jours LIKE '%JEUDI%'
-      UNION ALL
-      SELECT CAST($P{DATE_4} AS DATE), sa.nom, pc.code, pc.libelle, (COALESCE(i.prenom || ' ', '') || i.nom), 'Remplaçant'
-      FROM infirmier_remplacement r
-      JOIN infirmier i ON i.id = r.infirmier_id AND i.center_id = r.center_id
-      JOIN salle sa ON sa.id = r.salle_id
-      JOIN position_creneau pc ON pc.id = r.creneau_id
-      WHERE r.center_id = CAST($P{CENTER_ID} AS UUID) AND r.date_jour = CAST($P{DATE_4} AS DATE)
-      UNION ALL
-      SELECT CAST($P{DATE_5} AS DATE) AS date_jour, sa.nom AS salle, pc.code AS creneau_code, pc.libelle AS creneau, (COALESCE(i.prenom || ' ', '') || i.nom) AS infirmier,
-             CASE WHEN EXISTS (SELECT 1 FROM infirmier_absence ab WHERE ab.center_id = a.center_id
-                               AND ab.infirmier_id = a.infirmier_id AND CAST($P{DATE_5} AS DATE) BETWEEN ab.date_debut AND ab.date_fin)
-                  THEN 'Absent' ELSE 'Prévu' END AS statut
-      FROM infirmier_affectation a
-      JOIN infirmier i ON i.id = a.infirmier_id AND i.center_id = a.center_id
-      JOIN salle sa ON sa.id = a.salle_id
-      JOIN position_creneau pc ON pc.id = a.creneau_id
-      WHERE a.center_id = CAST($P{CENTER_ID} AS UUID) AND i.actif = TRUE AND a.jours LIKE '%VENDREDI%'
-      UNION ALL
-      SELECT CAST($P{DATE_5} AS DATE), sa.nom, pc.code, pc.libelle, (COALESCE(i.prenom || ' ', '') || i.nom), 'Remplaçant'
-      FROM infirmier_remplacement r
-      JOIN infirmier i ON i.id = r.infirmier_id AND i.center_id = r.center_id
-      JOIN salle sa ON sa.id = r.salle_id
-      JOIN position_creneau pc ON pc.id = r.creneau_id
-      WHERE r.center_id = CAST($P{CENTER_ID} AS UUID) AND r.date_jour = CAST($P{DATE_5} AS DATE)
-      UNION ALL
-      SELECT CAST($P{DATE_6} AS DATE) AS date_jour, sa.nom AS salle, pc.code AS creneau_code, pc.libelle AS creneau, (COALESCE(i.prenom || ' ', '') || i.nom) AS infirmier,
-             CASE WHEN EXISTS (SELECT 1 FROM infirmier_absence ab WHERE ab.center_id = a.center_id
-                               AND ab.infirmier_id = a.infirmier_id AND CAST($P{DATE_6} AS DATE) BETWEEN ab.date_debut AND ab.date_fin)
-                  THEN 'Absent' ELSE 'Prévu' END AS statut
-      FROM infirmier_affectation a
-      JOIN infirmier i ON i.id = a.infirmier_id AND i.center_id = a.center_id
-      JOIN salle sa ON sa.id = a.salle_id
-      JOIN position_creneau pc ON pc.id = a.creneau_id
-      WHERE a.center_id = CAST($P{CENTER_ID} AS UUID) AND i.actif = TRUE AND a.jours LIKE '%SAMEDI%'
-      UNION ALL
-      SELECT CAST($P{DATE_6} AS DATE), sa.nom, pc.code, pc.libelle, (COALESCE(i.prenom || ' ', '') || i.nom), 'Remplaçant'
-      FROM infirmier_remplacement r
-      JOIN infirmier i ON i.id = r.infirmier_id AND i.center_id = r.center_id
-      JOIN salle sa ON sa.id = r.salle_id
-      JOIN position_creneau pc ON pc.id = r.creneau_id
-      WHERE r.center_id = CAST($P{CENTER_ID} AS UUID) AND r.date_jour = CAST($P{DATE_6} AS DATE)
-      ) planning
-      ORDER BY date_jour, creneau_code, salle, statut, infirmier
-    ]]></queryString>
 
     <field name="DATE_JOUR" class="java.sql.Date"/>
     <field name="SALLE" class="java.lang.String"/>

@@ -5,6 +5,8 @@ import com.hemodialyse.backend.contexts.documents.publishedlanguage.RenduDeDocum
 import com.hemodialyse.backend.contexts.documents.publishedlanguage.RenduRefuse;
 import com.hemodialyse.backend.contexts.planification.application.CalendriersDesPropositions;
 import com.hemodialyse.backend.contexts.planification.application.CaseImprimableDuCalendrier;
+import com.hemodialyse.backend.contexts.planification.application.LigneDuPlanningDePresence;
+import com.hemodialyse.backend.contexts.planification.application.PlanningDePresenceImprimable;
 import com.hemodialyse.backend.contexts.planification.domain.CalendrierDeLaProposition.CaseDuCalendrier;
 import com.hemodialyse.backend.contexts.planification.domain.Identifiants.ExecutionId;
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.ImpressionDeLaPresence;
@@ -61,18 +63,54 @@ class ImpressionsParDocumentsTest {
     void la_presence_est_rendue_en_lecture_sans_ecriture_avec_les_sept_dates_et_le_libelle_de_semaine() {
         DocumentsFactice documents = new DocumentsFactice();
         documents.format = "EXCEL";
-        ImpressionDeLaPresence.Document document = new PresenceImprimeeParDocuments(documents).imprimer(CENTRE, DIMANCHE);
+        ImpressionDeLaPresence.Document document = new PresenceImprimeeParDocuments(documents, PLANNING_VIDE).imprimer(CENTRE, DIMANCHE);
         assertThat(document.format()).isEqualTo("EXCEL");
         assertThat(documents.appels).containsExactly("format PLANNING_PRESENCE_INFIRMIERS", "sans provisionner PLANNING_PRESENCE_INFIRMIERS EXCEL");
-        assertThat(documents.donnees).containsKeys("DATE_0", "DATE_6", "SEMAINE_LABEL");
+        assertThat(documents.donnees).containsKeys("DATE_0", "DATE_6", "SEMAINE_LABEL", "LIGNES");
         assertThat(documents.donnees.get("SEMAINE_LABEL")).isEqualTo("Semaine du 08/11/2026 au 14/11/2026");
+    }
+
+    private static final PlanningDePresenceImprimable PLANNING_VIDE = (centre, debut) -> List.of();
+
+    /** DOC5e (ADR 0197) : chaque ligne du planning devient un enregistrement du gabarit, dans les types qu'il déclare. */
+    @Test
+    void les_lignes_du_planning_sont_traduites_champ_par_champ_dans_les_types_du_gabarit() {
+        DocumentsFactice documents = new DocumentsFactice();
+        List<LigneDuPlanningDePresence> lignes = List.of(
+                new LigneDuPlanningDePresence(DIMANCHE, "Salle 1", "MATIN", "Matin", "Sara Amrani", LigneDuPlanningDePresence.Situation.ABSENT),
+                new LigneDuPlanningDePresence(DIMANCHE.plusDays(1), "Salle 2", "SOIR", "Soir", "Zahi", LigneDuPlanningDePresence.Situation.REMPLACANT),
+                new LigneDuPlanningDePresence(DIMANCHE.plusDays(2), "Salle 3", "SOIR", "Soir", "Luc Roux", LigneDuPlanningDePresence.Situation.PREVU));
+        List<LocalDate> demandes = new ArrayList<>();
+        new PresenceImprimeeParDocuments(documents, (centre, debut) -> {
+            demandes.add(debut);
+            assertThat(centre.valeur()).isEqualTo(CENTRE);
+            return lignes;
+        }).imprimer(CENTRE, DIMANCHE);
+        assertThat(demandes).containsExactly(DIMANCHE);
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> champs = (List<Map<String, Object>>) documents.donnees.get("LIGNES");
+        assertThat(champs).hasSize(3);
+        assertThat(champs.get(0)).containsEntry("DATE_JOUR", java.sql.Date.valueOf(DIMANCHE)).containsEntry("SALLE", "Salle 1")
+                .containsEntry("CRENEAU_CODE", "MATIN").containsEntry("CRENEAU", "Matin").containsEntry("INFIRMIER", "Sara Amrani")
+                .containsEntry("STATUT", "Absent").hasSize(6);
+        assertThat(champs.get(1)).containsEntry("STATUT", "Remplaçant").containsEntry("DATE_JOUR", java.sql.Date.valueOf(DIMANCHE.plusDays(1)));
+        assertThat(champs.get(2)).containsEntry("STATUT", "Prévu");
+    }
+
+    @Test
+    void un_format_non_servi_ne_lit_pas_le_planning() {
+        DocumentsFactice documents = new DocumentsFactice();
+        documents.format = "CSV";
+        new PresenceImprimeeParDocuments(documents, (centre, debut) -> {
+            throw new AssertionError("le planning ne doit pas être lu");
+        }).imprimer(CENTRE, DIMANCHE);
     }
 
     @Test
     void un_format_que_le_contexte_ne_sert_pas_n_est_pas_genere() {
         DocumentsFactice documents = new DocumentsFactice();
         documents.format = "CSV";
-        ImpressionDeLaPresence.Document document = new PresenceImprimeeParDocuments(documents).imprimer(CENTRE, DIMANCHE);
+        ImpressionDeLaPresence.Document document = new PresenceImprimeeParDocuments(documents, PLANNING_VIDE).imprimer(CENTRE, DIMANCHE);
         assertThat(document.contenu()).isEmpty();
         assertThat(document.format()).isEqualTo("CSV");
         assertThat(documents.appels).containsExactly("format PLANNING_PRESENCE_INFIRMIERS");
@@ -82,7 +120,7 @@ class ImpressionsParDocumentsTest {
     void un_modele_desactive_refuse_avec_le_code_de_documents() {
         DocumentsFactice documents = new DocumentsFactice();
         documents.refus = new RenduRefuse("DOCUMENT_MODEL_INACTIVE", "désactivé");
-        assertThatThrownBy(() -> new PresenceImprimeeParDocuments(documents).imprimer(CENTRE, DIMANCHE))
+        assertThatThrownBy(() -> new PresenceImprimeeParDocuments(documents, PLANNING_VIDE).imprimer(CENTRE, DIMANCHE))
                 .isInstanceOfSatisfying(ImpressionDeLaPresence.ImpressionRefusee.class, e -> {
                     assertThat(e.code()).isEqualTo("DOCUMENT_MODEL_INACTIVE");
                     assertThat(e.getMessage()).isEqualTo("désactivé");
@@ -93,7 +131,7 @@ class ImpressionsParDocumentsTest {
     void une_generation_impossible_ne_divulgue_pas_la_cause() {
         DocumentsFactice documents = new DocumentsFactice();
         documents.refus = new RenduRefuse("DOCUMENT_GENERATION_FAILED", "Impossible de générer : secret technique");
-        assertThatThrownBy(() -> new PresenceImprimeeParDocuments(documents).imprimer(CENTRE, DIMANCHE))
+        assertThatThrownBy(() -> new PresenceImprimeeParDocuments(documents, PLANNING_VIDE).imprimer(CENTRE, DIMANCHE))
                 .isInstanceOfSatisfying(ImpressionDeLaPresence.ImpressionRefusee.class, e -> {
                     assertThat(e.code()).isEqualTo("DOCUMENT_GENERATION_FAILED");
                     assertThat(e.getMessage()).doesNotContain("secret").endsWith("voir le journal du serveur");

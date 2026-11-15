@@ -173,7 +173,9 @@ chaque ligne** avant d'écrire, **n'enregistre rien tant qu'un fichier
   transition, KB-DOC5B-1) : 10 gabarits sur 14 embarquent encore une requête. **DOC5c (ADR 0195)** : le **planning proposé par l'optimisation**
   (Planification, RG-PLN-101) est converti à son tour (jeu de données fourni par la Planification, KB-DOC5C-1) : 9 gabarits sur 14 embarquent encore
   une requête. **DOC5d (ADR 0196)** : l'**ordonnance** (Dossier médical, RG-MED-055) est convertie à son tour (jeu de données posé par la règle
-  d'impression du Dossier médical, KB-DOC5D-1) : 8 gabarits sur 14 embarquent encore une requête.
+  d'impression du Dossier médical, KB-DOC5D-1) : 8 gabarits sur 14 embarquent encore une requête. **DOC5e (ADR 0197)** : le **planning de présence
+  des infirmiers** (Planification, RG-INF-061) est converti à son tour (lignes fournies par la Planification, noms de salle et libellés de
+  créneau lus par organisation.v1, KB-DOC5E-1) : 7 gabarits sur 14 embarquent encore une requête.
 - **RG-DOC-009** — **Versions de gabarit par centre (contexte Documents, DOC3, ADR 0163)** : mêmes URL, mêmes rôles
   (`ADMIN`, `SUPERADMIN`) et mêmes codes qu'avant (RG-DOC-003, 004). Chaque dépôt prend le numéro suivant (jamais réutilisé, même
   après un retour au modèle d'origine), désactive les autres et devient la version en vigueur ; réactiver un numéro inexistant

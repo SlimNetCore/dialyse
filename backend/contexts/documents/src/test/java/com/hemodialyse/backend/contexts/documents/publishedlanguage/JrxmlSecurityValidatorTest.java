@@ -98,6 +98,18 @@ class JrxmlSecurityValidatorTest {
         assertThat(codes(validator.validate(candidate, reference))).contains("QUERY_MODIFIED");
     }
 
+    /** DOC5e (ADR 0197, KB-DOC5E-1) : le planning de présence livré n'a plus de requête ; un téléversement qui porte l'ancienne est refusé. */
+    @Test
+    void unPlanningDePresenceQuiPorteEncoreL_ancienneRequeteEstRefuse() throws IOException {
+        String reference = load("planning_presence_infirmiers.jrxml");
+        assertThat(reference).doesNotContain("queryString");
+        String ancienne = "<queryString><![CDATA[SELECT * FROM (SELECT sa.nom AS salle FROM infirmier_affectation a "
+                + "JOIN salle sa ON sa.id = a.salle_id WHERE a.center_id = CAST($P{CENTER_ID} AS UUID)) planning]]></queryString>";
+        String candidate = reference.replace("<field name=\"DATE_JOUR\"", ancienne + "<field name=\"DATE_JOUR\"");
+        assertThat(candidate).isNotEqualTo(reference);
+        assertThat(codes(validator.validate(candidate, reference))).contains("QUERY_MODIFIED");
+    }
+
     @Test
     void uneRequeteSurUneAutreTableEstRefusee() throws IOException {
         String reference = load("attestation.jrxml");

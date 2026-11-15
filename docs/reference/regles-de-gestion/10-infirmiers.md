@@ -253,7 +253,11 @@ et les
   que la lecture le crée (aucune écriture dans `modele_document`) ; un modèle **désactivé** refuse l'impression (422
   `DOCUMENT_MODEL_INACTIVE`). Depuis PLN-DOC (13/11/2026, ADR 0167) le rendu passe par le port publié de Documents en
   option « **lecture sans écriture** » (`formatDImpression`, `rendreSansProvisionner`) : la Planification n'écrit ni ne lit plus la
-  table des modèles ; comportement inchangé (KB-PLN-51 déjà corrigé le 27/10/2026).
+  table des modèles ; comportement inchangé (KB-PLN-51 déjà corrigé le 27/10/2026). **DOC5e (15/11/2026, ADR 0197)** : le modèle livré
+  n'embarque plus de requête ; la Planification fournit les lignes du planning (infirmiers actifs au roulement du jour, prévus ou absents,
+  et remplaçants posés ce jour-là) et lit les noms de salle et libellés de créneau par organisation.v1 ; contenu imprimé inchangé. Le
+  téléversement d'un modèle portant l'ancienne requête est refusé `QUERY_MODIFIED` (KB-DOC5E-1, RG-DOC-004) ; l'ordre des lignes est
+  désormais trié par le serveur, par points de code (KB-DOC5E-2).
 
 ## 10.8 Roulement et remplacements issus de l'optimisation
 
