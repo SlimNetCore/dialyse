@@ -35,8 +35,7 @@ class TableDeLOrganisationTest {
     private static final Set<String> TABLES_DE_L_ORGANISATION = Set.of(
             "societes", "centers", "medecin", "machine", "protocole", "salle", "position_creneau");
 
-    private static final String LECTURE_DIRECTE = "2026-11-02 : lecture SQL directe, à remplacer par organisation.v1 (O4 planned)."
-            + " Butoir : retrait à l'échéance de organisation.v1 (jalon O4) au 2027-03-31 (sinon reconduction motivée).";
+    private static final String LECTURE_DIRECTE = "lecture SQL directe, à remplacer par organisation.v1 (la liste est vide : aucun lecteur, garde permanente).";
 
     /** Lecteurs SQL connus hors du contexte Organisation (chemin depuis {@code backend/}) : 2026-11-02, revue O1-O5. */
     private static final Map<String, String> LECTEURS_CONNUS = lecteurs(
@@ -143,17 +142,6 @@ class TableDeLOrganisationTest {
      * 2026-11-10, constat mineur : l'exclusion du dossier {@code /entity/} entier cachait toute autre entité).
      */
     private static final Set<String> ENTITES_JPA_CONNUES = Set.of(); // IDN-licence (ADR 0175) : les deux entités sont supprimées, aucun report
-
-    @Test
-    void chaque_lecteur_connu_porte_un_butoir_lisible_et_aucun_n_est_depasse_a_la_date_du_jour() {
-        assertThat(ButoirsDesGardesDeTables.butoirsAbsentsOuDepasses(LECTEURS_CONNUS, java.time.LocalDate.of(2026, 11, 10)))
-                .as("chaque lecteur connu porte un butoir lisible (date ISO après « Butoir : »)").isEmpty();
-        assertThat(ButoirsDesGardesDeTables.butoirsAbsentsOuDepasses(LECTEURS_CONNUS, java.time.LocalDate.now()))
-                .as("butoir (2027-03-31) dépassé : migrer le lecteur vers organisation.v1, ou reconduire AVEC une raison motivée "
-                        + "et une nouvelle date").isEmpty();
-        assertThat(LECTEURS_CONNUS.values()).allSatisfy(raison ->
-                assertThat(ButoirsDesGardesDeTables.butoir(raison)).contains(java.time.LocalDate.of(2027, 3, 31)));
-    }
 
     @Test
     void l_exclusion_est_nominative_les_autres_entites_jpa_sont_scannees() throws IOException {

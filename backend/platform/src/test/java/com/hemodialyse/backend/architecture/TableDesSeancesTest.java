@@ -39,8 +39,6 @@ class TableDesSeancesTest {
     private record Lecteur(String nature, LocalDate butoir) {
     }
 
-    private static final LocalDate LECTURES_PUBLIEES = LocalDate.of(2027, 3, 31);
-    private static final LocalDate RETRAIT_DU_PILOTAGE_LEGACY = LocalDate.of(2027, 6, 30);
     /* Résidu E-R3 (ADR 0099), butoir 2027-06-30 : requête embarquée du cahier de dialyse, SOLDÉ par DOC5a (ADR 0193), constante supprimée. */
 
     /** Lecteurs SQL connus hors du contexte Séance (chemin depuis {@code backend/}) : 2026-11-08, SE7c1 ; réduite par SE7e (ADR 0099). */

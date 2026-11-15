@@ -273,6 +273,13 @@ public class PilotageDirectionConfiguration {
         return new com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.stock.StockDesGroupesParLeStock(groupes, valorisations);
     }
 
+    /** Vide le cache de valorisation quand Stock publie un changement de mouvements (CLOT1, ADR 0203). */
+    @Bean
+    com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.stock.InvalidationDeLaValorisationDuStock invalidationDeLaValorisationDuStock(
+            org.springframework.beans.factory.ObjectProvider<org.springframework.cache.CacheManager> caches) {
+        return new com.hemodialyse.backend.contexts.pilotagedirection.infrastructure.acl.stock.InvalidationDeLaValorisationDuStock(caches);
+    }
+
     /** Fuseau du jour de fin de période pour les générateurs installés : celui de la planification (une société consolidée n'a pas un seul centre). */
     @Bean
     com.hemodialyse.backend.contexts.pilotagedirection.application.CapaciteDesCentres capaciteDesCentres(

@@ -131,14 +131,26 @@ Crons métier : chacun devient une **politique** dans son contexte propriétaire
 | Absences patients | **extrait** (A1-A6) | `bc-seance/domain/absence` retiré | 4 — livré |
 | Stock | **extrait** (S1-S8) | `bc-stock`, `bc-article` retirés | 5 — livré |
 | Planification | **extrait** (P1-P8) | `bc-seance/domain/{planning,infirmier}`, Timefold retirés | 6 — livré |
-| Patient & couverture | restant | 4 `bc-*` | 7 |
-| Séance | restant | `bc-seance/domain/seance`, `SeanceRestController` (1209 l.) | 8 (cœur, le plus couplé : en dernier, quand ses voisins consomment ses événements) |
-| Dossier médical, Organisation, Direction, Génériques | restant | `bc-medical`, `bc-referential`, `platform` | à planifier |
-| Documents *(proposed, ADR 0140)* | restant (moteur, modèles, papier en-tête en plateforme) | `reporting/*`, `DocumentRestController`, `ModeleDocumentTemplateRestController` | sur place : DOC1 → PL5-PL9 ; DOC2-DOC4 en tâche de fond |
-| Notifications *(proposed, ADR 0140)* | restant (`NotificationService` 654 l. + 12 ACL `*Legacy`) | `application/notification`, `NotificationRestController` | sur place : NOT1 → NOT2 → PL13a-d |
-| **Extraits** | **6** : GMAO, Comptabilité, Facturation, Absences patients, Stock, Planification (`backend/contexts`) | — | 1 à 6 livrées |
+| Patient & couverture | **extrait** (`contexts/patient-couverture`) | `bc-*` patient retirés | livré |
+| Séance | **extrait** (`contexts/seance`, SE1-SE7f, ADR 0090-0100) | `bc-seance/domain/seance` retiré | livré |
+| Dossier médical | **extrait** (`contexts/dossier-medical`, DM, ADR 0101) | `bc-medical` retiré | livré |
+| Organisation | **extrait** (`contexts/organisation`, O1-O4, ADR 0107-0109) | `bc-referential` retiré | livré |
+| Pilotage direction | **extrait** (`contexts/pilotage-direction`, PD1-PD6, PL10, ADR 0102-0106, 0152) | tableaux de bord de `platform` retirés | livré |
+| Documents *(ADR 0140)* | **extrait** (`contexts/documents` + `documents-api`, DOC2-DOC5j, ADR 0162-0167, 0198-0202) : moteur de rendu, modèles, versions, types, papier en-tête | `reporting/*` retirés | livré ; aucun SQL embarqué (ADR 0202) |
+| Notifications *(ADR 0140)* | **extrait** (`contexts/notifications`, NOT1-NOT2, PL13a-d) | `application/notification` retiré | livré |
+| **Extraits** | **13** contextes dans `backend/contexts` (+ `shared-kernel`, `documents-api`) : GMAO, Comptabilité, Facturation, Absences patients, Stock, Planification, Patient & couverture, Séance, Dossier médical, Organisation, Pilotage direction, Documents, Notifications | — | tous livrés |
 
-Règle de transition : tant qu'un contexte est dans le legacy, les contextes extraits lui parlent **uniquement via une ACL** (adapter qui traduit le modèle legacy — ex. `SeanceStatus.ABSENT` → « exclue de facturation ») ; le legacy lit les données extraites via la façade de routage, jamais par leurs tables.
+État de `backend/platform` (décommissionnement ADR 0162-0206, revue globale du 2026-11-15) : il ne garde que le **noyau** (identité, licence, audit, supervision, transport STOMP et ses relais, façade ADR 0161, outil de reprise, Flyway V1-V59 centralisé, ADR 0205) et **10 ACL** (`organisation/{Creneaux,Medecins,Salles,Referentiels}`, `patientcouverture/{Transporteurs,Forfaits,Payeurs,Referentiels}`, `reprise/AppariementParLesContextes`, `gmao/GenerateursDeRepriseGmao`), conservées à cause du cycle Maven (`platform -> contexts-*`, ADR 0192) ; retrait avec la façade ADR 0161 et l'outil de reprise (événement « fin de la reprise de production », ADR 0204).
+
+Relations ajoutées depuis la carte initiale :
+| Relation | Contextes | Type |
+|---|---|---|
+| R-DOC5 | Documents ⇐ jeux de données (`LIGNES`) fournis par Patient & couverture, Stock, GMAO, Dossier médical, Planification, Séance, Facturation, via le port publié de `documents-api` ; Documents ne lit plus aucune table (ADR 0202) | Customer-Supplier / Published Language |
+| R-STK-PIL | Pilotage direction ⇐ Stock (valorisation) ; le cache est vidé par un écouteur du Pilotage sur le langage publié de Stock (ADR 0203) | Conformist + événement publié |
+| R-ORG-AVAL | Organisation ⇒ lit le langage publié de Stock et GMAO (pom organisation -> stock, gmao) (ADR 0206) | Conformist |
+| R-REPRISE | Outil de reprise (platform) ⇒ ports `RepriseDes*` de Patient & couverture ; aucune table d'un contexte (ADR 0173, 0204) | Open Host Service / ACL |
+
+La règle de transition legacy est soldée : plus aucun contexte n'est dans le legacy ; la plateforme parle aux contextes uniquement par leur langage publié ou ses ACL conservées. Détail par contexte : `backend/contexts/README.md` et les glossaires `.ddd/strategic/glossaries/`.
 
 ## Questions ouvertes
 1. Un générateur mis hors service doit-il déplacer automatiquement les patients placés dessus (R8) ? Hypothèse : alerte + proposition de replacement, pas de déplacement automatique.

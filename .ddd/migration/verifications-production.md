@@ -2753,3 +2753,30 @@ WHERE p.qualite_assure IS DISTINCT FROM 'ASSURE_LUI_MEME' AND p.assure_numero_as
 GROUP BY p.center_id ORDER BY 1;
 ```
 **Interprétation** : 87.1 renvoie 1 ligne (`text`, `YES` : TEXT et non VARCHAR(4000), le mémento URL-encodé peut atteindre 18 467 caractères au pire cas du schéma `assure`, ADR 0134) ; sinon V57 n'a pas été appliquée. 87.2 : un lot ouvert listé n'aura pas de restauration à l'annulation (clôturer ou accepter). 87.3 `> 0` : un ancien rejeu a pu rétrograder l'affectation principale ; la corriger par une décision de l'administrateur du centre (le code corrigé ne le défait pas). La chaîne Flyway V1..V57 a été rejouée sur un PostgreSQL 16 jetable (`backend/scripts/patient-couverture-s6b3-pg16-rejeu.sh`) ; ces trois requêtes n'ont PAS été exécutées sur la production et ne disent RIEN de son état.
+
+## 88. Contrôles DOC5 avant mise en production (CLOT1, revue globale M5) : modèles avec `queryString`, collation, UUID sans tirets
+À jouer **par l'équipe**, en lecture seule (`SET default_transaction_read_only = on;`). Rien n'a été exécuté ; aucun code n'a été modifié.
+```sql
+-- 88.1 KB-DOC5A..J-1 : versions de modèles stockées dont le contenu contient une requête embarquée. Un téléversement identique serait
+-- refusé (QUERY_MODIFIED) ; au rendu, la requête est ignorée si LIGNES est fourni, mais les noms de champs doivent coïncider avec les alias d'origine.
+SELECT v.center_id, m.type_document, v.actif, count(*) AS versions_avec_requete
+FROM modele_document_version v JOIN modele_document m ON m.id = v.modele_id
+WHERE v.contenu ILIKE '%<queryString%'
+GROUP BY v.center_id, m.type_document, v.actif ORDER BY 1, 2, 3;
+
+-- 88.2 Total à comparer (versions actives avec requête / versions actives)
+SELECT count(*) FILTER (WHERE contenu ILIKE '%<queryString%') AS actives_avec_requete, count(*) AS actives
+FROM modele_document_version WHERE actif;
+
+-- 88.3 KB-DOC5B-2, KB-DOC5E-2 : collation des bases (tri des libellés : points de code ou collation linguistique)
+SELECT datname, datcollate, datctype FROM pg_database WHERE datallowconn ORDER BY datname;
+
+-- 88.4 KB-DOC5H-4 : un identifiant 32 chiffres sans tirets n'est pas une donnée stockée (colonnes `uuid`) ; il vient de l'appelant.
+-- Contrôle côté base : aucune colonne texte ne doit en contenir pour les identifiants de modèle de document / de patient / de prise en charge.
+SELECT count(*) AS codes_de_modele_sans_tirets FROM modele_document WHERE code ~ '^[0-9a-fA-F]{32}$';
+```
+**Critère de décision** :
+- 88.1 = 0 ligne : rien à faire ; le réimport d'un export ancien reste refusé, **prévenir les administrateurs** (message `QUERY_MODIFIED`).
+- 88.1 > 0 : pour chaque ligne, rendre un exemplaire de la version sur **copie** de la base et comparer à la sortie d'avant ; les rendus qui diffèrent (champ absent car alias SQL différent) se règlent en corrigeant le gabarit côté administrateur, pas le code. Ne pas mettre en production tant qu'une version **active** avec requête n'a pas été rendue sur copie.
+- 88.3 : `datcollate` valant `C` / `POSIX` / `*.utf8` binaire = ordre par points de code, identique au code (KB-DOC5B-2 et E-2 sans effet) ; collation linguistique (`fr_FR.UTF-8`, `en_US.UTF-8`, ICU) : comparer sur copie l'ordre des libellés qui diffèrent par la casse ou l'accent ; sinon valider avec l'exploitation.
+- 88.4 : aucun appelant de production ne doit envoyer d'identifiant sans tirets ; vérifier dans les journaux d'accès du reverse proxy les appels vers les routes d'impression de documents dont le dernier segment ou le paramètre `id` correspond à `[0-9a-f]{32}` (recherche à faire par l'équipe, non faisable en SQL). Un résultat > 0 : décider 400 (voie par type) ou 500 historique reproduit (KB-DOC5H-4).

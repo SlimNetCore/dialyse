@@ -3,6 +3,8 @@
 status: proposed | date: 2026-11-13 | sources: 4 scans (contrôleurs REST ; moteur de documents ; persistance/schéma/seed/jobs ; vue d'ensemble PL1-PL11), HEAD `fa1f31c1` + arbre de travail DOC2 non commité.
 Remplace `inventaire-platform-restant.md` (2026-11-11), qui est périmé (voir §5).
 
+**Mise à jour CLOT1 (2026-11-15, `clot1-realisation.md`)** : l'invalidation du cache de valorisation a quitté `StockEvenementsListener` (désormais STOMP pur) pour `pilotage-direction` (ADR 0203) ; les trois relais STOMP (`StockEvenementsListener`, `RelaiDesInventairesVersWebSocket`, `WebSocketDirectionPublisher`) sont le noyau de transport assumé ; les migrators de reprise (1 887 l.) sont le noyau de l'outil de reprise, retrait à l'événement « fin de la reprise de production » (ADR 0204, à confirmer métiers/DPO <= 2026-12-15) ; Flyway V1-V59 reste centralisé (ADR 0205, ADR 0014 amendé) ; les dossiers `acl/{absences,dossiermedical,seance,pilotagedirection}` n'existent plus sur disque ; le butoir mort de `TableDeLOrganisationTest` est supprimé.
+
 Chiffres vérifiés par Grep/wc le 2026-11-13 : 208 fichiers `.java` dans `platform/src/main/java` ; 15 contrôleurs REST + 4 fichiers dans `infrastructure/web` (ApiExceptionHandler, ReferentialAdminExceptionHandler, AutorisationAvantLeCorpsDesReferentiels, DatesIllisiblesDeLaDirectionAdvice) ; 6 entités JPA et 6 dépôts Spring Data ; 3 occurrences de `@Scheduled` ; `schema.sql` 2 503 l. / 109 `CREATE TABLE` ; `seed.sql` 2 443 l. ; 14 `.jrxml` dans `contexts/documents/src/main/resources/reports` (plus de dossier `reports` en platform) ; `git status` : 42 lignes (DOC2 en cours).
 
 ## 0. État de départ à connaître

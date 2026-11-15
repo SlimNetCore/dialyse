@@ -28,7 +28,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 class TableDuDossierMedicalTest {
 
     private static final LocalDate REVUE = LocalDate.of(2026, 12, 15);
-    private static final LocalDate RETRAIT_DU_PILOTAGE_LEGACY = LocalDate.of(2027, 6, 30);
 
     static final Set<String> TABLES = Set.of("abords_vasculaires", "administrations_anemie", "alertes_observance", "allergies_patient",
             "antecedents_medicaux", "bilans_pre_greffe", "decisions_rcp", "demandes_examen", "donneurs_vivants", "dossier_medical_patient",

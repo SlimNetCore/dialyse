@@ -1,5 +1,5 @@
 ---
-status: proposed
+status: proposed ; amendé par ADR 0205 (« schéma par contexte » réinterprété en isolation par propriété de table et préfixe ; chaîne Flyway unique confirmée)
 date: 2026-10-09
 decision-makers: [architecte, administrateur base de données]
 context-scope: global

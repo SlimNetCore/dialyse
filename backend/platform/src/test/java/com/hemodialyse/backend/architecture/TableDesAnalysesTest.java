@@ -29,8 +29,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 class TableDesAnalysesTest {
 
     private static final LocalDate REVUE = LocalDate.of(2026, 12, 15);
-    private static final LocalDate LECTURES_PUBLIEES = LocalDate.of(2027, 3, 31);
-    private static final LocalDate RETRAIT_DU_PILOTAGE_LEGACY = LocalDate.of(2027, 6, 30);
 
     private record Lecteur(String nature, LocalDate butoir) {
     }

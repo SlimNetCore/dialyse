@@ -171,13 +171,8 @@ class TableDuPatientCouvertureTest {
     @Test
     void chaque_jalon_porte_une_date_et_une_echeance() {
         assertThat(JALONS.values()).allSatisfy(raison -> {
-            // Jalons historiques : 2026-11-04, 05 ou 07, inchangés. Exceptions : les entrées du 2026-11-08 (SE7a, ADR 0094, R2 ; SE7c2,
-            // ADR 0097, C2-R6, entrée déplacée), qui doivent porter leur revue (2026-12-15) ET leur butoir propre (2027-03-31).
-            if (raison.startsWith("2026-11-08") || raison.startsWith("2026-11-09")) {
-                assertThat(raison).contains("revue au plus tard le 2026-12-15").contains("butoir 2027-03-31");
-            } else {
-                assertThat(raison).matches("(?s)2026-11-0[457].*");
-            }
+            // Les entrées restantes (PLACE, CYCLE) datent du 2026-11-04 et portent une condition de sortie, sans butoir daté.
+            assertThat(raison).matches("(?s)2026-11-0[457].*");
             assertThat(raison).contains("échéance");
         });
     }

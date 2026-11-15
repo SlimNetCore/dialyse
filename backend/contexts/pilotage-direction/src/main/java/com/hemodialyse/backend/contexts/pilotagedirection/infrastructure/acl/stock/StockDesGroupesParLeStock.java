@@ -18,12 +18,12 @@ import java.util.UUID;
  * ACL : les groupes d'articles ({@link GroupesDArticlesDesCentres}, S2) et leur valorisation ({@link ValorisationsDuStock}) lus dans
  * {@code stock.v1}. Le rejeu de l'historique est coûteux : la valorisation est mise en cache (cache {@value #CACHE}, TTL
  * {@code app.cache.ttl.stock-valorisation}), la clé incluant toujours le centre (AGENTS.md §2 et §6) ; le cache est vidé à chaque
- * écriture de mouvement de stock (événement publié {@code MouvementsDeStockModifies}, relayé par la plateforme), le TTL ne servant que de
+ * écriture de mouvement de stock (événement publié {@code MouvementsDeStockModifies}, écouté par {@link InvalidationDeLaValorisationDuStock}), le TTL ne servant que de
  * filet. Classe non finale : le cache passe par le proxy Spring (anciennement {@code ValorisationArticlesService} de la plateforme).
  */
 public class StockDesGroupesParLeStock implements StockDesGroupes {
 
-    /** Nom du cache de la valorisation, vidé par la plateforme à chaque mouvement de stock. */
+    /** Nom du cache de la valorisation, vidé par le Pilotage à chaque mouvement de stock. */
     public static final String CACHE = "stock.valorisation.articles";
 
     private final GroupesDArticlesDesCentres groupes;
