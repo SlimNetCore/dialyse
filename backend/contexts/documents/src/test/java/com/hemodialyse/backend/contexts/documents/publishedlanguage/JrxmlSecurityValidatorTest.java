@@ -122,6 +122,30 @@ class JrxmlSecurityValidatorTest {
         assertThat(codes(validator.validate(candidate, reference))).contains("QUERY_MODIFIED");
     }
 
+    /** DOC5g (ADR 0199, KB-DOC5G-1) : la liste des ouvertures de droit livrée n'a plus de requête ; un téléversement qui porte l'ancienne est refusé. */
+    @Test
+    void uneListeDesAttestationsQuiPorteEncoreL_ancienneRequeteEstRefusee() throws IOException {
+        String reference = load("liste_attestations.jrxml");
+        assertThat(reference).doesNotContain("queryString");
+        String ancienne = "<queryString><![CDATA[SELECT p.code_patient, p.nom FROM attestation_droit a JOIN patients p ON p.id = a.patient_id "
+                + "WHERE a.center_id = CAST($P{CENTER_ID} AS UUID) ORDER BY a.date_fin DESC]]></queryString>";
+        String candidate = reference.replace("<field name=\"CODE_PATIENT\"", ancienne + "<field name=\"CODE_PATIENT\"");
+        assertThat(candidate).isNotEqualTo(reference);
+        assertThat(codes(validator.validate(candidate, reference))).contains("QUERY_MODIFIED");
+    }
+
+    /** DOC5g (ADR 0199, KB-DOC5G-1) : la liste des prises en charge livrée n'a plus de requête ; un téléversement qui porte l'ancienne est refusé. */
+    @Test
+    void uneListeDesPrisesEnChargeQuiPorteEncoreL_ancienneRequeteEstRefusee() throws IOException {
+        String reference = load("liste_pec.jrxml");
+        assertThat(reference).doesNotContain("queryString");
+        String ancienne = "<queryString><![CDATA[SELECT p.code_patient, p.nom FROM prise_en_charge pc JOIN patients p ON p.id = pc.patient_id "
+                + "WHERE pc.center_id = CAST($P{CENTER_ID} AS UUID) ORDER BY pc.date_fin_demande DESC]]></queryString>";
+        String candidate = reference.replace("<field name=\"CODE_PATIENT\"", ancienne + "<field name=\"CODE_PATIENT\"");
+        assertThat(candidate).isNotEqualTo(reference);
+        assertThat(codes(validator.validate(candidate, reference))).contains("QUERY_MODIFIED");
+    }
+
     @Test
     void uneRequeteSurUneAutreTableEstRefusee() throws IOException {
         String reference = load("attestation.jrxml");

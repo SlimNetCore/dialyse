@@ -521,4 +521,20 @@ public class PatientCouvertureConfiguration {
         return new com.hemodialyse.backend.contexts.patientcouverture.interfaces.publie.RegleDImpressionDeLaListeDesPatients(
                 new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.ListeDesPatientsAImprimerJdbc(jdbc));
     }
+
+    /** DOC5g (ADR 0199) : la liste des ouvertures de droit imprimée est un jeu de données fourni par Patient et couverture. */
+    @Bean
+    com.hemodialyse.backend.contexts.documents.publishedlanguage.RegleDImpressionDUnType patientCouvertureRegleDImpressionDeLaListeDesAttestations(
+            JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.interfaces.publie.RegleDImpressionDeLaListeDesAttestations(
+                new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.ListeDesAttestationsAImprimerJdbc(jdbc));
+    }
+
+    /** DOC5g (ADR 0199) : la liste des prises en charge imprimée est un jeu de données fourni par Patient et couverture. */
+    @Bean
+    com.hemodialyse.backend.contexts.documents.publishedlanguage.RegleDImpressionDUnType patientCouvertureRegleDImpressionDeLaListeDesPrisesEnCharge(
+            JdbcTemplate jdbc) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.interfaces.publie.RegleDImpressionDeLaListeDesPrisesEnCharge(
+                new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.ListeDesPrisesEnChargeAImprimerJdbc(jdbc));
+    }
 }

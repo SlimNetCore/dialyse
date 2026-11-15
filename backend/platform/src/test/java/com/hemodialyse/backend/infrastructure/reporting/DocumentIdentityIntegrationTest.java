@@ -138,6 +138,16 @@ class DocumentIdentityIntegrationTest {
             Map<String, Object> params = new HashMap<>();
             params.put("CENTER_ID", CENTRE.toString());
             params.putAll(identity.parametresDeLEnTete(CENTRE));
+            // DOC5g (ADR 0199) : le gabarit n'embarque plus de requête, les lignes sont fournies (ici celle de l'attestation du test).
+            Map<String, Object> ligne = new HashMap<>();
+            ligne.put("CODE_PATIENT", "ZT-P1");
+            ligne.put("NOM", "DURAND");
+            ligne.put("PRENOM", "Amel");
+            ligne.put("NUMERO_ASSURANCE", "ASS-ZT-1");
+            ligne.put("DATE_DEBUT", java.sql.Date.valueOf("2026-01-01"));
+            ligne.put("DATE_FIN", java.sql.Date.valueOf("2027-01-01"));
+            params.put(net.sf.jasperreports.engine.JRParameter.REPORT_DATA_SOURCE,
+                    new net.sf.jasperreports.engine.data.JRMapCollectionDataSource(List.<Map<String, ?>>of(ligne)));
 
             JasperReport report = jasper.compileReport("reports/liste_attestations.jrxml");
             JasperPrint print = jasper.fillReport(report, params);

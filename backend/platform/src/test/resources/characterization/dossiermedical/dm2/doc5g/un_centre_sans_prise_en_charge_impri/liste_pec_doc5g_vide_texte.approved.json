@@ -1,0 +1,14 @@
+{
+  "par type (PDF)" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "" ]
+  },
+  "par type (tableur)" : {
+    "contentType" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "feuille 1" : [ ],
+    "feuilles" : 1,
+    "statut" : 200
+  }
+}

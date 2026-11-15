@@ -177,7 +177,10 @@ chaque ligne** avant d'écrire, **n'enregistre rien tant qu'un fichier
   des infirmiers** (Planification, RG-INF-061) est converti à son tour (lignes fournies par la Planification, noms de salle et libellés de
   créneau lus par organisation.v1, KB-DOC5E-1) : 7 gabarits sur 14 embarquent encore une requête. **DOC5f (ADR 0198)** : la **liste des patients** (Patient et couverture) est
   convertie à son tour (lignes fournies par Patient et couverture, triées par nom puis prénom ; type toujours non gardé par profil, KB-DOC1-3 ;
-  KB-DOC5F-1) : 6 gabarits sur 14 embarquent encore une requête.
+  KB-DOC5F-1) : 6 gabarits sur 14 embarquent encore une requête. **DOC5g (ADR 0199)** : la **liste des ouvertures de droit** et la **liste des
+  prises en charge** (Patient et couverture) sont converties à leur tour (lignes fournies par Patient et couverture, triées par date de fin
+  décroissante, jointure sur le patient du même centre ; types toujours non gardés par profil, KB-DOC1-3 ; KB-DOC5G-1) : 4 gabarits sur 14
+  embarquent encore une requête.
 - **RG-DOC-009** — **Versions de gabarit par centre (contexte Documents, DOC3, ADR 0163)** : mêmes URL, mêmes rôles
   (`ADMIN`, `SUPERADMIN`) et mêmes codes qu'avant (RG-DOC-003, 004). Chaque dépôt prend le numéro suivant (jamais réutilisé, même
   après un retour au modèle d'origine), désactive les autres et devient la version en vigueur ; réactiver un numéro inexistant

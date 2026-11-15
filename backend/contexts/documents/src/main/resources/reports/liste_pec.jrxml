@@ -21,14 +21,6 @@
     <parameter name="CENTRE_SITE_WEB" class="java.lang.String"/>
     <parameter name="CENTRE_CONTACT" class="java.lang.String"/>
     <parameter name="CENTRE_LIGNE" class="java.lang.String"/>
-    <queryString><![CDATA[
-      SELECT pc.id, p.code_patient, p.nom, p.prenom, p.numero_assurance,
-             pc.date_debut_demande, pc.date_fin_demande, pc.statut
-      FROM prise_en_charge pc
-      JOIN patients p ON p.id = pc.patient_id AND p.center_id = pc.center_id
-      WHERE pc.center_id = CAST($P{CENTER_ID} AS UUID)
-      ORDER BY pc.date_fin_demande DESC
-    ]]></queryString>
 
     <field name="CODE_PATIENT" class="java.lang.String"/>
     <field name="NOM" class="java.lang.String"/>
