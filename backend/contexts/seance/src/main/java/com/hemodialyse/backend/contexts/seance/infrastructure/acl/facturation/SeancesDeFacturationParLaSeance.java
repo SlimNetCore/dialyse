@@ -1,8 +1,7 @@
-package com.hemodialyse.backend.infrastructure.acl.facturation;
+package com.hemodialyse.backend.contexts.seance.infrastructure.acl.facturation;
 
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.ExclusionsDeSeancesFournies;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.ExclusionsEtForfaitsDesSeancesPublies;
-import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -11,10 +10,9 @@ import java.util.UUID;
 
 /**
  * Fournisseur de la Facturation (ADR 0097, SE7c2, ARGENT) : l'exclusion, la réinclusion et le forfait imposé d'une séance passent par
- * {@link ExclusionsEtForfaitsDesSeancesPublies} (seance.v1). Logé dans la plateforme (cycle Maven Séance - Absences-patients - Facturation).
+ * {@link ExclusionsEtForfaitsDesSeancesPublies} (seance.v1). Hébergé par la Séance (cycle Maven Séance - Absences-patients - Facturation, ADR 0191).
  * Traduction champ à champ, aucune règle, aucun montant recalculé ; les refus (422) viennent du port de la Séance et traversent tels quels.
  */
-@Component
 public class SeancesDeFacturationParLaSeance implements ExclusionsDeSeancesFournies {
 
     private final ExclusionsEtForfaitsDesSeancesPublies seances;

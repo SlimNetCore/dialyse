@@ -140,6 +140,20 @@ public class OrganisationConfiguration {
         return new com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.VerrouDuCentreJdbc(jdbc);
     }
 
+    /** Fournit au Stock ses centres (O4 lot B, ADR 0108 ; hébergé par Organisation, qui dépend du Stock, ADR 0191). */
+    @Bean
+    public com.hemodialyse.backend.contexts.stock.publishedlanguage.CentresFournis centresFournisAuStock(
+            com.hemodialyse.backend.contexts.organisation.publishedlanguage.AnnuaireDesCentres annuaire) {
+        return new com.hemodialyse.backend.contexts.organisation.infrastructure.acl.stock.CentresDuStockParOrganisation(annuaire);
+    }
+
+    /** Fournit au Stock le verrou du centre (O4 lot B, ADR 0108 ; hébergé par Organisation, ADR 0191). */
+    @Bean
+    public com.hemodialyse.backend.contexts.stock.publishedlanguage.VerrouDuCentreFourni verrouDuCentreFourniAuStock(
+            com.hemodialyse.backend.contexts.organisation.publishedlanguage.VerrouDuCentre verrou) {
+        return new com.hemodialyse.backend.contexts.organisation.infrastructure.acl.stock.VerrouDuCentreDuStockParOrganisation(verrou);
+    }
+
     /** Langage publié organisation.v1 (O4 lot A, ADR 0107) : lecture des sociétés pour les autres contextes. */
     @Bean
     public com.hemodialyse.backend.contexts.organisation.publishedlanguage.AnnuaireDesSocietes annuaireDesSocietes(JdbcTemplate jdbc) {

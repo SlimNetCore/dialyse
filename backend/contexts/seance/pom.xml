@@ -98,6 +98,12 @@
             <artifactId>contexts-stock</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!-- Langage publié de la Facturation : ports fournis (liaison, exclusions, comptages, séances à facturer), SE7c2, ADR 0097 et 0191. -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-facturation</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <!-- Langage publié des Absences : AbsencesDuPilotage (absences du tableau de bord mensuel), SE7b, ADR 0095. -->
         <dependency>
             <groupId>com.hemodialyse</groupId>

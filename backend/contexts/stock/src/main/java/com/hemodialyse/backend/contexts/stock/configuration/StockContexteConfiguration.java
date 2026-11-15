@@ -206,7 +206,19 @@ public class StockContexteConfiguration {
         return new com.hemodialyse.backend.contexts.stock.infrastructure.persistence.SortiesDuStockJdbc(jdbc);
     }
 
-    // Le port StatutDesSeances est fourni par la plateforme (ACL vers seance.v1, ADR 0096) : le Stock ne fait plus de SQL sur les séances.
+    // Le port StatutDesSeances est fourni par la Séance (StatutDesSeancesFourni, ADR 0096 et 0191) : le Stock ne fait plus de SQL sur les séances.
+
+    @Bean
+    com.hemodialyse.backend.contexts.stock.domain.sortie.StatutDesSeances stockStatutDesSeances(
+            com.hemodialyse.backend.contexts.stock.publishedlanguage.StatutDesSeancesFourni seances) {
+        return new com.hemodialyse.backend.contexts.stock.infrastructure.acl.seance.StatutDesSeancesFournies(seances);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.stock.domain.consommations.PerimetreDesSeances stockPerimetreDesSeances(
+            com.hemodialyse.backend.contexts.stock.publishedlanguage.PerimetreDesSeancesFourni seances) {
+        return new com.hemodialyse.backend.contexts.stock.infrastructure.acl.seance.PerimetreDesSeancesFournis(seances);
+    }
 
     @Bean
     com.hemodialyse.backend.contexts.stock.application.sortie.GestionDesSorties stockGestionDesSorties(

@@ -1,8 +1,7 @@
-package com.hemodialyse.backend.infrastructure.acl.stock;
+package com.hemodialyse.backend.contexts.organisation.infrastructure.acl.stock;
 
 import com.hemodialyse.backend.contexts.organisation.publishedlanguage.VerrouDuCentre;
 import com.hemodialyse.backend.contexts.stock.publishedlanguage.VerrouDuCentreFourni;
-import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
@@ -11,7 +10,6 @@ import java.util.UUID;
  * publie. Traducteur mince, aucun SQL ; le verrou est pris dans la transaction en cours de l'appelant (même source de données). Remplace
  * le verrou de la ligne du centre d'{@code InventairesJdbc}.
  */
-@Component
 public class VerrouDuCentreDuStockParOrganisation implements VerrouDuCentreFourni {
 
     private final VerrouDuCentre verrou;

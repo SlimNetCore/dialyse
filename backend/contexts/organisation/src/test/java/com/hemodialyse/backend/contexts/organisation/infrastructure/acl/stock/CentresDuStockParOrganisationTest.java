@@ -1,4 +1,4 @@
-package com.hemodialyse.backend.infrastructure.acl.stock;
+package com.hemodialyse.backend.contexts.organisation.infrastructure.acl.stock;
 
 import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.AnnuaireDesCentresJdbc;
 import com.hemodialyse.backend.contexts.organisation.infrastructure.persistence.VerrouDuCentreJdbc;

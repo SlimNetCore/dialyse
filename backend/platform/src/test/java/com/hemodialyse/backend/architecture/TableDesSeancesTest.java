@@ -384,7 +384,7 @@ class TableDesSeancesTest {
 
     @Test
     void les_traducteurs_de_la_facturation_dans_la_plateforme_n_ont_pas_de_sql_sur_les_seances() throws IOException {
-        Path acl = backend().resolve("platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/facturation");
+        Path acl = backend().resolve("contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/acl/facturation");
         try (Stream<Path> fichiers = Files.list(acl)) {
             List<Path> traducteurs = fichiers.filter(p -> p.toString().endsWith(".java")).toList();
             assertThat(traducteurs).as("les 4 traducteurs de SE7c2").hasSize(4);

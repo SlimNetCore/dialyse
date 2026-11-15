@@ -1,9 +1,8 @@
-package com.hemodialyse.backend.infrastructure.acl.facturation;
+package com.hemodialyse.backend.contexts.seance.infrastructure.acl.facturation;
 
 import com.hemodialyse.backend.contexts.facturation.publishedlanguage.SeancesAFacturerFournies;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesAFacturerPubliees;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesAFacturerPubliees.PatientDeLaSeancePublie;
-import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -11,11 +10,10 @@ import java.util.UUID;
 
 /**
  * Fournisseur de la Facturation (ADR 0097, SE7c2, ARGENT) : les séances à facturer du langage publié de la Facturation viennent de
- * {@link SeancesAFacturerPubliees} (seance.v1). Logé dans la plateforme : le module Seance dépend d'Absences-patients, qui dépend de
+ * {@link SeancesAFacturerPubliees} (seance.v1). Hébergé par la Séance (ADR 0191) : le module Seance dépend d'Absences-patients, qui dépend de
  * Facturation (cycle Maven). Traduction champ à champ de deux langages publiés, aucune règle, aucun montant recalculé (le prix imposé est
  * copié à l'identique).
  */
-@Component
 public class SeancesFacturablesParLaSeance implements SeancesAFacturerFournies {
 
     private final SeancesAFacturerPubliees seances;

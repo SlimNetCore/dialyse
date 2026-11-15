@@ -774,4 +774,46 @@ public class SeanceConfiguration {
     com.hemodialyse.backend.contexts.organisation.publishedlanguage.UsageDeLaSalle usageDeLaSalleParLesSeances(JdbcTemplate jdbc) {
         return new com.hemodialyse.backend.contexts.seance.infrastructure.acl.organisation.UsageDeLaSalleParLesSeances(jdbc);
     }
+
+    /** Fournit au Stock le statut facturé d'une séance (SE7c1, ADR 0096 ; hébergé par la Séance, ADR 0191). */
+    @Bean
+    com.hemodialyse.backend.contexts.stock.publishedlanguage.StatutDesSeancesFourni stockStatutDesSeancesFourni(
+            com.hemodialyse.backend.contexts.seance.publishedlanguage.FacturationDesSeancesPubliee seances) {
+        return new com.hemodialyse.backend.contexts.seance.infrastructure.acl.stock.StatutDesSeancesParLaSeance(seances);
+    }
+
+    /** Fournit au Stock le périmètre d'une séance (SE7c1, ADR 0096 ; hébergé par la Séance, ADR 0191). */
+    @Bean
+    com.hemodialyse.backend.contexts.stock.publishedlanguage.PerimetreDesSeancesFourni stockPerimetreDesSeancesFourni(
+            com.hemodialyse.backend.contexts.seance.publishedlanguage.PlacesDesSeancesPubliees places) {
+        return new com.hemodialyse.backend.contexts.seance.infrastructure.acl.stock.PerimetreDesSeancesParLaSeance(places);
+    }
+
+    /** Fournit à la Facturation la liaison séance -> facture (SE7c2, ADR 0097 ; hébergé par la Séance, ADR 0191). */
+    @Bean
+    com.hemodialyse.backend.contexts.facturation.publishedlanguage.LiaisonDesSeancesFournie facturationLiaisonDesSeancesFournie(
+            com.hemodialyse.backend.contexts.seance.publishedlanguage.LiaisonDesSeancesAUneFacturePubliee liaison) {
+        return new com.hemodialyse.backend.contexts.seance.infrastructure.acl.facturation.LiaisonDesSeancesParLaSeance(liaison);
+    }
+
+    /** Fournit à la Facturation l'exclusion, la réinclusion et le forfait imposé des séances (SE7c2, ADR 0097 ; ADR 0191). */
+    @Bean
+    com.hemodialyse.backend.contexts.facturation.publishedlanguage.ExclusionsDeSeancesFournies facturationExclusionsDeSeancesFournies(
+            com.hemodialyse.backend.contexts.seance.publishedlanguage.ExclusionsEtForfaitsDesSeancesPublies seances) {
+        return new com.hemodialyse.backend.contexts.seance.infrastructure.acl.facturation.SeancesDeFacturationParLaSeance(seances);
+    }
+
+    /** Fournit à la Facturation les comptages de séances des factures (SE7c2, ADR 0097 ; ADR 0191). */
+    @Bean
+    com.hemodialyse.backend.contexts.facturation.publishedlanguage.SeancesDesFacturesFournies facturationSeancesDesFacturesFournies(
+            com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesDesFacturesPubliees seances) {
+        return new com.hemodialyse.backend.contexts.seance.infrastructure.acl.facturation.SeancesDesFacturesParLaSeance(seances);
+    }
+
+    /** Fournit à la Facturation les séances à facturer (SE7c2, ADR 0097 ; ADR 0191). */
+    @Bean
+    com.hemodialyse.backend.contexts.facturation.publishedlanguage.SeancesAFacturerFournies facturationSeancesAFacturerFournies(
+            com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesAFacturerPubliees seances) {
+        return new com.hemodialyse.backend.contexts.seance.infrastructure.acl.facturation.SeancesFacturablesParLaSeance(seances);
+    }
 }
