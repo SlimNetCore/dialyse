@@ -134,6 +134,13 @@
             <artifactId>contexts-comptabilite</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!-- Langage publie de Documents : PapierEnTeteDuCentre (ADR 0142, ACL hebergee par le Dossier medical, ADR 0192). Deja sur le
+             classpath par transitivite (contexts-seance) ; Documents ne depend que de l'Organisation et de documents-api : aucun cycle. -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>contexts-documents</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <!-- Export PDF du dossier de greffe (PL2, ADR 0138) : meme bibliotheque et meme version que la plateforme et la Seance. -->
         <dependency>
             <groupId>com.openhtmltopdf</groupId>

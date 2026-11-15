@@ -816,4 +816,27 @@ public class SeanceConfiguration {
             com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesAFacturerPubliees seances) {
         return new com.hemodialyse.backend.contexts.seance.infrastructure.acl.facturation.SeancesFacturablesParLaSeance(seances);
     }
+
+    /** Fournit aux Absences de patients le lien d'exclusion d'une absence (SE7d, ADR 0098 ; hébergé par la Séance, ADR 0192). */
+    @Bean
+    com.hemodialyse.backend.contexts.absencespatients.publishedlanguage.LiensDExclusionFournis absencesLiensDExclusionFournis(
+            com.hemodialyse.backend.contexts.seance.publishedlanguage.LiensDExclusionPublies liens) {
+        return new com.hemodialyse.backend.contexts.seance.infrastructure.acl.absencespatients.LiensDExclusionParLaSeance(liens);
+    }
+
+    /** Fournit aux Absences de patients les séances réalisées (SE7d, ADR 0098 ; hébergé par la Séance, ADR 0192). */
+    @Bean
+    com.hemodialyse.backend.contexts.absencespatients.publishedlanguage.SeancesRealiseesFournies absencesSeancesRealiseesFournies(
+            com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesRealiseesPubliees seances) {
+        return new com.hemodialyse.backend.contexts.seance.infrastructure.acl.absencespatients.SeancesRealiseesParLaSeance(seances);
+    }
+
+    /** Fournit à la Séance ses fiches, composées de Patient et couverture et de la Planification (S5, ADR 0133 ; ADR 0192). */
+    @Bean
+    com.hemodialyse.backend.contexts.seance.publishedlanguage.FichesFournies seanceFichesFournies(
+            com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.FichesDesPatients patients,
+            com.hemodialyse.backend.contexts.planification.publishedlanguage.PlacesDesPatients places) {
+        return new com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture.FichesFourniesParPatientCouverture(
+                patients, places);
+    }
 }

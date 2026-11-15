@@ -1,8 +1,7 @@
-package com.hemodialyse.backend.infrastructure.acl.absences;
+package com.hemodialyse.backend.contexts.seance.infrastructure.acl.absencespatients;
 
 import com.hemodialyse.backend.contexts.absencespatients.publishedlanguage.SeancesRealiseesFournies;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesRealiseesPubliees;
-import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -10,9 +9,8 @@ import java.util.UUID;
 
 /**
  * Fournisseur des Absences de patients (ADR 0098, SE7d) : les séances réalisées passent par {@link SeancesRealiseesPubliees}. Logé dans la
- * plateforme (cycle Maven : la Séance dépend des Absences). Délégation pure, lecture seule, ordre et doublons conservés.
+ * Séance (ADR 0192 : la Séance dépend des Absences, jamais l'inverse). Délégation pure, lecture seule, ordre et doublons conservés.
  */
-@Component
 public class SeancesRealiseesParLaSeance implements SeancesRealiseesFournies {
 
     private final SeancesRealiseesPubliees seances;

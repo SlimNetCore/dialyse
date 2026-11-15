@@ -75,6 +75,16 @@ class ErreursDeLaGmaoAdvice {
     }
 
     /**
+     * Salle à sa capacité maximale (RG-PLN-061, ADR 0192) : 422 au format de la règle métier violée de la plateforme (titre, détail et code
+     * inchangés, verrouillés par les golden masters), la GMAO ne connaissant pas l'exception de la plateforme.
+     */
+    @ExceptionHandler(com.hemodialyse.backend.contexts.gmao.application.equipement.SalleADCapaciteMaximale.class)
+    ProblemDetail salleADCapaciteMaximale(com.hemodialyse.backend.contexts.gmao.application.equipement.SalleADCapaciteMaximale erreur) {
+        return probleme(HttpStatus.UNPROCESSABLE_CONTENT, "Regle metier violee", erreur.getMessage(),
+                com.hemodialyse.backend.contexts.gmao.application.equipement.SalleADCapaciteMaximale.CODE);
+    }
+
+    /**
      * Équipement inconnu à l'établissement d'un plan : 400 avec le code stable {@code EQUIPEMENT_INCONNU} (écart décidé
      * KB-GMAO-14 : le legacy répondait 500 par violation de clé étrangère). 400 comme « Plan non trouvé »
      * sur les commandes (KB-GMAO-16) ; même forme de corps que les autres erreurs 400 du legacy.

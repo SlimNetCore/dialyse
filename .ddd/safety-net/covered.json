@@ -1,6 +1,5 @@
 {
   "covered": [
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/dossiermedical/PapierEnTeteDuCentreParLaPlateforme.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/application/audit/AuditQueryService.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/application/auth/AuthService.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/application/license/LicenseService.java",
@@ -43,7 +42,6 @@
     "backend/platform/src/main/java/com/hemodialyse/backend/application/erreur/BusinessException.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/migration/service/Email.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/migration/service/PhoneNumber.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/gmao/CapaciteDesSallesDePlanification.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/config/MigrationConfig.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/gmao/GmaoEvenementsReformeListener.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/migration/OpeningBalanceJdbcAdapter.java",
@@ -70,10 +68,7 @@
     "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/configuration/FacturationContexteConfiguration.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/config/CacheConfig.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/config/DomainServiceConfig.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/seance/*.java",
     "backend/contexts/absences-patients/src/main/java/com/hemodialyse/backend/contexts/absencespatients/infrastructure/acl/legacyplanning/PatientsAttendusJdbc.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/absences/SeancesRealiseesParLaSeance.java",
-    "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/absences/LiensDExclusionParLaSeance.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/persistence/adapter/migration/HistoricalRecordJdbcAdapter.java",
     "backend/contexts/planification/src/main/java/com/hemodialyse/backend/contexts/planification/infrastructure/acl/legacypatient/ContraintesDesPatientsJdbc.java",
     "backend/platform/src/main/java/com/hemodialyse/backend/infrastructure/websocket/DiffusionEnTempsReelStomp.java",

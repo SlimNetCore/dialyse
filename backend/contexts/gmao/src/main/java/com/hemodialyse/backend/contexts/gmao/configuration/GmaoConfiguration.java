@@ -175,7 +175,13 @@ public class GmaoConfiguration {
 
     // ------------------------------------------------------------------ équipements (parc et cycle de vie)
 
-    /** Le repository est aussi le port des codes du centre (R7). {@code CapaciteDesSalles} est fourni par l'ACL du legacy. */
+    /** La capacité des salles vient du port fourni par la Planification (P9, RG-PLN-061 ; ACL de la GMAO, ADR 0192). */
+    @Bean
+    CapaciteDesSalles gmaoCapaciteDesSalles(com.hemodialyse.backend.contexts.gmao.publishedlanguage.CapaciteDesSallesFournie planification) {
+        return new com.hemodialyse.backend.contexts.gmao.infrastructure.acl.planification.CapaciteDesSallesDeLaPlanification(planification);
+    }
+
+    /** Le repository est aussi le port des codes du centre (R7). */
     @Bean
     EquipementRepositoryJpa gmaoEquipementRepository(EquipementSpringData equipements,
                                                      EquipementStatutHistoriqueSpringData historique) {

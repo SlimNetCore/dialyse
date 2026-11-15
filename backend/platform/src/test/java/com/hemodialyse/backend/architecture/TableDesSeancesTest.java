@@ -406,9 +406,9 @@ class TableDesSeancesTest {
 
     @Test
     void les_traducteurs_des_absences_et_de_la_planification_dans_la_plateforme_n_ont_pas_de_sql_sur_les_seances() {
-        String acl = "platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/";
-        List<Path> traducteurs = List.of(backend().resolve(acl + "absences/SeancesRealiseesParLaSeance.java"),
-                backend().resolve(acl + "absences/LiensDExclusionParLaSeance.java"),
+        String acl = "contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/acl/";
+        List<Path> traducteurs = List.of(backend().resolve(acl + "absencespatients/SeancesRealiseesParLaSeance.java"),
+                backend().resolve(acl + "absencespatients/LiensDExclusionParLaSeance.java"),
                 backend().resolve("contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/acl/planification/"
                         + "SeancesRealiseesAvecLeurPlaceParLaSeance.java"));
         assertThat(traducteurs).as("les 3 traducteurs de SE7d").allMatch(Files::isRegularFile);

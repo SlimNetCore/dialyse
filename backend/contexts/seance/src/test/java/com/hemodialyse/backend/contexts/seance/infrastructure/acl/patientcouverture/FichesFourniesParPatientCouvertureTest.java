@@ -1,4 +1,4 @@
-package com.hemodialyse.backend.infrastructure.acl.seance;
+package com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture;
 
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.FichesDesPatients;
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.PlacesDesPatients;

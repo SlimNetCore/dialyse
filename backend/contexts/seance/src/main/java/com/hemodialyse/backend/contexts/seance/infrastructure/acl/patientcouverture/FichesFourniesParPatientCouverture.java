@@ -1,9 +1,8 @@
-package com.hemodialyse.backend.infrastructure.acl.seance;
+package com.hemodialyse.backend.contexts.seance.infrastructure.acl.patientcouverture;
 
 import com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.FichesDesPatients;
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.PlacesDesPatients;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.FichesFournies;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,7 +16,6 @@ import java.util.UUID;
  * <p>Le nom, la marque et l'état du générateur ne sont pas fournis ici : ils ne l'ont jamais été (nuls), la Séance les précise par la
  * GMAO ({@code Generateurs.preciser}).
  */
-@Component
 public class FichesFourniesParPatientCouverture implements FichesFournies {
 
     private final FichesDesPatients patients;

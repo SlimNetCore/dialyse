@@ -647,6 +647,14 @@ public class PlanificationConfiguration {
         return new com.hemodialyse.backend.contexts.planification.application.ControlerLaCapaciteDeLaSalle(salles);
     }
 
+    /** Fournit à la GMAO la capacité des salles (P9, RG-PLN-061 ; hébergé par la Planification, ADR 0192). */
+    @Bean
+    com.hemodialyse.backend.contexts.gmao.publishedlanguage.CapaciteDesSallesFournie gmaoCapaciteDesSallesFournie(
+            com.hemodialyse.backend.contexts.planification.publishedlanguage.CapaciteDesSalles capacites) {
+        return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.gmao.CapaciteDesSallesFournieParLaPlanification(
+                capacites);
+    }
+
     // ACL sortantes vers notifications.v1 (PL13c, ADR 0155) : le catalogue des messages est dans la Planification.
 
     @Bean

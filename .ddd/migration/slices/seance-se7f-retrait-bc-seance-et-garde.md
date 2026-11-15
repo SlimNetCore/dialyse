@@ -40,7 +40,7 @@ Refactoring sur place (ADR 0024) : mêmes tables, mêmes URL, mêmes rôles, auc
 | Codes HTTP du volet | Advice dédié `ErreursDuVoletParamedicalAdvice` : 403 avant 400, 400, 409, 422 ; les corps illisibles restent en 500 `INTERNAL_ERROR` | parité stricte avec les goldens DM1 `erreurs` et `autres_mesures` (`ErreursDeSeanceAdvice` les passerait en 400 : écart non décidé) |
 | KB-SEA-93 | Écriture validée puis fiche relue (unité de travail propre, diffusions après) | reproduit, décision métier à venir |
 | 45 champs non persistés (sur 60, 15 persistés) | Non repris ; nommés dans l'ADR 0100 (décision 4, compte vérifié le 2026-11-09 : corps HTTP 11 champs, 15 colonnes écrites par `VoletsParamedicauxJdbc`) ; contrat HTTP inchangé | aucune saisie perdue (ni écran, ni colonne) |
-| Fournisseurs restants | 4 dans la plateforme (fiches, diffusions, rappels, administrations), nommés (résidu F-R1) | `bc-patient` et le centre de notifications n'ont pas de langage publié ; le Dossier médical dépend de la Séance (cycle) |
+| Fournisseurs restants | 4 dans la plateforme (fiches, diffusions, rappels, administrations) ; résidu F-R1 SOLDÉ le 2026-11-15 (ADR 0192 : plus aucun fournisseur en plateforme, `FichesFournies` hébergé par la Séance), entrée supprimée sans report | `bc-patient` et le centre de notifications n'ont pas de langage publié ; le Dossier médical dépend de la Séance (cycle) |
 | Schéma H2 | `db/schema.sql` crée les 4 tables que les entités JPA retirées généraient | comme P1 pour `planning_parametres` ; production inchangée (Flyway) |
 | Maven | `contexts/seance` dépend de `contexts/planification` (`PlacesDesPatients`) | aucun cycle (`FrontieresDesContextesTest.la_planification_ne_depend_pas_de_la_seance`) |
 
@@ -75,7 +75,6 @@ Lancée le 2026-11-09 à 00 h 02 UTC (`-pl platform -Dtest=SeanceScanIntegration
 ## Résidus nominatifs (revue ≤ 2026-12-15 ET butoir propre)
 | # | Résidu | Revue | Butoir |
 |---|---|---|---|
-| F-R1 | 4 fournisseurs de `seance.v1` dans la plateforme : `FichesFournieLegacy` (fiche complète, code, numéro d'assurance par `bc-patient`), `DiffusionsFournieesLegacy`, `RappelsFournisLegacy` (notifications), `SaisiesDeSeanceFourniesLegacy` (administrations, `bc-medical`) | 2026-12-15 | 2027-03-31 |
 | F-R2 | Lectures transitoires de la Séance : `patients`, `prise_en_charge`, `forfait`, `gmao_equipements`, `deplacement_temporaire`, `centers` (inscrites dans les gardes des contextes propriétaires) | 2026-12-15 | 2027-03-31 |
 | F-R3 | KB-SEA-93, 94, 95, 96 reproduits (métier, médecins, DPO) ; §65.1 à exécuter sur une copie AVANT bascule | 2026-12-15 | 2027-03-31 |
 | F-R4 | `MigrationRollbackJdbcAdapter` lit les volets (E-R6, inscrit) ; `HistoricalRecordJdbcAdapter` n'écrit aucun volet : son descripteur `TABLES` écrit `resultats_analyses` (inscrit dans `TableDesAnalysesTest`) ; aucun écrivain de volets hors Séance ; seul reste non détecté par construction un nom de table composé hors des formes de `NomsDeTableCalcules` (E-R7). Corrigé le 2026-11-09 (revue m2) | 2026-12-15 | 2027-03-31 |

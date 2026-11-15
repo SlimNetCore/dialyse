@@ -59,7 +59,6 @@ Rejeu PostgreSQL 16 `dossier-medical-dm9-pg16-rejeu.sh 55551` (cluster jetable, 
 ## Résidus nominatifs (revue ≤ 2026-12-15 ET butoir propre)
 | # | Résidu | Revue | Butoir |
 |---|---|---|---|
-| M-R1 | Deux ACL de notification dans la plateforme : `infrastructure/acl/dossiermedical/NotificationsDeLAnemieLegacy`, `SignalementDesPrescriptionsLegacy` (le centre de notifications n'a pas de langage publié) | 2026-12-15 | 2027-03-31 |
 | M-R2 | Lecteurs des tables du Dossier médical hors contexte, inscrits dans `TableDuDossierMedicalTest` (10) : `HistoricalRecordJdbcAdapter`, `MigrationRollbackJdbcAdapter`, `ReferentialAdminTables` (comptage des prescriptions d'un médecin), `cahier_dialyse.jrxml`, `ordonnance.jrxml`, `StatistiquesDesSeancesJdbc` (Séance, poids sec : à remplacer par `StatistiquesMedicalesPubliees.poidsSecCibleEnVigueur`), `schema.sql`, `seed.sql`, `renadial-seed.sql`, `renadial-purge.sql` | 2026-12-15 | 2027-03-31 / 2027-06-30 |
 | M-R3 | KB-MED-106 (RISQUE CLINIQUE), 107, 108, 109, 104 (DPO), 100, 94 reproduits ; valeurs KDIGO non validées | 2026-12-15 | 2027-03-31 |
 | M-R4 | KB-MED-110 : écarts assumés `pdf_ligne_illisible_nouveau_code` (étape illisible ignorée, bilan illisible 422) et `serologie_et_antecedent_illisibles_nouveau_code` (sérologie ou antécédent illisible ignoré, 200) à confirmer par les métiers / médecins | 2026-12-15 | 2027-03-31 |

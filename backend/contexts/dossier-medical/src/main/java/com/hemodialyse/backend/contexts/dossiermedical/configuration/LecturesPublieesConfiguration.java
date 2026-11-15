@@ -120,4 +120,11 @@ public class LecturesPublieesConfiguration {
                                                                   EnregistrerLeDossierMedicalDeBase enregistrer) {
         return new DossierMedicalDeBaseControleur(consulter, enregistrer);
     }
+
+    /** Le papier en-tête du Dossier médical vient du langage publié de Documents (DOC1, ADR 0142 ; hébergé par le Dossier médical, ADR 0192). */
+    @Bean
+    PapierEnTeteDuCentre dossierMedicalPapierEnTeteDuCentre(
+            com.hemodialyse.backend.contexts.documents.publishedlanguage.PapierEnTeteDuCentre papier) {
+        return new com.hemodialyse.backend.contexts.dossiermedical.infrastructure.acl.documents.PapierEnTeteDuCentreParDocuments(papier);
+    }
 }

@@ -1,4 +1,4 @@
-package com.hemodialyse.backend.infrastructure.acl.absences;
+package com.hemodialyse.backend.contexts.seance.infrastructure.acl.absencespatients;
 
 import com.hemodialyse.backend.contexts.absencespatients.publishedlanguage.SeancesRealiseesFournies.JourRealiseFourni;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesRealiseesPubliees;
