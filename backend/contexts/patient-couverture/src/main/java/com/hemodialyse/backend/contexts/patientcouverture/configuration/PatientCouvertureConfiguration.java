@@ -537,4 +537,28 @@ public class PatientCouvertureConfiguration {
         return new com.hemodialyse.backend.contexts.patientcouverture.interfaces.publie.RegleDImpressionDeLaListeDesPrisesEnCharge(
                 new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.ListeDesPrisesEnChargeAImprimerJdbc(jdbc));
     }
+
+    /** DOC5h (ADR 0200) : le nom du centre imprimé en titre de l'attestation et de la prise en charge vient de l'annuaire d'Organisation. */
+    @Bean
+    com.hemodialyse.backend.contexts.patientcouverture.application.NomsDesCentres nomsDesCentresDesDocuments(AnnuaireDesCentres annuaire) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.acl.organisation.NomsDesCentresPublies(annuaire);
+    }
+
+    /** DOC5h (ADR 0200) : l'attestation d'ouverture de droit imprimée est un jeu de données fourni par Patient et couverture. */
+    @Bean
+    com.hemodialyse.backend.contexts.documents.publishedlanguage.RegleDImpressionDUnType patientCouvertureRegleDImpressionDeLAttestation(
+            JdbcTemplate jdbc, com.hemodialyse.backend.contexts.patientcouverture.application.NomsDesCentres noms) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.interfaces.publie.RegleDImpressionDeLAttestation(
+                new com.hemodialyse.backend.contexts.patientcouverture.application.ComposerLAttestationImprimee(
+                        new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.AttestationAImprimerJdbc(jdbc), noms));
+    }
+
+    /** DOC5h (ADR 0200) : la prise en charge imprimée est un jeu de données fourni par Patient et couverture. */
+    @Bean
+    com.hemodialyse.backend.contexts.documents.publishedlanguage.RegleDImpressionDUnType patientCouvertureRegleDImpressionDeLaPriseEnCharge(
+            JdbcTemplate jdbc, com.hemodialyse.backend.contexts.patientcouverture.application.NomsDesCentres noms) {
+        return new com.hemodialyse.backend.contexts.patientcouverture.interfaces.publie.RegleDImpressionDeLaPriseEnCharge(
+                new com.hemodialyse.backend.contexts.patientcouverture.application.ComposerLaPriseEnChargeImprimee(
+                        new com.hemodialyse.backend.contexts.patientcouverture.infrastructure.persistence.PriseEnChargeAImprimerJdbc(jdbc), noms));
+    }
 }

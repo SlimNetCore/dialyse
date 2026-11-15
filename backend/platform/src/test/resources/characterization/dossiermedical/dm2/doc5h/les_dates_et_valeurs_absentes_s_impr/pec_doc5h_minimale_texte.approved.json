@@ -1,0 +1,26 @@
+{
+  "par type, patient aux valeurs vides" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "Centre P2 A", "Centre P2 A", "PRISE EN CHARGE", "  Informations du patient", "Nom : N° Assurance :", "  Demande de l'établissement", "Date début : <D+4> 00:00 Date fin :", "Statut :", "  Accord de la caisse d'assurance", "Date début eff. : Date fin eff. : <D+44> 00:00", "Imprimé le <HORODATAGE_IMPRESSION>", "Centre P2 A" ]
+  },
+  "par type, patient dont une prise en charge n'a pas de fin" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "Centre P2 A", "Centre P2 A", "PRISE EN CHARGE", "  Informations du patient", "Nom : Nu Sans N° Assurance :", "  Demande de l'établissement", "Date début : <D+8> 00:00 Date fin : <D+80> 00:00", "Statut : AVEC_FIN", "  Accord de la caisse d'assurance", "Date début eff. : Date fin eff. :", "Imprimé le <HORODATAGE_IMPRESSION>", "Centre P2 A" ]
+  },
+  "par type, patient sans etat civil ni date" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "Centre P2 A", "Centre P2 A", "PRISE EN CHARGE", "  Informations du patient", "Nom : Nu Sans N° Assurance :", "  Demande de l'établissement", "Date début : Date fin :", "Statut : BROUILLON", "  Accord de la caisse d'assurance", "Date début eff. : Date fin eff. :", "Imprimé le <HORODATAGE_IMPRESSION>", "Centre P2 A" ]
+  },
+  "par type, sans date de fin" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "Centre P2 A", "Centre P2 A", "PRISE EN CHARGE", "  Informations du patient", "Nom : Nu Sans N° Assurance :", "  Demande de l'établissement", "Date début : <D+7> 00:00 Date fin :", "Statut : SANS_FIN", "  Accord de la caisse d'assurance", "Date début eff. : Date fin eff. :", "Imprimé le <HORODATAGE_IMPRESSION>", "Centre P2 A" ]
+  }
+}

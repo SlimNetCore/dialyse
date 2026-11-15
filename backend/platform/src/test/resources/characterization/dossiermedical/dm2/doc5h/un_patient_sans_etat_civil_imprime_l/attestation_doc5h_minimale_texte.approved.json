@@ -1,0 +1,14 @@
+{
+  "par type, patient aux valeurs vides" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "Centre P2 A", "Centre P2 A", "ATTESTATION D'OUVERTURE DE DROIT", "N° Sécurité sociale :", "Nom : Prénom :", "Date naissance :", "  Période de validité", "Date début : <D+4> 00:00 Date fin : <D+44> 00:00", "Imprimé le <HORODATAGE_IMPRESSION>", "Centre P2 A" ]
+  },
+  "par type, patient sans etat civil" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "Centre P2 A", "Centre P2 A", "ATTESTATION D'OUVERTURE DE DROIT", "N° Sécurité sociale :", "Nom : Nu Prénom : Sans", "Date naissance :", "  Période de validité", "Date début : <D+3> 00:00 Date fin : <D+33> 00:00", "Imprimé le <HORODATAGE_IMPRESSION>", "Centre P2 A" ]
+  }
+}

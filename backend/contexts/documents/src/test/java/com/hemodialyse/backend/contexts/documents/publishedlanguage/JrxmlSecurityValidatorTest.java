@@ -55,10 +55,37 @@ class JrxmlSecurityValidatorTest {
         assertThat(validator.validate(candidate, reference)).isEmpty();
     }
 
+    /** Le gabarit de la fiche du patient (SQL embarqué, pas encore converti) sert de référence à la requête modifiée. */
     @Test
     void laRequeteSqlModifieeEstRefusee() throws IOException {
+        String reference = load("fiche_patient.jrxml");
+        assertThat(reference).contains("<queryString>");
+        String candidate = reference.replace("FROM patients", "FROM patients WHERE 1 = 1");
+        assertThat(candidate).isNotEqualTo(reference);
+        assertThat(codes(validator.validate(candidate, reference))).contains("QUERY_MODIFIED");
+    }
+
+    /** DOC5h (ADR 0200, KB-DOC5H-1) : l'attestation livrée n'a plus de requête ; un téléversement qui porte l'ancienne est refusé. */
+    @Test
+    void uneAttestationQuiPorteEncoreL_ancienneRequeteEstRefusee() throws IOException {
         String reference = load("attestation.jrxml");
-        String candidate = reference.replace("ORDER BY a.date_fin DESC", "ORDER BY a.date_fin ASC");
+        assertThat(reference).doesNotContain("queryString");
+        String ancienne = "<queryString><![CDATA[SELECT p.nom, a.date_fin FROM attestation_droit a JOIN patients p ON p.id = a.patient_id "
+                + "WHERE a.center_id = CAST($P{CENTER_ID} AS UUID) ORDER BY a.date_fin DESC LIMIT 1]]></queryString>";
+        String candidate = reference.replace("<field name=\"NOM\"", ancienne + "<field name=\"NOM\"");
+        assertThat(candidate).isNotEqualTo(reference);
+        assertThat(codes(validator.validate(candidate, reference))).contains("QUERY_MODIFIED");
+    }
+
+    /** DOC5h (ADR 0200, KB-DOC5H-1) : la prise en charge livrée n'a plus de requête ; un téléversement qui porte l'ancienne est refusé. */
+    @Test
+    void unePriseEnChargeQuiPorteEncoreL_ancienneRequeteEstRefusee() throws IOException {
+        String reference = load("prise_en_charge.jrxml");
+        assertThat(reference).doesNotContain("queryString");
+        String ancienne = "<queryString><![CDATA[SELECT p.nom, pc.statut FROM prise_en_charge pc JOIN patients p ON p.id = pc.patient_id "
+                + "WHERE pc.center_id = CAST($P{CENTER_ID} AS UUID) ORDER BY pc.date_fin_demande DESC LIMIT 1]]></queryString>";
+        String candidate = reference.replace("<field name=\"NOM\"", ancienne + "<field name=\"NOM\"");
+        assertThat(candidate).isNotEqualTo(reference);
         assertThat(codes(validator.validate(candidate, reference))).contains("QUERY_MODIFIED");
     }
 
@@ -148,7 +175,7 @@ class JrxmlSecurityValidatorTest {
 
     @Test
     void uneRequeteSurUneAutreTableEstRefusee() throws IOException {
-        String reference = load("attestation.jrxml");
+        String reference = load("fiche_patient.jrxml");
         int start = reference.indexOf("<![CDATA[");
         int end = reference.indexOf("]]>") + 3;
         String candidate = reference.substring(0, start)

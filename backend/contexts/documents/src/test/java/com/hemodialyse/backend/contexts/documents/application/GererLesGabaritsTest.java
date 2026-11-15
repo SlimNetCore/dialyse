@@ -101,7 +101,9 @@ class GererLesGabaritsTest {
 
     @Test
     void should_never_weaken_the_security_whitelist_a_forbidden_expression_and_a_changed_query_are_refused() {
-        String requete = original.replace("ORDER BY a.date_fin DESC", "UNION SELECT username, password_hash FROM app_user");
+        // DOC5h (ADR 0200) : l'attestation livrée n'a plus de requête ; une requête ajoutée est refusée.
+        String requete = original.replace("<field name=\"NOM\"",
+                "<queryString><![CDATA[SELECT username, password_hash FROM app_user]]></queryString><field name=\"NOM\"");
         String code = original.replaceFirst("(?s)<textFieldExpression>.*?</textFieldExpression>",
                 "<textFieldExpression><![CDATA[Runtime.getRuntime().exec(\"calc\")]]></textFieldExpression>");
 

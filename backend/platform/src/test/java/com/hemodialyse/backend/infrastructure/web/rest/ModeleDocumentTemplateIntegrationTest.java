@@ -133,8 +133,9 @@ class ModeleDocumentTemplateIntegrationTest {
 
     @Test
     void a_template_that_changes_the_sql_query_is_rejected_and_not_stored() throws Exception {
-        String malicious = original().replace("ORDER BY a.date_fin DESC",
-                "UNION SELECT username, password_hash, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL FROM app_user");
+        // DOC5h (ADR 0200) : l'attestation livrée n'a plus de requête ; le fichier déposé en porte une (toujours refusé).
+        String malicious = original().replace("<field name=\"NOM\"",
+                "<queryString><![CDATA[SELECT username, password_hash FROM app_user]]></queryString><field name=\"NOM\"");
         mockMvc.perform(multipart("/api/v1/documents/modeles/{id}/versions", MODELE_ID)
                         .file(new MockMultipartFile("file", "x.jrxml", "application/xml",
                                 malicious.getBytes(StandardCharsets.UTF_8)))

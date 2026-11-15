@@ -180,6 +180,18 @@ class DocumentIdentityIntegrationTest {
                 params.put("patientId", patientId);
                 params.put("attestationId", "");
                 params.putAll(identity.parametresDeLEnTete(CENTRE));
+                if (template.equals("attestation")) {
+                    // DOC5h (ADR 0200) : le gabarit n'embarque plus de requête, la ligne de l'attestation est fournie (comme par le moteur).
+                    Map<String, Object> ligne = new HashMap<>();
+                    ligne.put("NOM", "DURAND");
+                    ligne.put("PRENOM", "Amel");
+                    ligne.put("NUMERO_ASSURANCE", "ASS-ZT-1");
+                    ligne.put("DATE_DEBUT", java.sql.Date.valueOf("2026-01-01"));
+                    ligne.put("DATE_FIN", java.sql.Date.valueOf("2027-01-01"));
+                    ligne.put("CENTER_NAME", "Centre d'identité");
+                    params.put(net.sf.jasperreports.engine.JRParameter.REPORT_DATA_SOURCE,
+                            new net.sf.jasperreports.engine.data.JRMapCollectionDataSource(List.<Map<String, ?>>of(ligne)));
+                }
 
                 JasperPrint print = jasper.fillReport(jasper.compileReport("reports/" + template + ".jrxml"), params);
                 assertFalse(print.getPages().isEmpty(), template + " : aucune page générée");

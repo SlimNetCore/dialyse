@@ -1,0 +1,50 @@
+{
+  "par modele, identifiant vide et patient" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "Centre P2 A", "Centre P2 A", "PRISE EN CHARGE", "  Informations du patient", "Nom : Éléonore-Dupré Zoé-Émilie N° Assurance : 1 61 03 75 123 456 78", "  Demande de l'établissement", "Date début : <D+101> 00:00 Date fin : <D+400> 00:00", "Statut : EN_ATTENTE", "  Accord de la caisse d'assurance", "Date début eff. : Date fin eff. :", "Imprimé le <HORODATAGE_IMPRESSION>", "Centre P2 A" ]
+  },
+  "par modele, patient : la plus recente" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "Centre P2 A", "Centre P2 A", "PRISE EN CHARGE", "  Informations du patient", "Nom : Éléonore-Dupré Zoé-Émilie N° Assurance : 1 61 03 75 123 456 78", "  Demande de l'établissement", "Date début : <D+101> 00:00 Date fin : <D+400> 00:00", "Statut : EN_ATTENTE", "  Accord de la caisse d'assurance", "Date début eff. : Date fin eff. :", "Imprimé le <HORODATAGE_IMPRESSION>", "Centre P2 A" ]
+  },
+  "par modele, prise en charge recente" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "Centre P2 A", "Centre P2 A", "PRISE EN CHARGE", "  Informations du patient", "Nom : Éléonore-Dupré Zoé-Émilie N° Assurance : 1 61 03 75 123 456 78", "  Demande de l'établissement", "Date début : <D+101> 00:00 Date fin : <D+400> 00:00", "Statut : EN_ATTENTE", "  Accord de la caisse d'assurance", "Date début eff. : Date fin eff. :", "Imprimé le <HORODATAGE_IMPRESSION>", "Centre P2 A" ]
+  },
+  "par type, les deux identifiants : la prise en charge l'emporte" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "Centre P2 A", "Centre P2 A", "PRISE EN CHARGE", "  Informations du patient", "Nom : Autre Patient N° Assurance : ASS-AUTRE", "  Demande de l'établissement", "Date début : <D+1> 00:00 Date fin : <D+900> 00:00", "Statut : REFUSEE", "  Accord de la caisse d'assurance", "Date début eff. : Date fin eff. :", "Imprimé le <HORODATAGE_IMPRESSION>", "Centre P2 A" ]
+  },
+  "par type, patient : la plus recente" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "Centre P2 A", "Centre P2 A", "PRISE EN CHARGE", "  Informations du patient", "Nom : Éléonore-Dupré Zoé-Émilie N° Assurance : 1 61 03 75 123 456 78", "  Demande de l'établissement", "Date début : <D+101> 00:00 Date fin : <D+400> 00:00", "Statut : EN_ATTENTE", "  Accord de la caisse d'assurance", "Date début eff. : Date fin eff. :", "Imprimé le <HORODATAGE_IMPRESSION>", "Centre P2 A" ]
+  },
+  "par type, prise en charge ancienne" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "Centre P2 A", "Centre P2 A", "PRISE EN CHARGE", "  Informations du patient", "Nom : Éléonore-Dupré Zoé-Émilie N° Assurance : 1 61 03 75 123 456 78", "  Demande de l'établissement", "Date début : <D+1> 00:00 Date fin : <D+100> 00:00", "Statut : VALIDEE", "  Accord de la caisse d'assurance", "Date début eff. : <D+2> 00:00 Date fin eff. : <D+90> 00:00", "Imprimé le <HORODATAGE_IMPRESSION>", "Centre P2 A" ]
+  },
+  "par type, prise en charge du milieu" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "Centre P2 A", "Centre P2 A", "PRISE EN CHARGE", "  Informations du patient", "Nom : Éléonore-Dupré Zoé-Émilie N° Assurance : 1 61 03 75 123 456 78", "  Demande de l'établissement", "Date début : <D+50> 00:00 Date fin : <D+250> 00:00", "Statut : validée à la main", "  Accord de la caisse d'assurance", "Date début eff. : <D+51> 00:00 Date fin eff. : <D+249> 00:00", "Imprimé le <HORODATAGE_IMPRESSION>", "Centre P2 A" ]
+  },
+  "par type, prise en charge inconnue et patient : pas de repli" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "" ]
+  }
+}

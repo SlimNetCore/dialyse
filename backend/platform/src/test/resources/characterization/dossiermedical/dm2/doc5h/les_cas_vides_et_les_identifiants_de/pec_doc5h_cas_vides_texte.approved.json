@@ -1,0 +1,81 @@
+{
+  "par modele : aucun identifiant" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "" ]
+  },
+  "par modele : identifiant vide et patient illisible" : {
+    "contentType" : "text/plain",
+    "statut" : 500,
+    "texte" : "Erreur: Error executing SQL statement for: prise_en_charge."
+  },
+  "par modele : identifiants vides" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "" ]
+  },
+  "par modele : patient d'un autre centre" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "" ]
+  },
+  "par modele : patient illisible" : {
+    "contentType" : "text/plain",
+    "statut" : 500,
+    "texte" : "Erreur: Error executing SQL statement for: prise_en_charge."
+  },
+  "par modele : prise en charge connue et patient illisible" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "" ]
+  },
+  "par modele : prise en charge illisible" : {
+    "contentType" : "text/plain",
+    "statut" : 500,
+    "texte" : "Erreur: Error executing SQL statement for: prise_en_charge."
+  },
+  "par type, aucun identifiant" : {
+    "contentType" : "text/plain",
+    "statut" : 400,
+    "texte" : "patientId ou pecId est obligatoire pour PEC"
+  },
+  "par type, identifiant illisible" : {
+    "contentType" : "text/plain",
+    "statut" : 400,
+    "texte" : "pecId illisible : un identifiant est attendu"
+  },
+  "par type, patient du centre B demande pour le centre A" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "" ]
+  },
+  "par type, patient inconnu" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "" ]
+  },
+  "par type, prise en charge dont le patient est d'un autre centre" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "" ]
+  },
+  "par type, prise en charge du centre B demandee pour le centre A" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "" ]
+  },
+  "par type, prise en charge inconnue" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "" ]
+  }
+}

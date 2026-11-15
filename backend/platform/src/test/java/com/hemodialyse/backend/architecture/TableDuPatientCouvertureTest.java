@@ -319,6 +319,21 @@ class TableDuPatientCouvertureTest {
         }
     }
 
+    /**
+     * DOC5h (ADR 0200) : l'attestation et la prise en charge imprimées ne lisent plus aucune table dans le gabarit (sans requête) ; Patient et
+     * couverture en fournit la ligne (le nom du centre vient de l'annuaire d'Organisation). Aucune entrée de garde ne les concernait : rien à
+     * retirer, aucun report.
+     */
+    @Test
+    void l_attestation_et_la_prise_en_charge_imprimees_n_embarquent_plus_de_requete() throws IOException {
+        for (String nom : List.of("attestation", "prise_en_charge")) {
+            String xml = Files.readString(backend().resolve("contexts/documents/src/main/resources/reports/" + nom + ".jrxml"));
+            assertThat(xml).as(nom).doesNotContain("queryString");
+            assertThat(LECTURE_SQL.matcher(xml).results().map(m -> m.group(2).toLowerCase()))
+                    .as(nom).noneMatch(TABLES_DU_PATIENT_COUVERTURE::contains);
+        }
+    }
+
     @Test
     void la_garde_detecte_une_lecture_directe_meme_sur_deux_lignes_et_ignore_les_autres_tables() throws IOException {
         Path bac = Files.createTempDirectory("garde-patient-couverture-pc5");

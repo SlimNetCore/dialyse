@@ -1,0 +1,81 @@
+{
+  "par modele : attestation connue et patient illisible" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "" ]
+  },
+  "par modele : attestation illisible" : {
+    "contentType" : "text/plain",
+    "statut" : 500,
+    "texte" : "Erreur: Error executing SQL statement for: attestation."
+  },
+  "par modele : attestation illisible mais vide cote patient" : {
+    "contentType" : "text/plain",
+    "statut" : 500,
+    "texte" : "Erreur: Error executing SQL statement for: attestation."
+  },
+  "par modele : aucun identifiant" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "" ]
+  },
+  "par modele : identifiants vides" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "" ]
+  },
+  "par modele : patient d'un autre centre" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "" ]
+  },
+  "par modele : patient illisible" : {
+    "contentType" : "text/plain",
+    "statut" : 500,
+    "texte" : "Erreur: Error executing SQL statement for: attestation."
+  },
+  "par type, attestation dont le patient est d'un autre centre" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "" ]
+  },
+  "par type, attestation du centre B demandee pour le centre A" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "" ]
+  },
+  "par type, attestation inconnue" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "" ]
+  },
+  "par type, aucun identifiant" : {
+    "contentType" : "text/plain",
+    "statut" : 400,
+    "texte" : "patientId ou attestationId est obligatoire pour ATTESTATION"
+  },
+  "par type, identifiant illisible" : {
+    "contentType" : "text/plain",
+    "statut" : 400,
+    "texte" : "attestationId illisible : un identifiant est attendu"
+  },
+  "par type, patient du centre B demande pour le centre A" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "" ]
+  },
+  "par type, patient inconnu" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "" ]
+  }
+}

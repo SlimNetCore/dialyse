@@ -1,0 +1,50 @@
+{
+  "par modele, attestation recente" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "Centre P2 A", "Centre P2 A", "ATTESTATION D'OUVERTURE DE DROIT", "N° Sécurité sociale : 1 61 03 75 123 456 78", "Nom : Éléonore-Dupré Prénom : Zoé-Émilie", "Date naissance : <D-9000> 00:00", "  Période de validité", "Date début : <D+101> 00:00 Date fin : <D+400> 00:00", "Imprimé le <HORODATAGE_IMPRESSION>", "Centre P2 A" ]
+  },
+  "par modele, attestation vide et patient" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "Centre P2 A", "Centre P2 A", "ATTESTATION D'OUVERTURE DE DROIT", "N° Sécurité sociale : 1 61 03 75 123 456 78", "Nom : Éléonore-Dupré Prénom : Zoé-Émilie", "Date naissance : <D-9000> 00:00", "  Période de validité", "Date début : <D+101> 00:00 Date fin : <D+400> 00:00", "Imprimé le <HORODATAGE_IMPRESSION>", "Centre P2 A" ]
+  },
+  "par modele, patient : la plus recente" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "Centre P2 A", "Centre P2 A", "ATTESTATION D'OUVERTURE DE DROIT", "N° Sécurité sociale : 1 61 03 75 123 456 78", "Nom : Éléonore-Dupré Prénom : Zoé-Émilie", "Date naissance : <D-9000> 00:00", "  Période de validité", "Date début : <D+101> 00:00 Date fin : <D+400> 00:00", "Imprimé le <HORODATAGE_IMPRESSION>", "Centre P2 A" ]
+  },
+  "par type, attestation ancienne" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "Centre P2 A", "Centre P2 A", "ATTESTATION D'OUVERTURE DE DROIT", "N° Sécurité sociale : 1 61 03 75 123 456 78", "Nom : Éléonore-Dupré Prénom : Zoé-Émilie", "Date naissance : <D-9000> 00:00", "  Période de validité", "Date début : <D+1> 00:00 Date fin : <D+100> 00:00", "Imprimé le <HORODATAGE_IMPRESSION>", "Centre P2 A" ]
+  },
+  "par type, attestation du milieu" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "Centre P2 A", "Centre P2 A", "ATTESTATION D'OUVERTURE DE DROIT", "N° Sécurité sociale : 1 61 03 75 123 456 78", "Nom : Éléonore-Dupré Prénom : Zoé-Émilie", "Date naissance : <D-9000> 00:00", "  Période de validité", "Date début : <D+50> 00:00 Date fin : <D+250> 00:00", "Imprimé le <HORODATAGE_IMPRESSION>", "Centre P2 A" ]
+  },
+  "par type, attestation inconnue et patient : pas de repli" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "" ]
+  },
+  "par type, les deux identifiants : l'attestation l'emporte" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "Centre P2 A", "Centre P2 A", "ATTESTATION D'OUVERTURE DE DROIT", "N° Sécurité sociale : ASS-AUTRE", "Nom : Autre Prénom : Patient", "Date naissance : <D-8000> 00:00", "  Période de validité", "Date début : <D+1> 00:00 Date fin : <D+900> 00:00", "Imprimé le <HORODATAGE_IMPRESSION>", "Centre P2 A" ]
+  },
+  "par type, patient : la plus recente" : {
+    "contentType" : "application/pdf",
+    "pages" : 1,
+    "statut" : 200,
+    "texte" : [ "Centre P2 A", "Centre P2 A", "ATTESTATION D'OUVERTURE DE DROIT", "N° Sécurité sociale : 1 61 03 75 123 456 78", "Nom : Éléonore-Dupré Prénom : Zoé-Émilie", "Date naissance : <D-9000> 00:00", "  Période de validité", "Date début : <D+101> 00:00 Date fin : <D+400> 00:00", "Imprimé le <HORODATAGE_IMPRESSION>", "Centre P2 A" ]
+  }
+}

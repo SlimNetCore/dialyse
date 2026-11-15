@@ -27,26 +27,6 @@
     <parameter name="CENTRE_CONTACT" class="java.lang.String"/>
     <parameter name="CENTRE_LIGNE" class="java.lang.String"/>
 
-    <queryString>
-        <![CDATA[
-        SELECT p.nom, p.prenom, p.numero_assurance, p.date_naissance,
-               pc.date_debut_demande, pc.date_fin_demande, pc.statut,
-               pc.date_debut_effectif, pc.date_fin_effectif,
-               c.name AS center_name
-        FROM prise_en_charge pc
-        JOIN patients p ON p.id = pc.patient_id AND p.center_id = pc.center_id
-        JOIN centers c ON c.id = pc.center_id
-        WHERE pc.center_id = CAST($P{CENTER_ID} AS UUID)
-          AND (
-                (NULLIF($P{pecId}, '') IS NOT NULL AND pc.id = CAST($P{pecId} AS UUID))
-                OR
-                (NULLIF($P{pecId}, '') IS NULL AND NULLIF($P{patientId}, '') IS NOT NULL AND pc.patient_id = CAST($P{patientId} AS UUID))
-              )
-        ORDER BY pc.date_fin_demande DESC
-        LIMIT 1
-        ]]>
-    </queryString>
-
     <field name="NOM" class="java.lang.String"/>
     <field name="PRENOM" class="java.lang.String"/>
     <field name="NUMERO_ASSURANCE" class="java.lang.String"/>
