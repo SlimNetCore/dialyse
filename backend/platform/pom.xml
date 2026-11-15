@@ -12,6 +12,13 @@
     <name>platform</name>
     <description>Hemodialyse platform - application + infrastructure + bootstrap</description>
     <dependencies>
+        <!-- Jeux de données de démonstration (SEED2, ADR 0189) : scripts SQL seulement, rejoués hors production (sql.init.mode). -->
+        <dependency>
+            <groupId>com.hemodialyse</groupId>
+            <artifactId>demo-data</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>runtime</scope>
+        </dependency>
         <dependency>
             <groupId>com.hemodialyse</groupId>
             <artifactId>contexts-gmao</artifactId>

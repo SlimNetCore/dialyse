@@ -318,7 +318,7 @@ Un agent qui génère un nouvel endpoint de liste sans paramètre de pagination,
 - Le code (requêtes, migrations, types de colonnes) doit rester **compatible avec les deux** : éviter les fonctions
   spécifiques à un seul moteur.
 - `db/schema.sql` — DDL pour les tables sans `@Entity` JPA (tables référentielles).
-- `db/seed.sql` — Données de démo, toujours exécuté en dev (`spring.sql.init.mode: always`). Réparti par contexte propriétaire (SEED2, ADR 0188) : `contexts/<ctx>/src/main/resources/db/h2/<ctx>-seed.sql`, liste ordonnée dans `spring.sql.init.data-locations` (`application.yml`) ; `SEED_DATA_LOCATIONS` REMPLACE toute la liste.
+- `db/seed.sql` — Données de démo, toujours exécuté en dev (`spring.sql.init.mode: always`). Réparti par contexte propriétaire (SEED2, ADR 0188) : `contexts/<ctx>/src/main/resources/db/h2/<ctx>-seed.sql`, liste ordonnée dans `spring.sql.init.data-locations` (`application.yml`) ; `SEED_DATA_LOCATIONS` REMPLACE toute la liste. `db/seed.sql` (plateforme) ne garde que l'identité ; le jeu dérivé multi-contextes (séances, factures...) et le jeu RENADIAL (profil `demo-renadial`, générateur, purge) sont dans le module `backend/demo-data` (`db/demo/`, ADR 0189), seul autorisé à lire plusieurs contextes pour des données de démonstration (`DonneesDeDemonstrationTest`).
 - `ddl-auto: update` gère automatiquement les tables mappées par JPA.
 - Toutes les clés primaires sont des `UUID` ; tous les timestamps sont en UTC.
 

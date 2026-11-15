@@ -335,8 +335,9 @@ AVANT="$(sql "SELECT (SELECT count(*) FROM seances) || '|' || (SELECT count(*) F
 SEED_LOG="$(PGCLIENTENCODING=UTF8 "${PSQL[@]}" -d hemo_test -v ON_ERROR_STOP=1 -q -f "$RACINE/backend/platform/src/main/resources/db/seed.sql" 2>&1 | tr -d '\r' | head -5)"
 echo "sortie de psql : $SEED_LOG"
 verifier "seed.sql s'arrete sur une erreur unique (ON_ERROR_STOP, comme continue-on-error=false)" "$(echo "$SEED_LOG" | grep -c 'ERROR:')" "1"
-# SEED2 (ADR 0188) : seed.sql ne commence plus par les societes (db/h2/organisation-seed.sql, charge avant) ; sa 1re instruction est
-# desormais MERGE INTO caisse_assurance ... KEY (ligne 8 ; fenetre elargie a 3-12 pour tolerer un ajustement des commentaires d'en-tete).
+# SEED2 (ADR 0188 et 0189) : seed.sql ne garde que l'identite (roles, utilisateurs, rattachements) ; sa 1re instruction est
+# MERGE INTO app_role ... KEY (ligne 5 ; fenetre 3-12 pour tolerer un ajustement des commentaires d'en-tete). Le jeu derive multi-contextes
+# est dans demo-data/src/main/resources/db/demo/jeu-derive-seed.sql (meme syntaxe H2, meme arret a la premiere erreur).
 verifier "l'erreur porte sur la 1re instruction (MERGE ... KEY, syntaxe H2, lignes 3 a 12)" \
   "$(echo "$SEED_LOG" | grep -c -E 'seed.sql:([3-9]|1[0-2]): ERROR:')" "1"
 verifier "seed.sql n'a rien ecrit (seances, societes, centres inchanges)" \

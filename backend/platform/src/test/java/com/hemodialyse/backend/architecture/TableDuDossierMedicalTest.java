@@ -56,11 +56,8 @@ class TableDuDossierMedicalTest {
         // db/schema.sql : entrée SOLDÉE par S-DDL3b (2026-11-14, ADR 0187) ; le DDL H2 des 18 tables est dans le script du contexte
         // Dossier médical (contexts/dossier-medical/.../db/h2/dossier-medical-schema.sql, hors du périmètre de la garde). Butoir 2027-06-30
         // supprimé, aucun report.
-        lecteur(ressources + "db/seed.sql", "jeu d'amorçage (écrit des données médicales ; rejoué HORS profil prod seulement, voir TableDesSeancesTest)",
-                RETRAIT_DU_PILOTAGE_LEGACY);
-        lecteur(ressources + "db/demo/renadial-seed.sql", "jeu de démonstration (écrit des données médicales)", RETRAIT_DU_PILOTAGE_LEGACY);
-        lecteur(ressources + "db/demo/renadial-purge.sql", "purge de la démonstration (SUPPRIME des données médicales ; jamais sur une base partagée)",
-                RETRAIT_DU_PILOTAGE_LEGACY);
+        // db/seed.sql et db/demo/renadial-*.sql : entrées SOLDÉES par SEED2 (ADR 0188 et 0189) ; jeux de démonstration dans le module
+        // demo-data (voir DonneesDeDemonstrationTest). Butoir 2027-06-30 supprimé, aucun report.
         lecteur("contexts/documents/src/main/resources/reports/cahier_dialyse.jrxml", "état imprimé du cahier de dialyse (SE7e, résidu E-R3) : lit dossier_medical_patient "
                 + "(hépatites) et prescriptions_medicales (cibles de séance) en SQL Jasper ; échéance : lecture publiée du Dossier médical", LECTURES_PUBLIEES);
         lecteur("contexts/documents/src/main/resources/reports/ordonnance.jrxml", "état imprimé d'une ordonnance (RG-MED-055) : lit ordonnances et lignes_ordonnance en SQL "
@@ -146,7 +143,8 @@ class TableDuDossierMedicalTest {
 
     @Test
     void chaque_entree_a_un_butoir_propre_et_la_liste_est_a_revoir_au_plus_tard_le_2026_12_15() {
-        assertThat(LECTEURS_CONNUS).hasSize(5);
+        // 2 entrées depuis SEED2 (ADR 0189) : les deux états Jasper ; les 3 scripts de données sont soldés.
+        assertThat(LECTEURS_CONNUS).hasSize(2);
         LECTEURS_CONNUS.forEach((chemin, lecteur) -> {
             assertThat(lecteur.nature()).as("nature de " + chemin).isNotBlank();
             assertThat(lecteur.butoir()).as("butoir de " + chemin).isAfter(REVUE);

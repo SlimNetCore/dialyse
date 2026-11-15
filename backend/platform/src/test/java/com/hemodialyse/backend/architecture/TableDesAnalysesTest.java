@@ -51,9 +51,8 @@ class TableDesAnalysesTest {
         // MigrationRollbackJdbcAdapter : entrée SOLDÉE par RP2 (2026-11-13, ADR 0170) ; l'annulation d'un lot lit et supprime les analyses du
         // lot par DonneesMedicalesDeLaReprise (dossier-medical.v1). Butoir supprimé, aucun report.
         String ressources = "platform/src/main/resources/";
-        lecteur(ressources + "db/seed.sql", "jeu d'amorçage (écrit des analyses ; rejoué HORS profil prod seulement, voir TableDesSeancesTest)", RETRAIT_DU_PILOTAGE_LEGACY);
-        lecteur(ressources + "db/demo/renadial-seed.sql", "jeu de démonstration (écrit des analyses)", RETRAIT_DU_PILOTAGE_LEGACY);
-        lecteur(ressources + "db/demo/renadial-purge.sql", "purge de la démonstration (SUPPRIME des analyses ; jamais sur une base partagée)", RETRAIT_DU_PILOTAGE_LEGACY);
+        // db/seed.sql et db/demo/renadial-*.sql : entrées SOLDÉES par SEED2 (ADR 0188 et 0189) ; jeux de démonstration dans le module
+        // demo-data (voir DonneesDeDemonstrationTest). Butoir 2027-06-30 supprimé, aucun report.
         // db/schema.sql : entrée SOLDÉE par S-DDL3b (2026-11-14, ADR 0187) ; le DDL H2 de resultats_analyses est dans le script du contexte
         // Dossier médical (contexts/dossier-medical/.../db/h2/dossier-medical-schema.sql). Butoir 2027-06-30 supprimé, aucun report.
     }
@@ -163,7 +162,8 @@ class TableDesAnalysesTest {
 
     @Test
     void chaque_entree_a_un_butoir_propre_et_la_liste_est_a_revoir_au_plus_tard_le_2026_12_15() {
-        assertThat(LECTEURS_CONNUS).hasSize(3);
+        // Liste blanche VIDE depuis SEED2 (ADR 0189) : plus aucun lecteur hors du Dossier médical ; toute entrée ajoutée doit porter nature et butoir.
+        assertThat(LECTEURS_CONNUS).isEmpty();
         LECTEURS_CONNUS.forEach((chemin, lecteur) -> {
             assertThat(lecteur.nature()).as("nature de " + chemin).isNotBlank();
             assertThat(lecteur.butoir()).as("butoir de " + chemin).isAfter(REVUE);

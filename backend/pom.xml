@@ -39,6 +39,7 @@
         <module>contexts/pilotage-direction</module>
         <module>contexts/notifications</module>
         <module>contexts/documents</module>
+        <module>demo-data</module>
         <module>platform</module>
     </modules>
     <dependencyManagement>

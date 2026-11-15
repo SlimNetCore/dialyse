@@ -4,8 +4,10 @@ Jeu de données de démonstration pour tester le **tableau de bord de la directi
 une société **RENADIAL**, **17 centres**, **12 mois de données glissants** (séances, factures, règlements,
 biologie/KDIGO, sérologies, anémie EPO/fer, stock, alertes, greffe).
 
-Ces scripts ne sont **jamais exécutés automatiquement** (contrairement à `db/seed.sql`) : à jouer manuellement,
-seulement quand vous voulez ce jeu de données.
+Ces scripts vivent dans le module Maven `backend/demo-data` (ADR 0189), qui n'est pas un contexte : il compose les
+contextes. `jeu-derive-seed.sql` (jeu dérivé multi-contextes) est rejoué avec le seed habituel ; `renadial-seed.sql` et
+`renadial-purge.sql` ne sont **jamais exécutés automatiquement** sans le profil `demo-renadial` : à jouer seulement
+quand vous voulez ce jeu de données.
 
 ## Contenu généré
 
@@ -71,7 +73,7 @@ données sont calculés par rapport à la date d'exécution du script — régé
 a trop vieilli :
 
 ```bash
-node backend/platform/src/main/resources/db/demo/generate-renadial-seed.cjs
+node backend/demo-data/src/main/resources/db/demo/generate-renadial-seed.cjs
 ```
 
 Écrit `renadial-seed.sql` à côté du script (écrase l'existant). Les identifiants (société, centres, patients...)

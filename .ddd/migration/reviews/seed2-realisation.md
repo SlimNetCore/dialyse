@@ -1,9 +1,16 @@
 ---
-status: delivered partiellement (tranche 1 : organisation, gmao, documents ; la preuve de parité permanente est livrée pour toutes les tranches)
-date: 2026-11-14
-sources: [ADR 0188, ADR 0186, ADR 0187, inventaire-platform-restant-v2.md ligne 21, s-ddl3-realisation.md]
+status: delivered (tranches 1 à 4 + module demo-data, ADR 0189, 2026-11-15) ; les sections ci-dessous marquées (historique) ou « ARRÊT PROPRE » sont dépassées par la section FINALE
+date: 2026-11-15
+sources: [ADR 0188, ADR 0189, ADR 0186, ADR 0187, inventaire-platform-restant-v2.md ligne 21, s-ddl3-realisation.md]
 ---
 # SEED2 : jeu d'amorçage H2 par contexte propriétaire
+
+## FINALE (2026-11-15, décision utilisateur, ADR 0189)
+- Nouveau module `backend/demo-data` (pas un contexte, aucun Java) : `db/demo/jeu-derive-seed.sql` (jeu dérivé multi-contextes, extrait tel quel de l'ancien `seed.sql`), `renadial-seed.sql`, `renadial-purge.sql`, `generate-renadial-seed.cjs` (déplacés par `git mv`, générateur INCHANGÉ : sortie unique à côté du script, aucune régénération, 5,7 Mo intacts), `README.md`. Déclaré dans le pom parent, dépendance `runtime` de la plateforme, `COPY` du pom dans le Dockerfile.
+- `db/seed.sql` (plateforme) = identité seule (rôles, utilisateurs, `app_user_role`, `app_user_center`). Ordre : organisation, comptabilité, facturation, patient-couverture, `db/seed.sql`, `jeu-derive-seed.sql`, gmao, documents, stock ; RENADIAL en dernier avec le profil `demo-renadial`.
+- Gardes soldées PAR SUPPRESSION (aucun report) : entrées `db/seed.sql`, `renadial-seed.sql`, `renadial-purge.sql` de `TableDesSeancesTest`, `TableDesAnalysesTest`, `TableDuDossierMedicalTest` ; écrivain `db/seed.sql` de `EcrivainsDeLaFactureDesSeancesTest` (liste ramenée à 1 écrivain). Règle structurelle sans date : `DonneesDeDemonstrationTest`.
+- Parité : `SeedH2DesScriptsParContexteTest` inchangé (même référence), aucun golden modifié. `check-arch` / `arch-rules.json` : sans effet (ne couvrent que `backend/contexts/**`).
+- Rejeu PG16 : `seance-se7e-pg16-rejeu.sh` attend toujours une erreur unique dans la fenêtre de lignes 3-12 (désormais `MERGE INTO app_role`) ; non rejoué sur PG16 réel ici.
 
 ## Constat avant code
 - `seed.sql` : 2 443 l., 142 Ko, mélange 11 propriétaires, entrelacés (référentiels du centre 1, puis identité, puis documents, puis référentiels du centre 2, puis patients...). Il contient aussi du DDL (`CREATE TABLE IF NOT EXISTS releves_per_seance, medicaments_seance, prescriptions_medicales, autres_traitements_prescription, resultats_analyses, articles_consommes_seance`, 43 `ALTER TABLE volet_paramedical`) et des `INSERT ... SELECT` à `RANDOM_UUID()` / `ROW_NUMBER()` qui dépendent de l'ordre des lignes déjà présentes (d'où la règle « même ordre relatif par propriétaire »).

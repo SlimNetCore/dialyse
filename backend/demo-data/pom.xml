@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Données de démonstration (SEED2, ADR 0189) : NI un bounded context NI du code. Module de ressources SQL (aucune classe Java) qui
+     COMPOSE les contextes : le jeu dérivé multi-contextes de l'amorçage H2 (séances, volets, analyses, factures, bons de sortie...,
+     engendrés par INSERT ... SELECT à partir des patients/séances/factures) et le jeu RENADIAL (généré par generate-renadial-seed.cjs).
+     Ses lectures inter-contextes sont légitimes ici, et seulement ici. Dépendance de la plateforme en scope runtime : aucun contexte ne
+     dépend de ce module (vérifié par DonneesDeDemonstrationTest). Rejoué seulement quand mode d'initialisation SQL = always (jamais en
+     production : application-prod.yml, mode never). -->
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.hemodialyse</groupId>
+        <artifactId>backend-parent</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <artifactId>demo-data</artifactId>
+    <name>demo-data</name>
+    <description>Jeux de données de démonstration (scripts SQL H2) : jeu dérivé multi-contextes et RENADIAL. Pas un contexte.
+    </description>
+</project>
