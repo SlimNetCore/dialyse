@@ -409,7 +409,8 @@ class TableDesSeancesTest {
         String acl = "platform/src/main/java/com/hemodialyse/backend/infrastructure/acl/";
         List<Path> traducteurs = List.of(backend().resolve(acl + "absences/SeancesRealiseesParLaSeance.java"),
                 backend().resolve(acl + "absences/LiensDExclusionParLaSeance.java"),
-                backend().resolve(acl + "planification/SeancesRealiseesAvecLeurPlaceParLaSeance.java"));
+                backend().resolve("contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/acl/planification/"
+                        + "SeancesRealiseesAvecLeurPlaceParLaSeance.java"));
         assertThat(traducteurs).as("les 3 traducteurs de SE7d").allMatch(Files::isRegularFile);
         assertThat(traducteurs.stream().filter(TableDesSeancesTest::mentionneLaTableDeLaSeance).toList()).isEmpty();
     }

@@ -1,19 +1,16 @@
-package com.hemodialyse.backend.infrastructure.acl.planification;
+package com.hemodialyse.backend.contexts.seance.infrastructure.acl.planification;
 
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.SeancesRealiseesAvecLeurPlaceFournies;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesRealiseesAvecLeurPlacePubliees;
-import org.springframework.stereotype.Component;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
 /**
  * Fournisseur de la Planification (ADR 0098, SE7d) : les séances réalisées avec leur place passent par
- * {@link SeancesRealiseesAvecLeurPlacePubliees}. Logé dans la plateforme (cycle Maven : la Séance dépend, par Patient-couverture et les
- * Absences, de la Planification). Délégation pure, lecture seule, ordre conservé, nom et prénom bruts.
+ * {@link SeancesRealiseesAvecLeurPlacePubliees}. Hébergé par la Séance (qui dépend de la Planification, jamais l'inverse), ADR 0190.
+ * Délégation pure, lecture seule, ordre conservé, nom et prénom bruts.
  */
-@Component
 public class SeancesRealiseesAvecLeurPlaceParLaSeance implements SeancesRealiseesAvecLeurPlaceFournies {
 
     private final SeancesRealiseesAvecLeurPlacePubliees seances;

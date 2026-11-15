@@ -1,9 +1,8 @@
-package com.hemodialyse.backend.infrastructure.acl.planification;
+package com.hemodialyse.backend.contexts.planification.infrastructure.acl.patientcouverture;
 
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.CachesDesPatients;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
@@ -15,7 +14,6 @@ import java.util.UUID;
  * d'assurance, liste et comptage du centre) n'ont plus de producteur depuis S6c (ADR 0133). L'éviction a lieu APRÈS
  * la validation de la transaction quand il y en a une (sinon tout de suite).
  */
-@Component
 public class CachesDesPatientsLegacy implements CachesDesPatients {
 
     private final CacheManager caches;

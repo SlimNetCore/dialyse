@@ -196,6 +196,13 @@ public class SeanceConfiguration {
         return new com.hemodialyse.backend.contexts.seance.infrastructure.persistence.LecturesDesSeancesRealiseesJdbc(jdbc, fiches);
     }
 
+    /** Fournit à la Planification les séances réalisées avec leur place (SE7d, ADR 0098 ; hébergé par la Séance, ADR 0190). */
+    @Bean
+    com.hemodialyse.backend.contexts.planification.publishedlanguage.SeancesRealiseesAvecLeurPlaceFournies planificationSeancesRealiseesAvecLeurPlaceFournies(
+            com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesRealiseesAvecLeurPlacePubliees seances) {
+        return new com.hemodialyse.backend.contexts.seance.infrastructure.acl.planification.SeancesRealiseesAvecLeurPlaceParLaSeance(seances);
+    }
+
     /** Lecture publiée des constantes des séances pour le Dossier médical (SE7d, ADR 0098). Lecture seule. */
     @Bean
     com.hemodialyse.backend.contexts.seance.publishedlanguage.ConstantesDesSeancesPubliees constantesDesSeancesPubliees(JdbcTemplate jdbc) {

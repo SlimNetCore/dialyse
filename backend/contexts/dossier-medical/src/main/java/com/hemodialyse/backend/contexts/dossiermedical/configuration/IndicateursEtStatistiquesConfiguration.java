@@ -67,6 +67,22 @@ public class IndicateursEtStatistiquesConfiguration {
         return new PorteursDUnCatheterJdbc(jdbc);
     }
 
+    /** Fournit à la Planification les patients à risque infectieux (ADR 0190, inversion par port fourni : pas de cycle Maven). */
+    @Bean
+    com.hemodialyse.backend.contexts.planification.publishedlanguage.RisquesInfectieuxFournis planificationRisquesInfectieuxFournis(
+            RisquesInfectieuxPublies risques) {
+        return new com.hemodialyse.backend.contexts.dossiermedical.infrastructure.acl.planification.RisquesInfectieuxParLeDossierMedical(
+                risques);
+    }
+
+    /** Fournit à la Planification les porteurs d'un cathéter (ADR 0190). */
+    @Bean
+    com.hemodialyse.backend.contexts.planification.publishedlanguage.AbordsVasculairesFournis planificationAbordsVasculairesFournis(
+            AbordsVasculairesPublies abords) {
+        return new com.hemodialyse.backend.contexts.dossiermedical.infrastructure.acl.planification.AbordsVasculairesParLeDossierMedical(
+                abords);
+    }
+
     @Bean
     StatistiquesMedicalesPubliees statistiquesMedicalesPubliees(JdbcTemplate jdbc) {
         return new StatistiquesMedicalesJdbc(jdbc);

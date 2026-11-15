@@ -566,6 +566,13 @@ public class PlanificationConfiguration {
         return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.legacypatient.MouvementsDesPatientsJdbc(jdbc);
     }
 
+    /** Éviction des caches de synthèse des patients après libération d'une place (ADR 0061 ; hébergé par la Planification, ADR 0190). */
+    @Bean
+    com.hemodialyse.backend.contexts.planification.publishedlanguage.CachesDesPatients planificationCachesDesPatients(
+            org.springframework.cache.CacheManager caches) {
+        return new com.hemodialyse.backend.contexts.planification.infrastructure.acl.patientcouverture.CachesDesPatientsLegacy(caches);
+    }
+
     @Bean
     com.hemodialyse.backend.contexts.planification.application.LibererLesPlacesEchues planificationLibererLesPlacesEchues(
             com.hemodialyse.backend.contexts.planification.application.CentresActifs centres, HorlogeDesCentres horloge,

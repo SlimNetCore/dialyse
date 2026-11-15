@@ -1,4 +1,4 @@
-package com.hemodialyse.backend.infrastructure.acl.planification;
+package com.hemodialyse.backend.contexts.seance.infrastructure.acl.planification;
 
 import com.hemodialyse.backend.contexts.planification.publishedlanguage.SeancesRealiseesAvecLeurPlaceFournies.SeanceRealiseeAvecPlaceFournie;
 import com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesRealiseesAvecLeurPlacePubliees.SeanceRealiseeAvecPlacePubliee;
