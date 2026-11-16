@@ -26,8 +26,6 @@ import java.util.stream.Collectors;
 @Component
 public class CenterAccessGuard {
 
-    private static final String ROLE_SUPERADMIN = "ROLE_SUPERADMIN";
-
     /**
      * Construit le périmètre du porteur du jeton courant.
      *
@@ -55,15 +53,6 @@ public class CenterAccessGuard {
      */
     public CentreId requireCenter(UUID requestedCenterId) {
         TenantScope scope = currentScope();
-
-        // Le SUPERADMIN (éditeur de la solution) est transverse aux centres, comme dans LicenseEnforcementFilter.
-        if (scope.roles().contains(ROLE_SUPERADMIN)) {
-            UUID resolved = requestedCenterId != null ? requestedCenterId : scope.centerId();
-            if (resolved == null) {
-                throw new AccessDeniedException("centerId requis pour un accès transverse");
-            }
-            return new CentreId(resolved);
-        }
 
         UUID tokenCenterId = scope.centerId();
         if (tokenCenterId == null) {

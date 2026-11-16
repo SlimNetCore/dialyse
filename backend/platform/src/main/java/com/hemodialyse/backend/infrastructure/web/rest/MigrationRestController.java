@@ -46,11 +46,12 @@ import java.util.UUID;
  * Reprise des données d'un système existant (assurés, patients, affectations…), par lot et par centre :
  * modèles de fichiers, vérification, import rejouable, correspondances de valeurs, clôture et annulation.
  * <p>
- * Réservé à l'ADMIN (son centre uniquement) et au SUPERADMIN.
+ * Réservé à l'ADMIN (son centre uniquement). Le SUPERADMIN est refusé (403 {@code ROLE_SCOPE}) par le filtre de
+ * portée des rôles, avant ce contrôleur (KB-S6a-6, ADR 0207).
  */
 @RestController
 @RequestMapping("/api/v1/admin/migration")
-@PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN')")
+@PreAuthorize("hasRole('ADMIN')")
 public class MigrationRestController {
 
     private static final MediaType XLSX =

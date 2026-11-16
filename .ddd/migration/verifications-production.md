@@ -2780,3 +2780,24 @@ SELECT count(*) AS codes_de_modele_sans_tirets FROM modele_document WHERE code ~
 - 88.1 > 0 : pour chaque ligne, rendre un exemplaire de la version sur **copie** de la base et comparer à la sortie d'avant ; les rendus qui diffèrent (champ absent car alias SQL différent) se règlent en corrigeant le gabarit côté administrateur, pas le code. Ne pas mettre en production tant qu'une version **active** avec requête n'a pas été rendue sur copie.
 - 88.3 : `datcollate` valant `C` / `POSIX` / `*.utf8` binaire = ordre par points de code, identique au code (KB-DOC5B-2 et E-2 sans effet) ; collation linguistique (`fr_FR.UTF-8`, `en_US.UTF-8`, ICU) : comparer sur copie l'ordre des libellés qui diffèrent par la casse ou l'accent ; sinon valider avec l'exploitation.
 - 88.4 : aucun appelant de production ne doit envoyer d'identifiant sans tirets ; vérifier dans les journaux d'accès du reverse proxy les appels vers les routes d'impression de documents dont le dernier segment ou le paramètre `id` correspond à `[0-9a-f]{32}` (recherche à faire par l'équipe, non faisable en SQL). Un résultat > 0 : décider 400 (voie par type) ou 500 historique reproduit (KB-DOC5H-4).
+
+## 89. Archivage de 4 tables mortes (CLOT4, ADR 0207, Flyway V60) : comptages avant/après — SELECT seulement
+**SAUVEGARDE PRÉALABLE OBLIGATOIRE** (dump complet de la base) avant de jouer V60 en production : la migration ne supprime rien (RENAME seulement, retour par RENAME inverse), mais elle ne doit jamais être jouée sans sauvegarde. Rien n'a été exécuté sur la production.
+```sql
+-- 89.1 AVANT V60 : les 4 tables existent sous leur ancien nom ; noter les comptages
+SELECT 'user_center_assignment' AS t, count(*) FROM user_center_assignment
+UNION ALL SELECT 'gmao_alertes_maintenance', count(*) FROM gmao_alertes_maintenance
+UNION ALL SELECT 'gmao_historique_maintenance', count(*) FROM gmao_historique_maintenance
+UNION ALL SELECT 'stock_parametres', count(*) FROM stock_parametres;
+
+-- 89.2 APRÈS V60 : mêmes comptages sous le nouveau nom (doivent être identiques à 89.1)
+SELECT 'archive_user_center_assignment' AS t, count(*) FROM archive_user_center_assignment
+UNION ALL SELECT 'archive_gmao_alertes_maintenance', count(*) FROM archive_gmao_alertes_maintenance
+UNION ALL SELECT 'archive_gmao_historique_maintenance', count(*) FROM archive_gmao_historique_maintenance
+UNION ALL SELECT 'archive_stock_parametres', count(*) FROM archive_stock_parametres;
+
+-- 89.3 APRÈS V60 : plus aucune table sous l'ancien nom (0 ligne attendue)
+SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'
+  AND table_name IN ('user_center_assignment', 'gmao_alertes_maintenance', 'gmao_historique_maintenance', 'stock_parametres');
+```
+**Critère de décision** : 89.2 = 89.1 pour chaque table et 89.3 vide : archivage conforme. Écart ou erreur : restaurer la sauvegarde (ou RENAME inverse) et ne pas continuer. Les `archive_*` pourront être supprimées plus tard, par un accord écrit distinct.
