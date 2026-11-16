@@ -96,6 +96,20 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- Polices PDF (POL1, ADR 0208) : DejaVu Sans (Bitstream Vera / DejaVu, libre, embarquement autorise) ; l'artefact declare
+             lui-meme l'extension de polices (jasperreports_extension.properties). La police par defaut est posee par jasperreports.properties. -->
+        <dependency>
+            <groupId>net.sf.jasperreports</groupId>
+            <artifactId>jasperreports-fonts</artifactId>
+            <version>6.21.5</version>
+        </dependency>
+        <!-- Lecture du PDF rendu (test POL1 : polices embarquees, texte extrait) ; meme version que celle de la plateforme -->
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>2.0.24</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>

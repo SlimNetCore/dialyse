@@ -22,7 +22,7 @@
   "un seul jour (D+40)" : {
     "contentDisposition" : "inline; filename=\"cahier-dialyse-dcfa694c.pdf\"; filename*=UTF-8''cahier-dialyse-dcfa694c.pdf",
     "contentType" : "application/pdf",
-    "lignes des seances" : [ "Page 1 du cahier — Séance d'hémodialyse du 10/02/2026 Statut : Validée", "Forfait : FORFAIT_SE1 — Forfait fictif Prix : 100,00 DA", "Poids avant (kg) : - Poids après (kg) : -", "Date de mise en dialyse : - Statut hépatite B : -", "Statut hépatite C : -", "pages=1" ],
+    "lignes des seances" : [ "Page 1 du cahier — Séance d'hémodialyse du 10/02/2026 Statut : Validée", "Forfait : FORFAIT_SE1 — Forfait fictif Prix : 100,00  DA", "Poids avant (kg) : - Poids après (kg) : -", "Date de mise en dialyse : - Statut hépatite B : -", "Statut hépatite C : -", "pages=1" ],
     "status" : 200
   }
 }

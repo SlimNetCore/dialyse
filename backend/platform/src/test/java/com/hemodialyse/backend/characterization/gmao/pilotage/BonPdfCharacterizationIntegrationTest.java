@@ -83,7 +83,8 @@ class BonPdfCharacterizationIntegrationTest extends PilotageCharacterizationSupp
         assertEquals("inline; filename=\"bon-intervention-" + id8 + ".pdf\"; filename*=UTF-8''bon-intervention-" + id8 + ".pdf",
                 r.header("Content-Disposition"));
         assertEquals("%PDF-", new String(r.bytes, 0, 5, java.nio.charset.StandardCharsets.ISO_8859_1));
-        assertEquals(2, pagesDuPdf(r.bytes), "KB-GMAO-69 : le bon tient sur 2 pages, la seconde ne porte que l'en-tête et le pied");
+        // POL1 (ADR 0208) : avec DejaVu Sans le bon tient sur une seule page ; la seconde page (en-tête et pied seuls) de KB-GMAO-69 disparaît
+        assertEquals(1, pagesDuPdf(r.bytes), "KB-GMAO-69 / KB-POL1-5 : le bon tient désormais sur 1 page (2 avant la police DejaVu Sans)");
         assertTrue(r.bytes.length > 2000);
         goldenTexte("bon_nominal_texte", textePdf(r));
     }

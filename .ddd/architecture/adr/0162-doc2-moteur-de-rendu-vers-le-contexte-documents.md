@@ -1,5 +1,5 @@
 ---
-status: accepted (placement) ; proposed (polices, SQL des gabarits : décisions de l'utilisateur en attente)
+status: accepted (placement) ; accepted (polices : option A, DejaVu Sans, décision du 2026-11-16, ADR 0208) ; SQL des gabarits : levé par DOC5 (ADR 0202)
 date: 2026-11-13
 decision-makers: [utilisateur, architecte]
 context-scope: documents, platform
@@ -54,7 +54,8 @@ Constat : aucun gabarit ne déclare de `fontName` ni de `pdfFontName` ; Jasper 6
 | A. DejaVu Sans via l'artefact `net.sf.jasperreports:jasperreports-fonts:6.21.5` (déjà dans le dépôt Maven local) + police par défaut `DejaVu Sans`, PDF Identity-H embarqué | Latin étendu, grec, cyrillique, étoile et symboles, arabe (formes de présentation ; Jasper/OpenPDF ne fait pas de mise en forme bidi : lettres isolées, ordre non garanti) ; PAS de CJK | licence Bitstream Vera / DejaVu (libre, redistribuable, embarquement autorisé) - à re-vérifier sur le fichier de licence de l'artefact avant livraison | métriques différentes d'Helvetica : retours à la ligne et tailles de colonnes changent, tous les goldens PDF seraient à réviser |
 | B. Noto Sans (+ Noto Sans CJK JP / Arabic en repli) | CJK, arabe, étoile | SIL OFL 1.1 (embarquement et redistribution autorisés, vente de la police seule interdite) | ajouter les fichiers (CJK : plusieurs Mo), famille de polices Jasper à écrire, mêmes impacts sur les goldens, PDF plus lourds |
 | C. Statu quo + remplacement explicite | aucune | - | à la saisie (ou au rendu) : remplacer le caractère non imprimable par `?` au lieu de le perdre en silence ; changement visible minimal |
-Recommandation : décider d'abord le besoin métier (noms de patients ou d'articles non latins existent-ils ?) ; si non, option C ; si oui et sans CJK, option A ; avec CJK, option B. Toute option est un changement de rendu : slice dédiée avec révision des goldens, après DOC4.
+**Décision du 2026-11-16 : option A retenue (ADR 0208).**
+Recommandation (historique) : décider d'abord le besoin métier (noms de patients ou d'articles non latins existent-ils ?) ; si non, option C ; si oui et sans CJK, option A ; avec CJK, option B. Toute option est un changement de rendu : slice dédiée avec révision des goldens, après DOC4.
 
 ## Conséquences
 - Aucun golden modifié ; tests de plateforme qui lisaient `platform/src/main/resources/reports` adaptés au nouvel emplacement ; `FrontieresDesContextesTest`/`Table*Test` pointent le nouveau chemin.
