@@ -28,3 +28,8 @@ Latin étendu, grec, cyrillique, étoile et symboles, arabe en formes de présen
 - Les PDF sont plus lourds (sous-ensemble de la police embarqué).
 - Les KB-PL6-4, PL7-3, PL8-3, PL9-6 (caractères hors police perdus) sont résolues sauf pour le CJK.
 - Reste ouvert : besoin CJK (métiers/DPO, à confirmer avant le 2026-12-15).
+
+## Addendum 2026-11-16 (POL2) : largeurs retouchées
+Décision de l'utilisateur : la police reste DejaVu Sans (pas la variante Condensed) ; les débordements sont corrigés en retouchant les largeurs/hauteurs des gabarits `inventaire_stock`, `fiche_patient`, `liste_attestations`, `planning_optimise`, `bon_intervention`, `rapport_direction`, `cahier_dialyse` (aucune requête, aucun champ, aucun contenu ni ordre modifié, pas de nouvelle police). Détail et goldens révisés : `.ddd/migration/reviews/pol2-realisation.md`.
+- Limite : les modèles personnalisés d'un centre, stockés en base, ne sont pas modifiables par migration ; les centres qui en ont un gardent leurs largeurs et peuvent retrouver les coupures (à signaler aux administrateurs).
+- Restent, par construction : un mot sans espace de plus de ~20 caractères (ou un montant à espaces insécables de 13 chiffres et plus dans une colonne étroite) passe à la ligne au milieu du mot au lieu d'être coupé ; rien n'est perdu.

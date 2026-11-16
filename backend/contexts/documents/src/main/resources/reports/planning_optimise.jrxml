@@ -333,9 +333,9 @@
     </pageFooter>
 
     <summary>
-        <band height="30">
+        <band height="42">
             <staticText>
-                <reportElement x="0" y="6" width="802" height="22"/>
+                <reportElement x="0" y="6" width="802" height="34"/>
                 <textElement textAlignment="Left">
                     <font size="7"/>
                 </textElement>

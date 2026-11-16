@@ -332,8 +332,8 @@
                 </textElement>
                 <textFieldExpression><![CDATA[$F{LIGNE_TYPE}]]></textFieldExpression>
             </textField>
-            <textField isBlankWhenNull="true">
-                <reportElement x="112" y="1" width="130" height="15">
+            <textField isBlankWhenNull="true" textAdjust="StretchHeight">
+                <reportElement x="112" y="1" width="170" height="15">
                     <printWhenExpression><![CDATA[$F{LIGNE_LIBELLE} != null]]></printWhenExpression>
                 </reportElement>
                 <textElement>
@@ -342,7 +342,7 @@
                 <textFieldExpression><![CDATA[$F{LIGNE_LIBELLE}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" pattern="#,##0.##">
-                <reportElement x="244" y="1" width="50" height="15">
+                <reportElement x="284" y="1" width="44" height="15">
                     <printWhenExpression><![CDATA[$F{LIGNE_LIBELLE} != null]]></printWhenExpression>
                 </reportElement>
                 <textElement textAlignment="Right">
@@ -351,7 +351,7 @@
                 <textFieldExpression><![CDATA[$F{LIGNE_QUANTITE}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" pattern="#,##0.00">
-                <reportElement x="296" y="1" width="82" height="15">
+                <reportElement x="330" y="1" width="76" height="15">
                     <printWhenExpression><![CDATA[$F{LIGNE_LIBELLE} != null]]></printWhenExpression>
                 </reportElement>
                 <textElement textAlignment="Right">
@@ -360,7 +360,7 @@
                 <textFieldExpression><![CDATA[$F{LIGNE_PRIX}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" pattern="#,##0.00">
-                <reportElement x="380" y="1" width="155" height="15">
+                <reportElement x="408" y="1" width="127" height="15">
                     <printWhenExpression><![CDATA[$F{LIGNE_LIBELLE} != null]]></printWhenExpression>
                 </reportElement>
                 <textElement textAlignment="Right">
@@ -369,7 +369,7 @@
                 <textFieldExpression><![CDATA[$F{LIGNE_MONTANT}]]></textFieldExpression>
             </textField>
             <line>
-                <reportElement x="0" y="17" width="535" height="1" forecolor="#CCCCCC">
+                <reportElement positionType="Float" x="0" y="17" width="535" height="1" forecolor="#CCCCCC">
                     <printWhenExpression><![CDATA[$F{LIGNE_LIBELLE} != null]]></printWhenExpression>
                 </reportElement>
             </line>

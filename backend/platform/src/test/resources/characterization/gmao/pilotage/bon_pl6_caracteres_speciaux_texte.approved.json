@@ -17,7 +17,7 @@
   "Cause trouvée : ${java:version} $F{libelle} {0}",
   "Travaux réalisés : Tabulation et    espaces multiples",
   "Pièce remplacée : Joint 12 mm (insécable)",
-  "Pièce Joint <u>torique</u> & 1 10,00 10,00",
+  "Pièce Joint <u>torique</u> & \"cle\" 1 10,00 10,00",
   "Pièces de rechange : 10,00 DA",
   "Main d'œuvre : 0,00 DA",
   "Honoraires de l'intervenant : 0,00 DA",

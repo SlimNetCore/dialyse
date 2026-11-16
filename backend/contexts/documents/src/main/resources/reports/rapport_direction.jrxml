@@ -212,208 +212,208 @@
 
     <detail>
         <!-- Tableaux de 12 ou 13 cellules : colonnes de 56 pt -->
-        <band height="16">
+        <band height="14">
             <printWhenExpression><![CDATA[!"TEXTE".equals($F{GENRE}) && !"TEXTE_CRITIQUE".equals($F{GENRE}) && $F{NB} >= 12]]></printWhenExpression>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="cellule" stretchType="ContainerHeight" x="0" y="0" width="130" height="16"/>
+                <reportElement style="cellule" stretchType="ContainerHeight" x="0" y="0" width="100" height="14"/>
                 <textElement textAlignment="Left"/>
                 <textFieldExpression><![CDATA[$F{C1}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="cellule" stretchType="ContainerHeight" x="130" y="0" width="56" height="16"/>
+                <reportElement style="cellule" stretchType="ContainerHeight" x="100" y="0" width="58" height="14"/>
                 <textFieldExpression><![CDATA[$F{C2}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="cellule" stretchType="ContainerHeight" x="186" y="0" width="56" height="16"/>
+                <reportElement style="cellule" stretchType="ContainerHeight" x="158" y="0" width="58" height="14"/>
                 <textFieldExpression><![CDATA[$F{C3}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="cellule" stretchType="ContainerHeight" x="242" y="0" width="56" height="16"/>
+                <reportElement style="cellule" stretchType="ContainerHeight" x="216" y="0" width="58" height="14"/>
                 <textFieldExpression><![CDATA[$F{C4}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="cellule" stretchType="ContainerHeight" x="298" y="0" width="56" height="16"/>
+                <reportElement style="cellule" stretchType="ContainerHeight" x="274" y="0" width="58" height="14"/>
                 <textFieldExpression><![CDATA[$F{C5}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="cellule" stretchType="ContainerHeight" x="354" y="0" width="56" height="16"/>
+                <reportElement style="cellule" stretchType="ContainerHeight" x="332" y="0" width="58" height="14"/>
                 <textFieldExpression><![CDATA[$F{C6}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="cellule" stretchType="ContainerHeight" x="410" y="0" width="56" height="16"/>
+                <reportElement style="cellule" stretchType="ContainerHeight" x="390" y="0" width="58" height="14"/>
                 <textFieldExpression><![CDATA[$F{C7}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="cellule" stretchType="ContainerHeight" x="466" y="0" width="56" height="16"/>
+                <reportElement style="cellule" stretchType="ContainerHeight" x="448" y="0" width="58" height="14"/>
                 <textFieldExpression><![CDATA[$F{C8}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="cellule" stretchType="ContainerHeight" x="522" y="0" width="56" height="16"/>
+                <reportElement style="cellule" stretchType="ContainerHeight" x="506" y="0" width="58" height="14"/>
                 <textFieldExpression><![CDATA[$F{C9}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="cellule" stretchType="ContainerHeight" x="578" y="0" width="56" height="16"/>
+                <reportElement style="cellule" stretchType="ContainerHeight" x="564" y="0" width="58" height="14"/>
                 <textFieldExpression><![CDATA[$F{C10}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="cellule" stretchType="ContainerHeight" x="634" y="0" width="56" height="16"/>
+                <reportElement style="cellule" stretchType="ContainerHeight" x="622" y="0" width="58" height="14"/>
                 <textFieldExpression><![CDATA[$F{C11}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="cellule" stretchType="ContainerHeight" x="690" y="0" width="56" height="16"/>
+                <reportElement style="cellule" stretchType="ContainerHeight" x="680" y="0" width="58" height="14"/>
                 <textFieldExpression><![CDATA[$F{C12}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="cellule" stretchType="ContainerHeight" x="746" y="0" width="56" height="16">
+                <reportElement style="cellule" stretchType="ContainerHeight" x="738" y="0" width="58" height="14">
                     <printWhenExpression><![CDATA[$F{NB} >= 13]]></printWhenExpression>
                 </reportElement>
                 <textFieldExpression><![CDATA[$F{C13}]]></textFieldExpression>
             </textField>
         </band>
         <!-- Tableaux de 10 ou 11 cellules : colonnes de 67 pt -->
-        <band height="16">
+        <band height="14">
             <printWhenExpression><![CDATA[!"TEXTE".equals($F{GENRE}) && !"TEXTE_CRITIQUE".equals($F{GENRE}) && $F{NB} >= 10 && $F{NB} <= 11]]></printWhenExpression>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="cellule" stretchType="ContainerHeight" x="0" y="0" width="130" height="16"/>
+                <reportElement style="cellule" stretchType="ContainerHeight" x="0" y="0" width="100" height="14"/>
                 <textElement textAlignment="Left"/>
                 <textFieldExpression><![CDATA[$F{C1}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="cellule" stretchType="ContainerHeight" x="130" y="0" width="67" height="16"/>
+                <reportElement style="cellule" stretchType="ContainerHeight" x="100" y="0" width="70" height="14"/>
                 <textFieldExpression><![CDATA[$F{C2}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="cellule" stretchType="ContainerHeight" x="197" y="0" width="67" height="16"/>
+                <reportElement style="cellule" stretchType="ContainerHeight" x="170" y="0" width="70" height="14"/>
                 <textFieldExpression><![CDATA[$F{C3}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="cellule" stretchType="ContainerHeight" x="264" y="0" width="67" height="16"/>
+                <reportElement style="cellule" stretchType="ContainerHeight" x="240" y="0" width="70" height="14"/>
                 <textFieldExpression><![CDATA[$F{C4}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="cellule" stretchType="ContainerHeight" x="331" y="0" width="67" height="16"/>
+                <reportElement style="cellule" stretchType="ContainerHeight" x="310" y="0" width="70" height="14"/>
                 <textFieldExpression><![CDATA[$F{C5}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="cellule" stretchType="ContainerHeight" x="398" y="0" width="67" height="16"/>
+                <reportElement style="cellule" stretchType="ContainerHeight" x="380" y="0" width="70" height="14"/>
                 <textFieldExpression><![CDATA[$F{C6}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="cellule" stretchType="ContainerHeight" x="465" y="0" width="67" height="16"/>
+                <reportElement style="cellule" stretchType="ContainerHeight" x="450" y="0" width="70" height="14"/>
                 <textFieldExpression><![CDATA[$F{C7}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="cellule" stretchType="ContainerHeight" x="532" y="0" width="67" height="16"/>
+                <reportElement style="cellule" stretchType="ContainerHeight" x="520" y="0" width="70" height="14"/>
                 <textFieldExpression><![CDATA[$F{C8}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="cellule" stretchType="ContainerHeight" x="599" y="0" width="67" height="16"/>
+                <reportElement style="cellule" stretchType="ContainerHeight" x="590" y="0" width="70" height="14"/>
                 <textFieldExpression><![CDATA[$F{C9}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="cellule" stretchType="ContainerHeight" x="666" y="0" width="67" height="16"/>
+                <reportElement style="cellule" stretchType="ContainerHeight" x="660" y="0" width="70" height="14"/>
                 <textFieldExpression><![CDATA[$F{C10}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="cellule" stretchType="ContainerHeight" x="733" y="0" width="67" height="16">
+                <reportElement style="cellule" stretchType="ContainerHeight" x="730" y="0" width="70" height="14">
                     <printWhenExpression><![CDATA[$F{NB} >= 11]]></printWhenExpression>
                 </reportElement>
                 <textFieldExpression><![CDATA[$F{C11}]]></textFieldExpression>
             </textField>
         </band>
         <!-- Tableaux de 8 ou 9 cellules : colonnes de 84 pt -->
-        <band height="16">
+        <band height="14">
             <printWhenExpression><![CDATA[!"TEXTE".equals($F{GENRE}) && !"TEXTE_CRITIQUE".equals($F{GENRE}) && $F{NB} >= 8 && $F{NB} <= 9]]></printWhenExpression>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="cellule" stretchType="ContainerHeight" x="0" y="0" width="130" height="16"/>
+                <reportElement style="cellule" stretchType="ContainerHeight" x="0" y="0" width="100" height="14"/>
                 <textElement textAlignment="Left"/>
                 <textFieldExpression><![CDATA[$F{C1}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="cellule" stretchType="ContainerHeight" x="130" y="0" width="84" height="16"/>
+                <reportElement style="cellule" stretchType="ContainerHeight" x="100" y="0" width="87" height="14"/>
                 <textFieldExpression><![CDATA[$F{C2}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="cellule" stretchType="ContainerHeight" x="214" y="0" width="84" height="16"/>
+                <reportElement style="cellule" stretchType="ContainerHeight" x="187" y="0" width="87" height="14"/>
                 <textFieldExpression><![CDATA[$F{C3}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="cellule" stretchType="ContainerHeight" x="298" y="0" width="84" height="16"/>
+                <reportElement style="cellule" stretchType="ContainerHeight" x="274" y="0" width="87" height="14"/>
                 <textFieldExpression><![CDATA[$F{C4}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="cellule" stretchType="ContainerHeight" x="382" y="0" width="84" height="16"/>
+                <reportElement style="cellule" stretchType="ContainerHeight" x="361" y="0" width="87" height="14"/>
                 <textFieldExpression><![CDATA[$F{C5}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="cellule" stretchType="ContainerHeight" x="466" y="0" width="84" height="16"/>
+                <reportElement style="cellule" stretchType="ContainerHeight" x="448" y="0" width="87" height="14"/>
                 <textFieldExpression><![CDATA[$F{C6}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="cellule" stretchType="ContainerHeight" x="550" y="0" width="84" height="16"/>
+                <reportElement style="cellule" stretchType="ContainerHeight" x="535" y="0" width="87" height="14"/>
                 <textFieldExpression><![CDATA[$F{C7}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="anemieNonAdministrees" stretchType="ContainerHeight" x="634" y="0" width="84" height="16"/>
+                <reportElement style="anemieNonAdministrees" stretchType="ContainerHeight" x="622" y="0" width="87" height="14"/>
                 <textFieldExpression><![CDATA[$F{C8}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="cellule" stretchType="ContainerHeight" x="718" y="0" width="84" height="16">
+                <reportElement style="cellule" stretchType="ContainerHeight" x="709" y="0" width="87" height="14">
                     <printWhenExpression><![CDATA[$F{NB} >= 9]]></printWhenExpression>
                 </reportElement>
                 <textFieldExpression><![CDATA[$F{C9}]]></textFieldExpression>
             </textField>
         </band>
         <!-- Tableaux de 7 cellules au plus : colonnes de 112 pt -->
-        <band height="16">
+        <band height="14">
             <printWhenExpression><![CDATA[!"TEXTE".equals($F{GENRE}) && !"TEXTE_CRITIQUE".equals($F{GENRE}) && $F{NB} <= 7]]></printWhenExpression>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="cellule" stretchType="ContainerHeight" x="0" y="0" width="130" height="16"/>
+                <reportElement style="cellule" stretchType="ContainerHeight" x="0" y="0" width="100" height="14"/>
                 <textElement textAlignment="Left"/>
                 <textFieldExpression><![CDATA[$F{C1}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="cellule" stretchType="ContainerHeight" x="130" y="0" width="112" height="16">
+                <reportElement style="cellule" stretchType="ContainerHeight" x="100" y="0" width="117" height="14">
                     <printWhenExpression><![CDATA[$F{NB} >= 2]]></printWhenExpression>
                 </reportElement>
                 <textFieldExpression><![CDATA[$F{C2}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="stockSousSeuil" stretchType="ContainerHeight" x="242" y="0" width="112" height="16">
+                <reportElement style="stockSousSeuil" stretchType="ContainerHeight" x="217" y="0" width="117" height="14">
                     <printWhenExpression><![CDATA[$F{NB} >= 3]]></printWhenExpression>
                 </reportElement>
                 <textFieldExpression><![CDATA[$F{C3}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="stockPerimes" stretchType="ContainerHeight" x="354" y="0" width="112" height="16">
+                <reportElement style="stockPerimes" stretchType="ContainerHeight" x="334" y="0" width="117" height="14">
                     <printWhenExpression><![CDATA[$F{NB} >= 4]]></printWhenExpression>
                 </reportElement>
                 <textFieldExpression><![CDATA[$F{C4}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="stockPeremption" stretchType="ContainerHeight" x="466" y="0" width="112" height="16">
+                <reportElement style="stockPeremption" stretchType="ContainerHeight" x="451" y="0" width="117" height="14">
                     <printWhenExpression><![CDATA[$F{NB} >= 5]]></printWhenExpression>
                 </reportElement>
                 <textFieldExpression><![CDATA[$F{C5}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="cellule" stretchType="ContainerHeight" x="578" y="0" width="112" height="16">
+                <reportElement style="cellule" stretchType="ContainerHeight" x="568" y="0" width="117" height="14">
                     <printWhenExpression><![CDATA[$F{NB} >= 6]]></printWhenExpression>
                 </reportElement>
                 <textFieldExpression><![CDATA[$F{C6}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="cellule" stretchType="ContainerHeight" x="690" y="0" width="112" height="16">
+                <reportElement style="cellule" stretchType="ContainerHeight" x="685" y="0" width="117" height="14">
                     <printWhenExpression><![CDATA[$F{NB} >= 7]]></printWhenExpression>
                 </reportElement>
                 <textFieldExpression><![CDATA[$F{C7}]]></textFieldExpression>
             </textField>
         </band>
         <!-- Phrases pleine largeur -->
-        <band height="16">
+        <band height="14">
             <printWhenExpression><![CDATA["TEXTE".equals($F{GENRE}) || "TEXTE_CRITIQUE".equals($F{GENRE})]]></printWhenExpression>
             <textField isBlankWhenNull="true" textAdjust="StretchHeight">
-                <reportElement style="texte" stretchType="ContainerHeight" x="0" y="0" width="802" height="16"/>
+                <reportElement style="texte" stretchType="ContainerHeight" x="0" y="0" width="802" height="14"/>
                 <box padding="3"/>
                 <textFieldExpression><![CDATA[$F{C1}]]></textFieldExpression>
             </textField>

@@ -94,7 +94,7 @@
     <columnHeader>
         <band height="20">
             <staticText>
-                <reportElement x="0" y="0" width="100" height="18" backcolor="#1B5E20" mode="Opaque"
+                <reportElement x="0" y="0" width="80" height="18" backcolor="#1B5E20" mode="Opaque"
                                forecolor="#FFFFFF"/>
                 <textElement textAlignment="Center">
                     <font size="8" isBold="true"/>
@@ -102,7 +102,7 @@
                 <text><![CDATA[Code]]></text>
             </staticText>
             <staticText>
-                <reportElement x="100" y="0" width="140" height="18" backcolor="#1B5E20" mode="Opaque"
+                <reportElement x="80" y="0" width="206" height="18" backcolor="#1B5E20" mode="Opaque"
                                forecolor="#FFFFFF"/>
                 <textElement textAlignment="Center">
                     <font size="8" isBold="true"/>
@@ -110,7 +110,7 @@
                 <text><![CDATA[Nom]]></text>
             </staticText>
             <staticText>
-                <reportElement x="240" y="0" width="140" height="18" backcolor="#1B5E20" mode="Opaque"
+                <reportElement x="286" y="0" width="206" height="18" backcolor="#1B5E20" mode="Opaque"
                                forecolor="#FFFFFF"/>
                 <textElement textAlignment="Center">
                     <font size="8" isBold="true"/>
@@ -118,7 +118,7 @@
                 <text><![CDATA[Prénom]]></text>
             </staticText>
             <staticText>
-                <reportElement x="380" y="0" width="170" height="18" backcolor="#1B5E20" mode="Opaque"
+                <reportElement x="492" y="0" width="130" height="18" backcolor="#1B5E20" mode="Opaque"
                                forecolor="#FFFFFF"/>
                 <textElement textAlignment="Center">
                     <font size="8" isBold="true"/>
@@ -126,7 +126,7 @@
                 <text><![CDATA[N° Assurance]]></text>
             </staticText>
             <staticText>
-                <reportElement x="550" y="0" width="126" height="18" backcolor="#1B5E20" mode="Opaque"
+                <reportElement x="622" y="0" width="90" height="18" backcolor="#1B5E20" mode="Opaque"
                                forecolor="#FFFFFF"/>
                 <textElement textAlignment="Center">
                     <font size="8" isBold="true"/>
@@ -134,7 +134,7 @@
                 <text><![CDATA[Date début]]></text>
             </staticText>
             <staticText>
-                <reportElement x="676" y="0" width="126" height="18" backcolor="#1B5E20" mode="Opaque"
+                <reportElement x="712" y="0" width="90" height="18" backcolor="#1B5E20" mode="Opaque"
                                forecolor="#FFFFFF"/>
                 <textElement textAlignment="Center">
                     <font size="8" isBold="true"/>
@@ -146,42 +146,42 @@
     <detail>
         <band height="16">
             <textField>
-                <reportElement x="0" y="0" width="100" height="14"/>
+                <reportElement x="0" y="0" width="80" height="14"/>
                 <textElement textAlignment="Center">
                     <font size="7"/>
                 </textElement>
                 <textFieldExpression><![CDATA[$F{CODE_PATIENT}]]></textFieldExpression>
             </textField>
-            <textField>
-                <reportElement x="100" y="0" width="140" height="14"/>
+            <textField textAdjust="StretchHeight">
+                <reportElement x="80" y="0" width="206" height="14"/>
                 <textElement>
                     <font size="7"/>
                 </textElement>
                 <textFieldExpression><![CDATA[$F{NOM}]]></textFieldExpression>
             </textField>
-            <textField>
-                <reportElement x="240" y="0" width="140" height="14"/>
+            <textField textAdjust="StretchHeight">
+                <reportElement x="286" y="0" width="206" height="14"/>
                 <textElement>
                     <font size="7"/>
                 </textElement>
                 <textFieldExpression><![CDATA[$F{PRENOM}]]></textFieldExpression>
             </textField>
             <textField>
-                <reportElement x="380" y="0" width="170" height="14"/>
+                <reportElement x="492" y="0" width="130" height="14"/>
                 <textElement textAlignment="Center">
                     <font size="7"/>
                 </textElement>
                 <textFieldExpression><![CDATA[$F{NUMERO_ASSURANCE}]]></textFieldExpression>
             </textField>
             <textField>
-                <reportElement x="550" y="0" width="126" height="14"/>
+                <reportElement x="622" y="0" width="90" height="14"/>
                 <textElement textAlignment="Center">
                     <font size="7"/>
                 </textElement>
                 <textFieldExpression><![CDATA[$F{DATE_DEBUT}]]></textFieldExpression>
             </textField>
             <textField>
-                <reportElement x="676" y="0" width="126" height="14"/>
+                <reportElement x="712" y="0" width="90" height="14"/>
                 <textElement textAlignment="Center">
                     <font size="7"/>
                 </textElement>

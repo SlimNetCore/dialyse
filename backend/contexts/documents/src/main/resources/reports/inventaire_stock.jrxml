@@ -246,7 +246,7 @@
                         <topPen lineWidth="0.75" lineColor="#0D5750"/>
                     </box>
                     <textField>
-                        <reportElement style="cell" x="0" y="0" width="138" height="14" forecolor="#486581"/>
+                        <reportElement style="cell" x="0" y="0" width="142" height="14" forecolor="#486581"/>
                         <textElement>
                             <font size="6.8" isItalic="true"/>
                         </textElement>
@@ -254,21 +254,21 @@
                             + ($V{G_NON_COMPTES} != null && $V{G_NON_COMPTES} > 0 ? " · " + $V{G_NON_COMPTES} + " non compté(s)" : "")]]></textFieldExpression>
                     </textField>
                     <textField pattern="#,##0.###" isBlankWhenNull="true">
-                        <reportElement style="cell" x="138" y="0" width="50" height="14"/>
+                        <reportElement style="cell" x="142" y="0" width="58" height="14"/>
                         <textElement textAlignment="Right">
                             <font isBold="true"/>
                         </textElement>
                         <textFieldExpression><![CDATA[$V{G_THEO}]]></textFieldExpression>
                     </textField>
                     <textField pattern="#,##0.###" isBlankWhenNull="true">
-                        <reportElement style="cell" x="188" y="0" width="50" height="14"/>
+                        <reportElement style="cell" x="200" y="0" width="50" height="14"/>
                         <textElement textAlignment="Right">
                             <font isBold="true"/>
                         </textElement>
                         <textFieldExpression><![CDATA[$V{G_COMPTE}]]></textFieldExpression>
                     </textField>
                     <textField pattern="+#,##0.###;-#,##0.###" isBlankWhenNull="true">
-                        <reportElement style="groupGap" x="238" y="0" width="46" height="14">
+                        <reportElement style="groupGap" x="250" y="0" width="44" height="14">
                             <printWhenExpression>
                                 <![CDATA[$V{G_NON_COMPTES} == null || $V{G_NON_COMPTES} == 0]]></printWhenExpression>
                         </reportElement>
@@ -276,7 +276,7 @@
                         <textFieldExpression><![CDATA[$V{G_ECART}]]></textFieldExpression>
                     </textField>
                     <textField pattern="+#,##0.00 DA;-#,##0.00 DA" isBlankWhenNull="true">
-                        <reportElement style="groupGap" x="340" y="0" width="66" height="14"/>
+                        <reportElement style="groupGap" x="362" y="0" width="74" height="14"/>
                         <textElement textAlignment="Right"/>
                         <textFieldExpression><![CDATA[$V{G_VAL_ECART}]]></textFieldExpression>
                     </textField>
@@ -551,44 +551,44 @@
     <columnHeader>
         <band height="18">
             <staticText>
-                <reportElement style="th" x="0" y="2" width="84" height="16"/>
+                <reportElement style="th" x="0" y="2" width="80" height="16"/>
                 <text><![CDATA[N° DE LOT]]></text>
             </staticText>
             <staticText>
-                <reportElement style="th" x="84" y="2" width="54" height="16"/>
+                <reportElement style="th" x="80" y="2" width="62" height="16"/>
                 <text><![CDATA[PÉREMPTION]]></text>
             </staticText>
             <staticText>
-                <reportElement style="th" x="138" y="2" width="50" height="16"/>
+                <reportElement style="th" x="142" y="2" width="58" height="16"/>
                 <textElement textAlignment="Right"/>
                 <text><![CDATA[THÉORIQUE]]></text>
             </staticText>
             <staticText>
-                <reportElement style="th" x="188" y="2" width="50" height="16"/>
+                <reportElement style="th" x="200" y="2" width="50" height="16"/>
                 <textElement textAlignment="Right"/>
                 <text><![CDATA[COMPTÉ]]></text>
             </staticText>
             <staticText>
-                <reportElement style="th" x="238" y="2" width="46" height="16"/>
+                <reportElement style="th" x="250" y="2" width="44" height="16"/>
                 <textElement textAlignment="Right"/>
                 <text><![CDATA[ÉCART]]></text>
             </staticText>
             <staticText>
-                <reportElement style="th" x="284" y="2" width="56" height="16"/>
+                <reportElement style="th" x="294" y="2" width="68" height="16"/>
                 <textElement textAlignment="Right"/>
                 <text><![CDATA[PMP]]></text>
             </staticText>
             <staticText>
-                <reportElement style="th" x="340" y="2" width="66" height="16"/>
+                <reportElement style="th" x="362" y="2" width="74" height="16"/>
                 <textElement textAlignment="Right"/>
                 <text><![CDATA[VALEUR ÉCART]]></text>
             </staticText>
             <staticText>
-                <reportElement style="th" x="406" y="2" width="75" height="16"/>
+                <reportElement style="th" x="436" y="2" width="51" height="16"/>
                 <text><![CDATA[MOTIF]]></text>
             </staticText>
             <staticText>
-                <reportElement style="th" x="481" y="2" width="58" height="16"/>
+                <reportElement style="th" x="487" y="2" width="52" height="16"/>
                 <text><![CDATA[COMPTÉ PAR]]></text>
             </staticText>
         </band>
@@ -603,20 +603,20 @@
                     <bottomPen lineWidth="0.5" lineColor="#E4E7EB"/>
                 </box>
                 <textField isBlankWhenNull="true">
-                    <reportElement style="cell" x="0" y="0" width="84" height="14"/>
+                    <reportElement style="cell" x="0" y="0" width="80" height="14"/>
                     <textFieldExpression><![CDATA[$F{LOT_LIBELLE}]]></textFieldExpression>
                 </textField>
                 <textField pattern="dd/MM/yyyy" isBlankWhenNull="true">
-                    <reportElement style="expiry" x="84" y="0" width="54" height="14"/>
+                    <reportElement style="expiry" x="80" y="0" width="62" height="14"/>
                     <textFieldExpression><![CDATA[$F{DATE_PEREMPTION}]]></textFieldExpression>
                 </textField>
                 <textField pattern="#,##0.###" isBlankWhenNull="true">
-                    <reportElement style="cell" x="138" y="0" width="50" height="14"/>
+                    <reportElement style="cell" x="142" y="0" width="58" height="14"/>
                     <textElement textAlignment="Right"/>
                     <textFieldExpression><![CDATA[$F{QUANTITE_THEORIQUE}]]></textFieldExpression>
                 </textField>
                 <textField pattern="#,##0.###" isBlankWhenNull="true">
-                    <reportElement style="cell" x="188" y="0" width="50" height="14">
+                    <reportElement style="cell" x="200" y="0" width="50" height="14">
                         <printWhenExpression><![CDATA[$F{QUANTITE_COMPTEE} != null]]></printWhenExpression>
                     </reportElement>
                     <textElement textAlignment="Right">
@@ -625,7 +625,7 @@
                     <textFieldExpression><![CDATA[$F{QUANTITE_COMPTEE}]]></textFieldExpression>
                 </textField>
                 <staticText>
-                    <reportElement style="cell" x="188" y="0" width="50" height="14" forecolor="#9AA5B1">
+                    <reportElement style="cell" x="200" y="0" width="50" height="14" forecolor="#9AA5B1">
                         <printWhenExpression><![CDATA[$F{QUANTITE_COMPTEE} == null]]></printWhenExpression>
                     </reportElement>
                     <textElement textAlignment="Right">
@@ -634,28 +634,28 @@
                     <text><![CDATA[non compté]]></text>
                 </staticText>
                 <textField pattern="+#,##0.###;-#,##0.###" isBlankWhenNull="true">
-                    <reportElement style="gap" x="238" y="0" width="46" height="14"/>
+                    <reportElement style="gap" x="250" y="0" width="44" height="14"/>
                     <textElement textAlignment="Right"/>
                     <textFieldExpression>
                         <![CDATA[$F{ECART} != null && $F{ECART}.doubleValue() == 0 ? null : $F{ECART}]]></textFieldExpression>
                 </textField>
                 <textField pattern="#,##0.00" isBlankWhenNull="true">
-                    <reportElement style="cell" x="284" y="0" width="56" height="14" forecolor="#627D98"/>
+                    <reportElement style="cell" x="294" y="0" width="68" height="14" forecolor="#627D98"/>
                     <textElement textAlignment="Right"/>
                     <textFieldExpression><![CDATA[$F{PMP}]]></textFieldExpression>
                 </textField>
                 <textField pattern="+#,##0.00;-#,##0.00" isBlankWhenNull="true">
-                    <reportElement style="gap" x="340" y="0" width="66" height="14"/>
+                    <reportElement style="gap" x="362" y="0" width="74" height="14"/>
                     <textElement textAlignment="Right"/>
                     <textFieldExpression>
                         <![CDATA[$F{VAL_ECART} != null && $F{VAL_ECART}.doubleValue() == 0 ? null : $F{VAL_ECART}]]></textFieldExpression>
                 </textField>
                 <textField isBlankWhenNull="true" textAdjust="ScaleFont">
-                    <reportElement style="motif" x="406" y="0" width="75" height="14"/>
+                    <reportElement style="motif" x="436" y="0" width="51" height="14"/>
                     <textFieldExpression><![CDATA[$F{MOTIF}]]></textFieldExpression>
                 </textField>
                 <textField isBlankWhenNull="true" textAdjust="ScaleFont">
-                    <reportElement style="cell" x="481" y="0" width="58" height="14" forecolor="#627D98"/>
+                    <reportElement style="cell" x="487" y="0" width="52" height="14" forecolor="#627D98"/>
                     <textFieldExpression><![CDATA[$F{COMPTE_PAR}]]></textFieldExpression>
                 </textField>
             </frame>
@@ -713,14 +713,14 @@
                     <topPen lineWidth="1.5" lineColor="#0D5750"/>
                 </box>
                 <staticText>
-                    <reportElement style="cell" x="0" y="0" width="138" height="18" forecolor="#0D5750"/>
+                    <reportElement style="cell" x="0" y="0" width="142" height="18" forecolor="#0D5750"/>
                     <textElement>
                         <font size="8" isBold="true"/>
                     </textElement>
                     <text><![CDATA[Total général]]></text>
                 </staticText>
                 <textField isBlankWhenNull="true">
-                    <reportElement style="cell" x="138" y="0" width="202" height="18"/>
+                    <reportElement style="cell" x="142" y="0" width="220" height="18"/>
                     <textElement textAlignment="Right">
                         <font size="7"/>
                     </textElement>
@@ -728,7 +728,7 @@
                         <![CDATA["Valeur comptée : " + $P{KPI_VAL_COMPTE} + " DA"]]></textFieldExpression>
                 </textField>
                 <textField isBlankWhenNull="true">
-                    <reportElement style="totalGap" x="340" y="0" width="66" height="18"/>
+                    <reportElement style="totalGap" x="362" y="0" width="74" height="18"/>
                     <box rightPadding="4"/>
                     <textElement textAlignment="Right" verticalAlignment="Middle">
                         <font size="7.5"/>

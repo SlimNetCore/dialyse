@@ -238,7 +238,7 @@
                     <text><![CDATA[  Consommables / sorties de stock]]></text>
                 </staticText>
                 <staticText>
-                    <reportElement positionType="Float" x="0" y="184" width="250" height="16" backcolor="#1B5E20"
+                    <reportElement positionType="Float" x="0" y="184" width="220" height="16" backcolor="#1B5E20"
                                    forecolor="#FFFFFF" mode="Opaque"/>
                     <textElement verticalAlignment="Middle">
                         <font size="8" isBold="true"/>
@@ -246,7 +246,7 @@
                     <text><![CDATA[  Article]]></text>
                 </staticText>
                 <staticText>
-                    <reportElement positionType="Float" x="250" y="184" width="70" height="16" backcolor="#1B5E20"
+                    <reportElement positionType="Float" x="220" y="184" width="56" height="16" backcolor="#1B5E20"
                                    forecolor="#FFFFFF" mode="Opaque"/>
                     <textElement textAlignment="Right" verticalAlignment="Middle">
                         <font size="8" isBold="true"/>
@@ -254,7 +254,7 @@
                     <text><![CDATA[Qté  ]]></text>
                 </staticText>
                 <staticText>
-                    <reportElement positionType="Float" x="320" y="184" width="50" height="16" backcolor="#1B5E20"
+                    <reportElement positionType="Float" x="276" y="184" width="44" height="16" backcolor="#1B5E20"
                                    forecolor="#FFFFFF" mode="Opaque"/>
                     <textElement verticalAlignment="Middle">
                         <font size="8" isBold="true"/>
@@ -262,7 +262,7 @@
                     <text><![CDATA[  Unité]]></text>
                 </staticText>
                 <staticText>
-                    <reportElement positionType="Float" x="370" y="184" width="85" height="16" backcolor="#1B5E20"
+                    <reportElement positionType="Float" x="320" y="184" width="126" height="16" backcolor="#1B5E20"
                                    forecolor="#FFFFFF" mode="Opaque"/>
                     <textElement textAlignment="Right" verticalAlignment="Middle">
                         <font size="8" isBold="true"/>
@@ -270,7 +270,7 @@
                     <text><![CDATA[Val. unitaire (PMP)  ]]></text>
                 </staticText>
                 <staticText>
-                    <reportElement positionType="Float" x="455" y="184" width="84" height="16" backcolor="#1B5E20"
+                    <reportElement positionType="Float" x="446" y="184" width="93" height="16" backcolor="#1B5E20"
                                    forecolor="#FFFFFF" mode="Opaque"/>
                     <textElement textAlignment="Right" verticalAlignment="Middle">
                         <font size="8" isBold="true"/>
@@ -521,7 +521,7 @@
         <band height="16">
             <printWhenExpression><![CDATA[$F{ARTICLE_CODE} != null]]></printWhenExpression>
             <textField isBlankWhenNull="true" isStretchWithOverflow="true">
-                <reportElement x="0" y="1" width="250" height="14"/>
+                <reportElement x="0" y="1" width="220" height="14"/>
                 <textElement>
                     <font size="8"/>
                 </textElement>
@@ -529,14 +529,14 @@
                     <![CDATA["  " + $F{ARTICLE_CODE} + ($F{ARTICLE_LIBELLE} != null ? " — " + $F{ARTICLE_LIBELLE} : "")]]></textFieldExpression>
             </textField>
             <textField pattern="#,##0.##" isBlankWhenNull="true">
-                <reportElement x="250" y="1" width="70" height="14"/>
+                <reportElement x="220" y="1" width="56" height="14"/>
                 <textElement textAlignment="Right">
                     <font size="8"/>
                 </textElement>
                 <textFieldExpression><![CDATA[$F{QUANTITE}]]></textFieldExpression>
             </textField>
             <textField isBlankWhenNull="true">
-                <reportElement x="320" y="1" width="50" height="14"/>
+                <reportElement x="276" y="1" width="44" height="14"/>
                 <textElement>
                     <font size="8"/>
                 </textElement>
@@ -544,14 +544,14 @@
                     <![CDATA[" " + ($F{ARTICLE_UNITE} != null ? $F{ARTICLE_UNITE} : "")]]></textFieldExpression>
             </textField>
             <textField pattern="#,##0.00" isBlankWhenNull="true">
-                <reportElement x="370" y="1" width="85" height="14"/>
+                <reportElement x="320" y="1" width="126" height="14"/>
                 <textElement textAlignment="Right">
                     <font size="8"/>
                 </textElement>
                 <textFieldExpression><![CDATA[$F{VALEUR_UNITAIRE}]]></textFieldExpression>
             </textField>
             <textField pattern="#,##0.00" isBlankWhenNull="true">
-                <reportElement x="455" y="1" width="84" height="14"/>
+                <reportElement x="446" y="1" width="93" height="14"/>
                 <textElement textAlignment="Right">
                     <font size="8" isBold="true"/>
                 </textElement>
