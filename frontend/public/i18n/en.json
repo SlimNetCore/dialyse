@@ -1564,7 +1564,7 @@
   "SEANCES": {
     "EYEBROW": "History",
     "TITLE": "Session history",
-    "DESCRIPTION": "Monthly statistics and a paginated list of the centre's sessions: search a patient, filter by period or status, and sort the columns.",
+    "DESCRIPTION": "Paginated list of the centre's sessions: search a patient, filter by period or status, and sort the columns.",
     "HISTORY_TO_STATION": "Nurse station",
     "HISTORY_FROM": "From",
     "HISTORY_TO": "To",
@@ -3681,6 +3681,10 @@
     "TITLE": "Patients dashboard",
     "DESC": "Monthly patient summary, coverages and certificates to follow up.",
     "PEC_SECTION": "Coverages and certificates"
+  },
+  "SEANCES_TABLEAU_DE_BORD": {
+    "TITLE": "Sessions dashboard",
+    "DESC": "Monthly session statistics: attendance, absences, distributions and exports."
   },
   "PATIENT_STATS": {
     "TITLE": "Patient statistics",

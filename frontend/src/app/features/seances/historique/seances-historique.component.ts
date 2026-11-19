@@ -28,19 +28,19 @@ import {
 } from '../../../shared/configurable-list.component';
 import {SeanceHistoriqueStore} from './seance-historique.store';
 import {SEANCE_STATUSES} from './seance-historique.util';
-import {SeancesStatsComponent} from './seances-stats.component';
 import {SupprimerSeanceDialogComponent, SupprimerSeanceDialogData} from './supprimer-seance-dialog.component';
 
 /**
- * Historique des séances : statistiques du mois et tableau paginé dont la recherche, les filtres et le tri sont
- * appliqués par le serveur. Écran de consultation : la saisie se fait au poste infirmier.
+ * Historique des séances : tableau paginé dont la recherche, les filtres et le tri sont appliqués par le serveur.
+ * Écran de consultation : la saisie se fait au poste infirmier ; les statistiques du mois sont au tableau de bord
+ * (/seances/tableau-de-bord).
  * Traçabilité : ce composant → SeanceHistoriqueStore → BackendApiService.listSeances → GET /api/v1/seances.
  */
 @Component({
   selector: 'app-seances-historique',
   standalone: true,
   imports: [RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, MatPaginatorModule,
-    TranslateModule, ConfigurableListComponent, SeancesStatsComponent],
+    TranslateModule, ConfigurableListComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './seances-historique.component.html',
   styleUrl: './seances-historique.component.css',

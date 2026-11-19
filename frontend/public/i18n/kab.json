@@ -1328,7 +1328,7 @@
   "SEANCES": {
     "EYEBROW": "Amazray",
     "TITLE": "Amazray n tsedriyin",
-    "DESCRIPTION": "Tisnaddanin n wayyur d tebdart s ID n tsedriyin n unabaḍ: nadi ɣef umdan, sizdeg s tallit neɣ s waddad, rnu smizzwer iskilen.",
+    "DESCRIPTION": "Tabdart s ID n tsedriyin n unabaḍ: nadi ɣef umdan, sizdeg s tallit neɣ s waddad, rnu smizzwer iskilen.",
     "HISTORY_TO_STATION": "Tallunt n useḥbas",
     "HISTORY_FROM": "Seg",
     "HISTORY_TO": "Ɣer",
@@ -3321,6 +3321,10 @@
     "TITLE": "Tafelwit n uselkim n yimdanen",
     "DESC": "Agzul n wayyur n yimdanen, tineḍrutin d tseddarin ara yettwaḍefren.",
     "PEC_SECTION": "Tineḍrutin d tseddarin"
+  },
+  "SEANCES_TABLEAU_DE_BORD": {
+    "TITLE": "Tafelwit n uselkim n yiɣimen",
+    "DESC": "Tisnaddanin n wayyur n yiɣimen: tilin, tuffɣa, tiseddarin d usifeḍ."
   },
   "PATIENT_STATS": {
     "TITLE": "Tisiddanin n umuḍin",

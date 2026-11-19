@@ -32,6 +32,13 @@
     </div>
   </header>
 
+  @if (store.error(); as err) {
+    <p class="stats-error" role="alert">
+      <mat-icon aria-hidden="true">error</mat-icon>
+      {{ err | translate }}
+    </p>
+  }
+
   <div class="kpi-grid">
     <div class="app-data-pill">
       <span>{{ 'SEANCES.EXPECTED_SESSIONS_KPI' | translate }}</span>

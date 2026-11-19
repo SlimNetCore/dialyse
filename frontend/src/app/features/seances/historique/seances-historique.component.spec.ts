@@ -5,7 +5,6 @@ import {TranslateModule} from '@ngx-translate/core';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {SeancesHistoriqueComponent} from './seances-historique.component';
 import {SeanceHistoriqueStore} from './seance-historique.store';
-import {SeancesStatsComponent} from './seances-stats.component';
 import {ConfigurableListComponent} from '../../../shared/configurable-list.component';
 import {AuthStore} from '../../../core/state/auth.store';
 import {AppShellStore} from '../../../core/state/app-shell.store';
@@ -49,7 +48,7 @@ describe('SeancesHistoriqueComponent', () => {
       ],
     });
     TestBed.overrideComponent(SeancesHistoriqueComponent, {
-      remove: {imports: [SeancesStatsComponent, ConfigurableListComponent]},
+      remove: {imports: [ConfigurableListComponent]},
       add: {schemas: [NO_ERRORS_SCHEMA]},
     });
   });
@@ -63,6 +62,12 @@ describe('SeancesHistoriqueComponent', () => {
   it('charge l\'historique du centre actif à l\'ouverture', () => {
     render();
     expect(store.reload).toHaveBeenCalledWith(CENTER_ID);
+  });
+
+  it('n\'affiche plus les statistiques du mois : la page est une liste seule', () => {
+    const {root} = render();
+    expect(root.querySelector('app-seances-stats')).toBeNull();
+    expect(root.querySelector('app-configurable-list')).not.toBeNull();
   });
 
   it('transmet au serveur le tri et les filtres de la liste, sans filtrer localement', () => {

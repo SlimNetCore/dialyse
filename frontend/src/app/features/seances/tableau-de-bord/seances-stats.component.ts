@@ -12,15 +12,16 @@ import {Chart, ChartData, ChartOptions, registerables} from 'chart.js';
 import {AppShellStore} from '../../../core/state/app-shell.store';
 import {BackendApiService, SeanceDashboardDetailItem} from '../../../core/api/backend-api.service';
 import {WebSocketService} from '../../../core/ws/websocket.service';
-import {SeanceStore} from '../state/seance.store';
-import {currentMonthIso, parseMonth} from './seance-historique.util';
+import {currentMonthIso, parseMonth} from '../historique/seance-historique.util';
+import {SeancesTableauDeBordStore} from './seances-tableau-de-bord.store';
 
 Chart.register(...registerables);
 
 /**
  * Statistiques mensuelles des séances : indicateurs (prévues, présences, absences, total), répartitions par sexe et par
  * âge, détail des présences/absences et export. Se rafraîchit seule à chaque évènement de séance du centre.
- * Traçabilité : ce composant → SeanceStore (dashboard) → BackendApiService → /api/v1/seances/dashboard.
+ * Affiché par le tableau de bord des séances (/seances/tableau-de-bord), qui fournit le magasin.
+ * Traçabilité : ce composant → SeancesTableauDeBordStore → BackendApiService → /api/v1/seances/dashboard.
  */
 @Component({
   selector: 'app-seances-stats',
@@ -32,7 +33,7 @@ Chart.register(...registerables);
   styleUrl: './seances-stats.component.css',
 })
 export class SeancesStatsComponent implements OnInit {
-  protected readonly store = inject(SeanceStore);
+  protected readonly store = inject(SeancesTableauDeBordStore);
   protected readonly dashboard = computed(() => this.store.seanceDashboard());
   protected readonly detailCols = ['date', 'patient', 'weekday', 'status'];
   protected readonly chartOptions: ChartOptions<'bar' | 'doughnut'> = {

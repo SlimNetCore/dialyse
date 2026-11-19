@@ -7,6 +7,11 @@ export const seancesRoutes: Routes = [
       import('./station/seance-station.component').then((m) => m.SeanceStationComponent),
   },
   {
+    path: 'tableau-de-bord',
+    loadComponent: () =>
+      import('./tableau-de-bord/seances-tableau-de-bord.component').then((m) => m.SeancesTableauDeBordComponent),
+  },
+  {
     path: 'historique',
     loadComponent: () =>
       import('./historique/seances-historique.component').then((m) => m.SeancesHistoriqueComponent),

@@ -160,11 +160,6 @@ describe('SeanceStore', () => {
     expect(store.selectedSeanceId()).toBeNull();
     expect(store.summary()).toBeNull();
   });
-  it('should start with dashboard not loaded', () => {
-    const store = TestBed.inject(SeanceStore);
-    expect(store.seanceDashboard()).toBeNull();
-    expect(store.dashboardLoading()).toBe(false);
-  });
   it('should update qrCode signal', () => {
     const store = TestBed.inject(SeanceStore);
     store.setQrCode('PAT-001');
@@ -506,37 +501,6 @@ describe('SeanceStore', () => {
     const store = TestBed.inject(SeanceStore);
     store.loadSeanceSummary({seanceId: SEANCE_ID, centerId: CENTER_ID});
     expect(store.isSeanceAlreadyValidated()).toBe(true);
-  });
-  it('should load dashboard and compute stats', () => {
-    const store = TestBed.inject(SeanceStore);
-    store.loadDashboard({centerId: CENTER_ID, year: 2026, month: 7});
-    expect(mockApi.getSeanceMonthlyDashboard).toHaveBeenCalledWith(CENTER_ID, 2026, 7);
-    const dashboard = store.seanceDashboard();
-    expect(dashboard).toBeTruthy();
-    expect(dashboard?.presenceCount).toBe(40);
-    expect(dashboard?.absenceCount).toBe(10);
-    expect(dashboard?.expectedSeances).toBe(50);
-  });
-  it('should load dashboard details and populate items', () => {
-    const store = TestBed.inject(SeanceStore);
-    store.openDashboardDetails('presence');
-    store.loadDashboardDetails({centerId: CENTER_ID, year: 2026, month: 7, kind: 'presence'});
-    expect(store.dashboardDetailsOpen()).toBe(true);
-    expect(store.dashboardDetailItems().length).toBe(2);
-    expect(store.dashboardDetailsLoading()).toBe(false);
-  });
-  it('dashboardDetailTotalPages should be 1 when items <= page size', () => {
-    const store = TestBed.inject(SeanceStore);
-    store.openDashboardDetails('presence');
-    store.loadDashboardDetails({centerId: CENTER_ID, year: 2026, month: 7, kind: 'presence'});
-    expect(store.dashboardDetailTotalPages()).toBe(1);
-  });
-  it('closeDashboardDetails should set dashboardDetailsOpen to false', () => {
-    const store = TestBed.inject(SeanceStore);
-    store.openDashboardDetails('absence');
-    expect(store.dashboardDetailsOpen()).toBe(true);
-    store.closeDashboardDetails();
-    expect(store.dashboardDetailsOpen()).toBe(false);
   });
   it('should load journal by date', () => {
     const store = TestBed.inject(SeanceStore);

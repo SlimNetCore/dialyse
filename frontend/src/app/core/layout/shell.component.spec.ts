@@ -78,6 +78,8 @@ describe('ShellComponent — barre de module', () => {
     ['/gmao/equipements/new', '/gmao/equipements'],
     ['/gmao/tableau-de-bord', '/gmao/tableau-de-bord'],
     ['/seances/absences-patients', '/seances/absences-patients'],
+    ['/seances/tableau-de-bord', '/seances/tableau-de-bord'],
+    ['/seances', '/seances'],
     ['/infirmiers/referentiel', '/infirmiers/referentiel'],
   ])('sur %s, une seule entrée est active : %s', async (url, attendu) => {
     const {actives, component} = await renderAt(url);
@@ -109,6 +111,23 @@ describe('ShellComponent — barre de module', () => {
     const {component} = await renderAt('/patients');
 
     expect(component.activeModuleItems().map((i) => i.route)).toEqual(['/patients/tableau-de-bord', '/patients']);
+  });
+
+  it('module Séances : le tableau de bord en tête, puis les écrans de travail', async () => {
+    const {component} = await renderAt('/seances');
+
+    expect(component.activeModuleItems().map((i) => i.route)).toEqual(['/seances/tableau-de-bord', '/seances',
+      '/seances/historique', '/seances/planning', '/seances/salles', '/seances/optimisation',
+      '/seances/absences-patients']);
+    expect(component.activeModuleItems()[0]).toMatchObject({label: 'NAV.TABLEAU_DE_BORD', icon: 'insights'});
+  });
+
+  it('module Séances : l\'infirmier seul garde le tableau de bord, le poste, l\'historique et les absences', async () => {
+    roles = ['INFIRMIER'];
+    const {component} = await renderAt('/seances');
+
+    expect(component.activeModuleItems().map((i) => i.route)).toEqual(['/seances/tableau-de-bord', '/seances',
+      '/seances/historique', '/seances/absences-patients']);
   });
 
   it('le référentiel des infirmiers, déclaré aussi dans la barre Administration, s\'active dans son module d\'origine',

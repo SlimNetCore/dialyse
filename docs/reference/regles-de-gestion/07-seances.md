@@ -502,8 +502,9 @@
   constantes (avec le poids sec prescrit), consommables, anémie, remarques. Les constantes s'enregistrent à la sortie de
   chaque champ et les remarques après une courte pause de frappe, sans bouton « Enregistrer » ; une séance facturée est
   en lecture seule. Les consommables les plus sortis du jour dans le centre sont proposés en un toucher (+1 unité,
-  RG-SEA-025). Une alerte non bloquante signale un générateur affecté dont l'état n'est pas « en service ». Les
-  statistiques et le tableau des séances sont dans l' **historique** (RG-SEA-029), accessible depuis le poste. La
+  RG-SEA-025). Une alerte non bloquante signale un générateur affecté dont l'état n'est pas « en service ». Le poste
+  ne garde que les indicateurs du jour (total, validées, à faire) ; les statistiques du mois sont au **tableau de
+  bord des séances** (`/seances/tableau-de-bord`) et le tableau des séances dans l' **historique** (RG-SEA-029). La
   secrétaire voit la file et scanne mais n'ouvre pas la saisie clinique. L'écran est responsive : une
   colonne (file puis séance) sur mobile, deux colonnes sur tablette, toutes les sections visibles sur PC.
   L'habillage suit la charte de l'application (thème actif, titres Fraunces, cartes vitrées, indicateurs du jour).
@@ -553,8 +554,10 @@
   concernée. *Source :* `SeanceDomainService.verifierProgramme`, `ProgrammationSeance`, `SeancePlanningJdbcAdapter`,
   `HorsPlanningConfirmComponent`.
 - **RG-SEA-029** — **Historique des séances** (`GET /seances`, tous profils de centre ; écran « Historique des
-  séances ») : statistiques du mois (séances prévues, présences, absences, total, répartitions par sexe et par âge,
-  détail et export) et **liste paginée** des séances du centre. La recherche, les filtres et le tri sont appliqués **par
+  séances », `/seances/historique`) : **liste paginée** des séances du centre, seule sur l'écran. Les statistiques du
+  mois (séances prévues, présences, absences, total, répartitions par sexe et par âge, détail et export,
+  `/seances/dashboard`) sont au **tableau de bord des séances** (`/seances/tableau-de-bord`, première entrée de la
+  barre du module Séances, mêmes profils qu'auparavant : l'infirmier seul y accède, le médecin seul non). La recherche, les filtres et le tri sont appliqués **par
   le serveur** sur toute la liste, jamais sur la seule page affichée : période (`from`, `to`, bornes incluses,
   début ≤ fin), statut (un ou plusieurs), texte libre sur le nom, le prénom ou le code du patient (tous les mots
   doivent correspondre), tri sur la date, le patient, le code, le statut ou la création (liste blanche ; toute autre

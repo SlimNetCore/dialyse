@@ -260,6 +260,10 @@ export class ShellComponent implements OnInit, AfterViewInit {
       icon: 'event_note',
       label: 'NAV.SEANCES',
       items: [
+        {
+          route: '/seances/tableau-de-bord', label: 'NAV.TABLEAU_DE_BORD', icon: 'insights', kind: 'tableau-de-bord',
+          nurse: true
+        },
         {route: '/seances', label: 'NAV.SEANCES_STATION', icon: 'monitor_heart', nurse: true},
         {route: '/seances/historique', label: 'NAV.SEANCES_HISTORIQUE', icon: 'history', nurse: true},
         {route: '/seances/planning', label: 'NAV.PLANNING_SEMAINE', icon: 'calendar_view_week'},

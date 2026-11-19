@@ -1564,7 +1564,7 @@
   "SEANCES": {
     "EYEBROW": "Historique",
     "TITLE": "Historique des séances",
-    "DESCRIPTION": "Statistiques du mois et liste paginée des séances du centre : recherchez un patient, filtrez par période ou par statut et triez les colonnes.",
+    "DESCRIPTION": "Liste paginée des séances du centre : recherchez un patient, filtrez par période ou par statut et triez les colonnes.",
     "HISTORY_TO_STATION": "Poste infirmier",
     "HISTORY_FROM": "Du",
     "HISTORY_TO": "Au",
@@ -3681,6 +3681,10 @@
     "TITLE": "Tableau de bord patients",
     "DESC": "Synthèse mensuelle des patients, prises en charge et attestations à suivre.",
     "PEC_SECTION": "Prises en charge et attestations"
+  },
+  "SEANCES_TABLEAU_DE_BORD": {
+    "TITLE": "Tableau de bord des séances",
+    "DESC": "Statistiques mensuelles des séances : présences, absences, répartitions et exports."
   },
   "PATIENT_STATS": {
     "TITLE": "Statistiques du patient",

@@ -121,6 +121,17 @@ describe('roleScopeGuard', () => {
     expect(isDoctorArea('/seances/historique')).toBe(false);
   });
 
+  it('ouvre le tableau de bord des séances à l\'infirmier seul (statistiques qu\'il voyait dans l\'historique), pas au médecin seul',
+    () => {
+      expect(run(['INFIRMIER'], '/seances/tableau-de-bord')).toBe(true);
+      expect(run(['INFIRMIER'], '/seances/tableau-de-bord?mois=2026-10')).toBe(true);
+      expect(isNurseArea('/seances/tableau-de-bord/autre')).toBe(false);
+      expect(run(['MEDECIN'], '/seances/tableau-de-bord')).toEqual({redirect: '/medecin'});
+      expect(run(['DIRECTION'], '/seances/tableau-de-bord')).toEqual({redirect: '/direction'});
+      expect(run(['ADMIN'], '/seances/tableau-de-bord')).toBe(true);
+      expect(run(['SECRETAIRE'], '/seances/tableau-de-bord')).toBe(true);
+    });
+
   it('donne au médecin seul le planning à son accueil (/medecin), pas à l\'adresse des séances', () => {
     expect(run(['MEDECIN'], '/medecin')).toBe(true);
     expect(run(['MEDECIN'], '/seances/planning')).toEqual({redirect: '/medecin'});

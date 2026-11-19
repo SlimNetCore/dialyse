@@ -28,29 +28,31 @@ test.describe('Module Séances', () => {
     await expect(page.locator('h1, .app-section-title')).toContainText(/[Ss][éeE]ances/);
   });
 
+  // ─── Tableau de bord des séances (/seances/tableau-de-bord) ────────────────
+
   test('should display dashboard seances section', async ({page}) => {
     await login(page);
-    await page.goto(`${baseUrl}/seances`);
+    await page.goto(`${baseUrl}/seances/tableau-de-bord`);
     await page.waitForLoadState('networkidle');
-    // La card dashboard est présente
-    await expect(page.locator('mat-card').first()).toBeVisible();
+    // Le panneau des statistiques est présent
+    await expect(page.locator('app-seances-stats .stats')).toBeVisible();
   });
 
   // ─── Dashboard KPI ─────────────────────────────────────────────────────────
 
   test('should display KPI pills for seances', async ({page}) => {
     await login(page);
-    await page.goto(`${baseUrl}/seances`);
+    await page.goto(`${baseUrl}/seances/tableau-de-bord`);
     await page.waitForLoadState('networkidle');
     // Au moins un indicateur est affiché
-    const pills = page.locator('.app-data-pill, [class*="kpi"]');
+    const pills = page.locator('.kpi-grid .app-data-pill');
     const count = await pills.count();
     expect(count).toBeGreaterThanOrEqual(1);
   });
 
   test('should have month input for dashboard filtering', async ({page}) => {
     await login(page);
-    await page.goto(`${baseUrl}/seances`);
+    await page.goto(`${baseUrl}/seances/tableau-de-bord`);
     await page.waitForLoadState('networkidle');
     const monthInput = page.locator('input[type="month"]').first();
     await expect(monthInput).toBeVisible();
@@ -58,20 +60,20 @@ test.describe('Module Séances', () => {
 
   test('should reload dashboard when month changes', async ({page}) => {
     await login(page);
-    await page.goto(`${baseUrl}/seances`);
+    await page.goto(`${baseUrl}/seances/tableau-de-bord`);
     await page.waitForLoadState('networkidle');
     const monthInput = page.locator('input[type="month"]').first();
     await monthInput.fill('2026-01');
     await page.waitForLoadState('networkidle');
     // Le dashboard doit toujours être visible après changement de mois
-    await expect(page.locator('mat-card').first()).toBeVisible();
+    await expect(page.locator('app-seances-stats .stats')).toBeVisible();
   });
 
   // ─── Export dashboard ──────────────────────────────────────────────────────
 
   test('should have export buttons for CSV, PDF, XLSX', async ({page}) => {
     await login(page);
-    await page.goto(`${baseUrl}/seances`);
+    await page.goto(`${baseUrl}/seances/tableau-de-bord`);
     await page.waitForLoadState('networkidle');
     await expect(page.locator('button', {hasText: /CSV/i}).first()).toBeVisible();
     await expect(page.locator('button', {hasText: /PDF/i}).first()).toBeVisible();
@@ -350,9 +352,9 @@ test.describe('Module Séances', () => {
 
   test('should open dashboard details popup when clicking on presence KPI', async ({page}) => {
     await login(page);
-    await page.goto(`${baseUrl}/seances`);
+    await page.goto(`${baseUrl}/seances/tableau-de-bord`);
     await page.waitForLoadState('networkidle');
-    const presenceBtn = page.locator('button.app-data-pill, button.kpi-clickable').first();
+    const presenceBtn = page.locator('button.kpi-clickable').first();
     if (await presenceBtn.isVisible()) {
       await presenceBtn.click();
       // Un panneau de détails doit s'ouvrir

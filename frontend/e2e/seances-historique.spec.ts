@@ -1,7 +1,7 @@
 import {expect, Page, test} from '@playwright/test';
 
 /**
- * Historique des séances : statistiques + tableau paginé dont la recherche, les filtres et le tri sont faits par le
+ * Historique des séances : tableau paginé (les statistiques sont au tableau de bord /seances/tableau-de-bord) dont la recherche, les filtres et le tri sont faits par le
  * serveur (le test vérifie les paramètres envoyés). Les appels métier sont stubbés ; le login est réel.
  */
 test.describe('Historique des séances', () => {
@@ -43,19 +43,27 @@ test.describe('Historique des séances', () => {
     })));
   }
 
-  test('affiche les statistiques et la liste paginée, triée par date décroissante', async ({page}) => {
+  test('affiche la liste paginée seule, triée par date décroissante', async ({page}) => {
     const requests: URL[] = [];
     await login(page);
     await stub(page, requests);
     await page.goto(`${baseUrl}/seances/historique`);
 
-    await expect(page.locator('.kpi-grid')).toContainText('40');
     await expect(page.locator('app-configurable-list')).toContainText('Dupont');
+    await expect(page.locator('app-seances-stats')).toHaveCount(0);
     await expect(page.locator('mat-paginator')).toContainText('57');
     const first = requests[0];
     expect(first.searchParams.get('page')).toBe('0');
     expect(first.searchParams.get('sortBy')).toBe('dateSeance');
     expect(first.searchParams.get('sortDir')).toBe('desc');
+  });
+
+  test('les statistiques du mois sont au tableau de bord des séances', async ({page}) => {
+    await login(page);
+    await stub(page, []);
+    await page.goto(`${baseUrl}/seances/tableau-de-bord`);
+
+    await expect(page.locator('.kpi-grid')).toContainText('40');
   });
 
   test('la période est envoyée au serveur', async ({page}) => {

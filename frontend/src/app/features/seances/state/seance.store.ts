@@ -9,11 +9,8 @@ import {
   ScanSeanceQrPayload,
   ScanSeanceResult,
   SeanceCalendarResponse,
-  SeanceDashboardDetailItem,
-  SeanceDashboardDetailsResponse,
   SeanceJournalByDate,
   SeanceListItem,
-  SeanceMonthlyDashboard,
   SeanceRecent,
   SeanceSummary,
   UpsertVoletMedicalPayload,
@@ -36,10 +33,6 @@ export function scanSuccessMessage(result: Pick<ScanSeanceResult, 'validatedNow'
   if (result.validatedNow) return 'SEANCES.SCAN_VALIDATED';
   if (result.alreadyValidated) return 'SEANCES.SCAN_ALREADY_VALIDATED';
   return 'SEANCES.SESSION_CREATED_LISTED';
-}
-
-function currentMonthIso(): string {
-  return todayIsoDate().slice(0, 7);
 }
 
 export type SeanceScanState = 'idle' | 'image' | 'success' | 'error';
@@ -74,18 +67,6 @@ type SeanceState = {
   journalLoading: boolean;
   journalPatients: SeanceJournalByDate['patients'];
   journalArticles: SeanceJournalByDate['sortiesArticles'];
-
-  /** Dashboard mensuel */
-  dashboardMonth: string;
-  dashboardLoading: boolean;
-  seanceDashboard: SeanceMonthlyDashboard | null;
-
-  /** Détails dashboard (présences/absences) */
-  dashboardDetailsOpen: boolean;
-  dashboardDetailsKind: 'presence' | 'absence';
-  dashboardDetailsLoading: boolean;
-  dashboardDetailItems: SeanceDashboardDetailItem[];
-  dashboardDetailPageIndex: number;
 
   /** Calendrier (fériés / fermetures) */
   calendarHolidays: SeanceCalendarResponse['holidays'];
@@ -163,8 +144,6 @@ type SeanceState = {
   pendingSeances: SeanceListItem[];
 };
 
-const DASHBOARD_PAGE_SIZE = 10;
-
 const initialState: SeanceState = {
   selectedSeanceId: null,
   summary: null,
@@ -180,14 +159,6 @@ const initialState: SeanceState = {
   journalLoading: false,
   journalPatients: [],
   journalArticles: [],
-  dashboardMonth: currentMonthIso(),
-  dashboardLoading: false,
-  seanceDashboard: null,
-  dashboardDetailsOpen: false,
-  dashboardDetailsKind: 'presence',
-  dashboardDetailsLoading: false,
-  dashboardDetailItems: [],
-  dashboardDetailPageIndex: 0,
   calendarHolidays: [],
   calendarClosures: [],
   newHolidayDate: todayIsoDate(),
@@ -245,13 +216,6 @@ export const SeanceStore = signalStore(
       const status = store.summary()?.seance.status;
       return status === 'VALIDEE' || status === 'SIGNEE' || status === 'FACTUREE';
     }),
-    dashboardDetailPageItems: computed(() => {
-      const start = store.dashboardDetailPageIndex() * DASHBOARD_PAGE_SIZE;
-      return store.dashboardDetailItems().slice(start, start + DASHBOARD_PAGE_SIZE);
-    }),
-    dashboardDetailTotalPages: computed(() =>
-      Math.max(1, Math.ceil(store.dashboardDetailItems().length / DASHBOARD_PAGE_SIZE))
-    ),
   })),
   withMethods((store, api = inject(BackendApiService), referentialApi = inject(ReferentialApiService)) => ({
     // --- Articles stock ---
@@ -764,57 +728,6 @@ export const SeanceStore = signalStore(
         )
       )
     ),
-
-    // --- Dashboard mensuel ---
-    setDashboardMonth(dashboardMonth: string): void {
-      patchState(store, {dashboardMonth});
-    },
-    loadDashboard: rxMethod<{ centerId: string; year: number; month: number }>(
-      pipe(
-        tap(() => patchState(store, {dashboardLoading: true, error: null})),
-        switchMap(({centerId, year, month}) =>
-          api.getSeanceMonthlyDashboard(centerId, year, month).pipe(
-            tap((data) => patchState(store, {seanceDashboard: data, dashboardLoading: false})),
-            catchError((err: unknown) => {
-              patchState(store, {dashboardLoading: false, error: errorMessage(err)});
-              return EMPTY;
-            })
-          )
-        )
-      )
-    ),
-
-    // --- Détails dashboard ---
-    openDashboardDetails(kind: 'presence' | 'absence'): void {
-      patchState(store, {
-        dashboardDetailsOpen: true,
-        dashboardDetailsKind: kind,
-        dashboardDetailPageIndex: 0,
-        dashboardDetailItems: []
-      });
-    },
-    closeDashboardDetails(): void {
-      patchState(store, {dashboardDetailsOpen: false});
-    },
-    loadDashboardDetails: rxMethod<{ centerId: string; year: number; month: number; kind: 'presence' | 'absence' }>(
-      pipe(
-        tap(() => patchState(store, {dashboardDetailsLoading: true, error: null})),
-        switchMap(({centerId, year, month, kind}) =>
-          api.getSeanceDashboardDetails(centerId, year, month, kind).pipe(
-            tap((res: SeanceDashboardDetailsResponse) =>
-              patchState(store, {dashboardDetailsLoading: false, dashboardDetailItems: res.items ?? []})
-            ),
-            catchError((err: unknown) => {
-              patchState(store, {dashboardDetailsLoading: false, dashboardDetailItems: [], error: errorMessage(err)});
-              return EMPTY;
-            })
-          )
-        )
-      )
-    ),
-    setDashboardDetailPage(dashboardDetailPageIndex: number): void {
-      patchState(store, {dashboardDetailPageIndex});
-    },
 
     // --- Calendrier ---
     setNewHolidayDate(newHolidayDate: string): void {

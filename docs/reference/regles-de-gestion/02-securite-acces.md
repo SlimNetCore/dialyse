@@ -124,7 +124,9 @@
 - **RG-SEC-022** — Infirmier « seul » (rôle `INFIRMIER` sans autre rôle de centre) : routes `/api/v1/infirmiers/**` et
   `/api/v1/planning/**` interdites, hormis son propre planning `/api/v1/infirmiers/moi/**`. Côté interface il n'accède
   qu'à son
-  planning du jour, au tableau de bord des séances et au suivi des absences de patients. *Source :* `RoleScopeFilter`,
+  planning du jour, au poste infirmier (`/seances`), à l'historique des séances (`/seances/historique`), au **tableau
+  de bord des séances** (`/seances/tableau-de-bord`, les statistiques du mois qu'il voyait dans l'historique) et au
+  suivi des absences de patients. *Source :* `RoleScopeFilter`,
   `role-scope.guard`.
 - **RG-SEC-023** — Médecin « seul » (rôle `MEDECIN` sans `ADMIN`/`SECRETAIRE`/`INFIRMIER`) : routes `infirmiers`,
   `planning`,

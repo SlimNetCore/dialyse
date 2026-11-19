@@ -6,7 +6,7 @@ import {of} from 'rxjs';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {BaseChartDirective} from 'ng2-charts';
 import {SeancesStatsComponent} from './seances-stats.component';
-import {SeanceStore} from '../state/seance.store';
+import {SeancesTableauDeBordStore} from './seances-tableau-de-bord.store';
 import {BackendApiService} from '../../../core/api/backend-api.service';
 import {AppShellStore} from '../../../core/state/app-shell.store';
 import {WebSocketService} from '../../../core/ws/websocket.service';
@@ -26,7 +26,7 @@ describe('SeancesStatsComponent', () => {
       dashboardMonth: signal('2026-10'), dashboardLoading: signal(false), seanceDashboard: signal(null),
       dashboardDetailsOpen: signal(false), dashboardDetailsKind: signal<'presence' | 'absence'>('presence'),
       dashboardDetailItems: signal([]), dashboardDetailPageItems: signal([]), dashboardDetailPageIndex: signal(0),
-      dashboardDetailTotalPages: signal(1),
+      dashboardDetailTotalPages: signal(1), error: signal(null),
       setDashboardMonth: vi.fn(), loadDashboard: vi.fn(), openDashboardDetails: vi.fn(), loadDashboardDetails: vi.fn(),
       closeDashboardDetails: vi.fn(), setDashboardDetailPage: vi.fn(),
     };
@@ -35,7 +35,7 @@ describe('SeancesStatsComponent', () => {
       imports: [SeancesStatsComponent, TranslateModule.forRoot()],
       providers: [
         provideZonelessChangeDetection(),
-        {provide: SeanceStore, useValue: store},
+        {provide: SeancesTableauDeBordStore, useValue: store},
         {provide: BackendApiService, useValue: api},
         {provide: AppShellStore, useValue: {currentCenterId: signal(CENTER_ID)}},
         {provide: WebSocketService, useValue: {lastEvent}},

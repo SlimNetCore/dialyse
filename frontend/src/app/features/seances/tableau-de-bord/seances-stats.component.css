@@ -9,6 +9,16 @@
   gap: 18px;
 }
 
+.stats-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: color-mix(in srgb, #d64545 12%, var(--app-surface-solid) 88%);
+}
+
 .stats-head {
   display: flex;
   flex-wrap: wrap;
