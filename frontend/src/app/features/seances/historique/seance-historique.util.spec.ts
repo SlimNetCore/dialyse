@@ -23,6 +23,15 @@ describe('seance-historique.util', () => {
     });
   });
 
+  it('transmet plusieurs statuts choisis dans la liste, sans doublon ni valeur inconnue', () => {
+    expect(toSeanceHistoryQuery({status: 'CREE,signee,NOPE,CREE'}, null, '').status).toBe('CREE,SIGNEE');
+  });
+
+  it('la plage de dates de la colonne est envoyée au serveur', () => {
+    expect(toSeanceHistoryQuery({dateSeance: '2026-10-01..2026-10-31'}, null, ''))
+      .toMatchObject({from: '2026-10-01', to: '2026-10-31'});
+  });
+
   it('ignore un statut inconnu et un texte vide', () => {
     const query = toSeanceHistoryQuery({patient: '   ', status: 'NOPE'}, null, '');
     expect(query.status).toBeNull();

@@ -56,14 +56,24 @@
       </p>
     }
 
-    <div [attr.aria-busy]="store.loading()" class="table-scroll">
-      <app-configurable-list
+    <div [attr.aria-busy]="store.loading()" class="table-scroll" data-testid="seances-historique-table">
+      <ng-table
         (remoteQueryChange)="onRemoteQuery($event)"
         [columns]="columns()"
         [dataMode]="'remote'"
-        [emptyLabelKey]="'SEANCES.NO_SESSIONS_FOUND'"
+        [emptyLabel]="emptyLabel()"
+        [filters]="store.filters()"
         [inlineFilters]="true"
+        [labels]="ngTableLabels()"
+        [loading]="store.loading()"
+        [pageIndex]="store.pageIndex()"
+        [pageSizeOptions]="pageSizeOptions"
+        [pageSize]="store.pageSize()"
+        [paginator]="true"
+        [rowKeyAccessor]="rowKey"
         [rows]="store.rows()"
+        [showActiveFiltersBar]="true"
+        [totalCount]="store.total()"
       />
     </div>
 
@@ -103,14 +113,5 @@
         </button>
       }
     </ng-template>
-
-    <mat-paginator
-      (page)="onPage($event)"
-      [attr.aria-label]="'COMMON.PAGINATOR_ARIA_LABEL' | translate"
-      [length]="store.total()"
-      [pageIndex]="store.pageIndex()"
-      [pageSizeOptions]="pageSizeOptions"
-      [pageSize]="store.pageSize()"
-    ></mat-paginator>
   </section>
 </section>

@@ -5,7 +5,7 @@ import {TranslateModule} from '@ngx-translate/core';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {SeancesHistoriqueComponent} from './seances-historique.component';
 import {SeanceHistoriqueStore} from './seance-historique.store';
-import {ConfigurableListComponent} from '../../../shared/configurable-list.component';
+import {NgTableComponent} from '@sbourahla/ng-table';
 import {AuthStore} from '../../../core/state/auth.store';
 import {AppShellStore} from '../../../core/state/app-shell.store';
 import {WebSocketService} from '../../../core/ws/websocket.service';
@@ -18,8 +18,9 @@ function fakeStore() {
   return {
     rows: signal<unknown[]>([]), total: signal(0), pageIndex: signal(0), pageSize: signal(20), loading: signal(false),
     error: signal<string | null>(null), periodFrom: signal(''), periodTo: signal(''),
+    filters: signal<Record<string, string>>({}),
     deleting: signal(false), successMessage: signal<string | null>(null),
-    reload: vi.fn(), applyQuery: vi.fn(), setPage: vi.fn(), setPeriod: vi.fn(),
+    reload: vi.fn(), applyTableQuery: vi.fn(), setPeriod: vi.fn(),
     supprimer: vi.fn().mockResolvedValue(true),
   };
 }
@@ -48,7 +49,7 @@ describe('SeancesHistoriqueComponent', () => {
       ],
     });
     TestBed.overrideComponent(SeancesHistoriqueComponent, {
-      remove: {imports: [ConfigurableListComponent]},
+      remove: {imports: [NgTableComponent]},
       add: {schemas: [NO_ERRORS_SCHEMA]},
     });
   });
@@ -67,32 +68,40 @@ describe('SeancesHistoriqueComponent', () => {
   it('n\'affiche plus les statistiques du mois : la page est une liste seule', () => {
     const {root} = render();
     expect(root.querySelector('app-seances-stats')).toBeNull();
-    expect(root.querySelector('app-configurable-list')).not.toBeNull();
+    expect(root.querySelector('ng-table')).not.toBeNull();
   });
 
-  it('transmet au serveur le tri et les filtres de la liste, sans filtrer localement', () => {
+  it('transmet au serveur le tri, les filtres et la page de la table, sans filtrer localement', () => {
     const {cmp} = render();
 
     cmp.onRemoteQuery({
       sort: {columnId: 'patient', direction: 'asc'},
-      filters: {patient: 'dup'},
-      page: {index: 0, size: 20}
+      filters: {patient: 'dup', status: 'CREE,SIGNEE'},
+      page: {index: 2, size: 50}
     });
 
-    expect(store.applyQuery).toHaveBeenCalledWith(CENTER_ID,
-      {filters: {patient: 'dup'}, sortColumnId: 'patient', sortDirection: 'asc'});
+    expect(store.applyTableQuery).toHaveBeenCalledWith(CENTER_ID, {
+      filters: {patient: 'dup', status: 'CREE,SIGNEE'}, sortColumnId: 'patient', sortDirection: 'asc',
+      pageIndex: 2, pageSize: 50,
+    });
   });
 
   it('un tri vide revient au tri par défaut', () => {
     const {cmp} = render();
     cmp.onRemoteQuery({sort: {columnId: '', direction: ''}, filters: {}, page: {index: 0, size: 20}});
-    expect(store.applyQuery).toHaveBeenCalledWith(CENTER_ID, {filters: {}, sortColumnId: null, sortDirection: ''});
+    expect(store.applyTableQuery).toHaveBeenCalledWith(CENTER_ID,
+      {filters: {}, sortColumnId: null, sortDirection: '', pageIndex: 0, pageSize: 20});
   });
 
-  it('la pagination demande la page au serveur', () => {
-    const {cmp} = render();
-    cmp.onPage({pageIndex: 2, pageSize: 50, length: 300});
-    expect(store.setPage).toHaveBeenCalledWith(CENTER_ID, 2, 50);
+  it('lie la table distante à la page, au total et aux filtres du serveur', () => {
+    store.total.set(57);
+    store.pageIndex.set(1);
+    store.filters.set({patient: 'dup'});
+    const {root} = render();
+    const table = root.querySelector('ng-table');
+    expect(table).not.toBeNull();
+    expect(root.querySelector('app-configurable-list')).toBeNull();
+    expect(root.querySelector('mat-paginator')).toBeNull();
   });
 
   it('la période combine les deux bornes et peut être effacée', () => {
@@ -106,17 +115,23 @@ describe('SeancesHistoriqueComponent', () => {
     expect(store.setPeriod).toHaveBeenLastCalledWith(CENTER_ID, '', '');
   });
 
-  it('configure un filtre statut à 4 valeurs, un filtre texte patient et seules les colonnes serveur sont triables', () => {
+  it('configure un filtre statut à 4 valeurs, un filtre texte patient, une plage de dates et seules les colonnes serveur sont triables', () => {
     const {cmp} = render();
     const columns = cmp.columns() as Array<{
       id: string;
+      header: string;
       sortable?: boolean;
+      cellTemplate?: unknown;
       filter?: { type?: string; options?: unknown[] }
     }>;
 
     expect(columns.find((c) => c.id === 'status')?.filter?.options).toHaveLength(4);
     expect(columns.find((c) => c.id === 'status')?.filter?.type).toBe('enum');
+    expect(columns.find((c) => c.id === 'status')?.cellTemplate).toBeTruthy();
     expect(columns.find((c) => c.id === 'patient')?.filter?.type).toBe('text');
+    expect(columns.find((c) => c.id === 'dateSeance')?.filter?.type).toBe('range');
+    expect(columns.find((c) => c.id === 'forfait')?.filter).toBeUndefined();
+    expect(columns.find((c) => c.id === 'patient')?.header).toBe('CAHIER.PATIENT');
     expect(columns.filter((c) => c.sortable).map((c) => c.id)).toEqual(['dateSeance', 'patient', 'status']);
     expect(columns.find((c) => c.id === 'forfait')?.sortable).toBeFalsy();
   });

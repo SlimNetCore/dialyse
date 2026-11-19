@@ -101,6 +101,33 @@ export const SeanceHistoriqueStore = signalStore(
         });
         load(centerId);
       },
+      /**
+       * Requête de la table (tri, filtres, page) : un tri ou des filtres changés reviennent à la première page, sinon
+       * la page demandée est chargée ; la requête précédente en vol est annulée (switchMap).
+       */
+      applyTableQuery(centerId: string, query: {
+        filters: Record<string, string>;
+        sortColumnId: string | null;
+        sortDirection: SortDirection;
+        pageIndex: number;
+        pageSize: number;
+      }): void {
+        const filters = Object.fromEntries(Object.entries(query.filters ?? {}).filter(([, v]) => (v ?? '').trim() !== ''));
+        const before = store.filters();
+        const filtersChanged = Object.keys(filters).length !== Object.keys(before).length
+          || Object.entries(filters).some(([k, v]) => before[k] !== v);
+        const sortChanged = (query.sortColumnId ?? null) !== store.sortColumnId() || query.sortDirection !== store.sortDirection();
+        const pageSize = query.pageSize > 0 ? Math.min(100, query.pageSize) : store.pageSize();
+        const reset = filtersChanged || sortChanged || pageSize !== store.pageSize();
+        patchState(store, {
+          filters,
+          sortColumnId: query.sortColumnId ?? null,
+          sortDirection: query.sortDirection,
+          pageSize,
+          pageIndex: reset ? 0 : Math.max(0, query.pageIndex),
+        });
+        load(centerId);
+      },
       /** Nouvelle période (dates ISO, vide = sans borne) : retour à la première page puis rechargement. */
       setPeriod(centerId: string, periodFrom: string, periodTo: string): void {
         patchState(store, {periodFrom, periodTo, pageIndex: 0});

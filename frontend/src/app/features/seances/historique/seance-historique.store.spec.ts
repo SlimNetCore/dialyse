@@ -63,6 +63,31 @@ describe('SeanceHistoriqueStore', () => {
       expect.objectContaining({q: 'dupont', sortBy: 'status', sortDir: 'desc'}));
   });
 
+  it('la table : page demandée gardée si rien ne change, première page si un filtre ou le tri change', () => {
+    const store = TestBed.inject(SeanceHistoriqueStore);
+    const base = {filters: {patient: 'dupont'}, sortColumnId: 'patient', sortDirection: 'asc' as const, pageSize: 20};
+    store.applyTableQuery(CENTER, {...base, pageIndex: 0});
+
+    store.applyTableQuery(CENTER, {...base, pageIndex: 3});
+    expect(api.listSeances).toHaveBeenLastCalledWith(CENTER, 3, 20, expect.objectContaining({q: 'dupont'}));
+
+    store.applyTableQuery(CENTER, {...base, filters: {patient: 'dupont', status: 'CREE,SIGNEE'}, pageIndex: 3});
+    expect(store.pageIndex()).toBe(0);
+    expect(api.listSeances).toHaveBeenLastCalledWith(CENTER, 0, 20,
+      expect.objectContaining({status: 'CREE,SIGNEE', q: 'dupont'}));
+
+    store.applyTableQuery(CENTER, {...base, filters: {patient: 'dupont', status: 'CREE,SIGNEE'}, sortDirection: 'desc', pageIndex: 2});
+    expect(store.pageIndex()).toBe(0);
+
+    store.applyTableQuery(CENTER, {...base, filters: {patient: 'dupont', status: 'CREE,SIGNEE', dateSeance: ''},
+      sortDirection: 'desc', pageIndex: 2});
+    expect(api.listSeances).toHaveBeenLastCalledWith(CENTER, 2, 20, expect.objectContaining({sortBy: 'patient', sortDir: 'desc'}));
+
+    store.applyTableQuery(CENTER, {...base, filters: {patient: 'dupont', status: 'CREE,SIGNEE'}, sortDirection: 'desc',
+      pageIndex: 2, pageSize: 50});
+    expect(api.listSeances).toHaveBeenLastCalledWith(CENTER, 0, 50, expect.anything());
+  });
+
   it('la période est transmise au serveur et revient à la première page', () => {
     const store = TestBed.inject(SeanceHistoriqueStore);
     store.setPage(CENTER, 4, 20);

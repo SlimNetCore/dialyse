@@ -49,9 +49,10 @@ test.describe('Historique des séances', () => {
     await stub(page, requests);
     await page.goto(`${baseUrl}/seances/historique`);
 
-    await expect(page.locator('app-configurable-list')).toContainText('Dupont');
+    await expect(page.locator('[data-testid="seances-historique-table"] ng-table')).toContainText('Dupont');
     await expect(page.locator('app-seances-stats')).toHaveCount(0);
-    await expect(page.locator('mat-paginator')).toContainText('57');
+    await expect(page.locator('app-configurable-list, mat-paginator')).toHaveCount(0);
+    await expect(page.locator('[data-testid="seances-historique-table"] ng-table-paginator')).toContainText('57');
     const first = requests[0];
     expect(first.searchParams.get('page')).toBe('0');
     expect(first.searchParams.get('sortBy')).toBe('dateSeance');
@@ -88,7 +89,7 @@ test.describe('Historique des séances', () => {
       await login(page);
       await stub(page, []);
       await page.goto(`${baseUrl}/seances/historique`);
-      await expect(page.locator('app-configurable-list')).toBeVisible();
+      await expect(page.locator('[data-testid="seances-historique-table"] ng-table')).toBeVisible();
 
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
       expect(overflow).toBeLessThanOrEqual(1);

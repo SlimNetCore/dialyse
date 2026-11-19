@@ -51,13 +51,15 @@ export function toSeanceHistoryQuery(
   const columnRange = parseDateRange(filters['dateSeance']);
   const from = ISO_DATE.test(period.from) ? period.from : columnRange.from;
   const to = ISO_DATE.test(period.to) ? period.to : columnRange.to;
-  const status = (filters['status'] ?? '').trim().toUpperCase();
+  // La liste de statuts de la table est multiple (CSV) : le serveur accepte plusieurs statuts séparés par une virgule.
+  const statuses = (filters['status'] ?? '').split(',').map((s) => s.trim().toUpperCase())
+    .filter((s, i, all) => (SEANCE_STATUSES as readonly string[]).includes(s) && all.indexOf(s) === i);
   const text = (filters['patient'] ?? '').trim();
   const sortable = (HISTORY_SORTABLE_COLUMNS as readonly string[]).includes(sortColumnId ?? '');
   return {
     from,
     to,
-    status: (SEANCE_STATUSES as readonly string[]).includes(status) ? status : null,
+    status: statuses.length ? statuses.join(',') : null,
     q: text || null,
     sortBy: sortable && sortDirection ? sortColumnId : 'dateSeance',
     sortDir: sortable && sortDirection ? sortDirection : 'desc',
