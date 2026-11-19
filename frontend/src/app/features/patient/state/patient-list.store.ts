@@ -204,19 +204,30 @@ export const PatientListStore = signalStore(
       )
     ),
 
-    // ✅ Exporter en Excel
-    exportListExcel: rxMethod<{ centerId: string }>(
+    /**
+     * Export de la liste : TOUTES les lignes qui répondent aux filtres et au tri affichés (pas seulement la page
+     * courante), lues par pages de {@link TAILLE_DE_PAGE_MAXIMALE} avec la même requête que la liste. `onRows` reçoit
+     * les lignes, dans l'ordre affiché, pour produire le fichier avec les colonnes visibles.
+     */
+    exportFilteredRows: rxMethod<{ centerId: string; userId: string; onRows: (rows: any[]) => void }>(
       pipe(
-        tap(() => {
-          patchState(store, {exportingList: true, error: null});
-        }),
-        switchMap(({centerId}) =>
-          api.printDocument(centerId, 'LISTE_PATIENTS', {}, 'EXCEL').pipe(
-            tap((blob: Blob) => {
-              const a = document.createElement('a');
-              a.href = URL.createObjectURL(blob);
-              a.download = 'liste-patients.xls';
-              a.click();
+        tap(() => patchState(store, {exportingList: true, error: null})),
+        switchMap(({centerId, userId, onRows}) => {
+          const fetchPage = (page: number) => api.listPatients(centerId, userId, {
+            page,
+            size: TAILLE_DE_PAGE_MAXIMALE,
+            filters: store.columnFilters(),
+            sortColumnId: store.sortColumnId() || undefined,
+            sortDirection: store.sortDirection() || undefined
+          });
+          return fetchPage(0).pipe(
+            expand((res: any) => {
+              const loadedSoFar = ((res.page ?? 0) + 1) * TAILLE_DE_PAGE_MAXIMALE;
+              return loadedSoFar < (res.total ?? 0) ? fetchPage((res.page ?? 0) + 1) : EMPTY;
+            }),
+            reduce((acc: any[], res: any) => [...acc, ...(res.items ?? [])], [] as any[]),
+            tap((items: any[]) => {
+              onRows(items.map(mapPatientRow));
               patchState(store, {exportingList: false});
             }),
             catchError((err: any) => {
@@ -226,8 +237,8 @@ export const PatientListStore = signalStore(
               });
               return of(null);
             })
-          )
-        )
+          );
+        })
       )
     ),
 

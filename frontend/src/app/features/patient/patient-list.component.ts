@@ -35,10 +35,13 @@ import {
   NgTableComponent,
   NgTableCopyEvent,
   NgTableLabels,
+  NgTableRemoteExportRequest,
   NgTableRemoteQuery,
   NgTableSelectionAction,
   NgTableSelectionActionEvent,
+  NgTableTone,
   NgTableView,
+  toStyledXlsx,
 } from '@sbourahla/ng-table';
 import {catchError, map, Observable, of} from 'rxjs';
 
@@ -71,6 +74,18 @@ export interface PatientRow {
   /** Description du forfait de la PEC validée. */
   pecForfaitLibelle?: string;
 }
+
+/** Teinte de la pastille d'état du patient (ng-table `cell: {type: 'badge'}`) ; un état absent reste neutre. */
+export const ETAT_PATIENT_TONES: Record<string, NgTableTone> = {
+  PERMANENT: 'success',
+  GUERRI: 'success',
+  GREFFE: 'info',
+  OCCASIONNEL: 'neutral',
+  VACANCIER_LOCAL: 'neutral',
+  VACANCIER_ETRANGER: 'neutral',
+  TRANSFERE: 'warning',
+  DECEDE: 'danger',
+};
 
 @Component({
   selector: 'app-patient-list',
@@ -249,10 +264,8 @@ export class PatientListComponent {
   );
 
   protected readonly codeCellTemplate = viewChild<TemplateRef<any>>('codeCell');
-  protected readonly nomCellTemplate = viewChild<TemplateRef<any>>('nomCell');
   protected readonly sexeCellTemplate = viewChild<TemplateRef<any>>('sexeCell');
   protected readonly assuranceCellTemplate = viewChild<TemplateRef<any>>('assuranceCell');
-  protected readonly etatCellTemplate = viewChild<TemplateRef<any>>('etatCell');
   protected readonly facturationCellTemplate = viewChild<TemplateRef<any>>('facturationCell');
   protected readonly pecStatusCellTemplate = viewChild<TemplateRef<any>>('pecStatusCell');
   protected readonly joursDialyseCellTemplate = viewChild<TemplateRef<any>>('joursDialyseCell');
@@ -295,7 +308,7 @@ export class PatientListComponent {
       resizable: true,
       minWidthPx: 180,
       filter: {type: 'text', label: t('PATIENT_LIST.COL_NOM')},
-      cellTemplate: this.asNgTableTemplate(this.nomCellTemplate() ?? undefined),
+      cell: {type: 'avatar'},
     },
     prenom: {
       id: 'prenom',
@@ -339,7 +352,12 @@ export class PatientListComponent {
         optionsLoader: () => this.loadEtatFilterOptionsFromReferential(),
         label: t('PATIENT_LIST.COL_ETAT'),
       },
-      cellTemplate: this.asNgTableTemplate(this.etatCellTemplate() ?? undefined),
+      // Pastille ng-table : libellé traduit, teinte selon le code d'état (le tri et le filtre lisent toujours le code).
+      cell: {
+        type: 'badge',
+        tone: ETAT_PATIENT_TONES,
+        label: (value) => this.etatLabel(String(value ?? '')),
+      },
     },
     nonFacturable: {
       id: 'nonFacturable',
@@ -443,6 +461,7 @@ export class PatientListComponent {
       widthPx: 300,
       minWidthPx: 250,
       maxWidthPx: 340,
+      exportable: false,
       cellTemplate: this.asNgTableTemplate(this.actionsCellTemplate() ?? undefined),
     },
     };
@@ -627,10 +646,12 @@ export class PatientListComponent {
     this.router.navigate(['/patients', patient.id, 'dossier-medical']);
   }
 
-  exportListExcel(): void {
-    const centerId = this.auth.centerId();
-    if (!centerId) return;
-    this.patientListStore.exportListExcel({centerId});
+  /** Libellé traduit d'un état patient (« Permanent(e) », « Décédé »…) ; le code brut si la traduction manque. */
+  etatLabel(code: string): string {
+    if (!code) return '';
+    const key = 'PATIENT_FORM.' + code;
+    const label = this.translate.instant(key);
+    return label && label !== key ? label : code;
   }
 
   eventDateTooltip(row: PatientRow): string {
@@ -799,8 +820,59 @@ export class PatientListComponent {
       .trim();
   }
 
-  onExportRequested(event: any) {
-    // Handle the remote export request here
-    console.log(event);
+  /**
+   * Export intégré du tableau (mode distant) : toutes les lignes qui répondent aux filtres et au tri affichés, avec
+   * les colonnes visibles dans l'ordre affiché (`request.columns`, sans la colonne d'actions), en classeur Excel mis
+   * en forme par ng-table ({@link toStyledXlsx}).
+   */
+  onExportRequested(request: NgTableRemoteExportRequest): void {
+    if (this.exportingList()) return;
+    const centerId = this.auth.centerId();
+    if (!centerId) return;
+    const userId = this.auth.username() ?? 'demo';
+    const columns = request.columns.filter((c) => c.id !== 'actions');
+    const filename = `${request.filename || 'liste-patients'}.xlsx`;
+    this.patientListStore.exportFilteredRows({
+      centerId,
+      userId,
+      onRows: (rows: PatientRow[]) => {
+        const matrix = [
+          columns.map((c) => c.header),
+          ...rows.map((row) => columns.map((c) => this.exportCellValue(c.id, row))),
+        ];
+        const bytes = toStyledXlsx(matrix, {sheetName: this.translate.instant('PATIENT_LIST.TITLE')});
+        this.downloadBlob(new Blob([bytes as BlobPart], {
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        }), filename);
+      },
+    });
+  }
+
+  /** Valeur exportée d'une cellule : le texte lisible affiché (libellés traduits), une vraie date pour l'admission. */
+  exportCellValue(columnId: string, row: PatientRow): string | number | boolean | Date | null {
+    switch (columnId) {
+      case 'etatPatient':
+        return this.etatLabel(row.etatPatient);
+      case 'nonFacturable':
+        return this.translate.instant(row.nonFacturable ? 'PATIENT_LIST.NON_BILLABLE_LABEL' : 'PATIENT_LIST.BILLABLE_LABEL');
+      case 'dateAdmission': {
+        const iso = /^(\d{4})-(\d{2})-(\d{2})/.exec(row.dateAdmission ?? '');
+        return iso ? new Date(Date.UTC(+iso[1], +iso[2] - 1, +iso[3])) : (row.dateAdmission || null);
+      }
+      default: {
+        const column = this.allColumnDefsById()[columnId];
+        const value = column ? column.valueAccessor(row) : null;
+        return value === undefined || value === '' ? null : (value as string | number | boolean | null);
+      }
+    }
+  }
+
+  private downloadBlob(blob: Blob, filename: string): void {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 0);
   }
 }

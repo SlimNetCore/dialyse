@@ -11,47 +11,6 @@
 
   <mat-card-content>
     <div class="list-toolbar">
-      <div class="toolbar-group">
-        <button
-          (click)="clearAllColumnFilters()"
-          [disabled]="!hasActiveFilters()"
-          color="warn"
-          mat-stroked-button
-        >
-          @if (loading()) {
-            <mat-progress-spinner
-              class="btn-loader"
-              diameter="16"
-              mode="indeterminate"
-              strokeWidth="2"
-            />
-          } @else {
-            <mat-icon>filter_alt_off</mat-icon>
-          }
-          {{ 'PATIENT_LIST.RESET_FILTERS_BUTTON' | translate }}
-        </button>
-
-        <button
-          (click)="exportListExcel()"
-          [disabled]="exportingList()"
-          [matTooltip]="'PATIENT_LIST.BTN_EXPORT_EXCEL' | translate"
-          color="primary"
-          mat-stroked-button
-        >
-          @if (exportingList()) {
-            <mat-progress-spinner
-              class="btn-loader"
-              diameter="16"
-              mode="indeterminate"
-              strokeWidth="2"
-            />
-          } @else {
-            <mat-icon>table_view</mat-icon>
-          }
-          {{ 'PATIENT_LIST.BTN_EXPORT_EXCEL' | translate }}
-        </button>
-      </div>
-
       <div class="toolbar-group toolbar-group-end">
         @if (canCreatePatient()) {
           <button (click)="openNewPatient()" class="btn-new" color="primary" mat-flat-button>
@@ -68,6 +27,8 @@
         (remoteExportRequested)="onExportRequested($event)"
         [exportEnabled]="true"
         [exportMode]="'remote'"
+        [exportFormat]="'xlsx'"
+        [exportFilename]="'liste-patients'"
         (cellCopied)="onListCellCopied($event)"
         (columnVisibilityChange)="onColumnVisibilityChange($event)"
         (filteredCountChange)="onFilteredCountChange($event)"
@@ -132,18 +93,6 @@
       <span class="code-chip">{{ row.code }}</span>
     </ng-template>
 
-    <ng-template #nomCell let-row>
-      <span>{{ row.nom }}</span>
-      @if (row.nonFacturable) {
-        <mat-icon
-          [matTooltip]="'PATIENT_LIST.NON_FACTURABLE_TOOLTIP' | translate"
-          class="warn-inline"
-          color="warn"
-        >warning
-        </mat-icon>
-      }
-    </ng-template>
-
     <ng-template #sexeCell let-row>
       <mat-icon [class.female]="row.sexe === 'F'" [class.male]="row.sexe === 'M'" class="sexe-icon">
         {{ row.sexe === 'M' ? 'male' : 'female' }}
@@ -152,19 +101,6 @@
 
     <ng-template #assuranceCell let-row>
       <span class="mono">{{ row.numeroAssurance }}</span>
-    </ng-template>
-
-    <ng-template #etatCell let-row>
-      <div class="etat-cell">
-        <span
-          [attr.data-etat]="row.etatPatient"
-          [class.has-event-tooltip]="hasEventTooltip(row)"
-          [matTooltipDisabled]="!hasEventTooltip(row)"
-          [matTooltip]="eventDateTooltip(row)"
-          class="etat-badge"
-          matTooltipClass="patient-theme-tooltip"
-        >{{ ('PATIENT_FORM.' + row.etatPatient) | translate }}</span>
-      </div>
     </ng-template>
 
     <ng-template #facturationCell let-row>
