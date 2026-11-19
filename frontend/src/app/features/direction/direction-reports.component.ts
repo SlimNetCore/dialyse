@@ -1,13 +1,20 @@
-import {CurrencyPipe, DatePipe} from '@angular/common';
-import {ChangeDetectionStrategy, Component, computed} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, TemplateRef, viewChild} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
 import {MatSelectModule} from '@angular/material/select';
 import {TranslateModule} from '@ngx-translate/core';
+import {DirectionTableComponent} from './direction-table.component';
+import {
+  compareColumns,
+  compareRows,
+  DirectionColumn,
+  reportColumns,
+  ReportRow,
+} from './direction-tables.util';
 import {DirectionViewBase} from './direction-view.base';
-import {delta, lastCompleteMonths} from './direction.util';
+import {lastCompleteMonths} from './direction.util';
 
 /**
  * Rapports de la direction (/direction/rapports) : rapports mensuels figés (PDF) des douze derniers mois écoulés et
@@ -16,38 +23,44 @@ import {delta, lastCompleteMonths} from './direction.util';
 @Component({
   selector: 'app-direction-reports',
   standalone: true,
-  imports: [CurrencyPipe, DatePipe, TranslateModule, MatCardModule, MatButtonModule, MatIconModule, MatFormFieldModule,
-    MatSelectModule],
+  imports: [TranslateModule, MatCardModule, MatButtonModule, MatIconModule, MatFormFieldModule, MatSelectModule,
+    DirectionTableComponent],
   templateUrl: './direction-reports.component.html',
   styleUrl: './direction.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DirectionReportsComponent extends DirectionViewBase {
   /** Douze derniers mois écoulés, avec leur instantané s'il est déjà figé. */
-  protected readonly reportRows = computed(() => {
+  protected readonly reportRows = computed<ReportRow[]>(() => {
     const frozen = new Map(this.store.snapshots().map((s) => [s.mois, s.generatedAt]));
     return lastCompleteMonths(new Date(), 12).map((mois) => ({mois, generatedAt: frozen.get(mois) ?? null}));
+  });
+  private readonly actionsCell = viewChild<TemplateRef<unknown>>('actionsCell');
+  /** Mois, état (pastille) et bouton de téléchargement du rapport PDF. */
+  protected readonly reportColumns = computed<DirectionColumn<ReportRow>[]>(() => {
+    const ctx = this.tableContext();
+    return [
+      ...reportColumns(ctx),
+      {
+        id: 'actions', header: ctx.t('COMMON.COL_ACTIONS'), valueAccessor: () => '', sortable: false,
+        minWidthPx: 190, exportable: false,
+        cellTemplate: this.actionsCell() as DirectionColumn<ReportRow>['cellTemplate'],
+      },
+    ];
   });
   /** Mois déjà figés, sélectionnables dans le comparateur (un mois non figé n'a pas encore d'instantané). */
   protected readonly frozenMonths = computed(() =>
     [...this.store.snapshots()].map((s) => s.mois).sort().reverse());
   /**
-   * Delta société entre les deux mois figés choisis dans le comparateur (activité et finances) ; `null` tant que
-   * les deux ne sont pas chargés.
+   * Comparaison société des deux mois figés choisis (activité et finances) : une ligne par indicateur et ses
+   * colonnes ; `null` tant que les deux mois ne sont pas chargés.
    */
-  protected readonly compareDeltas = computed(() => {
+  protected readonly compareTable = computed(() => {
     const a = this.store.compareA();
     const b = this.store.compareB();
     if (!a || !b) return null;
-    const ta = a.overview.totaux;
-    const tb = b.overview.totaux;
-    return {
-      patients: {a: ta.patients, b: tb.patients},
-      seances: {a: ta.seances, b: tb.seances, d: delta(tb.seances, ta.seances)},
-      caTtc: {a: ta.caTtc, b: tb.caTtc, d: delta(tb.caTtc, ta.caTtc)},
-      encaisse: {a: ta.encaisse, b: tb.encaisse, d: delta(tb.encaisse, ta.encaisse)},
-      tauxEncaissement: {a: ta.tauxEncaissement, b: tb.tauxEncaissement},
-    };
+    const ctx = this.tableContext();
+    return {rows: compareRows(ctx, a, b), columns: compareColumns(ctx, a.mois, b.mois)};
   });
 
   /** Fige le mois au besoin, puis enregistre le rapport PDF sur le poste. */

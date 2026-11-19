@@ -2,51 +2,9 @@
   @if (store.overview()) {
     <mat-card class="block" data-testid="direction-activite">
       <h2>{{ 'DIRECTION.CENTRES_TITLE' | translate }}</h2>
-      <div class="table-scroll">
-        <table class="centres" data-testid="direction-centres">
-          <thead>
-          <tr>
-            <th class="rank-col"></th>
-            <th>{{ 'DIRECTION.COL.CENTRE' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.KPI.PATIENTS' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.COL.SOUS_KT' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.KPI.SEANCES' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.COL.FACTURES' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.KPI.CA_TTC' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.KPI.ENCAISSE' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.KPI.RESTE' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.KPI.TAUX' | translate }}</th>
-            <th>{{ 'DIRECTION.COL.PART_CA' | translate }}</th>
-          </tr>
-          </thead>
-          <tbody>
-            @for (c of displayCentres(); track c.centerId) {
-              <tr [class.inactive]="!c.actif">
-                <td class="rank-col">
-                  <span [class]="'rank-badge rank-' + rankOf(c.centerId)">{{ rankOf(c.centerId) }}</span>
-                </td>
-                <td>{{ c.nom }}</td>
-                <td class="num">{{ headcount(c.patients) }}</td>
-                <td class="num">{{ headcount(c.patientsSousKt) }}</td>
-                <td class="num">{{ c.seances }}</td>
-                <td class="num">{{ c.factures }}</td>
-                <td class="num">{{ c.caTtc | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</td>
-                <td class="num">{{ c.encaisse | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</td>
-                <td class="num">{{ c.resteARecouvrer | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</td>
-                <td [class]="'rate ' + level(c.tauxEncaissement)" class="num rate">
-                  {{ c.tauxEncaissement === null ? '—' : c.tauxEncaissement + ' %' }}
-                </td>
-                <td class="share-cell">
-                  <div class="share-bar">
-                    <span class="track"><span [style.width.%]="caShare(c.centerId)" class="fill"></span></span>
-                    <span class="pct">{{ caShare(c.centerId) | number: '1.0-0' }} %</span>
-                  </div>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+      <app-direction-table [columns]="centresColumns()" [inactive]="centreInactif"
+                           [label]="'DIRECTION.CENTRES_TITLE' | translate" [rows]="displayCentres()"
+                           data-testid="direction-centres"/>
     </mat-card>
 
     <mat-card class="block">
@@ -57,91 +15,16 @@
         <span class="legend-item"><i class="dot warn"></i>{{ 'DIRECTION.CLINICAL.LEGEND_WARN' | translate }}</span>
         <span class="legend-item"><i class="dot bad"></i>{{ 'DIRECTION.CLINICAL.LEGEND_BAD' | translate }}</span>
       </div>
-      <div class="table-scroll">
-        <table class="centres" data-testid="direction-clinical">
-          <thead>
-          <tr>
-            <th>{{ 'DIRECTION.COL.CENTRE' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.CLINICAL.KTV' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.CLINICAL.HB' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.CLINICAL.PHOSPHORE' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.CLINICAL.PTH' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.CLINICAL.ALBUMINE' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.CLINICAL.VHB' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.CLINICAL.VHC' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.CLINICAL.VIH' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.CLINICAL.OBSERVANCE' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.CLINICAL.GREFFE_ATTENTE' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.CLINICAL.GREFFES' | translate }}</th>
-          </tr>
-          </thead>
-          <tbody>
-            @for (row of indicatorRows(); track row.c.centerId) {
-              <tr [class.total]="row.total">
-                <td>{{ row.total ? ('DIRECTION.TOTAL' | translate) : row.c.nom }}</td>
-                <td class="num">
-                  <span
-                    [class]="'kdigo-pill ' + kdigo(row.c.clinique.ktV.pctDansCible)">{{ pct(row.c.clinique.ktV.pctDansCible) }}</span>
-                </td>
-                <td class="num">
-                  <span
-                    [class]="'kdigo-pill ' + kdigo(row.c.clinique.hemoglobine.pctDansCible)">{{ pct(row.c.clinique.hemoglobine.pctDansCible) }}</span>
-                </td>
-                <td class="num">
-                  <span
-                    [class]="'kdigo-pill ' + kdigo(row.c.clinique.phosphore.pctDansCible)">{{ pct(row.c.clinique.phosphore.pctDansCible) }}</span>
-                </td>
-                <td class="num">
-                  <span
-                    [class]="'kdigo-pill ' + kdigo(row.c.clinique.pth.pctDansCible)">{{ pct(row.c.clinique.pth.pctDansCible) }}</span>
-                </td>
-                <td class="num">
-                  <span
-                    [class]="'kdigo-pill ' + kdigo(row.c.clinique.albumine.pctDansCible)">{{ pct(row.c.clinique.albumine.pctDansCible) }}</span>
-                </td>
-                <td class="num">{{ headcount(row.c.clinique.vhbPositifs) }}</td>
-                <td class="num">{{ headcount(row.c.clinique.vhcPositifs) }}</td>
-                <td class="num">{{ headcount(row.c.clinique.vihPositifs) }}</td>
-                <td class="num">{{ headcount(row.c.clinique.patientsObservanceEnRetard) }}</td>
-                <td class="num">{{ headcount(row.c.clinique.greffeListeAttente) }}</td>
-                <td class="num">{{ headcount(row.c.clinique.greffesPeriode) }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+      <app-direction-table [columns]="indicatorTable().clinical" [label]="'DIRECTION.CLINICAL.TITLE' | translate"
+                           [rows]="indicatorTable().rows" [totals]="indicatorTable().totals"
+                           data-testid="direction-clinical"/>
     </mat-card>
 
     <mat-card class="block">
       <h2>{{ 'DIRECTION.STOCK.TITLE' | translate }}</h2>
-      <div class="table-scroll">
-        <table class="centres" data-testid="direction-stock">
-          <thead>
-          <tr>
-            <th>{{ 'DIRECTION.COL.CENTRE' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.STOCK.ARTICLES' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.STOCK.SOUS_SEUIL' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.STOCK.PERIMES' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.STOCK.PEREMPTION_PROCHE' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.STOCK.VALEUR' | translate }}</th>
-          </tr>
-          </thead>
-          <tbody>
-            @for (row of indicatorRows(); track row.c.centerId) {
-              <tr [class.total]="row.total">
-                <td>{{ row.total ? ('DIRECTION.TOTAL' | translate) : row.c.nom }}</td>
-                <td class="num">{{ row.c.stock.articlesActifs }}</td>
-                <td [class.bad]="row.c.stock.articlesSousSeuil > 0" class="num">{{ row.c.stock.articlesSousSeuil }}</td>
-                <td [class.bad]="row.c.stock.lotsPerimes > 0" class="num">{{ row.c.stock.lotsPerimes }}</td>
-                <td [class.warn]="row.c.stock.lotsPeremptionProche > 0"
-                    class="num">{{ row.c.stock.lotsPeremptionProche }}
-                </td>
-                <td class="num">{{ row.c.stock.valeurStock | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+      <app-direction-table [columns]="indicatorTable().stock" [label]="'DIRECTION.STOCK.TITLE' | translate"
+                           [rows]="indicatorTable().rows" [totals]="indicatorTable().totals"
+                           data-testid="direction-stock"/>
     </mat-card>
   }
 
@@ -149,86 +32,17 @@
     <mat-card class="block" data-testid="direction-gmao">
       <h2>{{ 'DIRECTION.GMAO.TITLE' | translate }}</h2>
       <p class="muted">{{ 'DIRECTION.GMAO.HINT' | translate }}</p>
-      <div class="table-scroll">
-        <table class="centres" data-testid="direction-gmao-table">
-          <thead>
-          <tr>
-            <th>{{ 'DIRECTION.COL.CENTRE' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.GMAO.NB_EQUIPEMENTS' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.GMAO.HORS_SERVICE' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.GMAO.EN_MAINTENANCE' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.GMAO.REFORMES' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.GMAO.INTERVENTIONS_EN_COURS' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.GMAO.COUT_MAINTENANCE' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.GMAO.INDISPONIBILITE' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.GMAO.PATIENTS_A_RISQUE' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.GMAO.A_REFORMER' | translate }}</th>
-          </tr>
-          </thead>
-          <tbody>
-            @for (row of gmaoRows(); track row.c.centerId) {
-              <tr [class.total]="row.total">
-                <td>{{ row.total ? ('DIRECTION.TOTAL' | translate) : row.c.nom }}</td>
-                <td class="num">{{ row.c.nbEquipements }}</td>
-                <td [class.bad]="row.c.nbHorsService > 0" class="num">{{ row.c.nbHorsService }}</td>
-                <td [class.warn]="row.c.nbEnMaintenance > 0" class="num">{{ row.c.nbEnMaintenance }}</td>
-                <td class="num">{{ row.c.nbReformes }}</td>
-                <td class="num">{{ row.c.interventionsEnCours }}</td>
-                <td class="num">{{ row.c.coutMaintenancePeriode | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</td>
-                <td class="num">{{ row.c.indisponibiliteHeuresCumulees | number: '1.0-1' }} h</td>
-                <td [class.bad]="row.c.patientsSurEquipementIndisponible > 0"
-                    class="num">{{ row.c.patientsSurEquipementIndisponible }}
-                </td>
-                <td [class.warn]="row.c.nbReformeRecommandee > 0" class="num">{{ row.c.nbReformeRecommandee }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+      <app-direction-table [columns]="gmaoTable().columns" [label]="'DIRECTION.GMAO.TITLE' | translate"
+                           [rows]="gmaoTable().rows" [totals]="gmaoTable().totals"
+                           data-testid="direction-gmao-table"/>
 
       <h3>{{ 'DIRECTION.GMAO.TOP_TITLE' | translate }}</h3>
       <p class="muted">{{ 'DIRECTION.GMAO.TOP_HINT' | translate }}</p>
       @if (gmaoTopRows().length === 0) {
         <p class="muted">{{ 'DIRECTION.GMAO.TOP_EMPTY' | translate }}</p>
       } @else {
-        <div class="table-scroll">
-          <table class="centres" data-testid="direction-gmao-top">
-            <thead>
-            <tr>
-              <th>{{ 'DIRECTION.COL.CENTRE' | translate }}</th>
-              <th>{{ 'DIRECTION.GMAO.COL_EQUIPEMENT' | translate }}</th>
-              <th class="num">{{ 'DIRECTION.GMAO.COL_COUT_PERIODE' | translate }}</th>
-              <th class="num">{{ 'DIRECTION.GMAO.COL_COUT_CUMULE' | translate }}</th>
-              <th class="num">{{ 'DIRECTION.GMAO.COL_RATIO' | translate }}</th>
-              <th class="num">{{ 'DIRECTION.GMAO.COL_INDISPONIBILITE' | translate }}</th>
-              <th>{{ 'DIRECTION.GMAO.A_REFORMER' | translate }}</th>
-            </tr>
-            </thead>
-            <tbody>
-              @for (row of gmaoTopRows(); track row.e.equipementId) {
-                <tr>
-                  <td>{{ row.centre }}</td>
-                  <td>{{ row.e.code }} — {{ row.e.designation }}</td>
-                  <td class="num">{{ row.e.coutPeriode | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</td>
-                  <td class="num">{{ row.e.coutCumule | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</td>
-                  <td [class.warn]="row.e.reformeRecommandee" class="num">
-                    @if (row.e.ratioMaintenance != null) {
-                      {{ row.e.ratioMaintenance * 100 | number: '1.0-0' }} %
-                    } @else {
-                      —
-                    }
-                  </td>
-                  <td class="num">{{ row.e.indisponibiliteHeures | number: '1.0-1' }} h</td>
-                  <td [class.warn]="row.e.reformeRecommandee">
-                    @if (row.e.reformeRecommandee) {
-                      {{ 'DIRECTION.GMAO.A_REFORMER' | translate }}
-                    }
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
+        <app-direction-table [columns]="gmaoTopColumns()" [label]="'DIRECTION.GMAO.TOP_TITLE' | translate"
+                             [rows]="gmaoTopRows()" data-testid="direction-gmao-top"/>
       }
     </mat-card>
   }
@@ -358,47 +172,9 @@
         }
       </div>
 
-      <div class="table-scroll">
-        <table class="centres" data-testid="direction-capacite-table">
-          <thead>
-          <tr>
-            <th>{{ 'DIRECTION.COL.CENTRE' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.CAPACITE.COL_GENERATEURS' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.CAPACITE.COL_SECOURS' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.CAPACITE.COL_POSTES' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.CAPACITE.COL_SERIES' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.CAPACITE.COL_CAPACITE' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.CAPACITE.COL_FILE' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.CAPACITE.COL_TAUX' | translate }}</th>
-            <th>{{ 'DIRECTION.CAPACITE.COL_STATUT' | translate }}</th>
-          </tr>
-          </thead>
-          <tbody>
-            @for (row of capaciteRows(); track row.centerId ?? 'total') {
-              <tr [class.total]="row.total">
-                <td>{{ row.nom ?? ('DIRECTION.TOTAL' | translate) }}</td>
-                <td class="num">{{ row.ligne.generateurs }}</td>
-                <td class="num">{{ row.ligne.generateursSecours }}</td>
-                <td class="num">{{ row.ligne.postesActifs }}</td>
-                <td class="num">{{ row.total ? '—' : row.ligne.series }}</td>
-                <td class="num"><strong>{{ row.ligne.capacite ?? '—' }}</strong></td>
-                <td class="num">{{ headcount(row.ligne.fileActive) }}</td>
-                <td class="num">{{ pct(row.ligne.tauxOccupation) }}</td>
-                <td>
-                  <span [class]="'capacite-badge ' + niveauClasse(row.ligne)"
-                        data-testid="direction-capacite-statut">
-                    @if (row.ligne.niveau !== null) {
-                      {{ ('DIRECTION.CAPACITE.NIVEAU.' + row.ligne.niveau) | translate }}
-                    } @else {
-                      —
-                    }
-                  </span>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+      <app-direction-table [columns]="capaciteTable().columns" [label]="'DIRECTION.CAPACITE.TITLE' | translate"
+                           [rows]="capaciteTable().rows" [totals]="capaciteTable().totals"
+                           data-testid="direction-capacite-table"/>
 
       <details class="capacite-methode" data-testid="direction-capacite-methode" open>
         <summary>{{ 'DIRECTION.CAPACITE.METHODE_TITLE' | translate }}</summary>
@@ -453,7 +229,7 @@
           </mat-card>
           <mat-card class="kpi">
             <span>{{ 'DIRECTION.ABSENCES.KPI_VALORISATION' | translate }}</span>
-            <strong>{{ h.valorisationHt === null ? '—' : (h.valorisationHt | currency: 'DZD' : 'symbol-narrow' : '1.0-0') }}</strong>
+            <strong>{{ h.valorisationHt === null ? '—' : tableContext().money(h.valorisationHt) }}</strong>
           </mat-card>
           <mat-card class="kpi">
             <span>{{ 'DIRECTION.ABSENCES.KPI_PART_CA' | translate }}</span>
@@ -461,71 +237,16 @@
           </mat-card>
         </div>
       }
-      <div class="table-scroll">
-        <table class="centres" data-testid="direction-absences-table">
-          <thead>
-          <tr>
-            <th>{{ 'DIRECTION.COL.CENTRE' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.ABSENCES.COL_NB' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.ABSENCES.COL_JUSTIFIEES' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.ABSENCES.COL_NON_JUSTIFIEES' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.ABSENCES.COL_A_QUALIFIER' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.ABSENCES.COL_RATTRAPEES' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.ABSENCES.COL_TAUX' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.ABSENCES.COL_VALORISATION' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.ABSENCES.COL_CA_HT' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.ABSENCES.COL_PART_CA' | translate }}</th>
-          </tr>
-          </thead>
-          <tbody>
-            @for (row of absencesRows(); track row.centerId ?? 'total') {
-              <tr [class.total]="row.total">
-                <td>{{ row.nom ?? ('DIRECTION.TOTAL' | translate) }}</td>
-                <td class="num">{{ headcount(row.stats.nbAbsences) }}</td>
-                <td class="num">{{ headcount(row.stats.nbJustifiees) }}</td>
-                <td class="num">{{ headcount(row.stats.nbNonJustifiees) }}</td>
-                <td [class.warn]="(row.stats.nbAQualifier ?? 0) > 0" class="num">{{ headcount(row.stats.nbAQualifier) }}</td>
-                <td class="num">{{ headcount(row.stats.nbRattrapees) }}</td>
-                <td class="num">{{ pct(row.stats.tauxAbsenteisme) }}</td>
-                <td class="num">{{ row.stats.valorisationHt === null ? '—' : (row.stats.valorisationHt | currency: 'DZD' : 'symbol-narrow' : '1.0-0') }}</td>
-                <td class="num">{{ row.stats.caHt | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</td>
-                <td class="num"><strong>{{ pct(row.stats.partCaHt) }}</strong></td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+      <app-direction-table [columns]="absencesTable().columns" [label]="'DIRECTION.ABSENCES.TITLE' | translate"
+                           [rows]="absencesTable().rows" [totals]="absencesTable().totals"
+                           data-testid="direction-absences-table"/>
 
       <h3>{{ 'DIRECTION.ABSENCES.MOTIFS_TITLE' | translate }}</h3>
       @if (absencesMotifs().length === 0) {
         <p class="muted" data-testid="direction-absences-empty">{{ 'DIRECTION.ABSENCES.EMPTY' | translate }}</p>
       } @else {
-        <div class="table-scroll">
-          <table class="centres" data-testid="direction-absences-motifs">
-            <thead>
-            <tr>
-              <th>{{ 'DIRECTION.ABSENCES.MOTIF' | translate }}</th>
-              <th class="num">{{ 'DIRECTION.ABSENCES.COL_NB' | translate }}</th>
-              <th class="num">{{ 'DIRECTION.ABSENCES.COL_PART' | translate }}</th>
-              <th class="num">{{ 'DIRECTION.ABSENCES.COL_VALORISATION' | translate }}</th>
-            </tr>
-            </thead>
-            <tbody>
-              @for (m of absencesMotifs(); track m.motif) {
-                <tr>
-                  <td>
-                    {{ (m.motif === 'NON_QUALIFIE' ? 'DIRECTION.ABSENCES.NON_QUALIFIE' : 'ABSENCES.MOTIFS.' + m.motif) | translate }}
-                  </td>
-                  <td class="num">{{ headcount(m.nb) }}</td>
-                  <td class="num">{{ pct(motifPart(m)) }}</td>
-                  <td class="num">
-                    {{ m.valorisationHt === null ? '—' : (m.valorisationHt | currency: 'DZD' : 'symbol-narrow' : '1.0-0') }}
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
+        <app-direction-table [columns]="motifsColumns()" [label]="'DIRECTION.ABSENCES.MOTIFS_TITLE' | translate"
+                             [rows]="absencesMotifs()" data-testid="direction-absences-motifs"/>
       }
 
       @if (motifsNbChart().labels?.length) {
@@ -549,28 +270,9 @@
 
       @if (ab.mensuel.length > 0) {
         <h3>{{ 'DIRECTION.ABSENCES.MENSUEL_TITLE' | translate }}</h3>
-        <div class="table-scroll">
-          <table class="centres" data-testid="direction-absences-mensuel">
-            <thead>
-            <tr>
-              <th>{{ 'DIRECTION.REPORTS.MONTH' | translate }}</th>
-              <th class="num">{{ 'DIRECTION.ABSENCES.COL_NB' | translate }}</th>
-              <th class="num">{{ 'DIRECTION.ABSENCES.COL_VALORISATION' | translate }}</th>
-            </tr>
-            </thead>
-            <tbody>
-              @for (m of ab.mensuel; track m.annee * 100 + m.mois) {
-                <tr>
-                  <td>{{ m.annee }}-{{ m.mois < 10 ? '0' + m.mois : m.mois }}</td>
-                  <td class="num">{{ headcount(m.nbAbsences) }}</td>
-                  <td class="num">
-                    {{ m.valorisationHt === null ? '—' : (m.valorisationHt | currency: 'DZD' : 'symbol-narrow' : '1.0-0') }}
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
+        <app-direction-table [columns]="absencesMensuelColumns()"
+                             [label]="'DIRECTION.ABSENCES.MENSUEL_TITLE' | translate" [rows]="absencesMensuel()"
+                             data-testid="direction-absences-mensuel"/>
       }
       <p class="muted">{{ 'DIRECTION.ABSENCES.NOTE' | translate }}</p>
     </mat-card>
@@ -584,39 +286,8 @@
         <p class="muted"
            data-testid="direction-stock-groupes-empty">{{ 'DIRECTION.STOCK_GROUPES.EMPTY' | translate }}</p>
       } @else {
-        <div class="table-scroll">
-          <table class="centres" data-testid="direction-stock-groupes-table">
-            <thead>
-            <tr>
-              <th>{{ 'DIRECTION.STOCK_GROUPES.GROUPE' | translate }}</th>
-              <th>{{ 'DIRECTION.COL.CENTRE' | translate }}</th>
-              <th class="num">{{ 'DIRECTION.STOCK_GROUPES.ARTICLES' | translate }}</th>
-              <th class="num">{{ 'DIRECTION.STOCK_GROUPES.DEBUT' | translate }}</th>
-              <th class="num">{{ 'DIRECTION.STOCK_GROUPES.ENTREES' | translate }}</th>
-              <th class="num">{{ 'DIRECTION.STOCK_GROUPES.SORTIES' | translate }}</th>
-              <th class="num">{{ 'DIRECTION.STOCK_GROUPES.AUTRES' | translate }}</th>
-              <th class="num">{{ 'DIRECTION.STOCK_GROUPES.FIN' | translate }}</th>
-            </tr>
-            </thead>
-            <tbody>
-              @for (row of stockGroupeRows(); track row.key) {
-                <tr [class.total]="row.total">
-                  <td>{{ row.nom }}</td>
-                  <td>{{ row.centre ?? ('DIRECTION.TOTAL' | translate) }}</td>
-                  <td class="num">{{ row.nbArticles }}</td>
-                  <td class="num">{{ row.valeurs.valeurDebut | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</td>
-                  <td class="num">{{ row.valeurs.entrees | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</td>
-                  <td class="num">{{ row.valeurs.sorties | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</td>
-                  <td [class.warn]="row.valeurs.autresVariations < 0" class="num">
-                    {{ row.valeurs.autresVariations | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}
-                  </td>
-                  <td class="num">
-                    <strong>{{ row.valeurs.valeurFin | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</strong></td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
+        <app-direction-table [columns]="stockGroupesColumns()" [label]="'DIRECTION.STOCK_GROUPES.TITLE' | translate"
+                             [rows]="stockGroupeRows()" data-testid="direction-stock-groupes-table"/>
         <p class="muted">{{ 'DIRECTION.STOCK_GROUPES.NOTE' | translate }}</p>
       }
     </mat-card>
@@ -629,28 +300,8 @@
         <div class="chart-wrap">
           <canvas [data]="sexeChart()" [options]="stackedOptions" [type]="'bar'" baseChart></canvas>
         </div>
-        <div class="table-scroll">
-          <table class="centres">
-            <thead>
-            <tr>
-              <th>{{ 'DIRECTION.COL.CENTRE' | translate }}</th>
-              <th class="num">{{ 'DIRECTION.BREAKDOWN.MASCULIN' | translate }}</th>
-              <th class="num">{{ 'DIRECTION.BREAKDOWN.FEMININ' | translate }}</th>
-              <th class="num">{{ 'DIRECTION.BREAKDOWN.AUTRE' | translate }}</th>
-            </tr>
-            </thead>
-            <tbody>
-              @for (r of b.sexe; track r.centerId) {
-                <tr>
-                  <td>{{ r.nom }}</td>
-                  <td class="num">{{ headcount(r.masculin) }}</td>
-                  <td class="num">{{ headcount(r.feminin) }}</td>
-                  <td class="num">{{ headcount(r.autre) }}</td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
+        <app-direction-table [columns]="sexeColumns()" [label]="'DIRECTION.BREAKDOWN.SEXE_TITLE' | translate"
+                             [rows]="b.sexe"/>
       </mat-card>
 
       <mat-card class="block" data-testid="direction-ages">
@@ -658,28 +309,8 @@
         <div class="chart-wrap">
           <canvas [data]="ageChart()" [options]="stackedOptions" [type]="'bar'" baseChart></canvas>
         </div>
-        <div class="table-scroll">
-          <table class="centres">
-            <thead>
-            <tr>
-              <th>{{ 'DIRECTION.COL.CENTRE' | translate }}</th>
-              @for (code of ageCodes; track code) {
-                <th class="num">{{ 'DIRECTION.BREAKDOWN.AGE.' + code | translate }}</th>
-              }
-            </tr>
-            </thead>
-            <tbody>
-              @for (r of b.ages; track r.centerId) {
-                <tr>
-                  <td>{{ r.nom }}</td>
-                  @for (t of r.tranches; track t.code) {
-                    <td class="num">{{ headcount(t.count) }}</td>
-                  }
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
+        <app-direction-table [columns]="agesColumns()" [label]="'DIRECTION.BREAKDOWN.AGE_TITLE' | translate"
+                             [rows]="b.ages"/>
       </mat-card>
     </div>
 
@@ -699,79 +330,15 @@
       <div class="chart-wrap">
         <canvas [data]="caisseCaChart()" [options]="stackedOptions" [type]="'bar'" baseChart></canvas>
       </div>
-      <div class="table-scroll">
-        <table class="centres" data-testid="direction-caisses-table">
-          <thead>
-          <tr>
-            <th>{{ 'DIRECTION.BREAKDOWN.CAISSE' | translate }}</th>
-            @for (c of pivotCentres(); track c.id) {
-              <th class="num">{{ c.nom }}</th>
-            }
-            <th class="num">{{ 'DIRECTION.TOTAL' | translate }}</th>
-          </tr>
-          </thead>
-          <tbody>
-            @for (line of caissePivot(); track line.code) {
-              <tr>
-                <td>{{ caisseLabel(line.nom) }}</td>
-                @for (c of pivotCentres(); track c.id) {
-                  <td class="num">
-                    @if (caisseMetric() === 'caHt') {
-                      {{ line.cells[c.id] | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}
-                    } @else {
-                      {{ caisseMetric() === 'patients' ? headcount(line.cells[c.id]) : line.cells[c.id] }}
-                    }
-                  </td>
-                }
-                <td class="num total-cell">
-                  @if (caisseMetric() === 'caHt') {
-                    {{ line.total | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}
-                  } @else {
-                    {{ caisseMetric() === 'patients' ? headcount(line.total) : line.total }}
-                  }
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+      <app-direction-table [columns]="caissesColumns()" [label]="'DIRECTION.BREAKDOWN.CAISSES_TITLE' | translate"
+                           [rows]="caissePivot()" data-testid="direction-caisses-table"/>
     </mat-card>
 
     <mat-card class="block" data-testid="direction-anemie">
       <h2>{{ 'DIRECTION.BREAKDOWN.ANEMIE_TITLE' | translate }}</h2>
       <p class="muted">{{ 'DIRECTION.BREAKDOWN.ANEMIE_HINT' | translate }}</p>
-      <div class="table-scroll">
-        <table class="centres">
-          <thead>
-          <tr>
-            <th>{{ 'DIRECTION.COL.CENTRE' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.BREAKDOWN.SOUS_EPO' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.BREAKDOWN.SOUS_FER' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.BREAKDOWN.PAT_EPO' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.BREAKDOWN.PAT_FER' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.BREAKDOWN.ADM_EPO' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.BREAKDOWN.ADM_FER' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.BREAKDOWN.NON_ADM' | translate }}</th>
-            <th class="num">{{ 'DIRECTION.BREAKDOWN.TAUX_ADM' | translate }}</th>
-          </tr>
-          </thead>
-          <tbody>
-            @for (r of b.anemie; track r.centerId) {
-              <tr>
-                <td>{{ r.nom }}</td>
-                <td class="num">{{ headcount(r.patientsSousEpo) }}</td>
-                <td class="num">{{ headcount(r.patientsSousFer) }}</td>
-                <td class="num">{{ headcount(r.patientsEpo) }}</td>
-                <td class="num">{{ headcount(r.patientsFer) }}</td>
-                <td class="num">{{ r.administreesEpo }}</td>
-                <td class="num">{{ r.administreesFer }}</td>
-                <td [class.bad]="r.nonAdministrees > 0" class="num">{{ r.nonAdministrees }}</td>
-                <td class="num">{{ pct(r.tauxAdministration) }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+      <app-direction-table [columns]="anemieColumns()" [label]="'DIRECTION.BREAKDOWN.ANEMIE_TITLE' | translate"
+                           [rows]="b.anemie"/>
     </mat-card>
   }
 

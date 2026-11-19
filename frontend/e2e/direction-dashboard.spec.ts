@@ -243,14 +243,14 @@ test.describe('Direction — tableau de bord consolidé', () => {
     // analyses (/direction/analyses) : le centre isolé suit la navigation
     await openDirectionPage(page, /Analyses/, '/analyses');
     expect(page.url()).toMatch(/[?&]centre=/);
-    await expect(page.getByTestId('direction-centres').locator('tbody tr')).toHaveCount(1);
+    await expect(page.getByTestId('direction-centres').locator('tr.data-row')).toHaveCount(1);
     await expect(page.getByTestId('direction-centres')).toContainText('Centre Beta');
     await expect(page.getByTestId('direction-centres')).not.toContainText('Centre Alpha');
 
     // retour à la vue consolidée
     await page.getByTestId('direction-centre-filter').click();
     await page.getByRole('option', {name: 'Tous les centres'}).click();
-    await expect(page.getByTestId('direction-centres').locator('tbody tr')).toHaveCount(2);
+    await expect(page.getByTestId('direction-centres').locator('tr.data-row')).toHaveCount(2);
 
     const table = page.getByTestId('direction-centres');
     await expect(table).toContainText('Centre Alpha');

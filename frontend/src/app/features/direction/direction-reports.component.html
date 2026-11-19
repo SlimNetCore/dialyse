@@ -5,38 +5,15 @@
     @if (store.reportError()) {
       <div class="error-msg" data-testid="direction-report-error">{{ 'DIRECTION.REPORTS.ERROR' | translate }}</div>
     }
-    <div class="table-scroll">
-      <table class="centres">
-        <thead>
-        <tr>
-          <th>{{ 'DIRECTION.REPORTS.MONTH' | translate }}</th>
-          <th>{{ 'DIRECTION.REPORTS.STATUS' | translate }}</th>
-          <th class="num">{{ 'COMMON.COL_ACTIONS' | translate }}</th>
-        </tr>
-        </thead>
-        <tbody>
-          @for (row of reportRows(); track row.mois) {
-            <tr>
-              <td>{{ row.mois }}</td>
-              <td>
-                @if (row.generatedAt) {
-                  {{ 'DIRECTION.REPORTS.FROZEN_ON' | translate }} {{ row.generatedAt | date: 'dd/MM/yyyy HH:mm' }}
-                } @else {
-                  <span class="muted">{{ 'DIRECTION.REPORTS.NOT_FROZEN' | translate }}</span>
-                }
-              </td>
-              <td class="num">
-                <button (click)="downloadReport(row.mois)" [attr.data-testid]="'report-' + row.mois"
-                        [disabled]="store.reportBusy() !== null" mat-stroked-button type="button">
-                  <mat-icon>picture_as_pdf</mat-icon>
-                  {{ 'DIRECTION.REPORTS.DOWNLOAD' | translate }}
-                </button>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
+    <app-direction-table [columns]="reportColumns()" [label]="'DIRECTION.REPORTS.TITLE' | translate"
+                         [rows]="reportRows()" data-testid="direction-reports-table"/>
+    <ng-template #actionsCell let-row>
+      <button (click)="downloadReport(row.mois)" [attr.data-testid]="'report-' + row.mois"
+              [disabled]="store.reportBusy() !== null" mat-stroked-button type="button">
+        <mat-icon>picture_as_pdf</mat-icon>
+        {{ 'DIRECTION.REPORTS.DOWNLOAD' | translate }}
+      </button>
+    </ng-template>
   </mat-card>
 
   <mat-card class="block" data-testid="direction-compare">
@@ -65,51 +42,9 @@
     @if (store.compareError()) {
       <div class="error-msg" data-testid="compare-error">{{ 'DIRECTION.COMPARE.ERROR' | translate }}</div>
     }
-    @if (compareDeltas(); as c) {
-      <div class="table-scroll">
-        <table class="centres" data-testid="compare-table">
-          <thead>
-          <tr>
-            <th>{{ 'DIRECTION.COL.CENTRE' | translate }}</th>
-            <th class="num">{{ store.compareA()!.mois }}</th>
-            <th class="num">{{ store.compareB()!.mois }}</th>
-            <th class="num">{{ 'DIRECTION.COMPARE.DELTA' | translate }}</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr>
-            <td>{{ 'DIRECTION.KPI.PATIENTS' | translate }}</td>
-            <td class="num">{{ headcount(c.patients.a) }}</td>
-            <td class="num">{{ headcount(c.patients.b) }}</td>
-            <td class="num">—</td>
-          </tr>
-          <tr>
-            <td>{{ 'DIRECTION.KPI.SEANCES' | translate }}</td>
-            <td class="num">{{ c.seances.a }}</td>
-            <td class="num">{{ c.seances.b }}</td>
-            <td [class]="'num delta ' + c.seances.d.direction">{{ formatDelta(c.seances.d) || '—' }}</td>
-          </tr>
-          <tr>
-            <td>{{ 'DIRECTION.KPI.CA_TTC' | translate }}</td>
-            <td class="num">{{ c.caTtc.a | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</td>
-            <td class="num">{{ c.caTtc.b | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</td>
-            <td [class]="'num delta ' + c.caTtc.d.direction">{{ formatDelta(c.caTtc.d) || '—' }}</td>
-          </tr>
-          <tr>
-            <td>{{ 'DIRECTION.KPI.ENCAISSE' | translate }}</td>
-            <td class="num">{{ c.encaisse.a | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</td>
-            <td class="num">{{ c.encaisse.b | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</td>
-            <td [class]="'num delta ' + c.encaisse.d.direction">{{ formatDelta(c.encaisse.d) || '—' }}</td>
-          </tr>
-          <tr>
-            <td>{{ 'DIRECTION.KPI.TAUX' | translate }}</td>
-            <td class="num">{{ c.tauxEncaissement.a === null ? '—' : c.tauxEncaissement.a + ' %' }}</td>
-            <td class="num">{{ c.tauxEncaissement.b === null ? '—' : c.tauxEncaissement.b + ' %' }}</td>
-            <td class="num">—</td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
+    @if (compareTable(); as c) {
+      <app-direction-table [columns]="c.columns" [label]="'DIRECTION.COMPARE.TITLE' | translate" [rows]="c.rows"
+                           data-testid="compare-table"/>
     }
   </mat-card>
 </div>

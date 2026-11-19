@@ -1,5 +1,9 @@
-import {computed, Directive, inject} from '@angular/core';
+import {formatCurrency, formatDate, formatNumber, getCurrencySymbol} from '@angular/common';
+import {computed, Directive, inject, LOCALE_ID} from '@angular/core';
+import {toSignal} from '@angular/core/rxjs-interop';
 import {TranslateService} from '@ngx-translate/core';
+import {merge} from 'rxjs';
+import {DirectionTableContext, formatDelta} from './direction-tables.util';
 import {Chart, ChartData, ChartOptions, registerables} from 'chart.js';
 import {DirectionStore} from './state/direction.store';
 import {DirectionFilters} from './state/direction-filters';
@@ -51,6 +55,26 @@ export abstract class DirectionViewBase {
   /** Centre isolé par la direction (`null` = tous les centres, vue consolidée), commun aux trois pages. */
   protected readonly selectedCentre = this.filters.centre;
   protected readonly threshold = computed(() => this.store.overview()?.seuilAnonymat ?? 5);
+  private readonly locale = inject(LOCALE_ID);
+  /** Change à chaque changement de langue ou de traductions : les en-têtes des tableaux sont du texte déjà résolu. */
+  private readonly translations = toSignal(
+    merge(this.translate.onLangChange, this.translate.onTranslationChange), {initialValue: null});
+  /**
+   * Mise en forme des tableaux ng-table de la direction : libellés traduits, effectifs masqués sous le seuil
+   * d'anonymat, montants en dinars et nombres à la locale de l'application (comme les pipes `currency` / `number`).
+   */
+  protected readonly tableContext = computed<DirectionTableContext>(() => {
+    this.translations();
+    const threshold = this.threshold();
+    const symbol = getCurrencySymbol('DZD', 'narrow', this.locale);
+    return {
+      t: (key, params) => this.translate.instant(key, params),
+      headcount: (value) => formatHeadcount(value, threshold),
+      money: (value) => (value === null ? '' : formatCurrency(value, this.locale, symbol, 'DZD', '1.0-0')),
+      decimal: (value, digits) => formatNumber(value, this.locale, digits),
+      dateTime: (value) => formatDate(value, 'dd/MM/yyyy HH:mm', this.locale),
+    };
+  });
   /** Centres à afficher dans le comparatif : tous, ou seulement celui isolé par le filtre. */
   protected readonly displayCentres = computed(() =>
     filterByCentre(this.store.rankedCentres(), this.selectedCentre()));
@@ -241,9 +265,7 @@ export abstract class DirectionViewBase {
 
   /** Formate un delta de KPI : « +4,2 % » / « -1,0 % », ou rien si non comparable (période précédente à zéro). */
   protected formatDelta(d: Delta | undefined): string {
-    if (!d || d.pct === null) return '';
-    const sign = d.pct > 0 ? '+' : '';
-    return `${sign}${d.pct.toFixed(1)} %`;
+    return formatDelta(d);
   }
 
   protected caisseCell(value: number | null): number | string {
