@@ -18,7 +18,7 @@ test.describe('Reglement module', () => {
     await page.waitForLoadState('networkidle');
 
     await expect(page.locator('text=Règlement').or(page.locator('text=Payments'))).toBeVisible();
-    await expect(page.locator('mat-paginator')).toBeVisible();
+    await expect(page.locator('[data-testid="reglement-table"] ng-table-paginator')).toBeVisible();
     await expect(page.locator('input[matinput], input[matInput]').first()).toBeVisible();
     // les indicateurs ont rejoint le tableau de bord : plus de graphiques sur l'écran de saisie
     await expect(page.locator('canvas')).toHaveCount(0);
@@ -30,7 +30,7 @@ test.describe('Reglement module', () => {
 
     await expect(page.locator('.kpi-grid .app-data-pill')).toHaveCount(6);
     await expect(page.locator('canvas')).toHaveCount(2);
-    await expect(page.locator('mat-paginator')).toHaveCount(0);
+    await expect(page.locator('mat-paginator, ng-table-paginator')).toHaveCount(0);
   });
 });
 

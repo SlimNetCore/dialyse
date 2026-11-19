@@ -1,13 +1,27 @@
+import {signal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {TranslateService} from '@ngx-translate/core';
+import {Subject} from 'rxjs';
+import type {NgTableColumn, NgTableRemoteQuery} from '@sbourahla/ng-table';
 import {ReglementWorkspaceComponent} from './reglement-workspace.component';
-import {ReglementStore} from './state/reglement.store';
+import {ReglementPreviewRow, ReglementStore} from './state/reglement.store';
 import {AppShellStore} from '../../core/state/app-shell.store';
 import {AuthStore} from '../../core/state/auth.store';
+import {NgTableTranslatedLabels} from '../../shared/ng-table-labels';
+
+const ligne = (factureId: string, patientNom: string, montantFacture: number): ReglementPreviewRow => ({
+  factureId, numeroFacture: `F-${factureId}`, patientNom, montantFacture, montantRegle: 0, reste: montantFacture,
+  tropPercu: 0, etat: 'NON_REGLEE', soldeType: 'RESTE', hasDraft: false, draftAmount: 0,
+} as unknown as ReglementPreviewRow);
+
+const requete = (page: number, size: number, extra: Partial<NgTableRemoteQuery> = {}): NgTableRemoteQuery => ({
+  sort: {columnId: '', direction: ''} as NgTableRemoteQuery['sort'], filters: {}, page: {index: page, size}, ...extra,
+});
 
 describe('ReglementWorkspaceComponent', () => {
   const storeMock = {
+    visibleRows: vi.fn((): ReglementPreviewRow[] => [ligne('a', 'Zid', 300), ligne('b', 'Amrani', 100)]),
     year: vi.fn(() => 2026),
     month: vi.fn(() => 8),
     caisseId: vi.fn(() => null),
@@ -51,10 +65,59 @@ describe('ReglementWorkspaceComponent', () => {
         {provide: AuthStore, useValue: {username: vi.fn(() => 'sec-user')}},
         {
           provide: TranslateService,
-          useValue: {instant: vi.fn((key: string, params?: Record<string, unknown>) => params?.['amount'] ? `${key}:${params['amount']}` : key)}
+          useValue: {
+            onLangChange: new Subject(),
+            onTranslationChange: new Subject(),
+            instant: vi.fn((key: string, params?: Record<string, unknown>) => params?.['amount'] ? `${key}:${params['amount']}` : key),
+          }
         },
+        {provide: NgTableTranslatedLabels, useValue: {labels: signal({})}},
       ],
     });
+  });
+
+  const colonnes = (component: ReglementWorkspaceComponent): NgTableColumn<ReglementPreviewRow>[] =>
+    (component as any).reglementColumns();
+
+  it('définit les colonnes ng-table : états et soldes en pastilles teintées, actions hors export', () => {
+    const component = TestBed.runInInjectionContext(() => new ReglementWorkspaceComponent());
+    const cols = colonnes(component);
+
+    expect(cols.map((c) => c.id)).toEqual(['numeroFacture', 'numeroAssurance', 'patientNom', 'patientPrenom', 'caisse',
+      'agence', 'centrePayeur', 'montantFacture', 'montantRegle', 'solde', 'etat', 'codeReglement', 'actions']);
+    expect(cols.find((c) => c.id === 'numeroFacture')!.header).toBe('REGLEMENT_MODULE.TABLE.NUMERO_FACTURE');
+    const etat = cols.find((c) => c.id === 'etat')!;
+    expect(etat.cell).toMatchObject({type: 'badge', tone: {NON_REGLEE: 'danger', PARTIELLEMENT_REGLEE: 'warning', REGLEE: 'success'}});
+    const solde = cols.find((c) => c.id === 'solde')!;
+    expect(solde.cell).toMatchObject({type: 'badge', tone: {REGLE: 'success', TROP_PERCU: 'warning', RESTE: 'danger'}});
+    expect((solde.cell as any).label('RESTE', ligne('a', 'Zid', 300))).toBe('REGLEMENT_MODULE.TABLE.SOLDE_REMAINING:300');
+    const actions = cols.find((c) => c.id === 'actions')!;
+    expect(actions.exportable).toBe(false);
+    expect(actions.mobileRowActions).toBe(true);
+  });
+
+  it('pagine côté serveur : un changement de page ou de taille passe par le store', () => {
+    const component = TestBed.runInInjectionContext(() => new ReglementWorkspaceComponent());
+    component['onRemoteQueryChange'](requete(0, 20));
+    expect(storeMock.setPagination).not.toHaveBeenCalled();
+
+    component['onRemoteQueryChange'](requete(2, 20));
+    expect(storeMock.setPagination).toHaveBeenLastCalledWith(2, 20);
+
+    component['onRemoteQueryChange'](requete(1, 50));
+    expect(storeMock.setPagination).toHaveBeenLastCalledWith(0, 50);
+  });
+
+  it('trie et filtre la page chargée selon les colonnes, sans requête serveur', () => {
+    const component = TestBed.runInInjectionContext(() => new ReglementWorkspaceComponent());
+    const lignes = (): ReglementPreviewRow[] => (component as any).lignes();
+
+    component['onRemoteQueryChange'](requete(0, 20, {sort: {columnId: 'montantFacture', direction: 'asc'}}));
+    expect(lignes().map((r) => r.factureId)).toEqual(['b', 'a']);
+
+    component['onRemoteQueryChange'](requete(0, 20, {filters: {patientNom: 'zi'}}));
+    expect(lignes().map((r) => r.factureId)).toEqual(['a']);
+    expect(storeMock.setPagination).not.toHaveBeenCalled();
   });
 
   it('propage les filtres année/mois au store', () => {

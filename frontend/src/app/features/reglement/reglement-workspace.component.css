@@ -45,17 +45,18 @@ mat-card {
 }
 
 .data-table {
+  display: block;
   width: 100%;
-  min-width: 1360px;
 }
 
 .num-cell {
-  text-align: right;
+  display: block;
+  text-align: end;
   font-variant-numeric: tabular-nums;
 }
 
-/* Ligne avec brouillon */
-.row-has-draft {
+/* Ligne avec brouillon (la ligne est rendue par ng-table) */
+:host ::ng-deep .reglement-data-list .row-has-draft {
   background: color-mix(in srgb, var(--app-primary, #006a6a) 5%, transparent) !important;
   border-left: 3px solid var(--app-primary, #006a6a);
 }
@@ -74,15 +75,6 @@ mat-card {
   margin-left: 4px;
   color: var(--app-primary, #006a6a);
   opacity: .8;
-}
-
-.etat-preview {
-  font-weight: 700;
-  color: var(--app-primary, #006a6a);
-}
-
-.chip-preview {
-  outline: 1.5px dashed currentColor;
 }
 
 /* ─── Draft hint banner ────────────────────────────── */
@@ -172,37 +164,6 @@ mat-card {
   width: 18px;
   height: 18px;
   font-size: 18px;
-}
-
-/* ─── Solde chips ──────────────────────────────────── */
-.solde-chip {
-  display: inline-flex;
-  align-items: center;
-  padding: 5px 10px;
-  border-radius: 999px;
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  border: 1px solid transparent;
-  white-space: nowrap;
-}
-
-.solde-settled {
-  color: #1b5e20;
-  background: rgba(27, 94, 32, 0.10);
-  border-color: rgba(27, 94, 32, 0.20);
-}
-
-.solde-overpaid {
-  color: #bf360c;
-  background: rgba(191, 54, 12, 0.10);
-  border-color: rgba(191, 54, 12, 0.22);
-}
-
-.solde-pending {
-  color: var(--mat-sys-error, #c62828);
-  background: color-mix(in srgb, var(--mat-sys-error, #c62828) 10%, var(--app-surface));
-  border-color: color-mix(in srgb, var(--mat-sys-error, #c62828) 24%, var(--app-border));
 }
 
 /* ─── Feedback messages ────────────────────────────── */
@@ -313,10 +274,6 @@ mat-card {
     display: none;
   }
 
-  .data-table {
-    min-width: 1060px;
-  }
-
   .payment-box {
     min-width: 160px;
   }
@@ -365,10 +322,6 @@ mat-card {
     grid-template-columns: 1fr;
     gap: 8px;
     margin-bottom: 10px;
-  }
-
-  .data-table {
-    min-width: 920px;
   }
 
   .payment-field {

@@ -71,22 +71,6 @@
           <mat-icon>filter_alt_off</mat-icon>
           {{ 'REGLEMENT_MODULE.FILTERS.RESET' | translate }}
         </button>
-        <button [matMenuTriggerFor]="columnsMenu" color="primary" mat-stroked-button>
-          <mat-icon>view_column</mat-icon>
-          {{ 'PATIENT_LIST.COLUMNS_BUTTON' | translate }}
-        </button>
-        <mat-menu #columnsMenu="matMenu">
-          @for (column of columnMenuItems(); track column.id) {
-            <button (click)="$event.stopPropagation()" mat-menu-item>
-              <mat-checkbox
-                (change)="toggleColumn(column.id, $event.checked)"
-                [checked]="isColumnVisible(column.id)"
-              >
-                {{ column.headerKey | translate }}
-              </mat-checkbox>
-            </button>
-          }
-        </mat-menu>
         <span class="spacer"></span>
         <button (click)="onExport('excel')" [disabled]="store.exporting()" [matTooltip]="'REGLEMENT_MODULE.EXPORT.EXCEL_TOOLTIP' | translate"
                 mat-stroked-button>
@@ -145,15 +129,28 @@
         </div>
       }
 
-      <app-configurable-list
-        [columnVisibility]="visibleColumns()"
-        [columns]="reglementColumns()"
-        [emptyLabelKey]="'REGLEMENT_MODULE.TABLE.EMPTY'"
-        [rowClassFn]="rowClassFn"
-        [rowTrackBy]="trackByFactureId"
-        [rows]="store.visibleRows()"
-        class="data-table reglement-data-list"
-      />
+      <div class="table-wrap">
+        <ng-table
+          [columns]="reglementColumns()"
+          [rows]="lignes()"
+          [dataMode]="'remote'"
+          [paginator]="true"
+          [totalCount]="store.total()"
+          [pageIndex]="store.pageIndex()"
+          [pageSize]="store.pageSize()"
+          [pageSizeOptions]="taillesDePage"
+          [loading]="store.loading()"
+          [labels]="ngTableLabels()"
+          [emptyLabel]="libelleVide()"
+          [showActiveFiltersBar]="true"
+          [rowClassFn]="rowClassFn"
+          [rowTrackBy]="trackByFactureId"
+          [rowKeyAccessor]="rowKey"
+          (remoteQueryChange)="onRemoteQueryChange($event)"
+          class="data-table reglement-data-list"
+          data-testid="reglement-table"
+        />
+      </div>
 
       <ng-template #montantFactureCell let-row>
         <span class="num-cell">{{ row.montantFacture | number:'1.2-2' }}</span>
@@ -167,16 +164,6 @@
                       class="draft-icon">pending</mat-icon>
           }
         </span>
-      </ng-template>
-
-      <ng-template #soldeCell let-row>
-        <span [class.chip-preview]="row.hasDraft" [class]="soldeClass(row)" class="solde-chip">
-          {{ soldeLabel(row) }}
-        </span>
-      </ng-template>
-
-      <ng-template #etatCell let-row>
-        <span [class.etat-preview]="row.hasDraft">{{ statusLabel(row) }}</span>
       </ng-template>
 
       <ng-template #codeReglementCell let-row>
@@ -219,14 +206,6 @@
           </button>
         </div>
       </ng-template>
-
-      <mat-paginator
-        (page)="onPageChange($event)"
-        [length]="store.total()"
-        [pageIndex]="store.pageIndex()"
-        [pageSizeOptions]="[10, 20, 50, 100]"
-        [pageSize]="store.pageSize()">
-      </mat-paginator>
     </mat-card-content>
   </mat-card>
 </section>

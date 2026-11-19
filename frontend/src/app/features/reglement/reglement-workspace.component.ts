@@ -15,16 +15,23 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {MatSelectModule} from '@angular/material/select';
-import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatBadgeModule} from '@angular/material/badge';
-import {MatMenuModule} from '@angular/material/menu';
-import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatDialog} from '@angular/material/dialog';
+import {toSignal} from '@angular/core/rxjs-interop';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {NgTableColumn, NgTableComponent, NgTableRemoteQuery} from '@sbourahla/ng-table';
+import {map, merge} from 'rxjs';
 import {ReglementPreviewRow, ReglementStore} from './state/reglement.store';
 import {MODES_DE_REGLEMENT} from './state/reglement-payment.util';
+import {
+  CriteresDeLaPage,
+  filtrerEtTrierLaPage,
+  TAILLES_DE_PAGE_REGLEMENT,
+  TONS_ETAT_REGLEMENT,
+  TONS_SOLDE_REGLEMENT,
+} from './state/reglement-table.util';
 import {AppShellStore} from '../../core/state/app-shell.store';
 import {AuthStore} from '../../core/state/auth.store';
 import {ReglementInvoiceRow} from '../../core/api/backend-api.service';
@@ -32,7 +39,7 @@ import {
   PaymentHistoryDialogComponent,
   PaymentHistoryDialogData
 } from './payment-history-dialog/payment-history-dialog.component';
-import {ConfigurableListComponent, SharedListColumn} from '../../shared/configurable-list.component';
+import {NgTableTranslatedLabels} from '../../shared/ng-table-labels';
 
 @Component({
   selector: 'app-reglement-workspace',
@@ -45,14 +52,11 @@ import {ConfigurableListComponent, SharedListColumn} from '../../shared/configur
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatPaginatorModule,
     MatProgressBarModule,
     MatTooltipModule,
     MatBadgeModule,
-    MatMenuModule,
-    MatCheckboxModule,
     TranslateModule,
-    ConfigurableListComponent,
+    NgTableComponent,
   ],
   templateUrl: './reglement-workspace.component.html',
   styleUrl: './reglement-workspace.component.css',
@@ -60,161 +64,96 @@ import {ConfigurableListComponent, SharedListColumn} from '../../shared/configur
 })
 export class ReglementWorkspaceComponent {
   protected readonly store = inject(ReglementStore);
+  protected readonly ngTableLabels = inject(NgTableTranslatedLabels).labels;
+  protected readonly taillesDePage = TAILLES_DE_PAGE_REGLEMENT;
   protected readonly montantRegleCellTemplate = viewChild<TemplateRef<any>>('montantRegleCell');
   protected readonly montantFactureCellTemplate = viewChild<TemplateRef<any>>('montantFactureCell');
-  protected readonly soldeCellTemplate = viewChild<TemplateRef<any>>('soldeCell');
-  protected readonly etatCellTemplate = viewChild<TemplateRef<any>>('etatCell');
   protected readonly codeReglementCellTemplate = viewChild<TemplateRef<any>>('codeReglementCell');
   protected readonly actionsCellTemplate = viewChild<TemplateRef<any>>('actionsCell');
-  protected readonly reglementColumns = computed<SharedListColumn<ReglementPreviewRow>[]>(() => [
-    {
-      id: 'numeroFacture',
-      headerKey: 'REGLEMENT_MODULE.TABLE.NUMERO_FACTURE',
-      valueAccessor: (row) => row.numeroFacture ?? '',
-      sortable: true,
-      resizable: true,
-      minWidthPx: 150,
-      filter: {type: 'text', labelKey: 'REGLEMENT_MODULE.TABLE.NUMERO_FACTURE'},
-    },
-    {
-      id: 'numeroAssurance',
-      headerKey: 'REGLEMENT_MODULE.TABLE.NUMERO_ASSURANCE',
-      valueAccessor: (row) => row.numeroAssurance ?? '',
-      sortable: true,
-      resizable: true,
-      minWidthPx: 150,
-      filter: {type: 'text', labelKey: 'REGLEMENT_MODULE.TABLE.NUMERO_ASSURANCE'},
-    },
-    {
-      id: 'patientNom',
-      headerKey: 'REGLEMENT_MODULE.TABLE.PATIENT_NOM',
-      valueAccessor: (row) => row.patientNom ?? '',
-      sortable: true,
-      resizable: true,
-      minWidthPx: 150,
-      filter: {type: 'text', labelKey: 'REGLEMENT_MODULE.TABLE.PATIENT_NOM'},
-    },
-    {
-      id: 'patientPrenom',
-      headerKey: 'REGLEMENT_MODULE.TABLE.PATIENT_PRENOM',
-      valueAccessor: (row) => row.patientPrenom ?? '',
-      sortable: true,
-      resizable: true,
-      minWidthPx: 150,
-      filter: {type: 'text', labelKey: 'REGLEMENT_MODULE.TABLE.PATIENT_PRENOM'},
-    },
-    {
-      id: 'caisse',
-      headerKey: 'REGLEMENT_MODULE.TABLE.CAISSE',
-      valueAccessor: (row) => row.caisse ?? '',
-      sortable: true,
-      resizable: true,
-      minWidthPx: 140,
-      filter: {type: 'text', labelKey: 'REGLEMENT_MODULE.TABLE.CAISSE'},
-    },
-    {
-      id: 'agence',
-      headerKey: 'REGLEMENT_MODULE.TABLE.AGENCE',
-      valueAccessor: (row) => row.agence ?? '',
-      sortable: true,
-      resizable: true,
-      minWidthPx: 140,
-      filter: {type: 'text', labelKey: 'REGLEMENT_MODULE.TABLE.AGENCE'},
-    },
-    {
-      id: 'centrePayeur',
-      headerKey: 'REGLEMENT_MODULE.TABLE.CENTRE_PAYEUR',
-      valueAccessor: (row) => row.centrePayeur ?? '',
-      sortable: true,
-      resizable: true,
-      minWidthPx: 160,
-      filter: {type: 'text', labelKey: 'REGLEMENT_MODULE.TABLE.CENTRE_PAYEUR'},
-    },
-    {
-      id: 'montantFacture',
-      headerKey: 'REGLEMENT_MODULE.TABLE.MONTANT_FACTURE',
-      valueAccessor: (row) => Number(row.montantFacture ?? 0),
-      sortValueAccessor: (row) => Number(row.montantFacture ?? 0),
-      sortable: true,
-      resizable: true,
-      minWidthPx: 150,
-      filter: {type: 'text', labelKey: 'REGLEMENT_MODULE.TABLE.MONTANT_FACTURE'},
-      cellTemplate: this.montantFactureCellTemplate() ?? undefined,
-    },
-    {
-      id: 'montantRegle',
-      headerKey: 'REGLEMENT_MODULE.TABLE.MONTANT_REGLE',
-      valueAccessor: (row) => Number(row.montantRegle ?? 0),
-      sortValueAccessor: (row) => Number(row.montantRegle ?? 0),
-      sortable: true,
-      resizable: true,
-      minWidthPx: 180,
-      filter: {type: 'text', labelKey: 'REGLEMENT_MODULE.TABLE.MONTANT_REGLE'},
-      cellTemplate: this.montantRegleCellTemplate() ?? undefined,
-    },
-    {
-      id: 'solde',
-      headerKey: 'REGLEMENT_MODULE.TABLE.SOLDE',
-      valueAccessor: (row) => this.soldeLabel(row),
-      sortable: false,
-      resizable: true,
-      minWidthPx: 190,
-      filter: {type: 'text', labelKey: 'REGLEMENT_MODULE.TABLE.SOLDE'},
-      cellTemplate: this.soldeCellTemplate() ?? undefined,
-    },
-    {
-      id: 'etat',
-      headerKey: 'REGLEMENT_MODULE.TABLE.ETAT',
-      valueAccessor: (row) => this.statusLabel(row),
-      sortable: true,
-      resizable: true,
-      minWidthPx: 140,
-      filter: {type: 'text', labelKey: 'REGLEMENT_MODULE.TABLE.ETAT'},
-      cellTemplate: this.etatCellTemplate() ?? undefined,
-    },
-    {
-      id: 'codeReglement',
-      headerKey: 'REGLEMENT_MODULE.TABLE.CODE_REGLEMENT',
-      valueAccessor: (row) => row.latestCodeReglement ?? '',
-      sortable: true,
-      resizable: true,
-      minWidthPx: 170,
-      filter: {type: 'text', labelKey: 'REGLEMENT_MODULE.TABLE.CODE_REGLEMENT'},
-      cellTemplate: this.codeReglementCellTemplate() ?? undefined,
-    },
-    {
-      id: 'actions',
-      headerKey: 'REGLEMENT_MODULE.TABLE.ACTIONS',
-      valueAccessor: () => '',
-      sortable: false,
-      resizable: false,
-      mobileRowActions: true,
-      minWidthPx: 240,
-      widthPx: 280,
-      maxWidthPx: 360,
-      cellTemplate: this.actionsCellTemplate() ?? undefined,
-    },
-  ]);
-  protected readonly visibleColumns = signal<Record<string, boolean>>({
-    numeroFacture: true,
-    numeroAssurance: true,
-    patientNom: true,
-    patientPrenom: true,
-    caisse: true,
-    agence: true,
-    centrePayeur: true,
-    montantFacture: true,
-    montantRegle: true,
-    solde: true,
-    etat: true,
-    codeReglement: true,
-    actions: true,
+  private readonly translate = inject(TranslateService);
+  private readonly langue = toSignal(
+    merge(this.translate.onLangChange, this.translate.onTranslationChange).pipe(map(() => Date.now())),
+    {initialValue: 0});
+
+  /** Tri et filtres de colonne courants de la table (appliqués à la page chargée). */
+  private readonly criteresDeLaPage = signal<CriteresDeLaPage>({sort: null, filters: {}});
+
+  protected readonly libelleVide = computed(() => {
+    this.langue();
+    return this.translate.instant('REGLEMENT_MODULE.TABLE.EMPTY');
   });
-  protected readonly columnMenuItems = computed(() =>
-    this.reglementColumns()
-      .filter((column) => column.id !== 'actions')
-      .map((column) => ({id: column.id, headerKey: column.headerKey})),
-  );
+
+  protected readonly reglementColumns = computed<NgTableColumn<ReglementPreviewRow>[]>(() => {
+    this.langue();
+    const t = (cle: string): string => this.translate.instant(`REGLEMENT_MODULE.TABLE.${cle}`);
+    const texte = (id: keyof ReglementPreviewRow & string, cle: string, minWidthPx: number):
+      NgTableColumn<ReglementPreviewRow> => ({
+      id, header: t(cle), valueAccessor: (row) => row[id] ?? '', sortable: true, resizable: true, minWidthPx,
+      filter: {type: 'text', label: t(cle)},
+    });
+    return [
+      texte('numeroFacture', 'NUMERO_FACTURE', 150),
+      texte('numeroAssurance', 'NUMERO_ASSURANCE', 150),
+      texte('patientNom', 'PATIENT_NOM', 150),
+      texte('patientPrenom', 'PATIENT_PRENOM', 150),
+      texte('caisse', 'CAISSE', 140),
+      texte('agence', 'AGENCE', 140),
+      texte('centrePayeur', 'CENTRE_PAYEUR', 160),
+      {
+        id: 'montantFacture', header: t('MONTANT_FACTURE'),
+        valueAccessor: (row) => Number(row.montantFacture ?? 0),
+        sortable: true, resizable: true, minWidthPx: 150,
+        filter: {type: 'text', label: t('MONTANT_FACTURE')},
+        cellTemplate: this.montantFactureCellTemplate() ?? undefined,
+      },
+      {
+        id: 'montantRegle', header: t('MONTANT_REGLE'),
+        valueAccessor: (row) => Number(row.montantRegle ?? 0),
+        sortable: true, resizable: true, minWidthPx: 180,
+        filter: {type: 'text', label: t('MONTANT_REGLE')},
+        cellTemplate: this.montantRegleCellTemplate() ?? undefined,
+      },
+      {
+        id: 'solde', header: t('SOLDE'), valueAccessor: (row) => row.soldeType,
+        sortable: false, resizable: true, minWidthPx: 190, textOverflow: 'wrap',
+        filterPredicate: (row, valeur) => this.soldeLabel(row).toLocaleLowerCase()
+          .includes(valeur.trim().toLocaleLowerCase()),
+        searchable: (row) => this.soldeLabel(row),
+        exportValueAccessor: (row) => this.soldeLabel(row),
+        filter: {type: 'text', label: t('SOLDE')},
+        cell: {type: 'badge', tone: TONS_SOLDE_REGLEMENT, label: (_valeur, row) => this.soldeLabel(row)},
+      },
+      {
+        id: 'etat', header: t('ETAT'), valueAccessor: (row) => row.etat,
+        sortValueAccessor: (row) => this.statusLabel(row),
+        sortable: true, resizable: true, minWidthPx: 140,
+        filterPredicate: (row, valeur) => this.statusLabel(row).toLocaleLowerCase()
+          .includes(valeur.trim().toLocaleLowerCase()),
+        searchable: (row) => this.statusLabel(row),
+        exportValueAccessor: (row) => this.statusLabel(row),
+        filter: {type: 'text', label: t('ETAT')},
+        cell: {type: 'badge', tone: TONS_ETAT_REGLEMENT, label: (_valeur, row) => this.statusLabel(row)},
+      },
+      {
+        id: 'codeReglement', header: t('CODE_REGLEMENT'), valueAccessor: (row) => row.latestCodeReglement ?? '',
+        sortable: true, resizable: true, minWidthPx: 170,
+        filter: {type: 'text', label: t('CODE_REGLEMENT')},
+        cellTemplate: this.codeReglementCellTemplate() ?? undefined,
+      },
+      {
+        id: 'actions', header: t('ACTIONS'), valueAccessor: () => '',
+        sortable: false, resizable: false, mobileRowActions: true, exportable: false,
+        minWidthPx: 240, widthPx: 280, maxWidthPx: 360,
+        cellTemplate: this.actionsCellTemplate() ?? undefined,
+      },
+    ];
+  });
+
+  /** Lignes de la page chargée (avec l'aperçu des brouillons), triées et filtrées par les colonnes. */
+  protected readonly lignes = computed(() =>
+    filtrerEtTrierLaPage(this.store.visibleRows(), this.reglementColumns(), this.criteresDeLaPage()));
+
+  protected readonly rowKey = (row: ReglementPreviewRow): unknown => row.factureId;
 
   protected readonly rowClassFn = (row: ReglementPreviewRow) => ({
     'row-has-draft': !!row.hasDraft,
@@ -226,7 +165,6 @@ export class ReglementWorkspaceComponent {
   protected readonly centerId = computed(() => this.appShell.currentCenterId());
   private readonly auth = inject(AuthStore);
   protected readonly userId = computed(() => this.auth.username() ?? 'system');
-  private readonly translate = inject(TranslateService);
   private readonly dialog = inject(MatDialog);
 
   constructor() {
@@ -259,8 +197,17 @@ export class ReglementWorkspaceComponent {
     this.store.setCentrePayeurId(value || null);
   }
 
-  protected onPageChange(event: PageEvent): void {
-    this.store.setPagination(event.pageIndex, event.pageSize);
+  /**
+   * Requête de la table (mode remote) : la page et sa taille sont demandées au serveur ; le tri et les filtres de
+   * colonne, que l'API ne connaît pas, s'appliquent à la page chargée comme dans l'ancienne liste.
+   */
+  protected onRemoteQueryChange(requete: NgTableRemoteQuery): void {
+    this.criteresDeLaPage.set({sort: requete.sort?.direction ? requete.sort : null, filters: requete.filters ?? {}});
+    const taille = requete.page?.size && requete.page.size > 0 ? requete.page.size : this.store.pageSize();
+    const page = requete.page?.index ?? this.store.pageIndex();
+    if (page !== this.store.pageIndex() || taille !== this.store.pageSize()) {
+      this.store.setPagination(taille !== this.store.pageSize() ? 0 : page, taille);
+    }
   }
 
   protected onResetFilters(): void {
@@ -308,20 +255,7 @@ export class ReglementWorkspaceComponent {
     this.store.batchSavePayments({centerId});
   }
 
-  protected trackByFactureId(_index: number, row: ReglementPreviewRow): string {
-    return row.factureId;
-  }
-
-  protected isColumnVisible(columnId: string): boolean {
-    return this.visibleColumns()[columnId] ?? false;
-  }
-
-  protected toggleColumn(columnId: string, checked: boolean): void {
-    this.visibleColumns.update((current) => ({
-      ...current,
-      [columnId]: checked,
-    }));
-  }
+  protected readonly trackByFactureId = (_index: number, row: ReglementPreviewRow): string => row.factureId;
 
   protected hasMultiplePayments(row: ReglementPreviewRow): boolean {
     return (row.paymentCount ?? 0) > 1;
@@ -364,16 +298,6 @@ export class ReglementWorkspaceComponent {
       return this.translate.instant('REGLEMENT_MODULE.TABLE.SOLDE_SETTLED');
     }
     return this.translate.instant('REGLEMENT_MODULE.TABLE.SOLDE_REMAINING', {amount: row.reste});
-  }
-
-  protected soldeClass(row: ReglementPreviewRow): string {
-    if (row.soldeType === 'TROP_PERCU') {
-      return 'solde-overpaid';
-    }
-    if (row.soldeType === 'REGLE') {
-      return 'solde-settled';
-    }
-    return 'solde-pending';
   }
 
   protected multiplePaymentsTooltip(row: ReglementPreviewRow): string {
