@@ -12,6 +12,7 @@ WORKDIR /workspace
 COPY pom.xml ./pom.xml
 # Contextes refaits sur place (ADR 0024/0025) : un module Maven par contexte, déclaré dans le pom racine
 COPY contexts/shared-kernel/pom.xml ./contexts/shared-kernel/pom.xml
+COPY contexts/documents-api/pom.xml ./contexts/documents-api/pom.xml
 COPY contexts/gmao/pom.xml ./contexts/gmao/pom.xml
 COPY contexts/comptabilite/pom.xml ./contexts/comptabilite/pom.xml
 COPY contexts/facturation/pom.xml ./contexts/facturation/pom.xml
@@ -23,6 +24,8 @@ COPY contexts/patient-couverture/pom.xml ./contexts/patient-couverture/pom.xml
 COPY contexts/dossier-medical/pom.xml ./contexts/dossier-medical/pom.xml
 COPY contexts/seance/pom.xml ./contexts/seance/pom.xml
 COPY contexts/pilotage-direction/pom.xml ./contexts/pilotage-direction/pom.xml
+COPY contexts/notifications/pom.xml ./contexts/notifications/pom.xml
+COPY contexts/documents/pom.xml ./contexts/documents/pom.xml
 COPY demo-data/pom.xml ./demo-data/pom.xml
 COPY platform/pom.xml ./platform/pom.xml
 
