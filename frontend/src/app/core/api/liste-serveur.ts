@@ -141,6 +141,14 @@ export class ListeServeur<T, P extends PageServeur<T> = PageServeur<T>> {
   }
 
   /**
+   * Un critère porté hors de la table a changé (filtre d'état, recherche ajoutés par `charger`) : première page
+   * relue, tri, taille et filtres de la table conservés.
+   */
+  premierePage(): void {
+    this.demander({...(this.parametres ?? {size: String(this.pageSize())}), page: '0'});
+  }
+
+  /**
    * Changement de contexte (autre pièce, autre inventaire : la table est recréée) : page reçue vidée, tri et filtres
    * oubliés, première page rechargée.
    */

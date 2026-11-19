@@ -3,6 +3,7 @@ import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {environment} from '../../../environments/environment';
 import {PagedResponse} from './admin-api.service';
+import {PageServeur} from './page-serveur';
 
 export type InventaireStatut = 'EN_COURS' | 'CLOTURE' | 'ANNULE';
 
@@ -109,6 +110,17 @@ export class InventaireApiService {
 
   get(centerId: string, id: string): Observable<Inventaire> {
     return this.http.get<Inventaire>(`${this.base}/${id}`, {params: this.center(centerId), withCredentials: true});
+  }
+
+  /**
+   * Feuille de comptage paginée (`GET /{id}/lignes/page`, contrat `pagination-serveur` E4) : `page`, `size`, `sort`
+   * (`article`, `lot`, `peremption`, `theorique`, `comptee`, `ecart`, `valeurEcart` ; défaut ordre des lignes),
+   * `etat` (`A_COMPTER|ECARTS|COMPTEES`, absent = toutes) et `q` (code, libellé ou n° de lot).
+   */
+  lignesPage(centerId: string, id: string, parametres: Readonly<Record<string, string>>):
+    Observable<PageServeur<LigneInventaire>> {
+    const params = new HttpParams({fromObject: {...parametres, centerId}});
+    return this.http.get<PageServeur<LigneInventaire>>(`${this.base}/${id}/lignes/page`, {params, withCredentials: true});
   }
 
   compter(centerId: string, id: string, ligneId: string, quantite: number, motif: string | null): Observable<Inventaire> {

@@ -33,10 +33,20 @@ import {ConfirmDialogComponent} from '../../../shared/confirm-dialog.component';
 import {InventaireStore} from './state/inventaire.store';
 import {InventaireAddLineDialogComponent} from './inventaire-add-line-dialog.component';
 import {InventaireCloseDialogComponent} from './inventaire-close-dialog.component';
-import {ecart, etatPeremption, FiltreLignes, filtrerLignes, MOTIFS_ECART, openPdf} from './inventaire.util';
-import {NgTableColumn, NgTableComponent} from '@sbourahla/ng-table';
+import {ecart, etatPeremption, FiltreLignes, MOTIFS_ECART, openPdf} from './inventaire.util';
+import {NgTableColumn, NgTableComponent, NgTableRemoteQuery} from '@sbourahla/ng-table';
 import {NgTableTranslatedLabels} from '../../../shared/ng-table-labels';
 import {langueCourante, STOCK_DEFAULT_PAGE_SIZE, STOCK_PAGE_SIZES} from '../stock-ng-table';
+import {ListeServeur} from '../../../core/api/liste-serveur';
+import {CorrespondanceDePage} from '../../../core/api/page-serveur';
+
+/** Tris de la feuille de comptage (ids de colonne = noms de tri du serveur, contrat E4). */
+export const CORRESPONDANCE_LIGNES_D_INVENTAIRE: CorrespondanceDePage = {
+  tris: Object.fromEntries(['article', 'lot', 'peremption', 'theorique', 'comptee', 'ecart', 'valeurEcart']
+    .map((c) => [c, c])),
+};
+/** Tris non envoyés pendant un comptage à l'aveugle (colonnes masquées). */
+const TRIS_MASQUES_A_L_AVEUGLE = ['theorique', 'ecart', 'valeurEcart'];
 
 /** Comptage d'un inventaire : saisie ligne à ligne, écarts, motifs, clôture ou annulation. */
 @Component({
@@ -172,18 +182,26 @@ import {langueCourante, STOCK_DEFAULT_PAGE_SIZE, STOCK_PAGE_SIZES} from '../stoc
           </div>
         }
 
+        @if (liste.erreur(); as erreur) {
+          <p class="feedback error" role="alert" data-testid="liste-erreur">{{ erreur | translate }}</p>
+        }
         <div class="table-wrapper" data-testid="inventory-lines">
           <ng-table
             class="lines"
             [columns]="colonnes()"
             [rows]="lignes()"
+            [dataMode]="'remote'"
             [paginator]="true"
-            [pageSize]="defaultPageSize"
+            [totalCount]="liste.total()"
+            [pageIndex]="liste.pageIndex()"
+            [pageSize]="liste.pageSize()"
             [pageSizeOptions]="pageSizes"
+            [loading]="liste.chargement()"
             [rowKeyAccessor]="cleLigne"
             [rowClassFn]="classeLigne"
-            [emptyLabel]="'STOCK.INVENTORY.NO_LINES' | translate"
+            [emptyLabel]="libelleVide()"
             [labels]="labels()"
+            (remoteQueryChange)="onRemoteQueryChange($event)"
           />
         </div>
       }
@@ -561,16 +579,36 @@ export class InventaireDetailComponent {
     return current?.id === this.id() ? current : null;
   });
   protected readonly masquerTheorique = computed(() => this.store.enCours() && this.aveugle());
-  protected readonly lignes = computed(() => filtrerLignes(this.inv()?.details ?? [], this.filtre(), this.recherche()));
+  /**
+   * Page courante de la feuille de comptage, filtrée (`etat`, `q`), triée et paginée par le serveur (RG-STK-092) ;
+   * l'en-tête (compteurs, progression, statut) reste `GET /{id}` (store).
+   */
+  protected readonly liste = new ListeServeur<LigneInventaire>((p) => {
+    const center = this.appShell.currentCenterId();
+    const id = this.id();
+    return center && id ? this.api.lignesPage(center, id, this.parametresDesLignes(p)) : null;
+  }, CORRESPONDANCE_LIGNES_D_INVENTAIRE, STOCK_DEFAULT_PAGE_SIZE);
+  /**
+   * Lignes affichées : celles de la page, remplacées par leur dernière version connue de l'en-tête (réponse d'une
+   * saisie) en attendant la relecture de la page.
+   */
+  protected readonly lignes = computed(() => {
+    const parId = new Map((this.inv()?.details ?? []).map((d) => [d.id, d]));
+    return this.liste.lignes().map((l) => parId.get(l.id) ?? l);
+  });
+  protected readonly libelleVide = computed(() => {
+    this.langue();
+    return this.translate.instant(this.liste.erreur() ?? 'STOCK.INVENTORY.NO_LINES') as string;
+  });
   protected readonly labels = inject(NgTableTranslatedLabels).labels;
   protected readonly pageSizes = STOCK_PAGE_SIZES;
-  protected readonly defaultPageSize = STOCK_DEFAULT_PAGE_SIZE;
   protected readonly cleLigne = (l: LigneInventaire): unknown => l.id;
   /** Ligne comptée en vert pâle, écart (hors comptage à l'aveugle) en orange pâle ; suit les saisies en cours. */
   protected readonly classeLigne = (l: LigneInventaire): Record<string, boolean> => {
     const e = this.ecartAffiche(l);
     return {'line-done': l.quantiteComptee !== null, 'line-gap': !this.masquerTheorique() && e !== null && e !== 0};
   };
+  private readonly langue = langueCourante();
   private readonly articleCell = viewChild<TemplateRef<any>>('articleCell');
   private readonly peremptionCell = viewChild<TemplateRef<any>>('peremptionCell');
   private readonly theoriqueCell = viewChild<TemplateRef<any>>('theoriqueCell');
@@ -579,7 +617,6 @@ export class InventaireDetailComponent {
   private readonly valeurEcartCell = viewChild<TemplateRef<any>>('valeurEcartCell');
   private readonly motifCell = viewChild<TemplateRef<any>>('motifCell');
   private readonly actionsCell = viewChild<TemplateRef<any>>('actionsCell');
-  private readonly langue = langueCourante();
   /** Colonnes de la feuille de comptage ; théorique et écarts masqués pendant un comptage à l'aveugle. */
   protected readonly colonnes = computed<NgTableColumn<LigneInventaire>[]>(() => {
     this.langue();
@@ -645,6 +682,23 @@ export class InventaireDetailComponent {
       if (!id || !this.appShell.currentCenterId()) return;
       untracked(() => void this.store.load(id));
     });
+    // En-tête relu (chargement, saisie, ajout/retrait, import, report, WebSocket) : la page courante est relue.
+    effect(() => {
+      if (!this.inv()) return;
+      untracked(() => this.liste.recharger());
+    });
+    // Filtre d'état, recherche ou comptage à l'aveugle changés : retour en première page.
+    let premier = true;
+    effect(() => {
+      this.filtre();
+      this.recherche();
+      this.masquerTheorique();
+      if (premier) {
+        premier = false;
+        return;
+      }
+      untracked(() => this.liste.premierePage());
+    });
     effect(() => {
       const evt = this.ws.lastEvent();
       if (evt?.type === 'STOCK_INVENTORY_CHANGED') {
@@ -654,6 +708,26 @@ export class InventaireDetailComponent {
         });
       }
     });
+  }
+
+  /** Requête de la feuille de comptage (mode remote) : page, taille et tri partent au serveur. */
+  protected onRemoteQueryChange(requete: NgTableRemoteQuery): void {
+    this.liste.onRemoteQueryChange(requete);
+  }
+
+  /**
+   * Paramètres de la table + filtre d'état et recherche de la barre d'outils ; pendant un comptage à l'aveugle, pas de
+   * tri sur le théorique ni sur les écarts (colonnes masquées, contrat E4).
+   */
+  private parametresDesLignes(p: Readonly<Record<string, string>>): Record<string, string> {
+    const parametres: Record<string, string> = {...p};
+    const filtre = this.filtre();
+    if (filtre !== 'TOUTES') parametres['etat'] = filtre;
+    const q = this.recherche().trim();
+    if (q) parametres['q'] = q;
+    const champ = parametres['sort']?.split(',')[0];
+    if (this.masquerTheorique() && champ && TRIS_MASQUES_A_L_AVEUGLE.includes(champ)) delete parametres['sort'];
+    return parametres;
   }
 
   protected peremption(l: LigneInventaire): 'EXPIRE' | 'PROCHE' | null {
