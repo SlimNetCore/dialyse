@@ -30,8 +30,9 @@ import {JournalCode} from '../../core/api/comptabilite-api.service';
 import {EcritureComptableItem} from '../../core/api/comptabilite-api.service';
 import {ConfigurableListComponent, SharedListColumn} from '../../shared/configurable-list.component';
 
+/** Journal comptable : écran de travail du module (/comptabilite) ; la comptabilité n'a pas de tableau de bord. */
 @Component({
-  selector: 'app-comptabilite-dashboard',
+  selector: 'app-comptabilite-journal',
   standalone: true,
   imports: [
     DecimalPipe,
@@ -40,11 +41,11 @@ import {ConfigurableListComponent, SharedListColumn} from '../../shared/configur
     MatProgressBarModule, MatTooltipModule, MatBadgeModule,
     MatChipsModule, TranslateModule, ConfigurableListComponent, RouterLink,
   ],
-  templateUrl: './comptabilite-dashboard.component.html',
-  styleUrl: './comptabilite-dashboard.component.css',
+  templateUrl: './comptabilite-journal.component.html',
+  styleUrl: './comptabilite-journal.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ComptabiliteDashboardComponent {
+export class ComptabiliteJournalComponent {
   protected readonly store = inject(ComptabiliteStore);
   /** Pièces saisies : l'extourne d'une pièce se lance depuis son détail. */
   protected readonly pieces = inject(PiecesComptablesStore);

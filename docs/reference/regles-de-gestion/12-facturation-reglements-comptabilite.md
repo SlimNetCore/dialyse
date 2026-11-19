@@ -334,9 +334,13 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
   suivantes** ; il est rapporté avec sa raison (RG-CPT-024). Consultation des écritures et des journaux :
   `ADMIN`, `SECRETAIRE` (paginée) ; la liste des écritures est **relue à chaque ouverture de l'écran Comptabilité**
   (les écritures générées entre-temps — stock, ventes, règlements — apparaissent sans recharger la page) ; validation,
-  export, paramétrage (comptes, journaux, mapping), règles TVA, clôture, comptabilisation du stock : `ADMIN`. *Source :*
+  export, paramétrage (comptes, journaux, mapping), règles TVA, clôture, comptabilisation du stock : `ADMIN`. À l'écran,
+  le module Comptabilité n'a **pas de tableau de bord** : l'arrivée (`/comptabilite`) est le journal comptable, avec ses
+  deux totaux de contrôle (nombre d'écritures, total débit et équilibre) ; la barre du module propose ensuite « Saisir
+  une pièce » (`/comptabilite/pieces`, `ADMIN` et `SECRETAIRE`) puis, en dernier, « Paramétrage »
+  (`/comptabilite/parametrage`, visible et accessible au seul `ADMIN`). *Source :*
   `ComptabiliserLesVentesEtReglements.reconstruire` → `VentesEtReglementsControleur` (`/rebuild`) ;
-  `ComptabiliteDashboardComponent` → `ComptabiliteStore.refresh`.
+  `ComptabiliteJournalComponent` → `ComptabiliteStore.refresh`.
 - **RG-CPT-008** — *(point d'attention levé)* Les créances ne sont plus toutes imputées au compte client « autre » :
   chaque facture débite le compte de **son payeur** (RG-CPT-019), le compte par défaut si le payeur n'en a pas, et le
   compte « patients » si la facture n'a pas de payeur. Le **règlement** crédite le compte que l'écriture de la facture
@@ -444,7 +448,7 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
   (`PIECE_DEJA_EXTOURNEE`) ; une écriture générée par le système (vente, règlement, stock) ne s'extourne pas à la
   main (`PIECE_NON_SAISIE`) ; la période du jour doit être ouverte (`PERIODE_CLOTUREE`). *Source :*
   `EcritureComptable.exigerExtournable/extourner`, `GererLesModelesEtPieces.extourner`,
-  `ComptabiliteDashboardComponent` → `PiecesComptablesStore` → `ComptabiliteApiService` → `ModelesEtPiecesControleur`
+  `ComptabiliteJournalComponent` → `PiecesComptablesStore` → `ComptabiliteApiService` → `ModelesEtPiecesControleur`
   (`/pieces/{id}/extourne`).
 - **Point d'attention (RG-CPT-023)** — Les comptes propres à un article (RG-STK-008) se saisissent encore librement
   sur la fiche article : ils ne sont pas contrôlés contre le plan comptable du centre.

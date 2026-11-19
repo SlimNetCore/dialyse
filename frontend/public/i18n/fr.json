@@ -3297,6 +3297,7 @@
     "STOCK_INVENTAIRES": "Inventaires",
     "STOCK_FOURNISSEURS": "Fournisseurs",
     "COMPTABILITE_JOURNAL": "Journal comptable",
+    "COMPTABILITE_PIECES": "Saisir une pièce",
     "ADMIN_SOCIETES": "Sociétés",
     "ADMIN_LICENCES": "Licences",
     "ADMIN_AUDIT": "Journal d'audit",

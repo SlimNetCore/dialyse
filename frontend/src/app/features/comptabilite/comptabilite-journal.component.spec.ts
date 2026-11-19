@@ -1,7 +1,7 @@
 import {provideZonelessChangeDetection, signal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
-import {ComptabiliteDashboardComponent} from './comptabilite-dashboard.component';
+import {ComptabiliteJournalComponent} from './comptabilite-journal.component';
 import {ComptabiliteStore} from './state/comptabilite.store';
 import {AppShellStore} from '../../core/state/app-shell.store';
 import {AuthStore} from '../../core/state/auth.store';
@@ -43,7 +43,7 @@ function buildRow(id: string, numeroPiece: string): EcritureComptableItem {
   };
 }
 
-describe('ComptabiliteDashboardComponent', () => {
+describe('ComptabiliteJournalComponent', () => {
   const rows = [buildRow('e-1', 'VE-001'), buildRow('e-2', 'VE-002')];
 
   const expandedIds = signal<string[]>([]);
@@ -106,14 +106,14 @@ describe('ComptabiliteDashboardComponent', () => {
   });
 
   it('relit les écritures du centre actif à chaque arrivée sur l’écran', () => {
-    TestBed.runInInjectionContext(() => new ComptabiliteDashboardComponent());
+    TestBed.runInInjectionContext(() => new ComptabiliteJournalComponent());
 
     expect(storeMock.refresh).toHaveBeenCalledWith(CENTER_ID);
   });
 
   it('extourne une pièce saisie après confirmation, puis recharge les écritures pour montrer l’écriture inverse', () => {
     confirme = true;
-    const component = TestBed.runInInjectionContext(() => new ComptabiliteDashboardComponent());
+    const component = TestBed.runInInjectionContext(() => new ComptabiliteJournalComponent());
 
     component['extourner'](rows[0]);
     expect(piecesMock.extournerPiece).toHaveBeenCalledWith('e-1');
@@ -126,7 +126,7 @@ describe('ComptabiliteDashboardComponent', () => {
 
   it('n’extourne rien si l’utilisateur annule la confirmation', () => {
     confirme = false;
-    const component = TestBed.runInInjectionContext(() => new ComptabiliteDashboardComponent());
+    const component = TestBed.runInInjectionContext(() => new ComptabiliteJournalComponent());
 
     component['extourner'](rows[0]);
 
@@ -135,7 +135,7 @@ describe('ComptabiliteDashboardComponent', () => {
   });
 
   it('ouvre plusieurs détails en parallèle', () => {
-    TestBed.runInInjectionContext(() => new ComptabiliteDashboardComponent());
+    TestBed.runInInjectionContext(() => new ComptabiliteJournalComponent());
 
     storeMock.toggleExpandedRow(rows[0].id);
     storeMock.toggleExpandedRow(rows[1].id);
@@ -146,7 +146,7 @@ describe('ComptabiliteDashboardComponent', () => {
 
   it('ferme tous les détails depuis la barre d’outils', () => {
     expandedIds.set(['e-1', 'e-2']);
-    TestBed.runInInjectionContext(() => new ComptabiliteDashboardComponent());
+    TestBed.runInInjectionContext(() => new ComptabiliteJournalComponent());
 
     storeMock.collapseAllExpandedRows();
 
@@ -155,7 +155,7 @@ describe('ComptabiliteDashboardComponent', () => {
   });
 
   it('retourne les métriques et le statut d’équilibrage attendus', () => {
-    const component = TestBed.runInInjectionContext(() => new ComptabiliteDashboardComponent());
+    const component = TestBed.runInInjectionContext(() => new ComptabiliteJournalComponent());
 
     expect(component['totalCredit'](rows[0])).toBe(1000);
     expect(component['detailBalanceClass'](rows[0])).toBe('detail-balance-ok');
@@ -163,14 +163,14 @@ describe('ComptabiliteDashboardComponent', () => {
   });
 
   it('affiche le libellé des journaux du centre, ou le code d’un journal supprimé', () => {
-    const component = TestBed.runInInjectionContext(() => new ComptabiliteDashboardComponent());
+    const component = TestBed.runInInjectionContext(() => new ComptabiliteJournalComponent());
 
     expect(component['journalLabel']('VE')).toBe('Ventes (VE)');
     expect(component['journalLabel']('ZZ')).toBe('ZZ');
   });
 
   it('exporte le journal choisi dans le filtre, et rien tant qu’aucun n’est choisi', () => {
-    const component = TestBed.runInInjectionContext(() => new ComptabiliteDashboardComponent());
+    const component = TestBed.runInInjectionContext(() => new ComptabiliteJournalComponent());
 
     component['onExport']();
     expect(storeMock.exporterJournal).not.toHaveBeenCalled();

@@ -3188,6 +3188,7 @@
     "STOCK_INVENTAIRES": "الجرد",
     "STOCK_FOURNISSEURS": "الموردون",
     "COMPTABILITE_JOURNAL": "اليومية المحاسبية",
+    "COMPTABILITE_PIECES": "إدخال وثيقة",
     "ADMIN_SOCIETES": "الشركات",
     "ADMIN_LICENCES": "التراخيص",
     "ADMIN_AUDIT": "سجل التدقيق",

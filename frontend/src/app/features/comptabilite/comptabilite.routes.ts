@@ -6,7 +6,7 @@ export const comptabiliteRoutes: Routes = [
     path: '',
     pathMatch: 'full',
     loadComponent: () =>
-      import('./comptabilite-dashboard.component').then((m) => m.ComptabiliteDashboardComponent),
+      import('./comptabilite-journal.component').then((m) => m.ComptabiliteJournalComponent),
   },
   {
     path: 'parametrage',

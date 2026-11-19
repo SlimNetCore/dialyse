@@ -164,6 +164,25 @@ describe('ShellComponent — barre de module', () => {
     expect(component.activeItemRoute()).toBe('/reglement');
   });
 
+  it('module Comptabilité : pas de tableau de bord, le journal, la saisie d\'une pièce, puis le paramétrage',
+    async () => {
+      const {component} = await renderAt('/comptabilite');
+
+      expect(component.activeModuleItems().map((i) => i.route)).toEqual(['/comptabilite', '/comptabilite/pieces',
+        '/comptabilite/parametrage']);
+      expect(component.activeModuleItems().map((i) => i.label)).not.toContain('NAV.TABLEAU_DE_BORD');
+      expect(component.activeModuleItems().map((i) => i.kind)).toEqual(['travail', 'travail', 'parametrage']);
+      expect(component.activeItemRoute()).toBe('/comptabilite');
+    });
+
+  it('module Comptabilité : la secrétaire saisit des pièces mais ne voit pas le paramétrage', async () => {
+    roles = ['SECRETAIRE'];
+    const {component} = await renderAt('/comptabilite/pieces');
+
+    expect(component.activeModuleItems().map((i) => i.route)).toEqual(['/comptabilite', '/comptabilite/pieces']);
+    expect(component.activeItemRoute()).toBe('/comptabilite/pieces');
+  });
+
   it('le référentiel des infirmiers, déclaré aussi dans la barre Administration, s\'active dans son module d\'origine',
     async () => {
       const {component} = await renderAt('/infirmiers/referentiel');

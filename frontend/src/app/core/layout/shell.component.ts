@@ -346,7 +346,13 @@ export class ShellComponent implements OnInit, AfterViewInit {
       icon: 'calculate',
       label: 'NAV.COMPTABILITE',
       items: [
+        // pas de tableau de bord : le module s'ouvre sur le journal
         {route: '/comptabilite', label: 'NAV.COMPTABILITE_JOURNAL', icon: 'menu_book'},
+        {route: '/comptabilite/pieces', label: 'NAV.COMPTABILITE_PIECES', icon: 'post_add'},
+        {
+          route: '/comptabilite/parametrage', label: 'NAV.PARAMETRAGE', icon: 'tune', role: 'ADMIN',
+          kind: 'parametrage'
+        },
       ],
     },
     {
