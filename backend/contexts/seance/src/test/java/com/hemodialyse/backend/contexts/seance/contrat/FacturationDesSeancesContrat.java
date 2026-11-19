@@ -525,6 +525,33 @@ public abstract class FacturationDesSeancesContrat {
     }
 
     @Test
+    void should_read_the_seances_of_an_invoice_whatever_their_status_by_date_with_their_imposed_forfait_bounded_to_the_centre() {
+        decor();
+        UUID facture = UUID.randomUUID();
+        UUID autre = UUID.randomUUID();
+        UUID tardive = UUID.fromString("99997700-0000-0000-0000-00000000c003");
+        UUID premiere = UUID.fromString("99997700-0000-0000-0000-00000000c001");
+        UUID memeJour = UUID.fromString("99997700-0000-0000-0000-00000000c002");
+        seance(tardive, CENTRE_A, AMRANI, LocalDate.of(2026, 9, 20), "FACTUREE", facture);
+        seance(memeJour, CENTRE_A, AMRANI, LocalDate.of(2026, 9, 2), "ABSENT", facture);
+        seance(premiere, CENTRE_A, AMRANI, LocalDate.of(2026, 9, 2), "FACTUREE", facture);
+        surcharge(tardive, PREMIUM, "Forfait HD Premium", new BigDecimal("5200.00"), null);
+        seance(UUID.randomUUID(), CENTRE_A, AMRANI, LocalDate.of(2026, 9, 3), "FACTUREE", autre);
+        seance(UUID.randomUUID(), CENTRE_A, AMRANI, LocalDate.of(2026, 9, 4), "VALIDEE", null);
+        seance(UUID.randomUUID(), CENTRE_B, PATIENT_B, LocalDate.of(2026, 9, 1), "FACTUREE", facture);
+
+        List<SeancesDesFacturesPubliees.SeanceDeFacturePubliee> lues = facturees().seancesDeLaFacture(CENTRE_A, facture);
+
+        assertThat(lues).containsExactly(
+                new SeancesDesFacturesPubliees.SeanceDeFacturePubliee(premiere, LocalDate.of(2026, 9, 2), "FACTUREE", null),
+                new SeancesDesFacturesPubliees.SeanceDeFacturePubliee(memeJour, LocalDate.of(2026, 9, 2), "ABSENT", null),
+                new SeancesDesFacturesPubliees.SeanceDeFacturePubliee(tardive, LocalDate.of(2026, 9, 20), "FACTUREE", PREMIUM));
+        assertThat(facturees().seancesDeLaFacture(CENTRE_B, autre)).isEmpty();
+        assertThat(facturees().seancesDeLaFacture(CENTRE_A, UUID.randomUUID())).isEmpty();
+        assertThat(facturees().seancesDeLaFacture(CENTRE_B, facture)).hasSize(1);
+    }
+
+    @Test
     void should_count_the_seances_of_a_large_number_of_invoices() {
         decor();
         Collection<UUID> factures = IntStream.range(0, 1201).mapToObj(i -> UUID.randomUUID()).toList();

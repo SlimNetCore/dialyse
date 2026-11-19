@@ -22,13 +22,13 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <div class="cover"><div style="font-size:12pt;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700">Document de référence</div>
 <h1>HemoDialyse<br><em>Documentation fonctionnelle</em><br>et règles de gestion</h1>
 <p>Tout ce que la plateforme sait faire pour gérer un centre d'hémodialyse — et chaque règle qu'elle applique, sans exception.</p>
-<div class="meta">Version 1.0 · 2026-11-19<br>689 règles de gestion · 16 domaines · 558 codes d'erreur métier</div></div>
+<div class="meta">Version 1.0 · 2026-11-19<br>693 règles de gestion · 16 domaines · 562 codes d'erreur métier</div></div>
 <div class="page">
 <section><h1><span class="n">Sommaire</span>Contenu du document</h1><ol class="toc"><li><a href="#intro">Présentation de la plateforme</a></li><li><a href="#p01">1. Règles transverses</a></li><li><a href="#p02">2. Sécurité, comptes, rôles, licences et traçabilité</a></li><li><a href="#p03">3. Organisation : sociétés, centres, comptes d'encadrement</a></li><li><a href="#p04">4. Patients, assurés, attestations de droits, prises en charge</a></li><li><a href="#p05">5. Planification : placement des patients, planning de la semaine, salles, générateurs, capacité</a></li><li><a href="#p06">6. Absences des patients</a></li><li><a href="#p07">7. Séances de dialyse (cahier de dialyse)</a></li><li><a href="#p08">8. Stock : articles, fournisseurs, bons, lots, PMP, inventaire, alertes, groupes d'articles</a></li><li><a href="#p09">9. GMAO : parc d'équipements, interventions, plans de maintenance, coûts et aide à la décision</a></li><li><a href="#p10">10. Infirmiers : référentiel, roulement, présence, absences, remplaçants, charge, comptes</a></li><li><a href="#p11">11. Dossier médical : antécédents, allergies, sérologies, examens, ordonnances, prescriptions, anémie, greffe, KDIGO, export</a></li><li><a href="#p12">12. Facturation, TVA, règlements et comptabilité</a></li><li><a href="#p13">13. Direction de société : tableaux de bord consolidés, anonymat, alertes, instantanés, temps réel</a></li><li><a href="#p14">14. Référentiels du centre, modèles de documents, imports et reprise de données</a></li><li><a href="#p15">15. Notifications temps réel et catalogue des alertes</a></li><li><a href="#p16">16. Annexe de traçabilité : contrôleurs REST, tâches planifiées et règles</a></li><li><a href="#attentions">Annexe — Points d'attention connus</a></li></ol></section>
 <section class="part" id="intro"><h1><span class="n">Introduction</span>Présentation de la plateforme</h1>
 <p>HemoDialyse couvre <b>toute la gestion d'un centre d'hémodialyse</b> : accueil et dossier administratif des patients, prises en charge, planification des postes et du personnel, séances et cahier de dialyse, dossier médical et suivi clinique, stock et pharmacie, maintenance des équipements, facturation, règlements et comptabilité, pilotage de la direction. La plateforme est multi-centres et multi-sociétés, en français, arabe, kabyle et anglais.</p>
 <p>Au-delà de la disponibilité de l'information, le système <b>surveille</b> (absences, observance des traitements, sous-effectif, péremptions, indisponibilité des équipements, licences), <b>propose</b> (meilleures places de dialyse classées, remplaçants, réforme d'un équipement, simulation de facturation) et <b>protège</b> (placement incohérent refusé, isolement automatique des patients à risque, gel du stock pendant un inventaire, anonymat de la direction, cloisonnement par centre).</p>
-<div class="stat"><div><b>689</b>règles de gestion</div><div><b>16</b>domaines</div><div><b>15</b>surveillances automatiques</div><div><b>8</b>points d'attention</div></div>
+<div class="stat"><div><b>693</b>règles de gestion</div><div><b>16</b>domaines</div><div><b>15</b>surveillances automatiques</div><div><b>8</b>points d'attention</div></div>
 <h2>Se repérer dans l'application</h2><p>L'<b>Accueil</b> présente une tuile par module accessible au profil, avec un ou deux chiffres clés à jour en temps réel et un lien vers le tableau de bord du module ; une tuile que le profil n'a pas le droit de lire est masquée.</p><p>Chaque module s'organise en une <b>barre de module</b> identique partout : d'abord le <b>Tableau de bord</b> du module (<code>/&lt;module&gt;/tableau-de-bord</code>, indicateurs en lecture seule, cliquables vers la liste filtrée), puis les <b>écrans de travail</b>, puis le <b>paramétrage</b>. Ouvrir un module mène directement à son écran de travail (liste des patients, poste infirmier, grille de présence, état du stock, liste des équipements, calcul de la facturation, saisie des règlements, journal comptable) ; la Comptabilité n'a pas de tableau de bord.</p><p>La <b>Direction</b> dispose de trois pages partageant les mêmes filtres de période et de centre : <b>Tableau de bord</b> (vue d'ensemble : alertes, indicateurs de la société, chiffre d'affaires), <b>Analyses</b> (centres, clinique, stock, GMAO, capacité, absences, en tableaux triables) et <b>Rapports</b> (rapports mensuels figés, comparaison de deux mois).</p><p>La liste des patients s'exporte depuis le tableau lui-même : l'export Excel reprend toutes les lignes qui répondent aux filtres et au tri affichés, avec les colonnes visibles dans l'ordre affiché.</p>
 <h2>Profils et périmètres</h2><table><tr><th>Profil</th><th>Rôle</th><th>Périmètre principal</th></tr><tr><td><code>ADMIN</code></td><td>Administrateur du centre</td><td>Paramétrage, utilisateurs, séances, facturation, GMAO, comptabilité, planification</td></tr><tr><td><code>MEDECIN</code></td><td>Médecin</td><td>Dossier médical, prescriptions, validation et signature, cibles cliniques, greffe</td></tr><tr><td><code>INFIRMIER</code></td><td>Infirmier</td><td>Séances, consommables, administrations, « mon planning », absences</td></tr><tr><td><code>SECRETAIRE</code></td><td>Secrétaire</td><td>Accueil, patients, PEC, règlements, planning, absences</td></tr><tr><td><code>PHARMACIEN</code></td><td>Pharmacien / magasinier</td><td>Stock : bons, lots, inventaire</td></tr><tr><td><code>DIRECTION</code></td><td>Direction de société</td><td>Tableaux de bord consolidés et anonymes, instantanés, rapports</td></tr><tr><td><code>SUPERADMIN</code></td><td>Propriétaire de la plateforme</td><td>Sociétés, centres, comptes d'encadrement, licences, journal d'audit</td></tr></table>
 <h2>Comment lire les règles</h2><p>Chaque règle porte un identifiant stable <code>RG-XXX-nnn</code>, jamais renuméroté. Le code d'erreur renvoyé à l'utilisateur figure entre apostrophes inversées ; la source dans le code est citée. Un encadré <b>point d'attention</b> signale un écart connu entre l'intention métier et le comportement actuel : il est conservé tant qu'il n'est pas corrigé.</p></section>
@@ -4530,6 +4530,42 @@ refusé ; aucun consommateur pour l&#39;instant). <code>GET /api/v1/facturation/
 <code>ANNEE_INVALIDE</code> sinon) donne l&#39;état des 12 mois du centre : ouvert ou clôturé, dernière clôture (par, le), dernière
 réouverture (par, le, motif). <em>Source :</em> <code>PeriodesDeFacturationControleur</code>, <code>ConsulterLesPeriodes</code>.</p>
 </div></div>
+<h2>12.4 ter Consultation des factures émises</h2>
+<div class="rule" id="RG-FAC-046"><div class="rid">RG-FAC-046</div><div class="rtxt"><p>La <strong>liste des factures</strong> (<code>GET /api/v1/facturation/factures</code>, <code>ADMIN</code> ; centre de la requête = centre de la
+session sinon 403 ; médecin « seul » refusé par le filtre de rôles) présente les factures <strong>émises</strong> du centre dont la <strong>date de
+facturation</strong> est dans la période <code>du</code>–<code>au</code> (bornes incluses ; par défaut le mois courant dans le fuseau du centre ; période ≤ 366
+jours, <code>du</code> ≤ <code>au</code>, les deux bornes ensemble, sinon 400 <code>PERIODE_INVALIDE</code>). Pour chaque facture : numéro, date, période facturée,
+patient (fiche du centre sinon instantané de la facture), caisse (chaîne figée puis courante, comme les règlements), nombre de séances
+<strong>facturées</strong> (somme des quantités des lignes figées), HT / TVA / TTC <strong>figés</strong>, réglé (somme signée des règlements), reste et <strong>état
+de règlement</strong> (<code>NON_REGLEE</code>, <code>PARTIELLEMENT_REGLEE</code>, <code>REGLEE</code>, calculé à chaque lecture comme RG-REG-002). Filtres cumulables :
+numéro (contient, sans casse), patient (contient, sans casse, sur « nom prénom » ou numéro d&#39;assurance), caisse, état (inconnu : 400
+<code>ETAT_INVALIDE</code>), montant TTC min / max (bornes incluses ; min &gt; max : 400 <code>MONTANT_INVALIDE</code>). Tri <code>champ,asc|desc</code> sur la date,
+le numéro, le patient, la caisse, le nombre de séances, le TTC, le réglé, le reste ou l&#39;état (champ ou direction inconnus : 400
+<code>TRI_INVALIDE</code>) ; départage et tri par défaut : date de facturation décroissante, puis numéro décroissant, puis identifiant. Page
+par défaut 0, taille par défaut 20, bornée de 1 à 100 lignes (sans erreur). Les totaux renvoyés (nombre, HT, TVA, TTC, réglé, reste)
+portent sur <strong>toutes</strong> les factures filtrées, pas seulement la page. Un paramètre illisible (nombre, date, identifiant) ou le centre
+absent : 400 <code>PARAMETRE_INVALIDE</code> ; un profil autre qu&#39;<code>ADMIN</code> reçoit 403 avant toute erreur de lecture. <em>Source :</em>
+<code>FacturesControleur</code>, <code>FacturesAdvice</code>, <code>ConsulterLesFactures</code>, <code>ListeDesFacturesJdbc</code> (contexte <code>facturation</code>).</p>
+</div></div>
+<div class="rule" id="RG-FAC-047"><div class="rid">RG-FAC-047</div><div class="rtxt"><p>Le <strong>détail d&#39;une facture</strong> (<code>GET /api/v1/facturation/factures/{id}/lignes</code>, mêmes droits) donne les lignes
+figées (forfait, prix unitaire HT, nombre de séances, HT ; TVA de ligne = HT × taux figé de la facture arrondi au centime
+demi-supérieur, TTC = HT + TVA) et les totaux <strong>figés de la facture</strong> (qui font foi ; la somme des TVA de ligne peut différer d&#39;un
+centime), plus le réglé et le reste. Une facture d&#39;un autre centre ou inconnue : <strong>404</strong> sans corps (aucune fuite d&#39;existence).
+<em>Source :</em> <code>FacturesControleur.detail</code>, <code>ConsulterLesFactures.detail</code>.</p>
+</div></div>
+<div class="rule" id="RG-FAC-048"><div class="rid">RG-FAC-048</div><div class="rtxt"><p>Les <strong>séances d&#39;une facture</strong> sont celles du centre rattachées à la facture (<code>facture_id</code>), quel que soit leur
+statut, triées par date puis identifiant, lues par la Séance (langage publié <code>seance.v1</code>). Le forfait de chaque séance est
+<strong>attribué</strong> sans recalcul : une séance portant une surcharge de forfait reçoit la ligne de même forfait ; les autres reçoivent la
+seule ligne qui a encore des séances non attribuées (quantité figée − séances déjà attribuées) ; s&#39;il n&#39;y en a pas exactement une,
+le forfait de la séance est <strong>non attribuable</strong> (affiché « — »), les lignes figées restant la référence des montants. Montant HT
+d&#39;une séance = prix unitaire HT de sa ligne. <em>Source :</em> <code>AttributionDesForfaits</code> (domaine <code>facturation</code>),
+<code>SeancesDeLaFacturePubliees</code> (ACL vers la Séance).</p>
+</div></div>
+<div class="rule" id="RG-FAC-049"><div class="rid">RG-FAC-049</div><div class="rtxt"><p>(écran) — L&#39;écran de calcul affiche les trois étapes Sélection → Aperçu → Validation sur une seule ligne ; l&#39;étape
+courante est déduite de l&#39;état de l&#39;écran (pas d&#39;aperçu : Sélection ; aperçu calculé non validé : Aperçu ; validation réussie :
+Validation) ; l&#39;explication de chaque étape est en info-bulle et lue par les lecteurs d&#39;écran. <em>Source :</em> écran Facturation
+(frontend).</p>
+</div></div>
 <h2>12.5 Règlements des factures</h2>
 <div class="rule" id="RG-REG-001"><div class="rid">RG-REG-001</div><div class="rtxt"><p>Un règlement est rattaché à une facture et à un centre : montant <strong>non nul</strong> (un montant négatif est
 un <strong>remboursement</strong>, voir RG-REG-005), date (le jour d&#39;exécution si elle est absente, jamais contrôlée), <strong>auteur =
@@ -6453,6 +6489,12 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td><code>/api/v1/facturation/periodes</code> (<code>GET ?annee=</code>, <code>/{mois}/cloturer</code>, <code>/{mois}/rouvrir</code>)</td>
 <td><code>ADMIN</code></td>
 <td>RG-FAC-040 à 045</td>
+</tr>
+<tr>
+<td><code>FacturesControleur</code></td>
+<td><code>/api/v1/facturation/factures</code> (<code>GET</code>, <code>GET /{id}/lignes</code>)</td>
+<td><code>ADMIN</code></td>
+<td>RG-FAC-046 à 048</td>
 </tr>
 <tr>
 <td><code>ParametresFacturationControleur</code></td>

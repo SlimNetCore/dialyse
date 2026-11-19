@@ -5,6 +5,7 @@ import com.hemodialyse.backend.contexts.seance.publishedlanguage.SeancesDesFactu
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -34,5 +35,11 @@ public class SeancesDesFacturesParLaSeance implements SeancesDesFacturesFournies
     @Override
     public long nombreDeSeancesFactureesEntre(UUID centre, LocalDate debut, LocalDate fin) {
         return seances.nombreDeSeancesFactureesEntre(centre, debut, fin);
+    }
+
+    @Override
+    public List<SeanceDeFactureFournie> seancesDeLaFacture(UUID centre, UUID facture) {
+        return seances.seancesDeLaFacture(centre, facture).stream()
+                .map(s -> new SeanceDeFactureFournie(s.id(), s.date(), s.statut(), s.forfaitSurcharge())).toList();
     }
 }

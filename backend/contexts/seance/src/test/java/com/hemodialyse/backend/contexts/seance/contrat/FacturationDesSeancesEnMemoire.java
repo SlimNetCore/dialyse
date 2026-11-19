@@ -211,4 +211,11 @@ class FacturationDesSeancesEnMemoire implements SeancesAFacturerPubliees, Exclus
         return seances.values().stream().filter(s -> s.centre.equals(centre) && "FACTUREE".equals(s.statut)
                 && !s.date.isBefore(debut) && !s.date.isAfter(fin)).count();
     }
+
+    @Override
+    public List<SeanceDeFacturePubliee> seancesDeLaFacture(UUID centre, UUID facture) {
+        return seances.values().stream().filter(s -> s.centre.equals(centre) && facture.equals(s.facture))
+                .sorted(Comparator.<Seance, LocalDate>comparing(s -> s.date).thenComparing(s -> s.id.toString()))
+                .map(s -> new SeanceDeFacturePubliee(s.id, s.date, s.statut, s.forfaitId)).toList();
+    }
 }

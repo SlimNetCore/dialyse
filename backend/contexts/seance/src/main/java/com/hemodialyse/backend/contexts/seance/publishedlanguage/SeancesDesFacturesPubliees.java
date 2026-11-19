@@ -2,6 +2,7 @@ package com.hemodialyse.backend.contexts.seance.publishedlanguage;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -28,4 +29,14 @@ public interface SeancesDesFacturesPubliees {
      * période (bornes incluses), avec ou sans facture.
      */
     long nombreDeSeancesFactureesEntre(UUID centre, LocalDate debut, LocalDate fin);
+
+    /**
+     * Détail d'une facture (RG-FAC-048) : les séances du centre dont {@code facture_id} est cette facture, quel que soit leur statut, triées par
+     * date de séance puis identifiant ; vide pour une facture inconnue ou d'un autre centre.
+     */
+    List<SeanceDeFacturePubliee> seancesDeLaFacture(UUID centre, UUID facture);
+
+    /** @param forfaitSurcharge forfait imposé à la séance ({@code forfait_override_id}), {@code null} sinon */
+    record SeanceDeFacturePubliee(UUID id, LocalDate date, String statut, UUID forfaitSurcharge) {
+    }
 }

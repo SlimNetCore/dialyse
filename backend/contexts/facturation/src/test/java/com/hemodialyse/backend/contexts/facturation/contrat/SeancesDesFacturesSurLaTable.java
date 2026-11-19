@@ -55,4 +55,12 @@ final class SeancesDesFacturesSurLaTable implements SeancesDesFacturesFournies {
                 Long.class, centre, Date.valueOf(debut), Date.valueOf(fin));
         return n == null ? 0L : n;
     }
+
+    @Override
+    public java.util.List<SeanceDeFactureFournie> seancesDeLaFacture(UUID centre, UUID facture) {
+        return jdbc.query("SELECT id, date_seance, statut, forfait_override_id FROM seances WHERE center_id = ? AND facture_id = ? "
+                        + "ORDER BY date_seance, id",
+                (rs, i) -> new SeanceDeFactureFournie(rs.getObject("id", UUID.class), rs.getDate("date_seance").toLocalDate(),
+                        rs.getString("statut"), rs.getObject("forfait_override_id", UUID.class)), centre, facture);
+    }
 }

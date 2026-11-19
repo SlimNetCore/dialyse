@@ -189,4 +189,13 @@ public class FacturationDesSeancesJdbc implements SeancesAFacturerPubliees, Excl
                 Long.class, centre, Date.valueOf(debut), Date.valueOf(fin));
         return nombre == null ? 0L : nombre;
     }
+
+    @Override
+    public List<SeanceDeFacturePubliee> seancesDeLaFacture(UUID centre, UUID facture) {
+        return jdbc.query("SELECT id, date_seance, statut, forfait_override_id FROM seances WHERE center_id = ? AND facture_id = ? "
+                        + "ORDER BY date_seance, id",
+                (rs, ligne) -> new SeanceDeFacturePubliee(rs.getObject("id", UUID.class), rs.getDate("date_seance").toLocalDate(),
+                        rs.getString("statut"), rs.getObject("forfait_override_id", UUID.class)),
+                centre, facture);
+    }
 }

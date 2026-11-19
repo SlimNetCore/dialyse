@@ -216,6 +216,40 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
   `ANNEE_INVALIDE` sinon) donne l'état des 12 mois du centre : ouvert ou clôturé, dernière clôture (par, le), dernière
   réouverture (par, le, motif). *Source :* `PeriodesDeFacturationControleur`, `ConsulterLesPeriodes`.
 
+## 12.4 ter Consultation des factures émises
+
+- **RG-FAC-046** — La **liste des factures** (`GET /api/v1/facturation/factures`, `ADMIN` ; centre de la requête = centre de la
+  session sinon 403 ; médecin « seul » refusé par le filtre de rôles) présente les factures **émises** du centre dont la **date de
+  facturation** est dans la période `du`–`au` (bornes incluses ; par défaut le mois courant dans le fuseau du centre ; période ≤ 366
+  jours, `du` ≤ `au`, les deux bornes ensemble, sinon 400 `PERIODE_INVALIDE`). Pour chaque facture : numéro, date, période facturée,
+  patient (fiche du centre sinon instantané de la facture), caisse (chaîne figée puis courante, comme les règlements), nombre de séances
+  **facturées** (somme des quantités des lignes figées), HT / TVA / TTC **figés**, réglé (somme signée des règlements), reste et **état
+  de règlement** (`NON_REGLEE`, `PARTIELLEMENT_REGLEE`, `REGLEE`, calculé à chaque lecture comme RG-REG-002). Filtres cumulables :
+  numéro (contient, sans casse), patient (contient, sans casse, sur « nom prénom » ou numéro d'assurance), caisse, état (inconnu : 400
+  `ETAT_INVALIDE`), montant TTC min / max (bornes incluses ; min > max : 400 `MONTANT_INVALIDE`). Tri `champ,asc|desc` sur la date,
+  le numéro, le patient, la caisse, le nombre de séances, le TTC, le réglé, le reste ou l'état (champ ou direction inconnus : 400
+  `TRI_INVALIDE`) ; départage et tri par défaut : date de facturation décroissante, puis numéro décroissant, puis identifiant. Page
+  par défaut 0, taille par défaut 20, bornée de 1 à 100 lignes (sans erreur). Les totaux renvoyés (nombre, HT, TVA, TTC, réglé, reste)
+  portent sur **toutes** les factures filtrées, pas seulement la page. Un paramètre illisible (nombre, date, identifiant) ou le centre
+  absent : 400 `PARAMETRE_INVALIDE` ; un profil autre qu'`ADMIN` reçoit 403 avant toute erreur de lecture. *Source :*
+  `FacturesControleur`, `FacturesAdvice`, `ConsulterLesFactures`, `ListeDesFacturesJdbc` (contexte `facturation`).
+- **RG-FAC-047** — Le **détail d'une facture** (`GET /api/v1/facturation/factures/{id}/lignes`, mêmes droits) donne les lignes
+  figées (forfait, prix unitaire HT, nombre de séances, HT ; TVA de ligne = HT × taux figé de la facture arrondi au centime
+  demi-supérieur, TTC = HT + TVA) et les totaux **figés de la facture** (qui font foi ; la somme des TVA de ligne peut différer d'un
+  centime), plus le réglé et le reste. Une facture d'un autre centre ou inconnue : **404** sans corps (aucune fuite d'existence).
+  *Source :* `FacturesControleur.detail`, `ConsulterLesFactures.detail`.
+- **RG-FAC-048** — Les **séances d'une facture** sont celles du centre rattachées à la facture (`facture_id`), quel que soit leur
+  statut, triées par date puis identifiant, lues par la Séance (langage publié `seance.v1`). Le forfait de chaque séance est
+  **attribué** sans recalcul : une séance portant une surcharge de forfait reçoit la ligne de même forfait ; les autres reçoivent la
+  seule ligne qui a encore des séances non attribuées (quantité figée − séances déjà attribuées) ; s'il n'y en a pas exactement une,
+  le forfait de la séance est **non attribuable** (affiché « — »), les lignes figées restant la référence des montants. Montant HT
+  d'une séance = prix unitaire HT de sa ligne. *Source :* `AttributionDesForfaits` (domaine `facturation`),
+  `SeancesDeLaFacturePubliees` (ACL vers la Séance).
+- **RG-FAC-049** (écran) — L'écran de calcul affiche les trois étapes Sélection → Aperçu → Validation sur une seule ligne ; l'étape
+  courante est déduite de l'état de l'écran (pas d'aperçu : Sélection ; aperçu calculé non validé : Aperçu ; validation réussie :
+  Validation) ; l'explication de chaque étape est en info-bulle et lue par les lecteurs d'écran. *Source :* écran Facturation
+  (frontend).
+
 ## 12.5 Règlements des factures
 
 - **RG-REG-001** — Un règlement est rattaché à une facture et à un centre : montant **non nul** (un montant négatif est

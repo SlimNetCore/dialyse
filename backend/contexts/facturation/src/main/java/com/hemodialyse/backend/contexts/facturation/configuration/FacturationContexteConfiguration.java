@@ -234,6 +234,29 @@ public class FacturationContexteConfiguration {
         return new ConsulterLesReglements(situations, reglements);
     }
 
+    /** Consultation des factures émises (liste et détail, RG-FAC-046 à 048), lecture seule. */
+    @Bean
+    com.hemodialyse.backend.contexts.facturation.application.consultation.ListeDesFactures facturationListeDesFactures(JdbcTemplate jdbc,
+            com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.PayeursDuCentre annuaire,
+            com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.LotsDePatients patients) {
+        return new com.hemodialyse.backend.contexts.facturation.infrastructure.persistence.ListeDesFacturesJdbc(jdbc, annuaire, patients);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.facturation.application.consultation.SeancesDeLaFacture facturationSeancesDeLaFacture(
+            SeancesDesFacturesFournies seances) {
+        return new com.hemodialyse.backend.contexts.facturation.infrastructure.acl.seance.SeancesDeLaFacturePubliees(seances);
+    }
+
+    @Bean
+    com.hemodialyse.backend.contexts.facturation.application.consultation.ConsulterLesFactures facturationConsulterLesFactures(
+            com.hemodialyse.backend.contexts.facturation.application.consultation.ListeDesFactures liste,
+            com.hemodialyse.backend.contexts.facturation.application.consultation.SeancesDeLaFacture seances,
+            FuseauxDesCentres fuseaux) {
+        return new com.hemodialyse.backend.contexts.facturation.application.consultation.ConsulterLesFactures(liste, seances, fuseaux,
+                Clock.systemUTC());
+    }
+
     @Bean
     LectureDuTableauDeBord facturationLectureDuTableauDeBord(JdbcTemplate jdbc, SeancesDesFacturesFournies seances,
             com.hemodialyse.backend.contexts.patientcouverture.publishedlanguage.PayeursDuCentre annuaire) {
