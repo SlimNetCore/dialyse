@@ -40,10 +40,14 @@ describe('CenterDashboardComponent — Accueil', () => {
   let stock: { alertes: ReturnType<typeof vi.fn> };
   let gmao: { getStats: ReturnType<typeof vi.fn> };
   let lastEvent: WritableSignal<WsEvent | null>;
+  let events: WritableSignal<WsEvent[]>;
+  let centre: WritableSignal<string>;
 
   beforeEach(() => {
     roles = ['ADMIN'];
     lastEvent = signal<WsEvent | null>(null);
+    events = signal<WsEvent[]>([]);
+    centre = signal('c1');
     api = {
       getDashboardStats: vi.fn(() => of({patientCount: 42, pecExpiring: 3})),
       getSeanceMonthlyDashboard: vi.fn(() => of({totalSeances: 120, absenceCount: 4})),
@@ -71,22 +75,37 @@ describe('CenterDashboardComponent — Accueil', () => {
             clearSession: () => undefined,
           },
         },
-        {provide: AppShellStore, useValue: {currentCenterId: signal('c1')}},
+        {provide: AppShellStore, useValue: {currentCenterId: centre}},
         {provide: BackendApiService, useValue: api},
         {provide: InfirmierApiService, useValue: infirmiers},
         {provide: StockApiService, useValue: stock},
         {provide: GmaoApiService, useValue: gmao},
-        {provide: WebSocketService, useValue: {lastEvent}},
+        {provide: WebSocketService, useValue: {lastEvent, events}},
       ],
     });
   });
 
   afterEach(() => vi.useRealTimers());
 
+  /** Reçoit un message temps réel comme le fait WebSocketService, sans laisser l'effet du composant s'exécuter. */
+  function recevoir(type: string, centerId = 'c1'): void {
+    const evenement: WsEvent = {type, centerId, payload: {}, timestamp: ''};
+    lastEvent.set(evenement);
+    events.update((liste) => [evenement, ...liste].slice(0, 50));
+  }
+
   /** Diffuse un évènement temps réel et laisse l'effet du composant le traiter. */
   function diffuser(fixture: { detectChanges: () => void }, type: string, centerId = 'c1'): void {
-    lastEvent.set({type, centerId, payload: {}, timestamp: ''});
+    recevoir(type, centerId);
     fixture.detectChanges();
+  }
+
+  /** Monte l'Accueil sous minuteries simulées (les lectures simulées répondent de façon synchrone). */
+  function monterSousMinuteriesSimulees() {
+    vi.useFakeTimers({toFake: ['setTimeout', 'clearTimeout']});
+    const fixture = TestBed.createComponent(CenterDashboardComponent);
+    fixture.detectChanges();
+    return {fixture, root: fixture.nativeElement as HTMLElement};
   }
 
   async function render() {
@@ -182,6 +201,103 @@ describe('CenterDashboardComponent — Accueil', () => {
     expect(api['getDashboardStats']).toHaveBeenCalledTimes(1);
     expect(gmao.getStats).toHaveBeenCalledTimes(1);
     expect(infirmiers.alertes).toHaveBeenCalledTimes(1);
+  });
+
+  it('ne rejoue pas un évènement antérieur au montage, ni au montage ni au changement de centre', () => {
+    recevoir('STOCK_MOVEMENT_CHANGED', 'c1');
+    recevoir('STOCK_MOVEMENT_CHANGED', 'c2');
+    const {fixture} = monterSousMinuteriesSimulees();
+
+    vi.advanceTimersByTime(DELAI_RAFRAICHISSEMENT_MS);
+    expect(stock.alertes).toHaveBeenCalledTimes(1);
+
+    centre.set('c2');
+    fixture.detectChanges();
+    expect(stock.alertes).toHaveBeenCalledTimes(2);
+    expect(stock.alertes).toHaveBeenLastCalledWith('c2');
+
+    vi.advanceTimersByTime(DELAI_RAFRAICHISSEMENT_MS);
+    expect(stock.alertes).toHaveBeenCalledTimes(2);
+
+    // un évènement postérieur au montage reste pris en compte
+    diffuser(fixture, 'STOCK_MOVEMENT_CHANGED', 'c2');
+    vi.advanceTimersByTime(DELAI_RAFRAICHISSEMENT_MS);
+    expect(stock.alertes).toHaveBeenCalledTimes(3);
+  });
+
+  it('recharge les deux tuiles quand deux messages de modules différents arrivent avant le passage de l\'effet', () => {
+    const {fixture} = monterSousMinuteriesSimulees();
+
+    recevoir('STOCK_MOVEMENT_CHANGED');
+    recevoir('PATIENT_CREATED');
+    fixture.detectChanges();
+    vi.advanceTimersByTime(DELAI_RAFRAICHISSEMENT_MS);
+
+    expect(stock.alertes).toHaveBeenCalledTimes(2);
+    expect(api['getDashboardStats']).toHaveBeenCalledTimes(2);
+    expect(gmao.getStats).toHaveBeenCalledTimes(1);
+  });
+
+  it('conserve les chiffres affichés quand le rafraîchissement en direct échoue (500)', () => {
+    const {fixture, root} = monterSousMinuteriesSimulees();
+    fixture.detectChanges();
+    stock.alertes.mockReturnValue(throwError(() => new HttpErrorResponse({status: 500})));
+
+    diffuser(fixture, 'STOCK_MOVEMENT_CHANGED');
+    vi.advanceTimersByTime(DELAI_RAFRAICHISSEMENT_MS);
+    fixture.detectChanges();
+
+    expect(stock.alertes).toHaveBeenCalledTimes(2);
+    expect(texte(root, 'accueil-chiffre-stock-0')).toBe('2');
+    expect(texte(root, 'accueil-chiffre-stock-1')).toBe('1');
+  });
+
+  it('masque la tuile quand le rafraîchissement en direct est refusé (403)', () => {
+    const {fixture, root} = monterSousMinuteriesSimulees();
+    fixture.detectChanges();
+    stock.alertes.mockReturnValue(throwError(() => new HttpErrorResponse({status: 403})));
+
+    diffuser(fixture, 'STOCK_MOVEMENT_CHANGED');
+    vi.advanceTimersByTime(DELAI_RAFRAICHISSEMENT_MS);
+    fixture.detectChanges();
+
+    expect(root.querySelector('[data-testid="accueil-tuile-stock"]')).toBeNull();
+  });
+
+  it('abandonne le rafraîchissement en attente au changement de centre', () => {
+    const {fixture} = monterSousMinuteriesSimulees();
+
+    diffuser(fixture, 'STOCK_MOVEMENT_CHANGED');
+    centre.set('c2');
+    fixture.detectChanges();
+    expect(stock.alertes).toHaveBeenCalledTimes(2);
+
+    vi.advanceTimersByTime(DELAI_RAFRAICHISSEMENT_MS);
+    expect(stock.alertes).toHaveBeenCalledTimes(2);
+  });
+
+  it('abandonne le rafraîchissement en attente à la destruction de l\'écran', () => {
+    const {fixture} = monterSousMinuteriesSimulees();
+
+    diffuser(fixture, 'STOCK_MOVEMENT_CHANGED');
+    fixture.destroy();
+    vi.advanceTimersByTime(DELAI_RAFRAICHISSEMENT_MS);
+
+    expect(stock.alertes).toHaveBeenCalledTimes(1);
+  });
+
+  it('réaffiche la tuile masquée par un refus (403) dès que la lecture du centre suivant réussit', () => {
+    stock.alertes.mockReturnValueOnce(throwError(() => new HttpErrorResponse({status: 403})));
+    const {fixture, root} = monterSousMinuteriesSimulees();
+    fixture.detectChanges();
+    expect(root.querySelector('[data-testid="accueil-tuile-stock"]')).toBeNull();
+
+    centre.set('c2');
+    fixture.detectChanges();
+    fixture.detectChanges();
+
+    expect(root.querySelector('[data-testid="accueil-tuile-stock"]')).not.toBeNull();
+    expect(texte(root, 'accueil-chiffre-stock-0')).toBe('2');
   });
 
   it('ignore les évènements d\'un autre centre et ceux qui ne changent aucun chiffre', async () => {

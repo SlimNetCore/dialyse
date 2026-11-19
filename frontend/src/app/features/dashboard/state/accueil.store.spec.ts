@@ -86,4 +86,68 @@ describe('AccueilStore', () => {
     lente.next({patientCount: 11, pecExpiring: 1});
     expect(store.valeurs().patients).toEqual([11, 1]);
   });
+
+  it('un module refusé (403) redevient accessible dès qu\'une lecture suivante réussit', () => {
+    stock.alertes
+      .mockReturnValueOnce(throwError(() => new HttpErrorResponse({status: 403})))
+      .mockReturnValueOnce(of([{type: 'RUPTURE'}, {type: 'PEREMPTION'}]));
+
+    store.charger('c1', ['stock']);
+    expect(store.nonAccessibles().stock).toBe(true);
+
+    store.charger('c2', ['stock']);
+    expect(store.nonAccessibles().stock).toBe(false);
+    expect(store.valeurs().stock).toEqual([1, 1]);
+  });
+
+  it.each([
+    ['une erreur serveur (500)', new HttpErrorResponse({status: 500})],
+    ['une coupure réseau', new HttpErrorResponse({status: 0})],
+  ])('un rafraîchissement silencieux en échec sur %s conserve les chiffres affichés', (_cas, erreur) => {
+    api.getDashboardStats
+      .mockReturnValueOnce(of({patientCount: 10, pecExpiring: 1}))
+      .mockReturnValueOnce(throwError(() => erreur));
+
+    store.charger('c1', ['patients']);
+    store.charger('c1', ['patients'], new Date(), {silencieux: true});
+
+    expect(store.valeurs().patients).toEqual([10, 1]);
+    expect(store.nonAccessibles().patients).toBe(false);
+    expect(store.chargement().patients).toBe(false);
+  });
+
+  it('un rafraîchissement silencieux refusé (403) masque quand même la tuile', () => {
+    stock.alertes
+      .mockReturnValueOnce(of([{type: 'RUPTURE'}]))
+      .mockReturnValueOnce(throwError(() => new HttpErrorResponse({status: 403})));
+
+    store.charger('c1', ['stock']);
+    store.charger('c1', ['stock'], new Date(), {silencieux: true});
+
+    expect(store.nonAccessibles().stock).toBe(true);
+  });
+
+  it('un chargement normal en échec (500) remplace toujours les chiffres par des indisponibles', () => {
+    api.getDashboardStats
+      .mockReturnValueOnce(of({patientCount: 10, pecExpiring: 1}))
+      .mockReturnValueOnce(throwError(() => new HttpErrorResponse({status: 500})));
+
+    store.charger('c1', ['patients']);
+    store.charger('c2', ['patients']);
+
+    expect(store.valeurs().patients).toEqual([null, null]);
+  });
+
+  it('un rafraîchissement silencieux en échec sans chiffres antérieurs les marque indisponibles', () => {
+    const lente = new Subject<{ patientCount: number; pecExpiring: number }>();
+    api.getDashboardStats
+      .mockReturnValueOnce(lente)
+      .mockReturnValueOnce(throwError(() => new HttpErrorResponse({status: 500})));
+
+    store.charger('c1', ['patients']);
+    store.charger('c1', ['patients'], new Date(), {silencieux: true});
+
+    expect(store.valeurs().patients).toEqual([null, null]);
+    expect(store.chargement().patients).toBe(false);
+  });
 });

@@ -7,7 +7,7 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {TranslateModule} from '@ngx-translate/core';
 import {AuthStore} from '../../core/state/auth.store';
 import {AppShellStore} from '../../core/state/app-shell.store';
-import {WebSocketService} from '../../core/ws/websocket.service';
+import {WebSocketService, WsEvent} from '../../core/ws/websocket.service';
 import {AccueilStore} from './state/accueil.store';
 import {AccueilModule, DELAI_RAFRAICHISSEMENT_MS, moduleRafraichiPar, tuilesVisibles} from './accueil-tuiles';
 
@@ -53,25 +53,51 @@ export class CenterDashboardComponent {
   private readonly aRafraichir = new Set<AccueilModule>();
   private minuterie: ReturnType<typeof setTimeout> | null = null;
 
+  /**
+   * Évènement temps réel le plus récent déjà pris en compte. Le journal du service est racine et n'est jamais vidé :
+   * les évènements présents au montage, ou antérieurs au dernier chargement complet du centre, sont couverts par ce
+   * chargement et ne doivent pas déclencher une seconde lecture.
+   */
+  private dernierEvenementVu: WsEvent | null = untracked(() => this.ws.events()[0] ?? null);
+
   constructor() {
     effect(() => {
       const centerId = this.appShell.currentCenterId();
       if (!centerId) return;
       untracked(() => {
         this.annulerLeRafraichissement();
+        this.dernierEvenementVu = this.ws.events()[0] ?? null;
         this.store.charger(centerId, this.tuilesDuProfil.map((t) => t.module));
       });
     });
     // Temps réel : un évènement du centre ne recharge que la tuile concernée ; une rafale ne déclenche qu'une lecture.
+    // L'effet lit le journal `events` et non `lastEvent` : deux messages reçus avant l'exécution de l'effet y restent
+    // tous deux visibles, alors que `lastEvent` ne garderait que le dernier (le rafraîchissement du premier module
+    // serait perdu). Il ne dépend pas du centre courant : un changement de centre ne rejoue aucun évènement.
+    // Limite : le journal garde 50 évènements ; au-delà de 50 messages entre deux exécutions de l'effet, les plus
+    // anciens sont perdus (le service n'expose aucun flux d'évènements).
     effect(() => {
-      const evenement = this.ws.lastEvent();
-      const centerId = this.appShell.currentCenterId();
-      if (!evenement || !centerId || evenement.centerId !== centerId) return;
-      const module = moduleRafraichiPar(evenement.type);
-      if (!module) return;
-      untracked(() => this.planifierLeRafraichissement(module));
+      const evenements = this.ws.events();
+      untracked(() => {
+        const nouveaux = this.evenementsNonVus(evenements);
+        this.dernierEvenementVu = evenements[0] ?? null;
+        const centerId = this.appShell.currentCenterId();
+        if (!centerId) return;
+        for (const evenement of nouveaux) {
+          if (evenement.centerId !== centerId) continue;
+          const module = moduleRafraichiPar(evenement.type);
+          if (module) this.planifierLeRafraichissement(module);
+        }
+      });
     });
     inject(DestroyRef).onDestroy(() => this.annulerLeRafraichissement());
+  }
+
+  /** Évènements du journal (du plus récent au plus ancien) arrivés après le dernier déjà pris en compte. */
+  private evenementsNonVus(evenements: ReadonlyArray<WsEvent>): ReadonlyArray<WsEvent> {
+    if (!this.dernierEvenementVu) return evenements;
+    const rang = evenements.indexOf(this.dernierEvenementVu);
+    return rang < 0 ? evenements : evenements.slice(0, rang);
   }
 
   private planifierLeRafraichissement(module: AccueilModule): void {

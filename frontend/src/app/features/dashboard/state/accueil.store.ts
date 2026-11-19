@@ -22,7 +22,7 @@ type AccueilState = {
 const initialState: AccueilState = {valeurs: {}, chargement: {}, nonAccessibles: {}};
 
 /** Résultat d'une lecture : les valeurs de la tuile, ou le refus d'accès du serveur. */
-type Lecture = { valeurs: ValeursTuile; refusee: boolean };
+type Lecture = { valeurs: ValeursTuile; refusee: boolean; enEchec?: boolean };
 
 const nombreDeChiffres = (module: AccueilModule): number =>
   ACCUEIL_TUILES.find((t) => t.module === module)?.chiffres.length ?? 0;
@@ -75,7 +75,8 @@ export const AccueilStore = signalStore(
        * menu ne porte pas toutes les règles du serveur (Stock et GMAO n'y exigent aucun rôle) : un module que le serveur
        * refuse (403) est marqué non accessible et sa tuile disparaît. Une lecture encore en cours pour le même module
        * est annulée : la réponse tardive d'un centre précédent n'écrase jamais les chiffres du centre courant.
-       * {@code silencieux} : rafraîchissement en direct, sans indicateur de chargement.
+       * {@code silencieux} : rafraîchissement en direct, sans indicateur de chargement ; s'il échoue autrement que par
+       * un refus (500, réseau), les chiffres déjà affichés sont conservés au lieu d'être remplacés par des tirets.
        */
       charger(centerId: string, modules: ReadonlyArray<AccueilModule>, now: Date = new Date(),
               options: { silencieux?: boolean } = {}): void {
@@ -89,12 +90,17 @@ export const AccueilStore = signalStore(
               valeurs: valeurs.map((v) => (Number.isFinite(v) ? v : null)),
               refusee: false,
             })),
-            catchError((erreur: unknown) => of<Lecture>({valeurs: indisponible(module), refusee: estUnRefus(erreur)})),
-          ).subscribe(({valeurs, refusee}) => patchState(store, (s) => ({
-            valeurs: {...s.valeurs, [module]: valeurs},
-            chargement: {...s.chargement, [module]: false},
-            nonAccessibles: {...s.nonAccessibles, [module]: refusee},
-          }))));
+            catchError((erreur: unknown) => of<Lecture>({
+              valeurs: indisponible(module), refusee: estUnRefus(erreur), enEchec: true,
+            })),
+          ).subscribe(({valeurs, refusee, enEchec}) => patchState(store, (s) => {
+            const conserver = !!options.silencieux && !!enEchec && !refusee && s.valeurs[module] !== undefined;
+            return {
+              valeurs: conserver ? s.valeurs : {...s.valeurs, [module]: valeurs},
+              chargement: {...s.chargement, [module]: false},
+              nonAccessibles: {...s.nonAccessibles, [module]: refusee},
+            };
+          })));
         }
       },
     };
