@@ -61,6 +61,13 @@ mat-card {
   border-left: 3px solid var(--app-primary, #006a6a);
 }
 
+/* Solde et état calculés à partir d'un brouillon non enregistré : pastille en pointillés, texte en gras. */
+:host ::ng-deep .reglement-data-list .row-has-draft .ngt-badge {
+  outline: 1.5px dashed currentColor;
+  outline-offset: 1px;
+  font-weight: 700;
+}
+
 /* Valeur en mode aperçu */
 .preview-value {
   font-weight: 700;

@@ -70,6 +70,7 @@ export class ReglementWorkspaceComponent {
   protected readonly montantFactureCellTemplate = viewChild<TemplateRef<any>>('montantFactureCell');
   protected readonly codeReglementCellTemplate = viewChild<TemplateRef<any>>('codeReglementCell');
   protected readonly actionsCellTemplate = viewChild<TemplateRef<any>>('actionsCell');
+  private readonly table = viewChild(NgTableComponent);
   private readonly translate = inject(TranslateService);
   private readonly langue = toSignal(
     merge(this.translate.onLangChange, this.translate.onTranslationChange).pipe(map(() => Date.now())),
@@ -202,9 +203,20 @@ export class ReglementWorkspaceComponent {
    * colonne, que l'API ne connaît pas, s'appliquent à la page chargée comme dans l'ancienne liste.
    */
   protected onRemoteQueryChange(requete: NgTableRemoteQuery): void {
-    this.criteresDeLaPage.set({sort: requete.sort?.direction ? requete.sort : null, filters: requete.filters ?? {}});
+    const criteres: CriteresDeLaPage = {sort: requete.sort?.direction ? requete.sort : null, filters: requete.filters ?? {}};
+    const criteresChanges = JSON.stringify(criteres) !== JSON.stringify(this.criteresDeLaPage());
+    this.criteresDeLaPage.set(criteres);
     const taille = requete.page?.size && requete.page.size > 0 ? requete.page.size : this.store.pageSize();
     const page = requete.page?.index ?? this.store.pageIndex();
+    if (criteresChanges && page === 0 && taille === this.store.pageSize()) {
+      // Tri ou filtre de colonne seul : la table revient d'elle-même en page 0 ; on garde la page chargée (l'API ne
+      // trie ni ne filtre) et on resynchronise le paginateur sur la page du store.
+      const table = this.table();
+      if (table && table.pageIndex() !== this.store.pageIndex()) {
+        table.pageIndex.set(this.store.pageIndex());
+      }
+      return;
+    }
     if (page !== this.store.pageIndex() || taille !== this.store.pageSize()) {
       this.store.setPagination(taille !== this.store.pageSize() ? 0 : page, taille);
     }

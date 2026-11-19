@@ -96,6 +96,13 @@ describe('ReglementWorkspaceComponent', () => {
     expect(actions.mobileRowActions).toBe(true);
   });
 
+  it('marque les lignes dont le solde et l\'état sont un aperçu de brouillon', () => {
+    const component = TestBed.runInInjectionContext(() => new ReglementWorkspaceComponent());
+    const rowClassFn = (component as any).rowClassFn as (row: ReglementPreviewRow) => Record<string, boolean>;
+    expect(rowClassFn({...ligne('a', 'Zid', 300), hasDraft: true})).toEqual({'row-has-draft': true});
+    expect(rowClassFn(ligne('b', 'Amrani', 100))).toEqual({'row-has-draft': false});
+  });
+
   it('pagine côté serveur : un changement de page ou de taille passe par le store', () => {
     const component = TestBed.runInInjectionContext(() => new ReglementWorkspaceComponent());
     component['onRemoteQueryChange'](requete(0, 20));
@@ -118,6 +125,22 @@ describe('ReglementWorkspaceComponent', () => {
     component['onRemoteQueryChange'](requete(0, 20, {filters: {patientNom: 'zi'}}));
     expect(lignes().map((r) => r.factureId)).toEqual(['a']);
     expect(storeMock.setPagination).not.toHaveBeenCalled();
+  });
+
+  it('garde la page chargée quand seul le tri ou un filtre de colonne change (la table revient en page 0)', () => {
+    storeMock.pageIndex.mockReturnValue(2);
+    const component = TestBed.runInInjectionContext(() => new ReglementWorkspaceComponent());
+    const pageIndexDeLaTable = Object.assign(vi.fn(() => 0), {set: vi.fn()});
+    (component as any).table = () => ({pageIndex: pageIndexDeLaTable});
+
+    component['onRemoteQueryChange'](requete(0, 20, {sort: {columnId: 'montantFacture', direction: 'asc'}}));
+    component['onRemoteQueryChange'](requete(0, 20, {
+      sort: {columnId: 'montantFacture', direction: 'asc'}, filters: {patientNom: 'zi'},
+    }));
+
+    expect(storeMock.setPagination).not.toHaveBeenCalled();
+    expect(pageIndexDeLaTable.set).toHaveBeenCalledWith(2);
+    storeMock.pageIndex.mockReturnValue(0);
   });
 
   it('propage les filtres année/mois au store', () => {
