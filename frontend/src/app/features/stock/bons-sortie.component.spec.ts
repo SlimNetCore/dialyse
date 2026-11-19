@@ -2,11 +2,11 @@ import {TestBed} from '@angular/core/testing';
 import {By} from '@angular/platform-browser';
 import {NgTableComponent} from '@sbourahla/ng-table';
 import {of} from 'rxjs';
-import {vi} from 'vitest';
+import {afterEach, vi} from 'vitest';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {TranslateModule} from '@ngx-translate/core';
 import {BonsSortieComponent} from './bons-sortie.component';
-import {StockApiService} from '../../core/api/stock-api.service';
+import {RELECTURE_DES_VERROUS_MS, StockApiService} from '../../core/api/stock-api.service';
 import {ReferentialApiService} from '../../core/api/referential-api.service';
 import {AuthStore} from '../../core/state/auth.store';
 import {WebSocketService} from '../../core/ws/websocket.service';
@@ -15,7 +15,7 @@ describe('BonsSortieComponent', () => {
   const stockApiMock = {
     listBonsSortie: vi.fn(() => of([])),
     listLotsDisponibles: vi.fn(() => of([])),
-    listPmpRecalcLocks: vi.fn(() => of([])),
+    listPmpRecalcLocks: vi.fn(() => of([] as string[])),
     createBonSortie: vi.fn(() => of({id: 'bs-1'})),
     updateBonSortie: vi.fn(() => of({id: 'bs-1'})),
   };
@@ -58,6 +58,43 @@ describe('BonsSortieComponent', () => {
     expect(stockApiMock.listBonsSortie).toHaveBeenCalledWith('center-1');
     expect(refApiMock.getArticles).toHaveBeenCalledWith('center-1');
     expect(stockApiMock.listPmpRecalcLocks).toHaveBeenCalledWith('center-1');
+  });
+
+  describe('verrous de recalcul du PMP', () => {
+    afterEach(() => vi.useRealTimers());
+
+    it('ne relit pas les verrous en continu quand aucun recalcul n\'est en cours', () => {
+      vi.useFakeTimers();
+      const fixture = TestBed.createComponent(BonsSortieComponent);
+      fixture.detectChanges();
+
+      vi.advanceTimersByTime(RELECTURE_DES_VERROUS_MS * 6);
+
+      expect(stockApiMock.listPmpRecalcLocks).toHaveBeenCalledTimes(1);
+    });
+
+    it('relit les verrous pendant un recalcul, puis s\'arrête quand il est fini ou que l\'écran est quitté', () => {
+      vi.useFakeTimers();
+      stockApiMock.listPmpRecalcLocks
+        .mockReturnValueOnce(of(['a1']))
+        .mockReturnValueOnce(of(['a1']))
+        .mockReturnValue(of([]));
+      const fixture = TestBed.createComponent(BonsSortieComponent);
+      fixture.detectChanges();
+
+      vi.advanceTimersByTime(RELECTURE_DES_VERROUS_MS);
+      vi.advanceTimersByTime(RELECTURE_DES_VERROUS_MS);
+      vi.advanceTimersByTime(RELECTURE_DES_VERROUS_MS * 5);
+      expect(stockApiMock.listPmpRecalcLocks).toHaveBeenCalledTimes(3);
+
+      stockApiMock.listPmpRecalcLocks.mockReturnValue(of(['a1']));
+      const autre = TestBed.createComponent(BonsSortieComponent);
+      autre.detectChanges();
+      autre.destroy();
+      vi.advanceTimersByTime(RELECTURE_DES_VERROUS_MS * 5);
+      expect(stockApiMock.listPmpRecalcLocks).toHaveBeenCalledTimes(4);
+      stockApiMock.listPmpRecalcLocks.mockReturnValue(of([]));
+    });
   });
 
   it('calcule canSave selon la validite du modele', () => {

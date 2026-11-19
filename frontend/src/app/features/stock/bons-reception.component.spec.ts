@@ -1,13 +1,13 @@
 import {TestBed} from '@angular/core/testing';
 import {By} from '@angular/platform-browser';
 import {of} from 'rxjs';
-import {vi} from 'vitest';
+import {afterEach, vi} from 'vitest';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatDialog} from '@angular/material/dialog';
 import {TranslateModule} from '@ngx-translate/core';
 import {NgTableComponent} from '@sbourahla/ng-table';
 import {BonsReceptionComponent, TONS_STATUT_BON_RECEPTION} from './bons-reception.component';
-import {StockApiService} from '../../core/api/stock-api.service';
+import {RELECTURE_DES_VERROUS_MS, StockApiService} from '../../core/api/stock-api.service';
 import {ReferentialApiService} from '../../core/api/referential-api.service';
 import {AuthStore} from '../../core/state/auth.store';
 import {WebSocketService} from '../../core/ws/websocket.service';
@@ -17,7 +17,7 @@ describe('BonsReceptionComponent', () => {
     listBonsReception: vi.fn(() => of([])),
     listFournisseurs: vi.fn(() => of([])),
     listEmplacements: vi.fn(() => of([])),
-    listPmpRecalcLocks: vi.fn(() => of([])),
+    listPmpRecalcLocks: vi.fn(() => of([] as string[])),
     createBonReception: vi.fn(() => of({id: 'br-1'})),
     updateBonReception: vi.fn(() => of({id: 'br-1'})),
     validerBonReception: vi.fn(() => of({id: 'br-1'})),
@@ -70,6 +70,37 @@ describe('BonsReceptionComponent', () => {
     expect(stockApiMock.listFournisseurs).toHaveBeenCalledWith('center-1');
     expect(stockApiMock.listEmplacements).toHaveBeenCalledWith('center-1');
     expect(refApiMock.getArticles).toHaveBeenCalledWith('center-1');
+  });
+
+  describe('verrous de recalcul du PMP', () => {
+    afterEach(() => {
+      vi.useRealTimers();
+      stockApiMock.listPmpRecalcLocks.mockReturnValue(of([]));
+    });
+
+    it('ne relit pas les verrous en continu quand aucun recalcul n\'est en cours', () => {
+      vi.useFakeTimers();
+      const fixture = TestBed.createComponent(BonsReceptionComponent);
+      fixture.detectChanges();
+
+      vi.advanceTimersByTime(RELECTURE_DES_VERROUS_MS * 6);
+
+      expect(stockApiMock.listPmpRecalcLocks).toHaveBeenCalledTimes(1);
+    });
+
+    it('relit les verrous pendant un recalcul et s\'arrête quand l\'écran est quitté', () => {
+      vi.useFakeTimers();
+      stockApiMock.listPmpRecalcLocks.mockReturnValue(of(['a-lot']));
+      const fixture = TestBed.createComponent(BonsReceptionComponent);
+      fixture.detectChanges();
+
+      vi.advanceTimersByTime(RELECTURE_DES_VERROUS_MS);
+      expect(stockApiMock.listPmpRecalcLocks).toHaveBeenCalledTimes(2);
+
+      fixture.destroy();
+      vi.advanceTimersByTime(RELECTURE_DES_VERROUS_MS * 5);
+      expect(stockApiMock.listPmpRecalcLocks).toHaveBeenCalledTimes(2);
+    });
   });
 
   it('impose lot et peremption si article gere par lot', () => {

@@ -3,6 +3,9 @@ import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {environment} from '../../../environments/environment';
 
+/** Délai de relecture des verrous de recalcul du PMP, uniquement pendant un recalcul (filet si un évènement est perdu). */
+export const RELECTURE_DES_VERROUS_MS = 10_000;
+
 export interface Fournisseur {
   id: string;
   centerId: string;
@@ -568,6 +571,10 @@ export class StockApiService {
     return this.http.get<PmpRecalcJob>(`${this.base}/dashboard/pmp-recalc/jobs/${jobId}`);
   }
 
+  /**
+   * Articles verrouillés par un recalcul de PMP. Lus au chargement et sur l'évènement STOCK_RECALC_LOCKS_CHANGED ;
+   * relus toutes les {@link RELECTURE_DES_VERROUS_MS} ms seulement tant qu'un recalcul est en cours.
+   */
   listPmpRecalcLocks(centerId: string): Observable<string[]> {
     const params = new HttpParams().set('centerId', centerId);
     return this.http.get<string[]>(`${this.base}/dashboard/pmp-recalc/locks`, {params});

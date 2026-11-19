@@ -31,7 +31,7 @@ import {TranslateService} from '@ngx-translate/core';
 import {AuthStore} from '../../core/state/auth.store';
 import {seanceFactureeNonModifiableMessage} from '../../core/api/http-error-detail';
 import {WebSocketService} from '../../core/ws/websocket.service';
-import {BonSortie, LotDisponible, StockApiService} from '../../core/api/stock-api.service';
+import {BonSortie, LotDisponible, RELECTURE_DES_VERROUS_MS, StockApiService} from '../../core/api/stock-api.service';
 import {ReferentialApiService, RefItem} from '../../core/api/referential-api.service';
 
 @Component({
@@ -88,7 +88,8 @@ export class BonsSortieComponent implements OnDestroy {
   private readonly ws = inject(WebSocketService);
   private readonly snack = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
-  private lockTimer: ReturnType<typeof setInterval> | null = null;
+  private lockTimer: ReturnType<typeof setTimeout> | null = null;
+  private destroyed = false;
   private readonly langue = toSignal(
     merge(this.translate.onLangChange, this.translate.onTranslationChange).pipe(map(() => Date.now())),
     {initialValue: 0});
@@ -117,8 +118,9 @@ export class BonsSortieComponent implements OnDestroy {
   });
 
   constructor() {
+    // Verrous lus au chargement puis sur l'évènement STOCK_RECALC_LOCKS_CHANGED ; relecture périodique seulement
+    // pendant un recalcul (filet si un évènement est perdu), jamais en continu.
     this.reload();
-    this.lockTimer = setInterval(() => this.refreshLocks(), 5000);
     effect(() => {
       const evt = this.ws.lastEvent();
       const centerId = this.auth.centerId();
@@ -158,8 +160,9 @@ export class BonsSortieComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.destroyed = true;
     if (this.lockTimer) {
-      clearInterval(this.lockTimer);
+      clearTimeout(this.lockTimer);
     }
   }
 
@@ -394,10 +397,17 @@ export class BonsSortieComponent implements OnDestroy {
     if (!centerId) {
       return;
     }
+    if (this.lockTimer) {
+      clearTimeout(this.lockTimer);
+      this.lockTimer = null;
+    }
     this.api.listPmpRecalcLocks(centerId).subscribe({
       next: (ids) => {
         this.lockedArticleIds.set(ids);
         this.recalcInProgress.set(ids.length > 0);
+        if (ids.length > 0 && !this.destroyed) {
+          this.lockTimer = setTimeout(() => this.refreshLocks(), RELECTURE_DES_VERROUS_MS);
+        }
       },
       error: () => {
         this.lockedArticleIds.set([]);
