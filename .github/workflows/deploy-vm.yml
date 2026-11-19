@@ -4,9 +4,9 @@ name: CI/CD — Déploiement VM (chore/angular-22-upgrade)
 # Sur une pull request vers cette branche : tests + build uniquement (pas de déploiement).
 on:
   push:
-    branches: [ "chore/angular-22-upgrade" ]
+    branches: [ "chore/angular-22-upgrade", "feat/gmao-ddd-sur-place" ]
   pull_request:
-    branches: [ "chore/angular-22-upgrade" ]
+    branches: [ "chore/angular-22-upgrade", "feat/gmao-ddd-sur-place" ]
   workflow_dispatch:
 
 # Un seul déploiement à la fois ; on n'annule pas un déploiement en cours.
