@@ -36,6 +36,26 @@ public class BonsDeReceptionJdbc implements BonsDeReception {
         this.sequence = numerotation;
     }
 
+    /**
+     * Statut enregistré ⇒ statut du domaine (KB-STK-58) : le statut historique {@code RECU} (vocabulaire des bons de commande,
+     * présent dans le jeu d'amorçage H2 et possiblement dans les données legacy) se lit {@code VALIDE} — un bon de réception
+     * « reçu » est entré en stock ; aucune transition n'existe depuis {@code VALIDE}, la donnée n'est donc jamais réécrite.
+     * Tout autre statut inconnu est une erreur explicite (jamais silencieuse).
+     *
+     * @throws IllegalStateException statut inconnu (avec le statut et l'identifiant du bon)
+     */
+    public static BonDeReception.Statut statutLu(String enregistre, UUID bonId) {
+        if ("RECU".equals(enregistre)) {
+            return BonDeReception.Statut.VALIDE;
+        }
+        for (BonDeReception.Statut statut : BonDeReception.Statut.values()) {
+            if (statut.name().equals(enregistre)) {
+                return statut;
+            }
+        }
+        throw new IllegalStateException("Statut de bon de réception inconnu « " + enregistre + " » (bon " + bonId + ")");
+    }
+
     private void inserer(BonDeReception bon) {
         jdbc.update("INSERT INTO bons_reception (" + COLONNES + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", bon.id(),
                 bon.centre().valeur(), bon.reference(), bon.bonCommandeId(), bon.fournisseurId(), bon.dateReception(),
@@ -63,7 +83,8 @@ public class BonsDeReceptionJdbc implements BonsDeReception {
         return jdbc.query(sql, (rs, i) -> BonDeReception.reconstituer(rs.getObject("id", UUID.class),
                         new CentreId(rs.getObject("center_id", UUID.class)), rs.getString("reference"),
                         rs.getObject("bon_commande_id", UUID.class), rs.getObject("fournisseur_id", UUID.class),
-                        rs.getObject("date_reception", LocalDate.class), BonDeReception.Statut.valueOf(rs.getString("statut")),
+                        rs.getObject("date_reception", LocalDate.class),
+                        statutLu(rs.getString("statut"), rs.getObject("id", UUID.class)),
                         rs.getString("created_by"), rs.getObject("created_at", OffsetDateTime.class), List.of()), parametres)
                 .stream().map(b -> BonDeReception.reconstituer(b.id(), b.centre(), b.reference(), b.bonCommandeId(),
                         b.fournisseurId(), b.dateReception(), b.statut(), b.creePar(), b.creeLe(), lignesDe(b.id()))).toList();

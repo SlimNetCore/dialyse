@@ -99,6 +99,7 @@ masters `characterization/**` inchangés.
 ## Questions ouvertes
 - Données réelles (PostgreSQL) : existe-t-il des `bons_reception.statut = 'RECU'` venant du legacy ? Si oui, normaliser
   en `VALIDE` par une migration (décision utilisateur ; la lecture tolérante couvre en attendant).
+- KB-STK-58 / journal comptable : `OperationsDeStockJdbc.java:36` ne journalise que `br.statut = 'VALIDE'` alors que l'écran lit `RECU` comme `VALIDE`. Choisir : normaliser les données (`RECU` → `VALIDE`) ou `br.statut IN ('VALIDE','RECU')` dans le journal (golden masters comptables déplacés, décision dans l'ADR de slice). Non modifié en attendant.
 - Seed H2 : corriger `'RECU'` → `'VALIDE'` dans `stock-seed.sql` **et** la référence `seed-reference-avant-decoupe.sql` (même commit) ? Non fait par défaut.
 - Règlement : la pagination reste en mémoire (après lecture SQL de la période) tant que la fiche patient et la chaîne des payeurs viennent des langages publiés ; une projection SQL dédiée serait une slice séparée.
 - Doc fonctionnelle `docs/client/**` : régénérée par l'orchestrateur après fusion des 3 travailleurs (pas en parallèle).
