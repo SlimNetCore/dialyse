@@ -1226,6 +1226,8 @@
         "FORFAIT": "Forfait",
         "PU_HT": "Prix unitaire HT",
         "QUANTITE": "Séances",
+        "NB_SEANCES_UNE": "1 séance",
+        "NB_SEANCES": "{{count}} séances",
         "LIGNES": "Montants par forfait",
         "NON_ATTRIBUABLE": "non attribuable",
         "NON_ATTRIBUABLE_AIDE": "Le forfait de cette séance ne peut pas être déduit des lignes de la facture ; les montants des lignes font foi.",

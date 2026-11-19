@@ -1226,6 +1226,8 @@
         "FORFAIT": "Afurfi",
         "PU_HT": "Ssuma n yiwet HT",
         "QUANTITE": "Timsirin",
+        "NB_SEANCES_UNE": "1 n tmsirt",
+        "NB_SEANCES": "{{count}} n tmsirin",
         "LIGNES": "Azalen s ufurfi",
         "NON_ATTRIBUABLE": "ur yettwamuddu ara",
         "NON_ATTRIBUABLE_AIDE": "Afurfi n temsirt-a ur yezmir ara ad d-yettwassefhem seg yizirigen n tfaturt; azalen n yizirigen d nutni i d-yettwaḥesben.",

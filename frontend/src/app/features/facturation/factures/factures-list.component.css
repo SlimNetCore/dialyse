@@ -37,7 +37,8 @@
   font-size: 0.85rem;
 }
 
-/* Teintes partagées par les pastilles, les puces et le liseré du détail (mêmes couleurs que les badges ng-table). */
+/* Teintes partagées par les pastilles, les puces et le liseré du détail : tons sémantiques de l'application
+   (--app-*, clair et sombre dans styles.scss), puis ceux de ng-table en repli. */
 .pastille,
 .puce,
 [data-tone] {
@@ -45,19 +46,19 @@
 }
 
 [data-tone='info'] {
-  --ton: var(--ngt-primary, var(--app-primary, #2f6fa8));
+  --ton: var(--app-info, var(--ngt-primary, #2f6fa8));
 }
 
 [data-tone='success'] {
-  --ton: var(--ngt-success, #1f8a4c);
+  --ton: var(--app-success, var(--ngt-success, #1f8a4c));
 }
 
 [data-tone='warning'] {
-  --ton: var(--ngt-warning, #b26a00);
+  --ton: var(--app-warning, var(--ngt-warning, #b26a00));
 }
 
 [data-tone='danger'] {
-  --ton: var(--ngt-danger, #c0392b);
+  --ton: var(--app-danger, var(--ngt-danger, #c0392b));
 }
 
 /* Pastilles : libellé + valeur, la teinte ne fait que doubler le texte. */
@@ -82,9 +83,13 @@
   white-space: nowrap;
 }
 
+.pastille dd {
+  white-space: nowrap;
+}
+
 .pastille dt {
   margin: 0;
-  color: color-mix(in srgb, var(--ton) 55%, var(--app-muted));
+  color: color-mix(in srgb, var(--ton) 40%, var(--app-text));
   font-size: 0.72rem;
   font-weight: 600;
   letter-spacing: 0.06em;
@@ -329,11 +334,23 @@
 
   .pastilles {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr));
   }
 
+  /* Sous 600px une pastille peut passer à la ligne (libellé au-dessus du montant) ; seul le montant reste insécable. */
   .pastille {
+    flex-wrap: wrap;
     justify-content: space-between;
+    min-width: 0;
+    gap: 2px 8px;
+    border-radius: 14px;
+    white-space: normal;
+  }
+}
+
+@media (max-width: 480px) {
+  .pastilles {
+    grid-template-columns: 1fr;
   }
 
   .detail__bloc {

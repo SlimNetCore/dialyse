@@ -180,8 +180,8 @@
               <li class="forfait">
                 <div class="forfait__titre">
                   <span class="forfait__libelle">{{ l.forfaitLibelle }}</span>
-                  <span class="puce" data-tone="info">
-                    {{ l.nombreDeSeances }} {{ 'FACTURATION.FACTURES.DETAIL.QUANTITE' | translate | lowercase }}
+                  <span class="puce" data-tone="info" data-testid="facture-detail-nb-seances">
+                    {{ cleNombreDeSeances(l.nombreDeSeances) | translate: {count: l.nombreDeSeances} }}
                   </span>
                 </div>
                 <dl class="forfait__montants">

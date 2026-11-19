@@ -10,7 +10,7 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
-import {formatCurrency, getCurrencySymbol, LowerCasePipe} from '@angular/common';
+import {formatCurrency, getCurrencySymbol} from '@angular/common';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
@@ -71,6 +71,11 @@ export function dateCourte(iso: string | null | undefined): string {
 
 const STATUTS_TRADUITS: ReadonlySet<string> = new Set(['VALIDEE', 'SIGNEE', 'FACTUREE']);
 
+/** Clé de traduction du nombre de séances d'une ligne, au singulier pour une seule séance (paramètre `count`). */
+export function cleNombreDeSeances(nombre: number | null | undefined): string {
+  return nombre === 1 ? 'FACTURATION.FACTURES.DETAIL.NB_SEANCES_UNE' : 'FACTURATION.FACTURES.DETAIL.NB_SEANCES';
+}
+
 /** Clé de traduction du statut d'une séance (statut brut s'il n'est pas traduit). */
 export function statutDeSeance(statut: string): string {
   return STATUTS_TRADUITS.has(statut) ? `SEANCES.SEANCE_STATUTS.${statut}` : statut;
@@ -83,7 +88,7 @@ export function statutDeSeance(statut: string): string {
 @Component({
   selector: 'app-factures-list',
   standalone: true,
-  imports: [MatCardModule, MatButtonModule, MatIconModule, TranslateModule, NgTableComponent, LowerCasePipe],
+  imports: [MatCardModule, MatButtonModule, MatIconModule, TranslateModule, NgTableComponent],
   providers: [FacturesListStore],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './factures-list.component.html',
@@ -101,6 +106,7 @@ export class FacturesListComponent {
   protected readonly montant = (valeur: number | null | undefined): string => montant(valeur, this.locale);
   protected readonly dateCourte = dateCourte;
   protected readonly statutDeSeance = statutDeSeance;
+  protected readonly cleNombreDeSeances = cleNombreDeSeances;
   protected readonly tonDuReste = tonDuReste;
   protected readonly tonDeLEtat = (etat: FactureEtat): NgTableTone => TONS_ETAT_FACTURE[etat] ?? 'neutral';
   protected readonly tonDuStatut = (statut: string): NgTableTone => TONS_STATUT_SEANCE[statut] ?? 'neutral';

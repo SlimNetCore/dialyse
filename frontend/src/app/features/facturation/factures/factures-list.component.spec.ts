@@ -9,7 +9,7 @@ import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {BackendApiService, DetailDeFacture, FactureListee, PageDeFactures} from '../../../core/api/backend-api.service';
 import {OrganisationApiService} from '../../../core/api/organisation-api.service';
 import {AppShellStore} from '../../../core/state/app-shell.store';
-import {dateCourte, FacturesListComponent, montant, statutDeSeance, tonDuReste, TONS_ETAT_FACTURE} from './factures-list.component';
+import {cleNombreDeSeances, dateCourte, FacturesListComponent, montant, statutDeSeance, tonDuReste, TONS_ETAT_FACTURE} from './factures-list.component';
 
 const facture = (id: string, etat: FactureListee['etat']): FactureListee => ({
   factureId: id, numeroFacture: `FAC-${id}`, dateFacturation: '2026-11-05', periodeDebut: '2026-10-01',
@@ -110,9 +110,14 @@ describe('FacturesListComponent', () => {
       const detailDom = host().querySelector('[data-testid="facture-detail"]') as HTMLElement;
       const cellule = detailDom.closest('td')!;
       expect(cellule.classList).toContain('detail-row');
-      expect(Number(cellule.getAttribute('colspan'))).toBeGreaterThanOrEqual(table().columns().length);
-      expect(getComputedStyle(detailDom).maxWidth).toBe('none');
-      detailDom.querySelectorAll('table').forEach((t) => expect(getComputedStyle(t).maxWidth).not.toMatch(/\d/));
+      // Les styles du composant sont bien appliqués (sinon les assertions « pas de plafond » ne prouveraient rien).
+      expect(getComputedStyle(detailDom).width).toBe('100%');
+      const corps = detailDom.querySelector('.detail__corps') as HTMLElement;
+      expect(getComputedStyle(corps).display).toBe('grid');
+      expect(getComputedStyle(corps).gridTemplateColumns).toContain('auto-fit');
+      // Aucun conteneur propre au détail ne plafonne sa largeur.
+      [detailDom, corps, ...Array.from(detailDom.querySelectorAll<HTMLElement>('.detail__bloc, table'))]
+        .forEach((el) => expect(getComputedStyle(el).maxWidth).not.toMatch(/\d/));
 
       const etat = detailDom.querySelector('[data-testid="facture-detail-etat"]')!;
       expect(etat.getAttribute('data-tone')).toBe('warning');
@@ -127,7 +132,31 @@ describe('FacturesListComponent', () => {
       expect(detailDom.querySelector('[data-testid="facture-detail-statut"]')?.getAttribute('data-tone'))
         .toBe('success');
       expect(detailDom.querySelectorAll('[data-testid="facture-detail-lignes"] li.forfait')).toHaveLength(1);
+      expect(detailDom.querySelector('[data-testid="facture-detail-nb-seances"]')?.textContent?.trim())
+        .toBe('FACTURATION.FACTURES.DETAIL.NB_SEANCES');
     });
+
+  it('une facture non réglée teinte en danger la pastille d\'état, le liseré du détail et le reste', async () => {
+    const nonReglee: FactureListee = {...facture('f3', 'NON_REGLEE'), montantRegle: 0, reste: 113360};
+    api.listFactures.mockReturnValue(of({...PAGE, items: [nonReglee], total: 1}));
+    api.getFactureDetail.mockReturnValue(of({
+      ...detail('f3'), totaux: {...detail('f3').totaux, montantRegle: 0, reste: 113360},
+    }));
+    (fixture.componentInstance as unknown as { store: { recharger(): void } }).store.recharger();
+    await fixture.whenStable();
+
+    await cliquer(nonReglee);
+    const detailDom = host().querySelector('[data-testid="facture-detail"]')!;
+    expect(detailDom.getAttribute('data-tone')).toBe('danger');
+    expect(detailDom.querySelector('[data-testid="facture-detail-etat"]')?.getAttribute('data-tone')).toBe('danger');
+    expect(detailDom.querySelector('[data-testid="facture-detail-reste"]')?.getAttribute('data-tone')).toBe('danger');
+  });
+
+  it('le nombre de séances d\'une ligne s\'accorde : singulier pour une seule séance', () => {
+    expect(cleNombreDeSeances(1)).toBe('FACTURATION.FACTURES.DETAIL.NB_SEANCES_UNE');
+    expect(cleNombreDeSeances(13)).toBe('FACTURATION.FACTURES.DETAIL.NB_SEANCES');
+    expect(cleNombreDeSeances(0)).toBe('FACTURATION.FACTURES.DETAIL.NB_SEANCES');
+  });
 
   it('les totaux de la période sont des pastilles ; la teinte du reste suit le règlement', () => {
     const totaux = host().querySelector('[data-testid="factures-totaux"]')!;

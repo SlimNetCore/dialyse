@@ -1226,6 +1226,8 @@
         "FORFAIT": "Package",
         "PU_HT": "Unit price excl. tax",
         "QUANTITE": "Sessions",
+        "NB_SEANCES_UNE": "1 session",
+        "NB_SEANCES": "{{count}} sessions",
         "LIGNES": "Amounts per package",
         "NON_ATTRIBUABLE": "not attributable",
         "NON_ATTRIBUABLE_AIDE": "This session's package cannot be inferred from the invoice lines; the line amounts are authoritative.",
