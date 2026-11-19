@@ -3,7 +3,7 @@ import {patchState, signalStore, withComputed, withHooks, withMethods, withState
 import {rxMethod} from '@ngrx/signals/rxjs-interop';
 import {withDevtools} from '@angular-architects/ngrx-toolkit';
 import {catchError, EMPTY, expand, of, pipe, reduce, switchMap, tap} from 'rxjs';
-import {BackendApiService, ListQuery, PatientSummary} from '../../../core/api/backend-api.service';
+import {BackendApiService, ListQuery} from '../../../core/api/backend-api.service';
 import {createPagedListState, PagedListState} from '../../../core/state/paged-list-state.util';
 import {AppShellStore} from '../../../core/state/app-shell.store';
 import {AuthStore} from '../../../core/state/auth.store';
@@ -52,20 +52,11 @@ function mapPatientRow(p: any): any {
   };
 }
 
-function currentYearMonth(): string {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-}
-
+/** État de la liste des patients (la synthèse mensuelle vit dans PatientTableauDeBordStore). */
 type PatientListState = PagedListState<any> & {
-  printingList: boolean;
   exportingList: boolean;
   printingRowId: string | null;
   recentPatientId: string | null;
-  summary: PatientSummary | null;
-  summaryLoading: boolean;
-  summaryError: string | null;
-  summaryMonth: string;
   activeCenterId: string | null;
   activeUserId: string | null;
   error: string | null;
@@ -82,14 +73,9 @@ type PatientListState = PagedListState<any> & {
 
 const initialState: PatientListState = {
   ...createPagedListState<any>(),
-  printingList: false,
   exportingList: false,
   printingRowId: null,
   recentPatientId: null,
-  summary: null,
-  summaryLoading: true,
-  summaryError: null,
-  summaryMonth: currentYearMonth(),
   activeCenterId: null,
   activeUserId: null,
   error: null,
@@ -218,54 +204,6 @@ export const PatientListStore = signalStore(
       )
     ),
 
-    // ✅ Imprimer liste complète
-    printList: rxMethod<{ centerId: string }>(
-      pipe(
-        tap(() => {
-          patchState(store, {printingList: true, error: null});
-        }),
-        switchMap(({centerId}) =>
-          api.printDocument(centerId, 'LISTE_PATIENTS', {}).pipe(
-            tap((blob: Blob) => {
-              const url = URL.createObjectURL(blob);
-              window.open(url, '_blank');
-              patchState(store, {printingList: false});
-            }),
-            catchError((err: any) => {
-              patchState(store, {
-                printingList: false,
-                error: 'Erreur impression: ' + (err?.error?.message || err?.statusText)
-              });
-              return of(null);
-            })
-          )
-        )
-      )
-    ),
-
-    loadSummary: rxMethod<{ centerId: string; month: string }>(
-      pipe(
-        tap(() => patchState(store, {summaryLoading: true, summaryError: null})),
-        switchMap(({centerId, month}) =>
-          api.getPatientSummary(centerId, month).pipe(
-            tap((summary) => patchState(store, {
-              summary,
-              summaryLoading: false,
-              summaryError: null
-            })),
-            catchError((err: any) => {
-              patchState(store, {
-                summary: null,
-                summaryLoading: false,
-                summaryError: err?.error?.message || err?.statusText || 'Erreur chargement synthèse patients'
-              });
-              return of(null);
-            })
-          )
-        )
-      )
-    ),
-
     // ✅ Exporter en Excel
     exportListExcel: rxMethod<{ centerId: string }>(
       pipe(
@@ -303,13 +241,6 @@ export const PatientListStore = signalStore(
 
     setRecentPatient(recentPatientId: string | null): void {
       patchState(store, {recentPatientId});
-    },
-
-    setSummaryMonth(summaryMonth: string): void {
-      if (!/^\d{4}-\d{2}$/.test(summaryMonth)) {
-        return;
-      }
-      patchState(store, {summaryMonth});
     },
 
     clearRecentPatient(): void {
@@ -385,12 +316,6 @@ export const PatientListStore = signalStore(
         page: store.pageIndex(),
         size: store.pageSize()
       });
-    },
-
-    refreshSummary(): void {
-      const centerId = store.activeCenterId();
-      if (!centerId) return;
-      this.loadSummary({centerId, month: store.summaryMonth()});
     }
   })),
   withHooks((store, appShell = inject(AppShellStore), auth = inject(AuthStore)) => ({
@@ -413,10 +338,7 @@ export const PatientListStore = signalStore(
             total: 0,
             loading: false,
             activeCenterId: null,
-            activeUserId: userId,
-            summary: null,
-            summaryLoading: false,
-            summaryError: null
+            activeUserId: userId
           });
           return;
         }
@@ -432,21 +354,6 @@ export const PatientListStore = signalStore(
         store.sortColumnId();
         store.sortDirection();
         store.loadPage({centerId, userId, page, size});
-      });
-
-      effect(() => {
-        const centerId = appShell.currentCenterId();
-        const month = store.summaryMonth();
-        if (!centerId) {
-          patchState(store, {
-            summary: null,
-            summaryLoading: false,
-            summaryError: null
-          });
-          return;
-        }
-
-        store.loadSummary({centerId, month});
       });
     }
   }))

@@ -54,23 +54,13 @@
 
       <div class="toolbar-group toolbar-group-end">
         @if (canCreatePatient()) {
-          <button (click)="newPatient.emit()" class="btn-new" color="primary" mat-flat-button>
+          <button (click)="openNewPatient()" class="btn-new" color="primary" mat-flat-button>
             <mat-icon>person_add</mat-icon>
             {{ 'PATIENT_LIST.BTN_NEW' | translate }}
           </button>
         }
       </div>
     </div>
-
-    <app-patient-summary-cards
-      (monthChanged)="onSummaryMonthChange($event)"
-      (printReport)="printList()"
-      (viewDetails)="onSummaryViewDetails($event)"
-      [loading]="summaryLoading()"
-      [printing]="printingList()"
-      [selectedMonth]="summaryMonth()"
-      [summary]="summary()"
-    />
 
     <div class="table-container">
       <ng-table
@@ -115,7 +105,7 @@
       </ng-template>
 
       <ng-template #patientRowContextMenu let-row>
-        <button (click)="selectPatient.emit(row)" mat-menu-item type="button">
+        <button (click)="openFiche(row)" mat-menu-item type="button">
           <mat-icon>visibility</mat-icon>
           <span>{{ 'PATIENT_LIST.BTN_VIEW' | translate }}</span>
         </button>
@@ -123,7 +113,7 @@
           <mat-icon>description</mat-icon>
           <span>{{ 'CAHIER.TITLE' | translate }}</span>
         </button>
-        <button (click)="viewStats.emit(row)" mat-menu-item type="button">
+        <button (click)="openStats(row)" mat-menu-item type="button">
           <mat-icon>analytics</mat-icon>
           <span>{{ 'PATIENT_STATS.OPEN' | translate }}</span>
         </button>
@@ -239,7 +229,7 @@
     <ng-template #actionsCell let-row>
       <div class="row-actions">
         <button
-          (click)="$event.stopPropagation(); selectPatient.emit(row)"
+          (click)="$event.stopPropagation(); openFiche(row)"
           [matTooltip]="'PATIENT_LIST.BTN_VIEW' | translate"
           mat-icon-button
         >
@@ -255,7 +245,7 @@
           <mat-icon>description</mat-icon>
         </button>
         <button
-          (click)="$event.stopPropagation(); viewStats.emit(row)"
+          (click)="$event.stopPropagation(); openStats(row)"
           [attr.data-testid]="'open-stats-' + row.id"
           [matTooltip]="'PATIENT_STATS.OPEN' | translate"
           color="primary"

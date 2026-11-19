@@ -15,6 +15,15 @@ import {AppShellStore} from '../../../core/state/app-shell.store';
 import {TranslateModule} from '@ngx-translate/core';
 import {ColumnFilterRendererComponent} from '../../../shared/column-filter-renderer.component';
 import {PecListStore} from './state/pec-list.store';
+import {ActivatedRoute} from '@angular/router';
+
+/** Statuts de PEC filtrables depuis l'URL (`?statut=…`, indicateurs du tableau de bord Patients). */
+export const STATUTS_PEC = ['CREE', 'VALIDEE', 'CLOTUREE'] as const;
+
+/** Seule une valeur connue est retenue ; toute autre valeur (y compris vide) signifie « tous les statuts ». */
+export function statutPecDepuisUrl(valeur: string | null): string {
+  return valeur && (STATUTS_PEC as readonly string[]).includes(valeur) ? valeur : '';
+}
 
 @Component({
   selector: 'app-pec-list',
@@ -43,6 +52,7 @@ export class PecListComponent implements OnInit {
   private readonly store = inject(AppShellStore);
   private readonly pecListStore = inject(PecListStore);
   private readonly snack = inject(MatSnackBar);
+  private readonly route = inject(ActivatedRoute);
   readonly hasActiveFilters = this.pecListStore.hasActiveFilters;
 
   readonly rows = this.pecListStore.rows;
@@ -83,6 +93,16 @@ export class PecListComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    // `?statut=` (indicateurs du tableau de bord) prime sur le filtre mémorisé ; sans paramètre, le filtre est conservé.
+    const query = this.route.snapshot.queryParamMap;
+    if (query.has('statut')) {
+      const statut = statutPecDepuisUrl(query.get('statut'));
+      if (statut) {
+        this.pecListStore.setFilter('statut', statut);
+      } else {
+        this.pecListStore.clearFilter('statut');
+      }
+    }
     this.fetchPage(0, this.pageSize());
   }
 

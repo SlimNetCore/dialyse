@@ -3317,6 +3317,11 @@
     "ATTESTATION_TOTAL": "Tiselkentin",
     "ATTESTATION_EXPIRING": "Tiselkentin ara d-yefaken deg {{days}} n wussan"
   },
+  "PATIENT_TABLEAU_DE_BORD": {
+    "TITLE": "Tafelwit n uselkim n yimdanen",
+    "DESC": "Agzul n wayyur n yimdanen, tineḍrutin d tseddarin ara yettwaḍefren.",
+    "PEC_SECTION": "Tineḍrutin d tseddarin"
+  },
   "PATIENT_STATS": {
     "TITLE": "Tisiddanin n umuḍin",
     "OPEN": "Wali tisiddanin",

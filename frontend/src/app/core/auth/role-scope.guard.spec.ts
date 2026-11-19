@@ -98,6 +98,22 @@ describe('roleScopeGuard', () => {
     }
   });
 
+  it('ouvre au médecin seul le tableau de bord Patients, sans en faire un identifiant de patient', () => {
+    expect(run(['MEDECIN'], '/patients/tableau-de-bord')).toBe(true);
+    expect(run(['MEDECIN'], '/patients/tableau-de-bord?mois=2026-10')).toBe(true);
+    for (const url of ['/patients/tableau-de-bord/cahier', '/patients/tableau-de-bord/stats',
+      '/patients/tableau-de-bord/dossier-medical']) {
+      expect(run(['MEDECIN'], url), url).toEqual({redirect: '/medecin'});
+    }
+    // l'infirmier seul n'a toujours pas accès au module Patients
+    expect(run(['INFIRMIER'], '/patients/tableau-de-bord')).toEqual({redirect: '/infirmiers/moi'});
+    expect(run(['ADMIN'], '/patients/tableau-de-bord')).toBe(true);
+  });
+
+  it('laisse les mouvements de patients tels qu\'aujourd\'hui pour le médecin seul (droits inchangés)', () => {
+    expect(isDoctorArea('/patients/mouvements')).toBe(true);
+  });
+
   it('ouvre l\'historique des séances à l\'infirmier seul mais pas au médecin seul', () => {
     expect(run(['INFIRMIER'], '/seances/historique')).toBe(true);
     expect(isNurseArea('/seances/historique')).toBe(true);

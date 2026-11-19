@@ -72,6 +72,8 @@ describe('ShellComponent — barre de module', () => {
     ['/patients', '/patients'],
     ['/patients/123', '/patients'],
     ['/patients/pec-list', '/patients/pec-list'],
+    ['/patients/tableau-de-bord', '/patients/tableau-de-bord'],
+    ['/patients/pec-admin', '/patients/pec-admin'],
     ['/gmao/equipements', '/gmao/equipements'],
     ['/gmao/equipements/new', '/gmao/equipements'],
     ['/gmao/tableau-de-bord', '/gmao/tableau-de-bord'],
@@ -83,6 +85,30 @@ describe('ShellComponent — barre de module', () => {
     expect(actives).toHaveLength(1);
     expect(component.activeItemRoute()).toBe(attendu);
     expect(actives[0].getAttribute('aria-current')).toBe('page');
+  });
+
+  it('module Patients : le tableau de bord en tête, puis les écrans de travail (validation PEC pour l\'ADMIN)',
+    async () => {
+      const {component} = await renderAt('/patients');
+
+      expect(component.activeModuleItems().map((i) => i.route)).toEqual(['/patients/tableau-de-bord', '/patients',
+        '/patients/new', '/patients/pec-list', '/patients/pec-admin', '/patients/attestations-list',
+        '/patients/mouvements']);
+      expect(component.activeModuleItems()[0]).toMatchObject({label: 'NAV.TABLEAU_DE_BORD', icon: 'insights'});
+    });
+
+  it('module Patients : la secrétaire ne voit pas la validation PEC', async () => {
+    roles = ['SECRETAIRE'];
+    const {component} = await renderAt('/patients');
+
+    expect(component.activeModuleItems().map((i) => i.route)).not.toContain('/patients/pec-admin');
+  });
+
+  it('module Patients : le médecin seul voit le tableau de bord et la liste', async () => {
+    roles = ['MEDECIN'];
+    const {component} = await renderAt('/patients');
+
+    expect(component.activeModuleItems().map((i) => i.route)).toEqual(['/patients/tableau-de-bord', '/patients']);
   });
 
   it('le référentiel des infirmiers, déclaré aussi dans la barre Administration, s\'active dans son module d\'origine',

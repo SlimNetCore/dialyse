@@ -3677,6 +3677,11 @@
     "ATTESTATION_TOTAL": "Certificates",
     "ATTESTATION_EXPIRING": "Certificates expiring in {{days}} days"
   },
+  "PATIENT_TABLEAU_DE_BORD": {
+    "TITLE": "Patients dashboard",
+    "DESC": "Monthly patient summary, coverages and certificates to follow up.",
+    "PEC_SECTION": "Coverages and certificates"
+  },
   "PATIENT_STATS": {
     "TITLE": "Patient statistics",
     "OPEN": "View statistics",

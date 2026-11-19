@@ -4,7 +4,6 @@ import {
   computed,
   effect,
   inject,
-  output,
   signal,
   TemplateRef,
   viewChild,
@@ -19,12 +18,9 @@ import {MatInputModule} from '@angular/material/input';
 import {MatChipsModule} from '@angular/material/chips';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
-import {MatDialog} from '@angular/material/dialog';
 import {MatMenuModule} from '@angular/material/menu';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {PatientQrCardComponent} from './patient-qr-card.component';
-import {PatientSummaryCardsComponent} from './patient-summary-cards.component';
-import {PatientSummaryDetailsDialogComponent} from './patient-summary-details-dialog.component';
 import {AuthStore} from '../../core/state/auth.store';
 import {isDoctorOnlyFor} from '../../core/auth/role-scope.guard';
 import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
@@ -32,7 +28,6 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {WebSocketService} from '../../core/ws/websocket.service';
 import {HemodialysisLoaderComponent} from '../../shared/hemodialysis-loader.component';
 import {PatientListStore} from './state/patient-list.store';
-import {BackendApiService} from '../../core/api/backend-api.service';
 import {AppShellStore} from '../../core/state/app-shell.store';
 import {RefItem, ReferentialApiService} from '../../core/api/referential-api.service';
 import {
@@ -95,7 +90,6 @@ export interface PatientRow {
     MatProgressSpinnerModule,
     TranslateModule,
     PatientQrCardComponent,
-    PatientSummaryCardsComponent,
     HemodialysisLoaderComponent,
     NgTableComponent,
   ],
@@ -103,11 +97,11 @@ export interface PatientRow {
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './patient-list.component.css',
 })
+/**
+ * Liste des patients : écran de travail d'arrivée du module (/patients). La synthèse mensuelle et les indicateurs sont
+ * dans le tableau de bord du module (/patients/tableau-de-bord).
+ */
 export class PatientListComponent {
-  readonly newPatient = output<void>();
-  readonly selectPatient = output<PatientRow>();
-  readonly viewStats = output<PatientRow>();
-
   protected readonly auth = inject(AuthStore);
   /** Le médecin seul consulte les patients : il ne crée pas de fiche. */
   protected readonly canCreatePatient = computed(() => !isDoctorOnlyFor((role) => this.auth.hasRole(role)));
@@ -179,13 +173,13 @@ export class PatientListComponent {
     if (!patient) return;
     switch (event.action.id) {
       case 'view':
-        this.selectPatient.emit(patient);
+        this.openFiche(patient);
         break;
       case 'cahier':
         this.openCahier(patient);
         break;
       case 'stats':
-        this.viewStats.emit(patient);
+        this.openStats(patient);
         break;
       case 'print':
         this.printFiche(patient);
@@ -226,19 +220,13 @@ export class PatientListComponent {
     this.langVersion();
     return this.translate.instant('PATIENT_LIST.EMPTY');
   });
-  readonly summaryMonth = this.patientListStore.summaryMonth;
   readonly rows = this.patientListStore.rows;
   readonly loading = this.patientListStore.loading;
-  readonly printingList = this.patientListStore.printingList;
   readonly exportingList = this.patientListStore.exportingList;
   readonly printingRowId = this.patientListStore.printingRowId;
-  readonly summary = this.patientListStore.summary;
-  readonly summaryLoading = this.patientListStore.summaryLoading;
   private readonly translate = inject(TranslateService);
-  private readonly api = inject(BackendApiService);
   private readonly referentialApi = inject(ReferentialApiService);
   private readonly snackBar = inject(MatSnackBar);
-  private readonly dialog = inject(MatDialog);
   readonly total = this.patientListStore.total;
   readonly pageIndex = this.patientListStore.pageIndex;
   readonly pageSize = this.patientListStore.pageSize;
@@ -512,7 +500,6 @@ export class PatientListComponent {
         evt?.type === 'ATTESTATION_DELETED'
       ) {
         this.patientListStore.refreshCurrentPage();
-        this.patientListStore.refreshSummary();
       }
     });
 
@@ -620,42 +607,24 @@ export class PatientListComponent {
     setTimeout(() => this.copiedField.set(null), 2000);
   }
 
+  openNewPatient(): void {
+    this.router.navigate(['/patients/new']);
+  }
+
+  openFiche(patient: PatientRow): void {
+    this.router.navigate(['/patients', patient.id]);
+  }
+
+  openStats(patient: PatientRow): void {
+    this.router.navigate(['/patients', patient.id, 'stats']);
+  }
+
   openCahier(patient: PatientRow): void {
     this.router.navigate(['/patients', patient.id, 'cahier'], {queryParams: {mode: 'recap'}});
   }
 
   openDossierMedical(patient: PatientRow): void {
     this.router.navigate(['/patients', patient.id, 'dossier-medical']);
-  }
-
-  printList(): void {
-    const centerId = this.auth.centerId();
-    if (!centerId) return;
-    this.patientListStore.printList({centerId});
-  }
-
-  onSummaryMonthChange(month: string): void {
-    this.patientListStore.setSummaryMonth(month);
-  }
-
-  onSummaryViewDetails(month: string): void {
-    const centerId = this.auth.centerId();
-    if (!centerId) return;
-
-    this.api.getPatientSummaryDetails(centerId, month).subscribe({
-      next: (details) => {
-        this.dialog.open(PatientSummaryDetailsDialogComponent, {
-          width: 'min(96vw, 1180px)',
-          maxWidth: '96vw',
-          data: details,
-        });
-      },
-      error: () => {
-        this.snackBar.open(this.translate.instant('PATIENT_LIST.SUMMARY_DETAILS_LOAD_ERROR'), 'OK', {
-          duration: 3500,
-        });
-      },
-    });
   }
 
   exportListExcel(): void {

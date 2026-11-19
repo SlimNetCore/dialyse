@@ -2,7 +2,12 @@ import {Routes} from '@angular/router';
 import {medecinGuard} from '../../core/auth/medecin.guard';
 
 export const patientRoutes: Routes = [
-  { path: '', loadComponent: () => import('./patient-dashboard.component').then(m => m.PatientDashboardComponent) },
+  // Arrivée dans le module = écran de travail (liste) ; le tableau de bord est une entrée à part.
+  { path: '', loadComponent: () => import('./patient-list.component').then(m => m.PatientListComponent) },
+  {
+    path: 'tableau-de-bord',
+    loadComponent: () => import('./patient-tableau-de-bord.component').then(m => m.PatientTableauDeBordComponent),
+  },
   { path: 'new', loadComponent: () => import('./wizard/patient-wizard.component').then(m => m.PatientWizardComponent) },
   {
     path: ':id/cahier',

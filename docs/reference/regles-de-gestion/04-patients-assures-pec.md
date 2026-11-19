@@ -165,7 +165,9 @@
 - **RG-PAT-024** — La synthèse mensuelle des patients (comptages par sexe, âge, KT) est calculée pour le mois demandé
   (mois courant par défaut) sur l' **effectif du mois** (RG-PAT-037), mise en cache **par centre et par mois** (3 min) ;
   ses détails de même (motif d'inclusion : `PERMANENT`, `EVENT_MONTH` = sortie ou fin de séjour dans le mois,
-  `ACTIVE_PERIOD` = sortie ou fin de séjour postérieure au mois).
+  `ACTIVE_PERIOD` = sortie ou fin de séjour postérieure au mois). Elle est affichée (mois, répartitions, rapport
+  imprimable, détails) dans le **tableau de bord Patients** (`/patients/tableau-de-bord`, première entrée de la barre du
+  module), et non plus dans la liste : l'arrivée dans le module (`/patients`) mène directement à la liste des patients.
 
 ## 4.3 Assurés (ayants droit)
 
@@ -285,7 +287,10 @@
   atteinte** et d' **attestations dont la fin est atteinte** dans l'horizon d'alerte (30 jours par défaut,
   paramétrable). **Point d'attention :** ces deux compteurs « à échéance » comptent aussi les documents **déjà expirés**
   de toute ancienneté (condition « date de fin ≤ horizon »), ce qui
-  surestime le besoin de renouvellement ; à borner en bas par la date du jour.
+  surestime le besoin de renouvellement ; à borner en bas par la date du jour. Ces indicateurs sont aussi repris dans le
+  **tableau de bord Patients** (`/patients/tableau-de-bord`, masqués au médecin seul) : PEC créées et validées ouvrent
+  la liste des PEC filtrée sur ce statut (`/patients/pec-list?statut=CREE|VALIDEE`) ; PEC à échéance et attestations
+  ouvrent la liste sans filtre (pas de filtre d'échéance dans ces listes).
 - **Point d'attention (RG-PEC-009)** — `GET /api/v1/pec` (PEC du centre) et `GET /api/v1/pec/patient/{id}` renvoient des
   listes non
   paginées (volume borné par patient pour la seconde ; non borné pour la première) — écart à RG-TRV-020 à résorber au

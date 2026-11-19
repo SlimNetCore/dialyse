@@ -1,0 +1,63 @@
+<div class="patient-tdb">
+  <section class="app-hero-card tdb-hero">
+    <span class="app-eyebrow">
+      <mat-icon>insights</mat-icon>
+      {{ 'NAV.PATIENTS' | translate }}
+    </span>
+    <h1 class="app-section-title">{{ 'PATIENT_TABLEAU_DE_BORD.TITLE' | translate }}</h1>
+    <p class="app-section-copy">{{ 'PATIENT_TABLEAU_DE_BORD.DESC' | translate }}</p>
+  </section>
+
+  <app-patient-summary-cards
+    (monthChanged)="onSummaryMonthChange($event)"
+    (printReport)="printReport()"
+    (viewDetails)="onSummaryViewDetails($event)"
+    [loading]="summaryLoading()"
+    [printing]="printingReport()"
+    [selectedMonth]="summaryMonth()"
+    [summary]="summary()"
+  />
+
+  @if (canManageAdministrative()) {
+    <section class="app-hero-card pec-section" data-testid="patient-tdb-pec">
+      <div class="pec-section-head">
+        <h2 class="pec-section-title">{{ 'PATIENT_TABLEAU_DE_BORD.PEC_SECTION' | translate }}</h2>
+        <mat-form-field appearance="outline" class="days-field">
+          <mat-label>{{ 'DASHBOARD.EXPIRATION_DAYS' | translate }}</mat-label>
+          <input (change)="onExpirationDaysChange($event)" [value]="expirationDays()" data-testid="patient-tdb-echeance"
+                 matInput min="1" type="number"/>
+        </mat-form-field>
+      </div>
+
+      @let s = pecStats();
+      <div [class.is-loading]="pecStatsLoading()" class="app-data-strip">
+        <a [queryParams]="{statut: 'CREE'}" class="app-data-pill kpi-clickable tone-warning"
+           data-testid="kpi-pec-creees" routerLink="/patients/pec-list">
+          <span>{{ 'DASHBOARD.PEC_CREE' | translate }}</span>
+          <strong>{{ s?.pecCree ?? '—' }}</strong>
+        </a>
+        <a [queryParams]="{statut: 'VALIDEE'}" class="app-data-pill kpi-clickable tone-success"
+           data-testid="kpi-pec-validees" routerLink="/patients/pec-list">
+          <span>{{ 'DASHBOARD.PEC_VALIDEE' | translate }}</span>
+          <strong>{{ s?.pecValidee ?? '—' }}</strong>
+        </a>
+        <!-- pas de filtre « expirant sous N jours » dans la liste des PEC : lien vers toutes les PEC -->
+        <a [class.tone-danger]="(s?.pecExpiring ?? 0) > 0" [queryParams]="{statut: ''}"
+           class="app-data-pill kpi-clickable" data-testid="kpi-pec-expirantes" routerLink="/patients/pec-list">
+          <span>{{ 'DASHBOARD.PEC_EXPIRING' | translate: {days: expirationDays()} }}</span>
+          <strong>{{ s?.pecExpiring ?? '—' }}</strong>
+        </a>
+        <!-- la liste des attestations ne lit aucun filtre d'URL : lien vers la liste complète -->
+        <a class="app-data-pill kpi-clickable" data-testid="kpi-attestations" routerLink="/patients/attestations-list">
+          <span>{{ 'DASHBOARD.ATTESTATION_TOTAL' | translate }}</span>
+          <strong>{{ s?.attestationTotal ?? '—' }}</strong>
+        </a>
+        <a [class.tone-danger]="(s?.attestationExpiring ?? 0) > 0" class="app-data-pill kpi-clickable"
+           data-testid="kpi-attestations-expirantes" routerLink="/patients/attestations-list">
+          <span>{{ 'DASHBOARD.ATTESTATION_EXPIRING' | translate: {days: expirationDays()} }}</span>
+          <strong>{{ s?.attestationExpiring ?? '—' }}</strong>
+        </a>
+      </div>
+    </section>
+  }
+</div>

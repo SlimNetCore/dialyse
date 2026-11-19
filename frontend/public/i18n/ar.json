@@ -3545,6 +3545,11 @@
     "ATTESTATION_TOTAL": "الشهادات",
     "ATTESTATION_EXPIRING": "شهادات تنتهي خلال {{days}} يوم"
   },
+  "PATIENT_TABLEAU_DE_BORD": {
+    "TITLE": "لوحة معلومات المرضى",
+    "DESC": "الملخص الشهري للمرضى، التكفلات والشهادات الواجب متابعتها.",
+    "PEC_SECTION": "التكفلات والشهادات"
+  },
   "PATIENT_STATS": {
     "TITLE": "إحصائيات المريض",
     "OPEN": "عرض الإحصائيات",

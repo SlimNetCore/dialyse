@@ -1,0 +1,73 @@
+.patient-tdb {
+  display: grid;
+  gap: 20px;
+}
+
+.tdb-hero {
+  display: grid;
+  gap: 10px;
+}
+
+.tdb-hero .app-eyebrow mat-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+}
+
+.pec-section {
+  display: grid;
+  gap: 12px;
+}
+
+.pec-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.pec-section-title {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--app-text);
+}
+
+.days-field {
+  width: 200px;
+}
+
+.app-data-strip.is-loading {
+  opacity: 0.6;
+}
+
+/* indicateur cliquable vers la liste (même rendu que le tableau de bord GMAO) */
+.kpi-clickable {
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s, transform 0.12s;
+}
+
+.kpi-clickable:hover {
+  border-color: var(--app-primary-outline);
+  transform: translateY(-1px);
+}
+
+.app-data-pill.tone-success strong {
+  color: #2e7d32;
+}
+
+.app-data-pill.tone-warning strong {
+  color: #e65100;
+}
+
+.app-data-pill.tone-danger strong {
+  color: #c62828;
+}
+
+@media (max-width: 640px) {
+  .days-field {
+    width: 100%;
+  }
+}

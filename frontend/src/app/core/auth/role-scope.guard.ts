@@ -12,8 +12,15 @@ export const NURSE_HOME = '/infirmiers/moi';
 export const DOCTOR_HOME = '/medecin';
 /** Rôles qui, cumulés à MEDECIN, donnent accès au reste de l'application. */
 const DOCTOR_EXCLUDING_ROLES = ['ADMIN', 'SECRETAIRE', 'INFIRMIER', 'SUPERADMIN', 'DIRECTION'];
-/** Sous-routes de `/patients` fermées au médecin seul (création, prises en charge, attestations). */
-const PATIENT_ROUTES_CLOSED_TO_DOCTOR = ['new', 'pec-admin', 'pec-list', 'attestations-list'];
+/** Tableau de bord du module Patients : ouvert au médecin seul (liste blanche explicite). */
+const PATIENTS_TABLEAU_DE_BORD = '/patients/tableau-de-bord';
+/**
+ * Sous-routes statiques de `/patients` que la règle « /patients/:id/… » ne doit pas prendre pour un identifiant
+ * (création, prises en charge, attestations, tableau de bord). Toute nouvelle sous-route statique de `/patients` doit
+ * figurer ici ou dans la liste blanche de {@link isDoctorArea}. `mouvements` n'y figure pas : le médecin seul y accède
+ * aujourd'hui par l'URL et les droits restent inchangés.
+ */
+const PATIENT_ROUTES_CLOSED_TO_DOCTOR = ['new', 'pec-admin', 'pec-list', 'attestations-list', 'tableau-de-bord'];
 /** Rôles de centre qui, cumulés à INFIRMIER, donnent accès au reste de l'application. */
 const OTHER_CENTRE_ROLES = ['ADMIN', 'MEDECIN', 'SECRETAIRE', 'SUPERADMIN', 'DIRECTION'];
 
@@ -63,12 +70,12 @@ export const isDoctorOnlyFor = (hasRole: (role: string) => boolean): boolean =>
   hasRole('MEDECIN') && !DOCTOR_EXCLUDING_ROLES.some((role) => hasRole(role));
 
 /**
- * Écrans du médecin seul : son accueil (le planning des séances, vues semaine et jour), la liste des patients et, par
- * patient, fiche, cahier, dossier et statistiques.
+ * Écrans du médecin seul : son accueil (le planning des séances, vues semaine et jour), la liste des patients, le
+ * tableau de bord du module Patients et, par patient, fiche, cahier, dossier et statistiques.
  */
 export const isDoctorArea = (url: string): boolean => {
   const path = url.split('?')[0];
-  if (path === DOCTOR_HOME || path === '/patients' || path === ABSENCES_PATIENTS) {
+  if (path === DOCTOR_HOME || path === '/patients' || path === PATIENTS_TABLEAU_DE_BORD || path === ABSENCES_PATIENTS) {
     return true;
   }
   const match = /^\/patients\/([^/]+)(?:\/(?:cahier|stats|dossier-medical)(?:\/.*)?)?$/.exec(path);

@@ -3677,6 +3677,11 @@
     "ATTESTATION_TOTAL": "Attestations",
     "ATTESTATION_EXPIRING": "Attestations expirant dans {{days}} jours"
   },
+  "PATIENT_TABLEAU_DE_BORD": {
+    "TITLE": "Tableau de bord patients",
+    "DESC": "Synthèse mensuelle des patients, prises en charge et attestations à suivre.",
+    "PEC_SECTION": "Prises en charge et attestations"
+  },
   "PATIENT_STATS": {
     "TITLE": "Statistiques du patient",
     "OPEN": "Voir les statistiques",
