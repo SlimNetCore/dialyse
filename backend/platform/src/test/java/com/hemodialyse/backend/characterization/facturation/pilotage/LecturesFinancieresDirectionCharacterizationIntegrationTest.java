@@ -1,6 +1,8 @@
 package com.hemodialyse.backend.characterization.facturation.pilotage;
 
+import com.hemodialyse.backend.contexts.pilotagedirection.application.HorlogeDuPilotage;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import tools.jackson.databind.JsonNode;
@@ -23,6 +25,10 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
  * Les parties patients/âge/anémie/motifs relèvent des autres contextes et ne sont pas caractérisées ici.
  */
 class LecturesFinancieresDirectionCharacterizationIntegrationTest extends PilotageFacturationSupport {
+
+    /** « Aujourd'hui » selon la même horloge que la production (fuseau de référence du pilotage), pas le fuseau de la JVM. */
+    @Autowired
+    private HorlogeDuPilotage horlogeDuPilotage;
 
 
     @Override
@@ -118,9 +124,9 @@ class LecturesFinancieresDirectionCharacterizationIntegrationTest extends Pilota
     void sans_parametre_la_periode_va_du_1er_janvier_de_l_annee_a_aujourd_hui() throws Exception {
         jeuDeLaSociete();
 
-        LocalDate avant = LocalDate.now();
+        LocalDate avant = horlogeDuPilotage.aujourdhui();
         JsonNode o = json(doGet(DIRECTION + "/overview", direction()));
-        LocalDate apres = LocalDate.now();
+        LocalDate apres = horlogeDuPilotage.aujourdhui();
 
         // Tolère un passage à minuit entre l'appel et la lecture de l'horloge
         LocalDate fin = LocalDate.parse(o.path("to").asString());

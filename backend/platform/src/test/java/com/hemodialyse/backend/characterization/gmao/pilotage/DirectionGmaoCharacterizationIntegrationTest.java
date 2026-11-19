@@ -1,7 +1,9 @@
 package com.hemodialyse.backend.characterization.gmao.pilotage;
 
+import com.hemodialyse.backend.contexts.pilotagedirection.application.HorlogeDuPilotage;
 import com.hemodialyse.backend.infrastructure.security.UserPrincipal;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import tools.jackson.databind.JsonNode;
@@ -28,6 +30,10 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 class DirectionGmaoCharacterizationIntegrationTest extends PilotageCharacterizationSupport {
 
     private static final String GMAO_DIRECTION = DIRECTION + "/gmao";
+
+    /** « Aujourd'hui » selon la même horloge que la production (fuseau de référence du pilotage), pas le fuseau de la JVM. */
+    @Autowired
+    private HorlogeDuPilotage horlogeDuPilotage;
     private static final String CAPACITE = DIRECTION + "/capacite";
     private static final String PERIODE = "?from=2026-01-01&to=2026-06-30";
 
@@ -165,9 +171,9 @@ class DirectionGmaoCharacterizationIntegrationTest extends PilotageCharacterizat
     @Test
     void sans_dates_la_periode_va_du_premier_janvier_a_aujourd_hui_et_les_dates_partielles_se_completent() throws Exception {
         semerLePilotage();
-        LocalDate avant = LocalDate.now();
+        LocalDate avant = horlogeDuPilotage.aujourdhui();
         JsonNode defaut = json(get(GMAO_DIRECTION, direction()));
-        LocalDate apres = LocalDate.now();
+        LocalDate apres = horlogeDuPilotage.aujourdhui();
         assertEquals(LocalDate.of(avant.getYear(), 1, 1).toString(), defaut.get("from").asString());
         assertTrue(defaut.get("to").asString().equals(avant.toString()) || defaut.get("to").asString().equals(apres.toString()));
 
@@ -202,7 +208,7 @@ class DirectionGmaoCharacterizationIntegrationTest extends PilotageCharacterizat
             String du = r.status == 200 ? json(r).get("from").asString() : null;
             String au = r.status == 200 ? json(r).get("to").asString() : null;
             if (p.equals("?from=&to=")) {   // dates vides = valeurs par défaut, qui dépendent du jour d'exécution
-                LocalDate jour = LocalDate.now();
+                LocalDate jour = horlogeDuPilotage.aujourdhui();
                 du = du.equals(LocalDate.of(jour.getYear(), 1, 1).toString()) ? "<1er janvier de l'année>" : du;
                 au = au.equals(jour.toString()) || au.equals(jour.minusDays(1).toString()) ? "<aujourd'hui>" : au;
             }
