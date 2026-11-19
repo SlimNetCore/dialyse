@@ -12,7 +12,7 @@ import {
 import {CommonModule} from '@angular/common';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {map, merge} from 'rxjs';
-import {NgTableColumn, NgTableComponent} from '@sbourahla/ng-table';
+import {NgTableColumn, NgTableComponent, NgTableRemoteQuery} from '@sbourahla/ng-table';
 import {NgTableTranslatedLabels} from '../../shared/ng-table-labels';
 import {compatForm} from '@angular/forms/signals/compat';
 import {FormField, FormRoot, required} from '@angular/forms/signals';
@@ -32,6 +32,14 @@ import {AuthStore} from '../../core/state/auth.store';
 import {seanceFactureeNonModifiableMessage} from '../../core/api/http-error-detail';
 import {WebSocketService} from '../../core/ws/websocket.service';
 import {BonSortie, LotDisponible, RELECTURE_DES_VERROUS_MS, StockApiService} from '../../core/api/stock-api.service';
+import {CorrespondanceDePage} from '../../core/api/page-serveur';
+import {ListeServeur} from '../../core/api/liste-serveur';
+
+/** Colonnes ⇒ paramètres de `GET /bons-sortie/page` (B4, RG-STK-088) ; pas de statut sur un bon de sortie. */
+export const CORRESPONDANCE_BONS_SORTIE: CorrespondanceDePage = {
+  tris: {reference: 'reference', date: 'dateSortie', lignes: 'lignes'},
+  filtres: {reference: 'reference'},
+};
 import {ReferentialApiService, RefItem} from '../../core/api/referential-api.service';
 
 @Component({
@@ -49,13 +57,16 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
 export class BonsSortieComponent implements OnDestroy {
   private static readonly DEFAULT_SEANCE_ID = '00000000-0000-0000-0000-000000000000';
 
-  /** Liste entièrement en mémoire (l'API ne pagine pas) : pagination locale de ng-table. */
+  /** Liste paginée, triée et filtrée côté serveur (`GET /bons-sortie/page`, B4). */
   protected readonly taillesDePage: readonly number[] = [10, 20, 50, 100];
-  protected readonly tailleDePage = 20;
   protected readonly ngTableLabels = inject(NgTableTranslatedLabels).labels;
   protected readonly cleDeBon = (b: BonSortie): unknown => b.id;
   protected readonly actionsTemplate = viewChild<TemplateRef<{ $implicit: BonSortie; row: BonSortie }>>('actionsBon');
-  protected readonly bons = signal<BonSortie[]>([]);
+  private readonly api = inject(StockApiService);
+  private readonly auth = inject(AuthStore);
+  protected readonly liste = new ListeServeur<BonSortie>(
+    (parametres) => this.api.listBonsSortiePage(this.auth.centerId() ?? '', parametres),
+    CORRESPONDANCE_BONS_SORTIE, 20);
   protected readonly articles = signal<RefItem[]>([]);
   protected readonly lotsByRow = signal<Record<number, LotDisponible[]>>({});
   protected readonly lockedArticleIds = signal<string[]>([]);
@@ -82,9 +93,7 @@ export class BonsSortieComponent implements OnDestroy {
     });
   });
   protected readonly isSeanceLinkedSortie = computed(() => this.hasRealSeanceId(this.editingSeanceId()));
-  private readonly api = inject(StockApiService);
   private readonly refApi = inject(ReferentialApiService);
-  private readonly auth = inject(AuthStore);
   private readonly ws = inject(WebSocketService);
   private readonly snack = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
@@ -121,6 +130,7 @@ export class BonsSortieComponent implements OnDestroy {
     // Verrous lus au chargement puis sur l'évènement STOCK_RECALC_LOCKS_CHANGED ; relecture périodique seulement
     // pendant un recalcul (filet si un évènement est perdu), jamais en continu.
     this.reload();
+    if (this.auth.centerId()) this.liste.charger();
     effect(() => {
       const evt = this.ws.lastEvent();
       const centerId = this.auth.centerId();
@@ -157,6 +167,10 @@ export class BonsSortieComponent implements OnDestroy {
         this.refreshLocks();
       }
     });
+  }
+
+  protected onRemoteQueryChange(requete: NgTableRemoteQuery): void {
+    if (this.auth.centerId()) this.liste.onRemoteQueryChange(requete);
   }
 
   ngOnDestroy(): void {
@@ -387,7 +401,7 @@ export class BonsSortieComponent implements OnDestroy {
     if (!centerId) {
       return;
     }
-    this.api.listBonsSortie(centerId).subscribe({next: (b) => this.bons.set(b)});
+    if (this.liste.parametresCourants()) this.liste.recharger();
     this.refApi.getArticles(centerId).subscribe({next: (a) => this.articles.set(a)});
     this.refreshLocks();
   }

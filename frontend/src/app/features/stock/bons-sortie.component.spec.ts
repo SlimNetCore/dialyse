@@ -12,8 +12,9 @@ import {AuthStore} from '../../core/state/auth.store';
 import {WebSocketService} from '../../core/ws/websocket.service';
 
 describe('BonsSortieComponent', () => {
+  const page = (items: any[], index = 0) => of({items, total: items.length, page: index, size: 20});
   const stockApiMock = {
-    listBonsSortie: vi.fn(() => of([])),
+    listBonsSortiePage: vi.fn((_c: string, _p: Record<string, string>) => page([])),
     listLotsDisponibles: vi.fn(() => of([])),
     listPmpRecalcLocks: vi.fn(() => of([] as string[])),
     createBonSortie: vi.fn(() => of({id: 'bs-1'})),
@@ -39,6 +40,7 @@ describe('BonsSortieComponent', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
+    stockApiMock.listBonsSortiePage.mockImplementation(() => page([]));
     await TestBed.configureTestingModule({
       imports: [BonsSortieComponent, TranslateModule.forRoot()],
       providers: [
@@ -55,7 +57,7 @@ describe('BonsSortieComponent', () => {
     const fixture = TestBed.createComponent(BonsSortieComponent);
     fixture.detectChanges();
 
-    expect(stockApiMock.listBonsSortie).toHaveBeenCalledWith('center-1');
+    expect(stockApiMock.listBonsSortiePage).toHaveBeenCalledWith('center-1', {page: '0', size: '20'});
     expect(refApiMock.getArticles).toHaveBeenCalledWith('center-1');
     expect(stockApiMock.listPmpRecalcLocks).toHaveBeenCalledWith('center-1');
   });
@@ -139,7 +141,7 @@ describe('BonsSortieComponent', () => {
   });
 
   it('edite un bon existant via updateBonSortie', () => {
-    stockApiMock.listBonsSortie.mockReturnValueOnce(of([{
+    stockApiMock.listBonsSortiePage.mockReturnValueOnce(page([{
       id: 'bs-1',
       centerId: 'center-1',
       reference: 'BS-001',
@@ -148,14 +150,14 @@ describe('BonsSortieComponent', () => {
       poste: 'SEANCE',
       dateSortie: '2026-06-14',
       lignes: [{articleId: 'a1', lotId: 'l1', quantite: 2}],
-    }] as any));
+    }]));
     stockApiMock.listLotsDisponibles.mockReturnValueOnce(of([{id: 'l1', numeroLot: 'LOT-1'}] as any));
 
     const fixture = TestBed.createComponent(BonsSortieComponent);
     const component = fixture.componentInstance as any;
     fixture.detectChanges();
 
-    component.editBon(component.bons()[0]);
+    component.editBon(component.liste.lignes()[0]);
     component.save();
 
     expect(stockApiMock.updateBonSortie).toHaveBeenCalledWith(
@@ -170,7 +172,7 @@ describe('BonsSortieComponent', () => {
   });
 
   it('verrouille la date de sortie dans la payload si bon lie a une seance', () => {
-    stockApiMock.listBonsSortie.mockReturnValueOnce(of([{
+    stockApiMock.listBonsSortiePage.mockReturnValueOnce(page([{
       id: 'bs-2',
       centerId: 'center-1',
       reference: 'BS-002',
@@ -179,14 +181,14 @@ describe('BonsSortieComponent', () => {
       poste: 'SEANCE',
       dateSortie: '2026-08-12',
       lignes: [{articleId: 'a1', lotId: 'l1', quantite: 1}],
-    }] as any));
+    }]));
     stockApiMock.listLotsDisponibles.mockReturnValueOnce(of([{id: 'l1', numeroLot: 'LOT-1'}] as any));
 
     const fixture = TestBed.createComponent(BonsSortieComponent);
     const component = fixture.componentInstance as any;
     fixture.detectChanges();
 
-    component.editBon(component.bons()[0]);
+    component.editBon(component.liste.lignes()[0]);
     component.formModel.update((m: any) => ({...m, dateSortie: '2026-08-13'}));
     component.save();
 
@@ -199,7 +201,7 @@ describe('BonsSortieComponent', () => {
   });
 
   it('n applique pas verrou de date pour idSeance technique par defaut', () => {
-    stockApiMock.listBonsSortie.mockReturnValueOnce(of([{
+    stockApiMock.listBonsSortiePage.mockReturnValueOnce(page([{
       id: 'bs-3',
       centerId: 'center-1',
       reference: 'BS-003',
@@ -208,14 +210,14 @@ describe('BonsSortieComponent', () => {
       poste: 'MANUEL',
       dateSortie: '2026-08-10',
       lignes: [{articleId: 'a1', lotId: 'l1', quantite: 1}],
-    }] as any));
+    }]));
     stockApiMock.listLotsDisponibles.mockReturnValueOnce(of([{id: 'l1', numeroLot: 'LOT-1'}] as any));
 
     const fixture = TestBed.createComponent(BonsSortieComponent);
     const component = fixture.componentInstance as any;
     fixture.detectChanges();
 
-    component.editBon(component.bons()[0]);
+    component.editBon(component.liste.lignes()[0]);
     component.formModel.update((m: any) => ({...m, dateSortie: '2026-08-11'}));
     component.save();
 
@@ -261,19 +263,31 @@ describe('BonsSortieComponent', () => {
       expect(colonnes[3].cellTemplate).toBeTruthy();
     });
 
-    it('pagine localement par 20 avec choix 10/20/50/100', () => {
+    it('pagine côté serveur par 20 avec choix 10/20/50/100', () => {
       const fixture = TestBed.createComponent(BonsSortieComponent);
       fixture.detectChanges();
 
       const table = fixture.debugElement.query(By.directive(NgTableComponent)).componentInstance as NgTableComponent<unknown>;
       expect(table.paginator()).toBe(true);
-      expect(table.dataMode()).toBe('local');
+      expect(table.dataMode()).toBe('remote');
       expect(table.pageSize()).toBe(20);
       expect(table.pageSizeOptions()).toEqual([10, 20, 50, 100]);
     });
 
+    it('envoie tri (date ⇒ dateSortie) et filtre référence au serveur, sans filtre de statut', () => {
+      const fixture = TestBed.createComponent(BonsSortieComponent);
+      const component = fixture.componentInstance as any;
+      fixture.detectChanges();
+      expect(component.colonnes().filter((c: any) => c.filter).map((c: any) => c.id)).toEqual(['reference']);
+      component.onRemoteQueryChange({
+        sort: {columnId: 'date', direction: 'asc'}, filters: {reference: 'BS'}, page: {index: 1, size: 20},
+      });
+      expect(stockApiMock.listBonsSortiePage).toHaveBeenLastCalledWith('center-1',
+        {page: '0', size: '20', sort: 'dateSortie,asc', reference: 'BS'});
+    });
+
     it('le bouton modifier de la ligne ouvre le bon en edition', async () => {
-      stockApiMock.listBonsSortie.mockReturnValueOnce(of([bon] as any));
+      stockApiMock.listBonsSortiePage.mockReturnValue(page([bon]));
       const fixture = TestBed.createComponent(BonsSortieComponent);
       const component = fixture.componentInstance as any;
       fixture.detectChanges();
