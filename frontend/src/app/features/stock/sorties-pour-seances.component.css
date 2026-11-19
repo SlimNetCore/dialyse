@@ -3,10 +3,6 @@
   gap: 16px;
 }
 
-.full-width {
-  width: 100%;
-}
-
 mat-card {
   overflow: hidden;
 }
@@ -60,9 +56,14 @@ mat-card {
   color: var(--app-muted);
 }
 
-.chip-done {
+.num {
+  display: block;
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+:host ::ng-deep tr.piece-selectionnee td {
   background: var(--app-primary-soft);
-  border: 1px solid var(--app-primary-outline);
 }
 
 .gap-plus {
@@ -81,6 +82,7 @@ mat-card {
 }
 
 .table-wrap {
+  min-width: 0;
   overflow-x: auto;
 }
 
@@ -119,12 +121,6 @@ mat-card {
 
   mat-card-content {
     padding-inline: 12px;
-  }
-}
-
-@media (max-width: 640px) {
-  .table-wrap table {
-    min-width: 540px;
   }
 }
 

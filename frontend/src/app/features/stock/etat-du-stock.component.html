@@ -13,29 +13,44 @@
 
   <mat-card>
     <mat-card-header>
-      <mat-card-title>{{ 'STOCK.DASHBOARD.STOCK_TABLE.TITLE' | translate }}</mat-card-title>
+      <mat-card-title id="etat-du-stock-titre">{{ 'STOCK.DASHBOARD.STOCK_TABLE.TITLE' | translate }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <app-configurable-list
-        [columns]="stockColumns()"
-        [emptyLabelKey]="'STOCK.DASHBOARD.EMPTY.NO_STOCK'"
-        [rows]="stock()"
-      />
+      <section class="table-container" aria-labelledby="etat-du-stock-titre" data-testid="stock-table">
+        <ng-table
+          [columns]="stockColumns()"
+          [rows]="stock()"
+          [paginator]="true"
+          [pageSize]="defaultPageSize"
+          [pageSizeOptions]="pageSizes"
+          [rowKeyAccessor]="cleArticle"
+          [loading]="loading()"
+          [labels]="labels()"
+          [emptyLabel]="emptyLabel()"
+        />
+      </section>
 
       <ng-template #quantiteCell let-row>
-        {{ row.quantite | number:'1.0-2' }} {{ row.unite }}
+        <span class="num">
+          <ng-table-cell-format
+            [format]="badgeQuantite"
+            [row]="row"
+            [text]="(row.quantite | number:'1.0-2') + ' ' + (row.unite ?? '')"
+            [value]="row.quantite"
+          />
+        </span>
       </ng-template>
 
       <ng-template #pmpCell let-row>
-        {{ row.pmpCourant | number:'1.0-4' }}
+        <span class="num">{{ row.pmpCourant | number:'1.0-4' }}</span>
       </ng-template>
 
       <ng-template #valeurCell let-row>
-        {{ row.valeur | number:'1.0-2' }}
+        <span class="num">{{ row.valeur | number:'1.0-2' }}</span>
       </ng-template>
 
       <ng-template #actionsCell let-row>
-        <button (click)="openPmpExplain(row)" color="primary" mat-stroked-button>
+        <button (click)="$event.stopPropagation(); openPmpExplain(row)" color="primary" mat-stroked-button type="button">
           {{ 'STOCK.DASHBOARD.STOCK_TABLE.EXPLAIN_PMP' | translate }}
         </button>
       </ng-template>

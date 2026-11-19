@@ -26,7 +26,7 @@ test.describe('Tableau de bord et état du stock', () => {
     await expect(page.locator('h1, .app-section-title').first()).toContainText(/stock/i);
     await expect(page.locator('.filters-grid')).toBeVisible();
     await expect(page.locator('.kpi-grid')).toBeVisible();
-    await expect(page.locator('app-configurable-list')).toHaveCount(0);
+    await expect(page.locator('app-configurable-list, ng-table')).toHaveCount(0);
   });
 
   test('should land on the stock status with the valued stock table', async ({page}) => {
@@ -34,7 +34,8 @@ test.describe('Tableau de bord et état du stock', () => {
     await page.goto(`${baseUrl}/stock`);
     await page.waitForLoadState('networkidle');
 
-    await expect(page.locator('app-configurable-list')).toBeVisible();
+    await expect(page.locator('[data-testid="stock-table"] ng-table')).toBeVisible();
+    await expect(page.locator('[data-testid="stock-table"] ng-table-paginator')).toBeVisible();
     await expect(page.locator('.filters-grid')).toHaveCount(0);
   });
 

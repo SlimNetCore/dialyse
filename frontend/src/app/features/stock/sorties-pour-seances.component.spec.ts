@@ -164,6 +164,40 @@ describe('SortiesPourSeancesComponent', () => {
     expect(c.pieces()[0].statut).toBe('RAPPROCHEE');
   });
 
+  it('affiche les pieces dans une ng-table locale paginee, statut en pastille, sans mat-table', () => {
+    const {fixture, c} = creer();
+    const el: HTMLElement = fixture.nativeElement;
+
+    expect(el.querySelector('[data-testid="sorties-seances-pieces"] ng-table')).not.toBeNull();
+    expect(el.querySelector('table[mat-table], mat-chip')).toBeNull();
+    expect(c.defaultPageSize).toBe(20);
+    expect(c.pageSizes).toEqual([10, 20, 50, 100]);
+    const colonnes = c.colonnesPieces();
+    expect(colonnes.map((col: { id: string }) => col.id)).toEqual(['reference', 'jour', 'perimetre', 'statut', 'lignes', 'actions']);
+    const statut = colonnes.find((col: { id: string }) => col.id === 'statut');
+    expect(statut.cell).toEqual(expect.objectContaining({type: 'badge', tone: {ENREGISTREE: 'info', RAPPROCHEE: 'success'}}));
+    expect(colonnes.find((col: { id: string }) => col.id === 'jour').valueAccessor(piece())).toBe('24/10/2026');
+    expect(colonnes.find((col: { id: string }) => col.id === 'actions').exportable).toBe(false);
+    expect(el.textContent).toContain('SPS-00001');
+  });
+
+  it('deroule les lignes de la piece par le bouton de la ligne, avec la saisie du motif d un ecart', () => {
+    const {fixture, c} = creer();
+    const el: HTMLElement = fixture.nativeElement;
+    const bouton = el.querySelector('button[data-row-id="p1"]') as HTMLButtonElement;
+    expect(bouton).not.toBeNull();
+
+    bouton.click();
+    fixture.detectChanges();
+
+    expect(c.selectionId()).toBe('p1');
+    expect(el.querySelector('[data-testid="sorties-seances-lignes"] ng-table')).not.toBeNull();
+    expect(c.colonnesLignes().map((col: { id: string }) => col.id)).toEqual(['article', 'sortie', 'consomme', 'ecart', 'motif']);
+    const motifs = el.querySelectorAll('[data-testid="sorties-seances-lignes"] input[maxlength="500"]');
+    expect(motifs.length).toBe(1);
+    expect(el.querySelector('.gap-minus')?.textContent?.trim()).toBe('-2');
+  });
+
   it('ne renvoie pas un motif vide ou inchange', () => {
     const {c} = creer();
     const p = c.pieces()[0];

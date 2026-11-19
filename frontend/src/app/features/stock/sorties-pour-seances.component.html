@@ -89,50 +89,56 @@
       <mat-card-title>{{ 'STOCK.SORTIES_SEANCES.LIST_TITLE' | translate }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <div class="table-wrap">
-        <table [dataSource]="pieces()" class="full-width" mat-table>
-          <ng-container matColumnDef="reference">
-            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.REFERENCE_LABEL' | translate }}</th>
-            <td *matCellDef="let p" mat-cell>{{ p.reference }}</td>
-          </ng-container>
-          <ng-container matColumnDef="jour">
-            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.SORTIES_SEANCES.DAY_LABEL' | translate }}</th>
-            <td *matCellDef="let p" mat-cell>{{ p.jour | date:'dd/MM/yyyy' }}</td>
-          </ng-container>
-          <ng-container matColumnDef="perimetre">
-            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.SORTIES_SEANCES.PERIMETER_LABEL' | translate }}</th>
-            <td *matCellDef="let p" mat-cell>{{ perimetre(p) }}</td>
-          </ng-container>
-          <ng-container matColumnDef="statut">
-            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.SORTIES_SEANCES.STATUS_LABEL' | translate }}</th>
-            <td *matCellDef="let p" mat-cell>
-              <mat-chip [class.chip-done]="p.statut === 'RAPPROCHEE'">
-                {{ 'STOCK.SORTIES_SEANCES.STATUT.' + p.statut | translate }}
-              </mat-chip>
-            </td>
-          </ng-container>
-          <ng-container matColumnDef="lignes">
-            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.LINES_LABEL' | translate }}</th>
-            <td *matCellDef="let p" mat-cell>{{ p.lignes.length }}</td>
-          </ng-container>
-          <ng-container matColumnDef="actions">
-            <th *matHeaderCellDef mat-header-cell>{{ 'COMMON.COL_ACTIONS' | translate }}</th>
-            <td *matCellDef="let p" mat-cell>
-              <button (click)="selectionner(p)" [attr.aria-label]="'STOCK.SORTIES_SEANCES.OPEN' | translate"
-                      mat-icon-button>
-                <mat-icon>{{ selectionId() === p.id ? 'expand_less' : 'expand_more' }}</mat-icon>
-              </button>
-            </td>
-          </ng-container>
-          <tr *matHeaderRowDef="colsPieces" mat-header-row></tr>
-          <tr *matRowDef="let row; columns: colsPieces" [attr.data-row-id]="row?.id" mat-row></tr>
-        </table>
+      <div class="table-wrap" data-testid="sorties-seances-pieces">
+        <ng-table
+          [columns]="colonnesPieces()"
+          [rows]="pieces()"
+          [paginator]="true"
+          [pageSize]="defaultPageSize"
+          [pageSizeOptions]="pageSizes"
+          [rowKeyAccessor]="clePiece"
+          [rowClassFn]="classeDePiece()"
+          [labels]="labels()"
+          [emptyLabel]="libelleVide()"
+        />
       </div>
-      @if (pieces().length === 0) {
-        <p class="hint">{{ 'STOCK.SORTIES_SEANCES.EMPTY' | translate }}</p>
-      }
     </mat-card-content>
   </mat-card>
+
+  <ng-template #actionsPieceCell let-p>
+    <button (click)="$event.stopPropagation(); selectionner(p)" [attr.aria-label]="'STOCK.SORTIES_SEANCES.OPEN' | translate"
+            [attr.aria-expanded]="selectionId() === p.id" [attr.data-row-id]="p.id" mat-icon-button type="button">
+      <mat-icon>{{ selectionId() === p.id ? 'expand_less' : 'expand_more' }}</mat-icon>
+    </button>
+  </ng-template>
+
+  <ng-template #quantiteCell let-value="value">
+    <span class="num">{{ value == null ? '—' : (value | number:'1.0-3') }}</span>
+  </ng-template>
+
+  <ng-template #ecartCell let-l>
+    <span [class.gap-minus]="(l.ecart ?? 0) < 0" [class.gap-plus]="(l.ecart ?? 0) > 0" class="num">
+      {{ l.ecart == null ? '—' : (l.ecart | number:'1.0-3') }}
+    </span>
+  </ng-template>
+
+  <ng-template #motifCell let-l>
+    @if (selection(); as piece) {
+      @if ((l.ecart ?? 0) !== 0 && piece.statut === 'ENREGISTREE' && peutJustifier()) {
+        <mat-form-field appearance="outline" class="reason-field" subscriptSizing="dynamic">
+          <input (change)="justifier(piece, l, $event)" (click)="$event.stopPropagation()"
+                 (keydown)="$event.stopPropagation()"
+                 [attr.aria-label]="'STOCK.SORTIES_SEANCES.REASON_LABEL' | translate"
+                 [value]="l.motif ?? ''" matInput maxlength="500"/>
+          @if (ecartSansMotif(l)) {
+            <mat-error>{{ 'STOCK.SORTIES_SEANCES.REASON_REQUIRED' | translate }}</mat-error>
+          }
+        </mat-form-field>
+      } @else {
+        {{ l.motif ?? '' }}
+      }
+    }
+  </ng-template>
 
   @if (selection(); as piece) {
     <mat-card>
@@ -142,49 +148,19 @@
         </mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        <div class="table-wrap">
-          <table [dataSource]="piece.lignes" class="full-width" mat-table>
-            <ng-container matColumnDef="article">
-              <th *matHeaderCellDef mat-header-cell>{{ 'CAHIER.CONSOMMABLES_ARTICLE' | translate }}</th>
-              <td *matCellDef="let l" mat-cell>{{ libelleArticle(l.articleId) }}</td>
-            </ng-container>
-            <ng-container matColumnDef="sortie">
-              <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.SORTIES_SEANCES.OUT_LABEL' | translate }}</th>
-              <td *matCellDef="let l" mat-cell>{{ l.quantiteSortie | number:'1.0-3' }}</td>
-            </ng-container>
-            <ng-container matColumnDef="consomme">
-              <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.SORTIES_SEANCES.CONSUMED_LABEL' | translate }}</th>
-              <td *matCellDef="let l" mat-cell>
-                {{ l.quantiteConsommee == null ? '—' : (l.quantiteConsommee | number:'1.0-3') }}
-              </td>
-            </ng-container>
-            <ng-container matColumnDef="ecart">
-              <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.SORTIES_SEANCES.GAP_LABEL' | translate }}</th>
-              <td *matCellDef="let l" [class.gap-minus]="(l.ecart ?? 0) < 0"
-                  [class.gap-plus]="(l.ecart ?? 0) > 0" mat-cell>
-                {{ l.ecart == null ? '—' : (l.ecart | number:'1.0-3') }}
-              </td>
-            </ng-container>
-            <ng-container matColumnDef="motif">
-              <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.SORTIES_SEANCES.REASON_LABEL' | translate }}</th>
-              <td *matCellDef="let l" mat-cell>
-                @if ((l.ecart ?? 0) !== 0 && piece.statut === 'ENREGISTREE' && peutJustifier()) {
-                  <mat-form-field appearance="outline" class="reason-field">
-                    <input (change)="justifier(piece, l, $event)"
-                           [attr.aria-label]="'STOCK.SORTIES_SEANCES.REASON_LABEL' | translate"
-                           [value]="l.motif ?? ''" matInput maxlength="500"/>
-                    @if (ecartSansMotif(l)) {
-                      <mat-error>{{ 'STOCK.SORTIES_SEANCES.REASON_REQUIRED' | translate }}</mat-error>
-                    }
-                  </mat-form-field>
-                } @else {
-                  {{ l.motif ?? '' }}
-                }
-              </td>
-            </ng-container>
-            <tr *matHeaderRowDef="colsLignes" mat-header-row></tr>
-            <tr *matRowDef="let row; columns: colsLignes" mat-row></tr>
-          </table>
+        <div class="table-wrap" data-testid="sorties-seances-lignes">
+          <!-- Une table par pièce : changer de pièce repart de la page 1. -->
+          @for (p of [piece]; track p.id) {
+            <ng-table
+              [columns]="colonnesLignes()"
+              [rows]="p.lignes"
+              [paginator]="true"
+              [pageSize]="defaultPageSize"
+              [pageSizeOptions]="pageSizes"
+              [rowKeyAccessor]="cleLigne"
+              [labels]="labels()"
+            />
+          }
         </div>
 
         @if (piece.statut === 'RAPPROCHEE') {

@@ -5,10 +5,21 @@
 
 .app-page,
 mat-card,
-mat-card-content {
+mat-card-content,
+.table-container {
   min-width: 0;
 }
 
 mat-card {
   margin-top: 16px;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.num {
+  display: block;
+  text-align: end;
+  font-variant-numeric: tabular-nums;
 }

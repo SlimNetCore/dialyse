@@ -1,14 +1,31 @@
-import {ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+  TemplateRef,
+  untracked,
+  viewChild
+} from '@angular/core';
 import {DatePipe, DecimalPipe} from '@angular/common';
 import {Router, RouterLink} from '@angular/router';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
-import {MatTableModule} from '@angular/material/table';
-import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
-import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatExpansionModule} from '@angular/material/expansion';
+import {
+  NgTableCellFormat,
+  NgTableCellFormatComponent,
+  NgTableColumn,
+  NgTableComponent,
+  NgTableRemoteQuery,
+  NgTableTone
+} from '@sbourahla/ng-table';
+import {NgTableTranslatedLabels} from '../../../shared/ng-table-labels';
+import {langueCourante, STOCK_PAGE_SIZES} from '../stock-ng-table';
 import {MatDialog} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatTooltipModule} from '@angular/material/tooltip';
@@ -22,6 +39,15 @@ import {requiredValidator, SignalForm} from '../../../shared/forms/signal-form';
 import {InventaireStore} from './state/inventaire.store';
 import {openPdf, progression} from './inventaire.util';
 
+/** En cours en orange, clôturé en vert, annulé en gris. */
+export const INVENTORY_STATUS_TONES: Record<string, NgTableTone> = {EN_COURS: 'warning', CLOTURE: 'success', ANNULE: 'neutral'};
+
+/** `yyyy-MM-dd` ⇒ `dd/MM/yyyy`. */
+function shortDate(iso: string | null | undefined): string {
+  const [year, month, day] = (iso ?? '').substring(0, 10).split('-');
+  return year && month && day ? `${day}/${month}/${year}` : '-';
+}
+
 function todayIso(): string {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -33,7 +59,7 @@ function todayIso(): string {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DatePipe, DecimalPipe, RouterLink, MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule,
-    MatTableModule, MatPaginatorModule, MatProgressBarModule, MatExpansionModule, MatTooltipModule, TranslateModule],
+    MatExpansionModule, MatTooltipModule, TranslateModule, NgTableComponent, NgTableCellFormatComponent],
   template: `
     <section class="app-page">
       <div class="app-hero-card">
@@ -127,72 +153,50 @@ function todayIso(): string {
       </div>
 
       <h2 class="section-title">{{ 'STOCK.INVENTORY.HISTORY' | translate }}</h2>
-      @if (store.loading()) {
-        <mat-progress-bar mode="indeterminate"/>
-      }
-      @if (store.total() === 0 && !store.loading()) {
-        <div class="empty">
-          <mat-icon>inventory_2</mat-icon>
-          <p>{{ 'STOCK.INVENTORY.EMPTY' | translate }}</p>
-        </div>
-      } @else {
-        <div class="table-wrapper">
-          <table mat-table [dataSource]="store.history()" class="data-table" data-testid="inventory-history">
-            <ng-container matColumnDef="reference">
-              <th mat-header-cell *matHeaderCellDef>{{ 'STOCK.INVENTORY.COL_REF' | translate }}</th>
-              <td mat-cell *matCellDef="let i" data-label="Réf."><strong>{{ i.reference }}</strong></td>
-            </ng-container>
-            <ng-container matColumnDef="date">
-              <th mat-header-cell *matHeaderCellDef>{{ 'STOCK.INVENTORY.DATE' | translate }}</th>
-              <td mat-cell *matCellDef="let i">{{ i.dateInventaire | date: 'dd/MM/yyyy' }}</td>
-            </ng-container>
-            <ng-container matColumnDef="statut">
-              <th mat-header-cell *matHeaderCellDef>{{ 'STOCK.INVENTORY.COL_STATUS' | translate }}</th>
-              <td mat-cell *matCellDef="let i">
-                <span class="chip"
-                      [class]="'chip st-' + i.statut">{{ 'STOCK.INVENTORY.STATUS.' + i.statut | translate }}</span>
-              </td>
-            </ng-container>
-            <ng-container matColumnDef="progression">
-              <th mat-header-cell *matHeaderCellDef>{{ 'STOCK.INVENTORY.COL_PROGRESS' | translate }}</th>
-              <td mat-cell *matCellDef="let i">
-                <div class="mini-progress"><span [style.width.%]="percent(i)"></span></div>
-                <small>{{ i.comptees }}/{{ i.lignes }}</small>
-              </td>
-            </ng-container>
-            <ng-container matColumnDef="ecarts">
-              <th mat-header-cell *matHeaderCellDef>{{ 'STOCK.INVENTORY.COL_GAPS' | translate }}</th>
-              <td mat-cell *matCellDef="let i">{{ i.ecarts }}</td>
-            </ng-container>
-            <ng-container matColumnDef="valeur">
-              <th mat-header-cell *matHeaderCellDef>{{ 'STOCK.INVENTORY.COL_GAP_VALUE' | translate }}</th>
-              <td mat-cell *matCellDef="let i" [class.neg]="i.valeurEcarts < 0" [class.pos]="i.valeurEcarts > 0">
-                {{ i.valeurEcarts | number: '1.2-2' }}
-              </td>
-            </ng-container>
-            <ng-container matColumnDef="par">
-              <th mat-header-cell *matHeaderCellDef>{{ 'STOCK.INVENTORY.COL_BY' | translate }}</th>
-              <td mat-cell *matCellDef="let i">{{ i.closedBy ?? i.createdBy ?? '-' }}</td>
-            </ng-container>
-            <ng-container matColumnDef="actions">
-              <th mat-header-cell *matHeaderCellDef></th>
-              <td mat-cell *matCellDef="let i" class="actions-cell">
-                <button mat-icon-button type="button" [disabled]="printingId() === i.id"
-                        [matTooltip]="'STOCK.INVENTORY.PRINT' | translate"
-                        [attr.aria-label]="'STOCK.INVENTORY.PRINT' | translate"
-                        (click)="$event.stopPropagation(); print(i)" [attr.data-testid]="'inventory-print-' + i.id">
-                  <mat-icon>print</mat-icon>
-                </button>
-              </td>
-            </ng-container>
-            <tr mat-header-row *matHeaderRowDef="columns"></tr>
-            <tr mat-row *matRowDef="let row; columns: columns" class="clickable" (click)="openDetail(row)"></tr>
-          </table>
-          <mat-paginator [length]="store.total()" [pageIndex]="store.pageIndex()" [pageSize]="store.pageSize()"
-                         [pageSizeOptions]="[10, 20, 50, 100]" (page)="onPage($event)"/>
-        </div>
-      }
+      <div class="table-wrapper" data-testid="inventory-history">
+        <ng-table
+          [columns]="historyColumns()"
+          [rows]="store.history()"
+          [dataMode]="'remote'"
+          [paginator]="true"
+          [totalCount]="store.total()"
+          [pageIndex]="store.pageIndex()"
+          [pageSize]="store.pageSize()"
+          [pageSizeOptions]="pageSizes"
+          [loading]="store.loading()"
+          [labels]="labels()"
+          [emptyLabel]="emptyLabel()"
+          [rowKeyAccessor]="inventoryKey"
+          [rowClassFn]="rowClass"
+          (remoteQueryChange)="onRemoteQueryChange($event)"
+          (rowClick)="openDetail($event)"
+        />
+      </div>
     </section>
+
+    <ng-template #referenceCell let-i><strong>{{ i.reference }}</strong></ng-template>
+
+    <ng-template #progressCell let-i>
+      <span class="progress-cell">
+        <ng-table-cell-format aria-hidden="true" [format]="progressFormat" [row]="i" [value]="percent(i)"/>
+        <small>{{ i.comptees }}/{{ i.lignes }}</small>
+      </span>
+    </ng-template>
+
+    <ng-template #valueCell let-i>
+      <span class="num" [class.neg]="i.valeurEcarts < 0" [class.pos]="i.valeurEcarts > 0">
+        {{ i.valeurEcarts | number: '1.2-2' }}
+      </span>
+    </ng-template>
+
+    <ng-template #actionsCell let-i>
+      <button mat-icon-button type="button" [disabled]="printingId() === i.id"
+              [matTooltip]="'STOCK.INVENTORY.PRINT' | translate"
+              [attr.aria-label]="'STOCK.INVENTORY.PRINT' | translate"
+              (click)="$event.stopPropagation(); print(i)" [attr.data-testid]="'inventory-print-' + i.id">
+        <mat-icon>print</mat-icon>
+      </button>
+    </ng-template>
   `,
   styles: [`
     .feedback.error {
@@ -291,88 +295,39 @@ function todayIso(): string {
     }
 
     .table-wrapper {
+      min-width: 0;
       overflow-x: auto;
-      border: 1px solid var(--app-border);
-      border-radius: 14px;
-      background: var(--app-surface);
     }
 
-    .data-table {
-      width: 100%;
-    }
-
-    .data-table .mat-mdc-header-cell {
-      color: var(--app-primary);
-      font-weight: 700;
-    }
-
-    .clickable {
+    :host ::ng-deep tr.inventory-row {
       cursor: pointer;
     }
 
-    .clickable:hover {
-      background: color-mix(in srgb, var(--app-primary) 5%, transparent);
+    .progress-cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    .chip {
-      padding: 3px 10px;
-      border-radius: 10px;
-      font-size: 12px;
-      font-weight: 600;
+    .progress-cell ng-table-cell-format {
+      flex: 1 1 auto;
+      min-width: 60px;
     }
 
-    .st-EN_COURS {
-      background: #fef3c7;
-      color: #92400e;
-    }
-
-    .st-CLOTURE {
-      background: #dcfce7;
-      color: #166534;
-    }
-
-    .st-ANNULE {
-      background: #f1f5f9;
-      color: #475569;
-    }
-
-    .mini-progress {
-      width: 90px;
-      height: 6px;
-      border-radius: 6px;
-      background: var(--app-border);
-      overflow: hidden;
-      display: inline-block;
-      vertical-align: middle;
-      margin-right: 8px;
-    }
-
-    .mini-progress span {
+    .num {
       display: block;
-      height: 100%;
-      background: var(--app-primary);
+      text-align: end;
+      font-variant-numeric: tabular-nums;
     }
 
     .neg {
-      color: #c62828;
+      color: var(--app-danger, #c62828);
       font-weight: 600;
     }
 
     .pos {
-      color: #15803d;
+      color: var(--app-success, #15803d);
       font-weight: 600;
-    }
-
-    .empty {
-      text-align: center;
-      padding: 40px 0;
-      color: var(--app-muted);
-    }
-
-    .empty mat-icon {
-      font-size: 44px;
-      width: 44px;
-      height: 44px;
     }
 
     @media (max-width: 900px) {
@@ -385,7 +340,16 @@ function todayIso(): string {
 export class InventairesComponent {
   protected readonly store = inject(InventaireStore);
   protected readonly today = todayIso();
-  protected readonly columns = ['reference', 'date', 'statut', 'progression', 'ecarts', 'valeur', 'par', 'actions'];
+  protected readonly pageSizes = STOCK_PAGE_SIZES;
+  protected readonly labels = inject(NgTableTranslatedLabels).labels;
+  protected readonly progressFormat: NgTableCellFormat<InventaireResume> = {type: 'progress', max: 100, showValue: false};
+  protected readonly inventoryKey = (i: InventaireResume): unknown => i.id;
+  protected readonly rowClass = (): string => 'inventory-row';
+  private readonly referenceCell = viewChild<TemplateRef<unknown>>('referenceCell');
+  private readonly progressCell = viewChild<TemplateRef<unknown>>('progressCell');
+  private readonly valueCell = viewChild<TemplateRef<unknown>>('valueCell');
+  private readonly actionsCell = viewChild<TemplateRef<unknown>>('actionsCell');
+  private readonly langue = langueCourante();
   protected readonly tips = ['STOCK.INVENTORY.TIP_1', 'STOCK.INVENTORY.TIP_2', 'STOCK.INVENTORY.TIP_3', 'STOCK.INVENTORY.TIP_4',
     'STOCK.INVENTORY.TIP_5', 'STOCK.INVENTORY.TIP_6'];
   protected readonly form = new SignalForm<{ date: string; commentaire: string }>(
@@ -396,6 +360,39 @@ export class InventairesComponent {
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
+  protected readonly emptyLabel = computed(() => {
+    this.langue();
+    return this.translate.instant('STOCK.INVENTORY.EMPTY') as string;
+  });
+  /** Historique paginé côté serveur (page et taille seulement : l'API ne trie ni ne filtre). */
+  protected readonly historyColumns = computed<NgTableColumn<InventaireResume>[]>(() => {
+    this.langue();
+    const t = (key: string): string => this.translate.instant(`STOCK.INVENTORY.${key}`);
+    const status = (value: unknown): string => t(`STATUS.${String(value)}`);
+    type Template = NgTableColumn<InventaireResume>['cellTemplate'];
+    return [
+      {id: 'reference', header: t('COL_REF'), valueAccessor: (i) => i.reference, cellTemplate: this.referenceCell() as Template},
+      {id: 'date', header: t('DATE'), valueAccessor: (i) => shortDate(i.dateInventaire)},
+      {
+        id: 'statut', header: t('COL_STATUS'), valueAccessor: (i) => i.statut,
+        cell: {type: 'badge', tone: INVENTORY_STATUS_TONES, label: status},
+      },
+      {
+        id: 'progression', header: t('COL_PROGRESS'), valueAccessor: (i) => progression(i), minWidthPx: 150,
+        exportValueAccessor: (i) => `${i.comptees}/${i.lignes}`, cellTemplate: this.progressCell() as Template,
+      },
+      {id: 'ecarts', header: t('COL_GAPS'), valueAccessor: (i) => i.ecarts},
+      {
+        id: 'valeur', header: t('COL_GAP_VALUE'), valueAccessor: (i) => i.valeurEcarts,
+        cellTemplate: this.valueCell() as Template,
+      },
+      {id: 'par', header: t('COL_BY'), valueAccessor: (i) => i.closedBy ?? i.createdBy ?? '-'},
+      {
+        id: 'actions', header: '', valueAccessor: () => '', exportable: false, mobileRowActions: true, widthPx: 72,
+        cellTemplate: this.actionsCell() as Template,
+      },
+    ];
+  });
   /** Inventaire dont le procès-verbal est en cours de génération. */
   protected readonly printingId = signal<string | null>(null);
   private readonly api = inject(InventaireApiService);
@@ -448,8 +445,11 @@ export class InventairesComponent {
     void this.router.navigate(['/stock/inventaires', row.id]);
   }
 
-  protected onPage(event: PageEvent): void {
-    void this.store.setPage(event.pageIndex, event.pageSize);
+  /** Changement de page ou de taille : recharge la page demandée, sans relire celle déjà affichée. */
+  protected onRemoteQueryChange(query: NgTableRemoteQuery): void {
+    const {index, size} = query.page;
+    if (index === this.store.pageIndex() && size === this.store.pageSize()) return;
+    void this.store.setPage(index, size);
   }
 }
 

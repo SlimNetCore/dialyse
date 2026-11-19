@@ -1,4 +1,14 @@
-import {ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+  TemplateRef,
+  untracked,
+  viewChild
+} from '@angular/core';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {DatePipe, DecimalPipe} from '@angular/common';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
@@ -24,6 +34,9 @@ import {InventaireStore} from './state/inventaire.store';
 import {InventaireAddLineDialogComponent} from './inventaire-add-line-dialog.component';
 import {InventaireCloseDialogComponent} from './inventaire-close-dialog.component';
 import {ecart, etatPeremption, FiltreLignes, filtrerLignes, MOTIFS_ECART, openPdf} from './inventaire.util';
+import {NgTableColumn, NgTableComponent} from '@sbourahla/ng-table';
+import {NgTableTranslatedLabels} from '../../../shared/ng-table-labels';
+import {langueCourante, STOCK_DEFAULT_PAGE_SIZE, STOCK_PAGE_SIZES} from '../stock-ng-table';
 
 /** Comptage d'un inventaire : saisie ligne à ligne, écarts, motifs, clôture ou annulation. */
 @Component({
@@ -31,7 +44,7 @@ import {ecart, etatPeremption, FiltreLignes, filtrerLignes, MOTIFS_ECART, openPd
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DatePipe, DecimalPipe, RouterLink, MatButtonModule, MatButtonToggleModule, MatIconModule, MatFormFieldModule,
-    MatInputModule, MatSelectModule, MatProgressBarModule, MatSlideToggleModule, MatTooltipModule, TranslateModule],
+    MatInputModule, MatSelectModule, MatProgressBarModule, MatSlideToggleModule, MatTooltipModule, TranslateModule, NgTableComponent],
   template: `
     <section class="app-page">
       <a mat-button routerLink="/stock/inventaires" class="back">
@@ -159,112 +172,110 @@ import {ecart, etatPeremption, FiltreLignes, filtrerLignes, MOTIFS_ECART, openPd
           </div>
         }
 
-        <div class="table-wrapper">
-          <table class="lines" data-testid="inventory-lines">
-            <thead>
-            <tr>
-              <th>{{ 'STOCK.INVENTORY.ARTICLE' | translate }}</th>
-              <th>{{ 'STOCK.INVENTORY.LOT' | translate }}</th>
-              <th>{{ 'STOCK.INVENTORY.EXPIRY' | translate }}</th>
-              @if (!masquerTheorique()) {
-                <th class="num">{{ 'STOCK.INVENTORY.THEORETICAL' | translate }}</th>
-              }
-              <th class="num">{{ 'STOCK.INVENTORY.COUNTED' | translate }}</th>
-              @if (!masquerTheorique()) {
-                <th class="num">{{ 'STOCK.INVENTORY.GAP' | translate }}</th>
-                <th class="num">{{ 'STOCK.INVENTORY.COL_GAP_VALUE' | translate }}</th>
-              }
-              <th>{{ 'STOCK.INVENTORY.REASON' | translate }}</th>
-              <th></th>
-            </tr>
-            </thead>
-            <tbody>
-              @for (l of lignes(); track l.id) {
-                @let e = ecartAffiche(l);
-                <tr [class.done]="l.quantiteComptee !== null" [class.gap]="!masquerTheorique() && e !== null && e !== 0"
-                    [attr.data-testid]="'line-' + l.id">
-                  <td>
-                    <strong>{{ l.articleCode }}</strong> {{ l.articleLibelle }}
-                    @if (l.ajoutee) {
-                      <span class="tag">{{ 'STOCK.INVENTORY.ADDED' | translate }}</span>
-                    }
-                    @if (l.unite) {
-                      <small class="muted"> · {{ l.unite }}</small>
-                    }
-                  </td>
-                  <td>{{ l.numeroLot ?? '-' }}</td>
-                  <td>
-                    @if (l.datePeremption) {
-                      <span
-                        [class]="'exp exp-' + (peremption(l) ?? 'OK')">{{ l.datePeremption | date: 'dd/MM/yyyy' }}</span>
-                    } @else {
-                      -
-                    }
-                  </td>
-                  @if (!masquerTheorique()) {
-                    <td class="num">{{ l.quantiteTheorique | number: '1.0-3' }}</td>
-                  }
-                  <td class="num">
-                    @if (store.enCours()) {
-                      <input class="qty" type="number" min="0" step="any" inputmode="decimal"
-                             [value]="saisie(l)" [attr.aria-label]="'STOCK.INVENTORY.COUNTED' | translate"
-                             [disabled]="store.savingLineId() === l.id"
-                             (input)="setDraft(l.id, $any($event.target).value)"
-                             (keydown.enter)="$any($event.target).blur()"
-                             (blur)="saveCount(l)" [attr.data-testid]="'qty-' + l.id"/>
-                    } @else {
-                      {{ l.quantiteComptee ?? '-' }}
-                    }
-                  </td>
-                  @if (!masquerTheorique()) {
-                    <td class="num" [class.neg]="(e ?? 0) < 0" [class.pos]="(e ?? 0) > 0">
-                      {{ e === null ? '-' : (e > 0 ? '+' : '') + (e | number: '1.0-3') }}
-                    </td>
-                    <td class="num" [class.neg]="(l.valeurEcart ?? 0) < 0" [class.pos]="(l.valeurEcart ?? 0) > 0">
-                      {{ l.valeurEcart === null ? '-' : (l.valeurEcart | number: '1.2-2') }}
-                    </td>
-                  }
-                  <td>
-                    @if (store.enCours()) {
-                      <mat-select class="motif" [value]="l.motifEcart"
-                                  [placeholder]="'STOCK.INVENTORY.REASON' | translate"
-                                  [class.missing]="l.ecart !== null && l.ecart !== 0 && !l.motifEcart"
-                                  [disabled]="l.quantiteComptee === null || store.savingLineId() === l.id"
-                                  (selectionChange)="saveReason(l, $event.value)">
-                        <mat-option [value]="null">—</mat-option>
-                        @for (m of motifs; track m) {
-                          <mat-option [value]="m">{{ 'STOCK.INVENTORY.REASONS.' + m | translate }}</mat-option>
-                        }
-                      </mat-select>
-                    } @else if (l.motifEcart) {
-                      {{ 'STOCK.INVENTORY.REASONS.' + l.motifEcart | translate }}
-                    }
-                  </td>
-                  <td class="actions">
-                    @if (store.savingLineId() === l.id) {
-                      <mat-icon class="spin">sync</mat-icon>
-                    } @else if (l.quantiteComptee !== null) {
-                      <mat-icon class="ok"
-                                [matTooltip]="(l.comptePar ?? '') + ' ' + (l.compteLe | date: 'dd/MM HH:mm')">
-                        check_circle
-                      </mat-icon>
-                    }
-                    @if (store.enCours() && l.ajoutee) {
-                      <button mat-icon-button type="button" (click)="removeLine(l)"
-                              [attr.aria-label]="'STOCK.INVENTORY.REMOVE_LINE' | translate">
-                        <mat-icon>delete</mat-icon>
-                      </button>
-                    }
-                  </td>
-                </tr>
-              } @empty {
-                <tr>
-                  <td colspan="9" class="empty">{{ 'STOCK.INVENTORY.NO_LINES' | translate }}</td>
-                </tr>
-              }
-            </tbody>
-          </table>
+        <div class="table-wrapper" data-testid="inventory-lines">
+          <ng-table
+            class="lines"
+            [columns]="colonnes()"
+            [rows]="lignes()"
+            [paginator]="true"
+            [pageSize]="defaultPageSize"
+            [pageSizeOptions]="pageSizes"
+            [rowKeyAccessor]="cleLigne"
+            [rowClassFn]="classeLigne"
+            [emptyLabel]="'STOCK.INVENTORY.NO_LINES' | translate"
+            [labels]="labels()"
+          />
         </div>
+      }
+
+      <ng-template #articleCell let-l>
+        <span class="article" [attr.data-testid]="'line-' + l.id">
+          <strong>{{ l.articleCode }}</strong> {{ l.articleLibelle }}
+          @if (l.ajoutee) {
+            <span class="tag">{{ 'STOCK.INVENTORY.ADDED' | translate }}</span>
+          }
+          @if (l.unite) {
+            <small class="muted"> · {{ l.unite }}</small>
+          }
+        </span>
+      </ng-template>
+
+      <ng-template #peremptionCell let-l>
+        @if (l.datePeremption) {
+          <span [class]="'exp exp-' + (peremption(l) ?? 'OK')">{{ l.datePeremption | date: 'dd/MM/yyyy' }}</span>
+        } @else {
+          -
+        }
+      </ng-template>
+
+      <ng-template #theoriqueCell let-l>
+        <span class="num">{{ l.quantiteTheorique | number: '1.0-3' }}</span>
+      </ng-template>
+
+      <ng-template #compteeCell let-l>
+        <span class="num">
+          @if (store.enCours()) {
+            <input class="qty" type="number" min="0" step="any" inputmode="decimal"
+                   [value]="saisie(l)" [attr.aria-label]="'STOCK.INVENTORY.COUNTED' | translate"
+                   [disabled]="store.savingLineId() === l.id"
+                   (input)="setDraft(l.id, $any($event.target).value)"
+                   (keydown.enter)="$any($event.target).blur()"
+                   (blur)="saveCount(l)" [attr.data-testid]="'qty-' + l.id"/>
+          } @else {
+            {{ l.quantiteComptee ?? '-' }}
+          }
+        </span>
+      </ng-template>
+
+      <ng-template #ecartCell let-l>
+        @let e = ecartAffiche(l);
+        <span class="num" [class.neg]="(e ?? 0) < 0" [class.pos]="(e ?? 0) > 0">
+          {{ e === null ? '-' : (e > 0 ? '+' : '') + (e | number: '1.0-3') }}
+        </span>
+      </ng-template>
+
+      <ng-template #valeurEcartCell let-l>
+        <span class="num" [class.neg]="(l.valeurEcart ?? 0) < 0" [class.pos]="(l.valeurEcart ?? 0) > 0">
+          {{ l.valeurEcart === null ? '-' : (l.valeurEcart | number: '1.2-2') }}
+        </span>
+      </ng-template>
+
+      <ng-template #motifCell let-l>
+        @if (store.enCours()) {
+          <mat-select class="motif" [value]="l.motifEcart"
+                      [placeholder]="'STOCK.INVENTORY.REASON' | translate"
+                      [class.missing]="l.ecart !== null && l.ecart !== 0 && !l.motifEcart"
+                      [disabled]="l.quantiteComptee === null || store.savingLineId() === l.id"
+                      (selectionChange)="saveReason(l, $event.value)">
+            <mat-option [value]="null">—</mat-option>
+            @for (m of motifs; track m) {
+              <mat-option [value]="m">{{ 'STOCK.INVENTORY.REASONS.' + m | translate }}</mat-option>
+            }
+          </mat-select>
+        } @else if (l.motifEcart) {
+          {{ 'STOCK.INVENTORY.REASONS.' + l.motifEcart | translate }}
+        }
+      </ng-template>
+
+      <ng-template #actionsCell let-l>
+        <span class="actions">
+          @if (store.savingLineId() === l.id) {
+            <mat-icon class="spin">sync</mat-icon>
+          } @else if (l.quantiteComptee !== null) {
+            <mat-icon class="ok" [matTooltip]="(l.comptePar ?? '') + ' ' + (l.compteLe | date: 'dd/MM HH:mm')">
+              check_circle
+            </mat-icon>
+          }
+          @if (store.enCours() && l.ajoutee) {
+            <button mat-icon-button type="button" (click)="removeLine(l)"
+                    [attr.aria-label]="'STOCK.INVENTORY.REMOVE_LINE' | translate">
+              <mat-icon>delete</mat-icon>
+            </button>
+          }
+        </span>
+      </ng-template>
+
+      @if (inv(); as inv) {
 
         @if (store.enCours() && canManage()) {
           <div class="footer">
@@ -419,35 +430,21 @@ import {ecart, etatPeremption, FiltreLignes, filtrerLignes, MOTIFS_ECART, openPd
     }
 
     .lines {
+      display: block;
       width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
     }
 
-    .lines th {
-      text-align: left;
-      padding: 10px 12px;
-      color: var(--app-primary);
-      font-weight: 700;
-      border-bottom: 1px solid var(--app-border);
-      white-space: nowrap;
-    }
-
-    .lines td {
-      padding: 6px 12px;
-      border-bottom: 1px solid var(--app-border);
-      vertical-align: middle;
-    }
-
-    .lines tr.done {
+    :host ::ng-deep .lines .line-done {
       background: color-mix(in srgb, #16a34a 4%, transparent);
     }
 
-    .lines tr.gap {
+    :host ::ng-deep .lines .line-gap {
       background: color-mix(in srgb, #f59e0b 8%, transparent);
     }
 
     .num {
+      display: block;
+      width: 100%;
       text-align: right;
       white-space: nowrap;
     }
@@ -501,8 +498,10 @@ import {ecart, etatPeremption, FiltreLignes, filtrerLignes, MOTIFS_ECART, openPd
     }
 
     .actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
       white-space: nowrap;
-      text-align: right;
     }
 
     .ok {
@@ -520,12 +519,6 @@ import {ecart, etatPeremption, FiltreLignes, filtrerLignes, MOTIFS_ECART, openPd
       to {
         transform: rotate(360deg);
       }
-    }
-
-    .empty {
-      text-align: center;
-      padding: 30px 0;
-      color: var(--app-muted);
     }
 
     .footer {
@@ -569,6 +562,66 @@ export class InventaireDetailComponent {
   });
   protected readonly masquerTheorique = computed(() => this.store.enCours() && this.aveugle());
   protected readonly lignes = computed(() => filtrerLignes(this.inv()?.details ?? [], this.filtre(), this.recherche()));
+  protected readonly labels = inject(NgTableTranslatedLabels).labels;
+  protected readonly pageSizes = STOCK_PAGE_SIZES;
+  protected readonly defaultPageSize = STOCK_DEFAULT_PAGE_SIZE;
+  protected readonly cleLigne = (l: LigneInventaire): unknown => l.id;
+  /** Ligne comptée en vert pâle, écart (hors comptage à l'aveugle) en orange pâle ; suit les saisies en cours. */
+  protected readonly classeLigne = (l: LigneInventaire): Record<string, boolean> => {
+    const e = this.ecartAffiche(l);
+    return {'line-done': l.quantiteComptee !== null, 'line-gap': !this.masquerTheorique() && e !== null && e !== 0};
+  };
+  private readonly articleCell = viewChild<TemplateRef<any>>('articleCell');
+  private readonly peremptionCell = viewChild<TemplateRef<any>>('peremptionCell');
+  private readonly theoriqueCell = viewChild<TemplateRef<any>>('theoriqueCell');
+  private readonly compteeCell = viewChild<TemplateRef<any>>('compteeCell');
+  private readonly ecartCell = viewChild<TemplateRef<any>>('ecartCell');
+  private readonly valeurEcartCell = viewChild<TemplateRef<any>>('valeurEcartCell');
+  private readonly motifCell = viewChild<TemplateRef<any>>('motifCell');
+  private readonly actionsCell = viewChild<TemplateRef<any>>('actionsCell');
+  private readonly langue = langueCourante();
+  /** Colonnes de la feuille de comptage ; théorique et écarts masqués pendant un comptage à l'aveugle. */
+  protected readonly colonnes = computed<NgTableColumn<LigneInventaire>[]>(() => {
+    this.langue();
+    const t = (cle: string): string => this.translate.instant(`STOCK.INVENTORY.${cle}`);
+    const theoriqueVisible = !this.masquerTheorique();
+    return [
+      {
+        id: 'article', header: t('ARTICLE'), valueAccessor: (l) => `${l.articleCode ?? ''} ${l.articleLibelle ?? ''}`.trim(),
+        sortable: true, resizable: true, minWidthPx: 220, textOverflow: 'wrap',
+        cellTemplate: this.articleCell() ?? undefined,
+      },
+      {id: 'lot', header: t('LOT'), valueAccessor: (l) => l.numeroLot ?? '-', sortable: true, resizable: true, minWidthPx: 110},
+      {
+        id: 'peremption', header: t('EXPIRY'), valueAccessor: (l) => l.datePeremption ?? '',
+        sortable: true, resizable: true, minWidthPx: 120, cellTemplate: this.peremptionCell() ?? undefined,
+      },
+      {
+        id: 'theorique', header: t('THEORETICAL'), valueAccessor: (l) => l.quantiteTheorique, visible: theoriqueVisible,
+        sortable: true, resizable: true, minWidthPx: 110, cellTemplate: this.theoriqueCell() ?? undefined,
+      },
+      {
+        id: 'comptee', header: t('COUNTED'), valueAccessor: (l) => l.quantiteComptee, sortable: true, resizable: true,
+        minWidthPx: 130, textOverflow: 'wrap', cellTemplate: this.compteeCell() ?? undefined,
+      },
+      {
+        id: 'ecart', header: t('GAP'), valueAccessor: (l) => l.ecart, visible: theoriqueVisible,
+        sortable: true, resizable: true, minWidthPx: 100, cellTemplate: this.ecartCell() ?? undefined,
+      },
+      {
+        id: 'valeurEcart', header: t('COL_GAP_VALUE'), valueAccessor: (l) => l.valeurEcart, visible: theoriqueVisible,
+        sortable: true, resizable: true, minWidthPx: 120, cellTemplate: this.valeurEcartCell() ?? undefined,
+      },
+      {
+        id: 'motif', header: t('REASON'), valueAccessor: (l) => l.motifEcart ?? '', sortable: false, resizable: true,
+        minWidthPx: 170, textOverflow: 'wrap', cellTemplate: this.motifCell() ?? undefined,
+      },
+      {
+        id: 'actions', header: '', valueAccessor: () => '', sortable: false, resizable: false, exportable: false,
+        mobileRowActions: true, minWidthPx: 90, cellTemplate: this.actionsCell() ?? undefined,
+      },
+    ];
+  });
   private readonly route = inject(ActivatedRoute);
   private readonly params = toSignal(this.route.paramMap, {initialValue: this.route.snapshot.paramMap});
   protected readonly id = computed(() => this.params().get('id') ?? '');

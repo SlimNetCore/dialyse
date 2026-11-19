@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, computed, inject, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject, signal, TemplateRef, viewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MatCardModule} from '@angular/material/card';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -8,20 +8,36 @@ import {MatDatepickerModule} from '@angular/material/datepicker';
 import {MatNativeDateModule} from '@angular/material/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
-import {MatTableModule} from '@angular/material/table';
-import {MatChipsModule} from '@angular/material/chips';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {NgTableColumn, NgTableComponent, NgTableTone} from '@sbourahla/ng-table';
 import {AuthStore} from '../../core/state/auth.store';
 import {
   DemiJournee,
   LigneSortiePourSeances,
   SortiePourSeances,
+  StatutSortiePourSeances,
   StockApiService
 } from '../../core/api/stock-api.service';
 import {ReferentialApiService, RefItem} from '../../core/api/referential-api.service';
+import {NgTableTranslatedLabels} from '../../shared/ng-table-labels';
+import {langueCourante, STOCK_DEFAULT_PAGE_SIZE, STOCK_PAGE_SIZES} from './stock-ng-table';
 
-type LigneForm = { articleId: string | null; quantite: number | null };
+const STATUTS_SORTIE: readonly StatutSortiePourSeances[] = ['ENREGISTREE', 'RAPPROCHEE'];
+
+/** Pièce enregistrée (à rapprocher) en bleu, rapprochée en vert. */
+export const TONS_STATUT_SORTIE: Record<StatutSortiePourSeances, NgTableTone> = {
+  ENREGISTREE: 'info',
+  RAPPROCHEE: 'success',
+};
+
+/** `yyyy-MM-dd` ⇒ `dd/MM/yyyy`. */
+function jourCourt(iso: string | null | undefined): string {
+  const [annee, mois, jour] = (iso ?? '').substring(0, 10).split('-');
+  return annee && mois && jour ? `${jour}/${mois}/${annee}` : '';
+}
+
+type LigneForm ={ articleId: string | null; quantite: number | null };
 
 type PieceForm = {
   jour: Date | null;
@@ -40,7 +56,7 @@ type PieceForm = {
   standalone: true,
   imports: [
     CommonModule, MatCardModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatDatepickerModule,
-    MatNativeDateModule, MatButtonModule, MatIconModule, MatTableModule, MatChipsModule,
+    MatNativeDateModule, MatButtonModule, MatIconModule, NgTableComponent,
     TranslateModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -48,9 +64,21 @@ type PieceForm = {
   styleUrl: './sorties-pour-seances.component.css',
 })
 export class SortiesPourSeancesComponent {
-  protected readonly colsPieces = ['reference', 'jour', 'perimetre', 'statut', 'lignes', 'actions'];
-  protected readonly colsLignes = ['article', 'sortie', 'consomme', 'ecart', 'motif'];
   protected readonly demiJournees: DemiJournee[] = ['MATIN', 'APRES_MIDI'];
+  protected readonly pageSizes = STOCK_PAGE_SIZES;
+  protected readonly defaultPageSize = STOCK_DEFAULT_PAGE_SIZE;
+  protected readonly labels = inject(NgTableTranslatedLabels).labels;
+  protected readonly clePiece = (p: SortiePourSeances): unknown => p.id;
+  protected readonly cleLigne = (l: LigneSortiePourSeances): unknown => l.id;
+  /** Pièce dont le détail est déroulé : surlignée (fonction recréée à chaque sélection pour que ng-table la relise). */
+  protected readonly classeDePiece = computed(() => {
+    const selectionnee = this.selectionId();
+    return (p: SortiePourSeances): Record<string, boolean> => ({'piece-selectionnee': p.id === selectionnee});
+  });
+  private readonly actionsPieceCell = viewChild<TemplateRef<unknown>>('actionsPieceCell');
+  private readonly quantiteCell = viewChild<TemplateRef<unknown>>('quantiteCell');
+  private readonly ecartCell = viewChild<TemplateRef<unknown>>('ecartCell');
+  private readonly motifCell = viewChild<TemplateRef<unknown>>('motifCell');
 
   protected readonly pieces = signal<SortiePourSeances[]>([]);
   protected readonly articles = signal<RefItem[]>([]);
@@ -81,6 +109,71 @@ export class SortiesPourSeancesComponent {
   protected readonly peutJustifier = computed(() => this.auth.hasRole('ADMIN') || this.auth.hasRole('PHARMACIEN'));
   private readonly snack = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
+  private readonly langue = langueCourante();
+  protected readonly libelleVide = computed(() => {
+    this.langue();
+    return this.translate.instant('STOCK.SORTIES_SEANCES.EMPTY') as string;
+  });
+  /** Pièces du centre : ng-table locale paginée, statut en pastille, bouton qui déroule le détail. */
+  protected readonly colonnesPieces = computed<NgTableColumn<SortiePourSeances>[]>(() => {
+    this.langue();
+    const t = (cle: string): string => this.translate.instant(cle);
+    const statut = (valeur: unknown): string => t('STOCK.SORTIES_SEANCES.STATUT.' + String(valeur));
+    return [
+      {
+        id: 'reference', header: t('STOCK.REFERENCE_LABEL'), valueAccessor: p => p.reference, sortable: true,
+        filter: {type: 'text', label: t('STOCK.REFERENCE_LABEL')},
+      },
+      {
+        id: 'jour', header: t('STOCK.SORTIES_SEANCES.DAY_LABEL'), valueAccessor: p => jourCourt(p.jour),
+        sortValueAccessor: p => p.jour, sortable: true,
+      },
+      {id: 'perimetre', header: t('STOCK.SORTIES_SEANCES.PERIMETER_LABEL'), valueAccessor: p => this.perimetre(p)},
+      {
+        id: 'statut', header: t('STOCK.SORTIES_SEANCES.STATUS_LABEL'), valueAccessor: p => p.statut, sortable: true,
+        cell: {type: 'badge', tone: TONS_STATUT_SORTIE, label: statut},
+        filter: {
+          type: 'enum', label: t('STOCK.SORTIES_SEANCES.STATUS_LABEL'),
+          options: STATUTS_SORTIE.map(s => ({value: s, label: statut(s)})),
+        },
+      },
+      {id: 'lignes', header: t('STOCK.LINES_LABEL'), valueAccessor: p => p.lignes.length, sortable: true},
+      {
+        id: 'actions', header: t('COMMON.COL_ACTIONS'), valueAccessor: () => '', exportable: false,
+        mobileRowActions: true, widthPx: 96, cellTemplate: this.actionsPieceCell() as NgTableColumn<SortiePourSeances>['cellTemplate'],
+      },
+    ];
+  });
+  /** Lignes de la pièce sélectionnée : quantités alignées à droite, écart coloré, motif saisi en ligne. */
+  protected readonly colonnesLignes = computed<NgTableColumn<LigneSortiePourSeances>[]>(() => {
+    this.langue();
+    this.articles();
+    const t = (cle: string): string => this.translate.instant(cle);
+    type Gabarit = NgTableColumn<LigneSortiePourSeances>['cellTemplate'];
+    const quantite = this.quantiteCell() as Gabarit;
+    return [
+      {
+        id: 'article', header: t('CAHIER.CONSOMMABLES_ARTICLE'), valueAccessor: l => this.libelleArticle(l.articleId),
+        sortable: true, filter: {type: 'text', label: t('CAHIER.CONSOMMABLES_ARTICLE')},
+      },
+      {
+        id: 'sortie', header: t('STOCK.SORTIES_SEANCES.OUT_LABEL'), valueAccessor: l => l.quantiteSortie,
+        sortable: true, cellTemplate: quantite,
+      },
+      {
+        id: 'consomme', header: t('STOCK.SORTIES_SEANCES.CONSUMED_LABEL'), valueAccessor: l => l.quantiteConsommee,
+        sortable: true, cellTemplate: quantite,
+      },
+      {
+        id: 'ecart', header: t('STOCK.SORTIES_SEANCES.GAP_LABEL'), valueAccessor: l => l.ecart, sortable: true,
+        cellTemplate: this.ecartCell() as Gabarit,
+      },
+      {
+        id: 'motif', header: t('STOCK.SORTIES_SEANCES.REASON_LABEL'), valueAccessor: l => l.motif ?? '',
+        minWidthPx: 240, textOverflow: 'wrap', cellTemplate: this.motifCell() as Gabarit,
+      },
+    ];
+  });
 
   constructor() {
     this.recharger();
