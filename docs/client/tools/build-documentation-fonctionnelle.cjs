@@ -30,7 +30,7 @@ const SCREENS = {
     '10': [['infirmiers-presence.png', 'Présence des infirmiers et remplaçants']],
     '11': [['dossier-medical-anemie.png', 'Suivi de l\'anémie et cibles KDIGO']],
     '12': [['facturation.png', 'Facturation mensuelle']],
-    '13': [['direction-dashboard.png', 'Tableau de bord de la direction'], ['direction-capacite.png', 'Capacité théorique par centre']],
+    '13': [['direction-dashboard.png', 'Tableau de bord de la direction (vue d\'ensemble)'], ['direction-capacite.png', 'Capacité théorique par centre (page Analyses)']],
 };
 
 const PROFILS = [
@@ -41,6 +41,14 @@ const PROFILS = [
     ['PHARMACIEN', 'Pharmacien / magasinier', 'Stock : bons, lots, inventaire'],
     ['DIRECTION', 'Direction de société', 'Tableaux de bord consolidés et anonymes, instantanés, rapports'],
     ['SUPERADMIN', 'Propriétaire de la plateforme', 'Sociétés, centres, comptes d\'encadrement, licences, journal d\'audit'],
+];
+
+// Navigation (RG-TRV-070 à RG-TRV-072, RG-DIR-118) : paragraphes de l'introduction, en HTML simple (gras seulement).
+const NAVIGATION = [
+    'L\'<b>Accueil</b> présente une tuile par module accessible au profil, avec un ou deux chiffres clés à jour en temps réel et un lien vers le tableau de bord du module ; une tuile que le profil n\'a pas le droit de lire est masquée.',
+    'Chaque module s\'organise en une <b>barre de module</b> identique partout : d\'abord le <b>Tableau de bord</b> du module (<code>/&lt;module&gt;/tableau-de-bord</code>, indicateurs en lecture seule, cliquables vers la liste filtrée), puis les <b>écrans de travail</b>, puis le <b>paramétrage</b>. Ouvrir un module mène directement à son écran de travail (liste des patients, poste infirmier, grille de présence, état du stock, liste des équipements, calcul de la facturation, saisie des règlements, journal comptable) ; la Comptabilité n\'a pas de tableau de bord.',
+    'La <b>Direction</b> dispose de trois pages partageant les mêmes filtres de période et de centre : <b>Tableau de bord</b> (vue d\'ensemble : alertes, indicateurs de la société, chiffre d\'affaires), <b>Analyses</b> (centres, clinique, stock, GMAO, capacité, absences, en tableaux triables) et <b>Rapports</b> (rapports mensuels figés, comparaison de deux mois).',
+    'La liste des patients s\'exporte depuis le tableau lui-même : l\'export Excel reprend toutes les lignes qui répondent aux filtres et au tri affichés, avec les colonnes visibles dans l\'ordre affiché.',
 ];
 
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -144,6 +152,7 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <p>HemoDialyse couvre <b>toute la gestion d'un centre d'hémodialyse</b> : accueil et dossier administratif des patients, prises en charge, planification des postes et du personnel, séances et cahier de dialyse, dossier médical et suivi clinique, stock et pharmacie, maintenance des équipements, facturation, règlements et comptabilité, pilotage de la direction. La plateforme est multi-centres et multi-sociétés, en français, arabe, kabyle et anglais.</p>
 <p>Au-delà de la disponibilité de l'information, le système <b>surveille</b> (absences, observance des traitements, sous-effectif, péremptions, indisponibilité des équipements, licences), <b>propose</b> (meilleures places de dialyse classées, remplaçants, réforme d'un équipement, simulation de facturation) et <b>protège</b> (placement incohérent refusé, isolement automatique des patients à risque, gel du stock pendant un inventaire, anonymat de la direction, cloisonnement par centre).</p>
 <div class="stat"><div><b>${stats.rules}</b>règles de gestion</div><div><b>${stats.chapters}</b>domaines</div><div><b>${stats.alerts}</b>surveillances automatiques</div><div><b>${stats.attention}</b>points d'attention</div></div>
+<h2>Se repérer dans l'application</h2>${NAVIGATION.map((p) => `<p>${p}</p>`).join('')}
 <h2>Profils et périmètres</h2><table><tr><th>Profil</th><th>Rôle</th><th>Périmètre principal</th></tr>${profils}</table>
 <h2>Comment lire les règles</h2><p>Chaque règle porte un identifiant stable <code>RG-XXX-nnn</code>, jamais renuméroté. Le code d'erreur renvoyé à l'utilisateur figure entre apostrophes inversées ; la source dans le code est citée. Un encadré <b>point d'attention</b> signale un écart connu entre l'intention métier et le comportement actuel : il est conservé tant qu'il n'est pas corrigé.</p></section>
 ${main}
@@ -172,6 +181,16 @@ function runs(tokens, base = {}) {
         else out.push(new D.TextRun({text: (t.text || t.raw || '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'"), ...base}));
     }
     return out;
+}
+
+/** Runs DOCX d'un paragraphe HTML simple (<b>, <code>, entités &lt; &gt;). */
+function htmlRuns(html) {
+    const decode = (s) => s.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+    return html.split(/(<b>.*?<\/b>|<code>.*?<\/code>)/).filter(Boolean).map((part) => {
+        if (part.startsWith('<b>')) return new D.TextRun({text: decode(part.slice(3, -4)), bold: true});
+        if (part.startsWith('<code>')) return new D.TextRun({text: decode(part.slice(6, -7)), font: 'Consolas', size: 18, color: '0B4D47'});
+        return new D.TextRun({text: decode(part)});
+    });
 }
 
 const border = {style: D.BorderStyle.SINGLE, size: 4, color: 'D7E3EA'};
@@ -348,6 +367,8 @@ function buildDocx(chapters, stats, attentions) {
             spacing: {after: 120},
             children: [new D.TextRun("Au-delà de la disponibilité de l'information, le système surveille (absences, observance des traitements, sous-effectif, péremptions, indisponibilité des équipements, licences), propose (meilleures places de dialyse classées, remplaçants, réforme d'un équipement, simulation de facturation) et protège (placement incohérent refusé, isolement automatique des patients à risque, gel du stock pendant un inventaire, anonymat de la direction, cloisonnement par centre).")]
         }),
+        new D.Paragraph({heading: D.HeadingLevel.HEADING_2, children: [new D.TextRun('Se repérer dans l\'application')]}),
+        ...NAVIGATION.map((p) => new D.Paragraph({spacing: {after: 120}, children: htmlRuns(p)})),
         new D.Paragraph({heading: D.HeadingLevel.HEADING_2, children: [new D.TextRun('Profils et périmètres')]}),
         new D.Table({
             width: {size: W, type: D.WidthType.DXA}, columnWidths: [1700, 2800, 5138], rows: [

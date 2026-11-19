@@ -39,7 +39,7 @@ const SLIDES = [
         kind: 'grid',
         eyebrow: 'Couverture fonctionnelle',
         title: 'Toute la gestion du centre, du premier accueil à la direction de société.',
-        lead: 'Douze domaines métier dans un seul outil, sans ressaisie : ce qui est saisi une fois nourrit la planification, la facturation, la comptabilité et le pilotage.'
+        lead: 'Douze domaines métier dans un seul outil, sans ressaisie. Une navigation identique partout : l\'accueil résume chaque module en une tuile, chaque module s\'ouvre sur son écran de travail et son tableau de bord est à un clic.'
     },
     {
         kind: 'pillars',
@@ -56,7 +56,7 @@ const SLIDES = [
         eyebrow: 'Patients & prises en charge',
         title: 'Un dossier administratif complet, un patient facturable ou non en un coup d\'œil.',
         lead: 'Assuré ou ayant droit, attestation de droits, prise en charge validée : le système sait si une séance peut être facturée avant qu\'elle ait lieu.',
-        bullets: ['Numéro d\'assurance unique par centre, ayants droit et historique d\'affectation', 'Un patient non vacancier ne peut être pris en charge sans attestation valide', 'Statut « non facturable » visible dès la liste', 'Placement (salle, créneau, générateur, jours) contrôlé par la planification'],
+        bullets: ['Numéro d\'assurance unique par centre, ayants droit et historique d\'affectation', 'Un patient non vacancier ne peut être pris en charge sans attestation valide', 'Statut « non facturable » visible dès la liste, export Excel fidèle aux filtres, au tri et aux colonnes affichés', 'Placement (salle, créneau, générateur, jours) contrôlé par la planification'],
         shots: ['patients-liste', 'patient-fiche']
     },
     {
@@ -134,7 +134,7 @@ const SLIDES = [
         eyebrow: 'Direction de société',
         title: 'Tous les centres sur un écran, à jour à la seconde, sans jamais voir un patient.',
         lead: 'Indicateurs consolidés par centre, comparaison à la période précédente, alertes et capacité théorique — anonymes par construction.',
-        bullets: ['Finances, clinique KDIGO, stock, GMAO, absences, capacité', 'Alertes critiques et avertissements, historique des alertes', 'Instantanés mensuels figés et rapports PDF', 'Mise à jour en temps réel'],
+        bullets: ['Trois pages, mêmes filtres de période et de centre : vue d\'ensemble, analyses, rapports', 'Analyses en tableaux triables et lisibles d\'un coup d\'œil : finances, clinique KDIGO, stock, GMAO, absences, capacité', 'Alertes critiques et avertissements, historique des alertes', 'Rapports mensuels figés, comparaison de deux mois, mise à jour en temps réel'],
         shots: ['direction-dashboard', 'direction-capacite']
     },
     {

@@ -14,7 +14,7 @@ est conservé jusqu'à correction, par honnêteté envers les équipes qui s'app
 
 | Préfixe                             | Domaine                                                                                                      | Fichier                                                                                |
 |-------------------------------------|--------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|
-| `RG-TRV`                            | Règles transverses : multi-centres, erreurs, pagination, valeurs, cache, i18n, temps réel, tâches planifiées | [01-transverse.md](01-transverse.md)                                                   |
+| `RG-TRV`                            | Règles transverses : multi-centres, erreurs, pagination, valeurs, cache, i18n, temps réel, tâches planifiées, navigation | [01-transverse.md](01-transverse.md)                                                   |
 | `RG-SEC`                            | Sécurité : connexion, MFA, mots de passe, rôles, licences, journal d'audit                                   | [02-securite-acces.md](02-securite-acces.md)                                           |
 | `RG-ORG`                            | Organisation : sociétés, centres, comptes administrateur et direction, logo                                  | [03-organisation.md](03-organisation.md)                                               |
 | `RG-PAT` `RG-ASS` `RG-ATT` `RG-PEC` | Patients, assurés, attestations de droits, prises en charge                                                  | [04-patients-assures-pec.md](04-patients-assures-pec.md)                               |

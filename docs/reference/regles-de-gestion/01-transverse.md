@@ -130,3 +130,39 @@
 | `ReplanificationAutomatiqueScheduler.replanifier` | 02:30 chaque nuit | replanification automatique (centres volontaires)        | RG-PLN-100        |
 | `ControleDeLaPresenceDe0715.controlerLaPresence` | 07:15 chaque jour (Africa/Algiers) | alerte de sous-effectif infirmiers                          | RG-INF-046        |
 | `TempsReelPlanifie`                            | 1 s et 10 s          | diffusion temps réel de la direction                        | RG-DIR-100        |
+
+## 1.9 Navigation de l'interface
+
+- **RG-TRV-070** — *Barre de module (19/11/2026)* : chaque module présente ses écrans dans une **barre de module**
+  ordonnée en groupes séparés discrètement — d'abord le **Tableau de bord** du module, puis les **écrans de travail**,
+  puis le **paramétrage** (et, pour l'Administration, la **supervision**). Une seule entrée est active à la fois (le
+  plus long préfixe d'URL parmi les entrées du module) ; le fil d'Ariane suit une règle commune à tous les modules
+  (identifiants techniques affichés « Fiche »). Une entrée n'est visible que si le profil y a accès (RG-SEC-022 à
+  RG-SEC-024). Les libellés sont traduits dans les quatre langues (RG-TRV-050). *Source :* `ShellComponent`
+  (`NavItemKind`).
+- **RG-TRV-071** — *Tableau de bord et écran d'arrivée de chaque module* : le tableau de bord d'un module est à
+  `/<module>/tableau-de-bord` (lecture seule, indicateurs cliquables vers la liste filtrée quand le filtre existe) ;
+  cliquer sur le module mène à son **écran de travail**, pas à son tableau de bord (tableau ci-dessous). Le profil
+  propriétaire de la plateforme (`SUPERADMIN`) garde sa barre d'administration sans tableau de bord ni groupes.
+  *Source :* `ShellComponent`, routes des modules.
+
+| Module | Tableau de bord (1re entrée de la barre) | Arrivée dans le module | Règles détaillées |
+|---|---|---|---|
+| Patients | `/patients/tableau-de-bord` | liste des patients (`/patients`) | RG-PAT-024, RG-PAT-042, RG-PEC-010 |
+| Séances | `/seances/tableau-de-bord` | poste infirmier (`/seances`) | RG-SEA-029 |
+| Infirmiers | `/infirmiers/tableau-de-bord` | grille de présence (`/infirmiers`) | RG-INF-062 |
+| Stock | `/stock/tableau-de-bord` | état du stock (`/stock`) | RG-STK-042, RG-STK-044 |
+| GMAO | `/gmao/tableau-de-bord` | liste des équipements | RG-GMA-067 |
+| Facturation | `/facturation/tableau-de-bord` | calcul de la facturation (`/facturation`) | RG-FAC-024 |
+| Règlements | `/reglement/tableau-de-bord` | saisie des règlements (`/reglement`) | RG-REG-003 |
+| Comptabilité | — (pas de tableau de bord) | journal comptable (`/comptabilite`) | RG-CPT-007 |
+| Direction | « Tableau de bord » = vue d'ensemble (`/direction`), puis « Analyses » et « Rapports » | vue d'ensemble | RG-DIR-118, RG-DIR-119 |
+| Administration | — (comptes, puis paramétrage, puis supervision) | utilisateurs | RG-DOC-006 |
+
+- **RG-TRV-072** — *Accueil du centre* (`/dashboard`, entrée « Accueil ») : une **tuile par module** accessible au
+  profil (même règle que le menu des modules), avec 1 ou 2 chiffres clés lus sur les API des tableaux de bord et un
+  lien vers le tableau de bord du module (RG-PEC-010). Une tuile dont la lecture est refusée par le serveur (403) est
+  **masquée** plutôt qu'affichée vide ; une nouvelle lecture annule la précédente (une réponse tardive d'un autre
+  centre n'écrase jamais l'affichage) ; un évènement temps réel du centre ne recharge que la tuile concernée
+  (rafales regroupées). L'action « Ouvrir l'accueil » d'une notification y mène. *Source :*
+  `CenterDashboardComponent`, `AccueilStore`, `accueil-tuiles.ts`.

@@ -37,6 +37,13 @@
   (période mal formée : mois en cours) et conservés d'une page à l'autre. Droits inchangés : seul le rôle `DIRECTION`
   accède à `/direction` et à ses sous-pages (RG-SEC-021) ; une sous-page inconnue ramène à `/direction`.
   *Source :* `direction.routes.ts`, `DirectionLayoutComponent`, `DirectionFilters`.
+- **RG-DIR-119** — *Tableaux des pages Analyses et Rapports (19/11/2026)* : les 16 tableaux de `/direction/analyses` et
+  `/direction/rapports` sont des tableaux interactifs **triables**, la ligne de total restant épinglée en bas. Les
+  cellules portent une mise en forme lisible d'un coup d'œil : avatar pour les centres, barres proportionnelles pour
+  les montants et effectifs, jauge de 0 à 100 pour les taux, échelle de couleur centrée sur zéro pour les variations
+  signées, pastilles pour les niveaux et statuts. Les valeurs affichées gardent leur format (dinars, effectifs masqués
+  RG-DIR-012, tirets) ; l'anonymat et l'export CSV sont inchangés (RG-DIR-118). *Source :* `DirectionTableComponent`,
+  `direction-tables.util.ts`.
 
 ## 13.2 Anonymat (k-anonymat)
 

@@ -168,6 +168,15 @@
   `ACTIVE_PERIOD` = sortie ou fin de séjour postérieure au mois). Elle est affichée (mois, répartitions, rapport
   imprimable, détails) dans le **tableau de bord Patients** (`/patients/tableau-de-bord`, première entrée de la barre du
   module), et non plus dans la liste : l'arrivée dans le module (`/patients`) mène directement à la liste des patients.
+- **RG-PAT-042** — *Export et création depuis la liste des patients (19/11/2026)* : l'export de la liste est celui
+  **intégré au tableau** ; il produit un classeur Excel mis en forme contenant **toutes les lignes qui répondent aux
+  filtres et au tri affichés** (pas seulement la page courante, lues page par page avec la même requête que la liste,
+  RG-PAT-020, RG-PAT-021), avec les **colonnes visibles dans l'ordre affiché** (sans la colonne d'actions), les
+  libellés traduits et une vraie date pour l'admission. Les anciens boutons « Réinitialiser » et « Excel » de la barre
+  d'outils sont retirés. Le nom du patient s'affiche avec son avatar, l'état sous forme de pastille colorée traduite.
+  La création d'un patient se fait depuis la liste (bouton de la liste, `/patients/new`) : l'entrée « Nouveau
+  patient » ne figure plus dans la barre du module. *Source :* `PatientListComponent.onExportRequested`,
+  `PatientListStore.exportFilteredRows`, `ShellComponent`.
 
 ## 4.3 Assurés (ayants droit)
 
@@ -293,7 +302,7 @@
   ouvrent la liste sans filtre (pas de filtre d'échéance dans ces listes). L'**Accueil** du centre (`/dashboard`, URL
   inchangée) ne les détaille plus : il présente une tuile par module accessible au profil (même règle que le menu des
   modules), avec 1 ou 2 chiffres clés lus sur les API des tableaux de bord et un lien vers le tableau de bord du module ;
-  la tuile Patients reprend le nombre de patients et de PEC à échéance sous 30 jours.
+  la tuile Patients reprend le nombre de patients et de PEC à échéance sous 30 jours (RG-TRV-072).
 - **Point d'attention (RG-PEC-009)** — `GET /api/v1/pec` (PEC du centre) et `GET /api/v1/pec/patient/{id}` renvoient des
   listes non
   paginées (volume borné par patient pour la seconde ; non borné pour la première) — écart à RG-TRV-020 à résorber au

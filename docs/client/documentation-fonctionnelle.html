@@ -22,13 +22,14 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <div class="cover"><div style="font-size:12pt;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700">Document de référence</div>
 <h1>HemoDialyse<br><em>Documentation fonctionnelle</em><br>et règles de gestion</h1>
 <p>Tout ce que la plateforme sait faire pour gérer un centre d'hémodialyse — et chaque règle qu'elle applique, sans exception.</p>
-<div class="meta">Version 1.0 · 2026-11-19<br>681 règles de gestion · 16 domaines · 557 codes d'erreur métier</div></div>
+<div class="meta">Version 1.0 · 2026-11-19<br>688 règles de gestion · 16 domaines · 557 codes d'erreur métier</div></div>
 <div class="page">
 <section><h1><span class="n">Sommaire</span>Contenu du document</h1><ol class="toc"><li><a href="#intro">Présentation de la plateforme</a></li><li><a href="#p01">1. Règles transverses</a></li><li><a href="#p02">2. Sécurité, comptes, rôles, licences et traçabilité</a></li><li><a href="#p03">3. Organisation : sociétés, centres, comptes d'encadrement</a></li><li><a href="#p04">4. Patients, assurés, attestations de droits, prises en charge</a></li><li><a href="#p05">5. Planification : placement des patients, planning de la semaine, salles, générateurs, capacité</a></li><li><a href="#p06">6. Absences des patients</a></li><li><a href="#p07">7. Séances de dialyse (cahier de dialyse)</a></li><li><a href="#p08">8. Stock : articles, fournisseurs, bons, lots, PMP, inventaire, alertes, groupes d'articles</a></li><li><a href="#p09">9. GMAO : parc d'équipements, interventions, plans de maintenance, coûts et aide à la décision</a></li><li><a href="#p10">10. Infirmiers : référentiel, roulement, présence, absences, remplaçants, charge, comptes</a></li><li><a href="#p11">11. Dossier médical : antécédents, allergies, sérologies, examens, ordonnances, prescriptions, anémie, greffe, KDIGO, export</a></li><li><a href="#p12">12. Facturation, TVA, règlements et comptabilité</a></li><li><a href="#p13">13. Direction de société : tableaux de bord consolidés, anonymat, alertes, instantanés, temps réel</a></li><li><a href="#p14">14. Référentiels du centre, modèles de documents, imports et reprise de données</a></li><li><a href="#p15">15. Notifications temps réel et catalogue des alertes</a></li><li><a href="#p16">16. Annexe de traçabilité : contrôleurs REST, tâches planifiées et règles</a></li><li><a href="#attentions">Annexe — Points d'attention connus</a></li></ol></section>
 <section class="part" id="intro"><h1><span class="n">Introduction</span>Présentation de la plateforme</h1>
 <p>HemoDialyse couvre <b>toute la gestion d'un centre d'hémodialyse</b> : accueil et dossier administratif des patients, prises en charge, planification des postes et du personnel, séances et cahier de dialyse, dossier médical et suivi clinique, stock et pharmacie, maintenance des équipements, facturation, règlements et comptabilité, pilotage de la direction. La plateforme est multi-centres et multi-sociétés, en français, arabe, kabyle et anglais.</p>
 <p>Au-delà de la disponibilité de l'information, le système <b>surveille</b> (absences, observance des traitements, sous-effectif, péremptions, indisponibilité des équipements, licences), <b>propose</b> (meilleures places de dialyse classées, remplaçants, réforme d'un équipement, simulation de facturation) et <b>protège</b> (placement incohérent refusé, isolement automatique des patients à risque, gel du stock pendant un inventaire, anonymat de la direction, cloisonnement par centre).</p>
-<div class="stat"><div><b>681</b>règles de gestion</div><div><b>16</b>domaines</div><div><b>15</b>surveillances automatiques</div><div><b>8</b>points d'attention</div></div>
+<div class="stat"><div><b>688</b>règles de gestion</div><div><b>16</b>domaines</div><div><b>15</b>surveillances automatiques</div><div><b>8</b>points d'attention</div></div>
+<h2>Se repérer dans l'application</h2><p>L'<b>Accueil</b> présente une tuile par module accessible au profil, avec un ou deux chiffres clés à jour en temps réel et un lien vers le tableau de bord du module ; une tuile que le profil n'a pas le droit de lire est masquée.</p><p>Chaque module s'organise en une <b>barre de module</b> identique partout : d'abord le <b>Tableau de bord</b> du module (<code>/&lt;module&gt;/tableau-de-bord</code>, indicateurs en lecture seule, cliquables vers la liste filtrée), puis les <b>écrans de travail</b>, puis le <b>paramétrage</b>. Ouvrir un module mène directement à son écran de travail (liste des patients, poste infirmier, grille de présence, état du stock, liste des équipements, calcul de la facturation, saisie des règlements, journal comptable) ; la Comptabilité n'a pas de tableau de bord.</p><p>La <b>Direction</b> dispose de trois pages partageant les mêmes filtres de période et de centre : <b>Tableau de bord</b> (vue d'ensemble : alertes, indicateurs de la société, chiffre d'affaires), <b>Analyses</b> (centres, clinique, stock, GMAO, capacité, absences, en tableaux triables) et <b>Rapports</b> (rapports mensuels figés, comparaison de deux mois).</p><p>La liste des patients s'exporte depuis le tableau lui-même : l'export Excel reprend toutes les lignes qui répondent aux filtres et au tri affichés, avec les colonnes visibles dans l'ordre affiché.</p>
 <h2>Profils et périmètres</h2><table><tr><th>Profil</th><th>Rôle</th><th>Périmètre principal</th></tr><tr><td><code>ADMIN</code></td><td>Administrateur du centre</td><td>Paramétrage, utilisateurs, séances, facturation, GMAO, comptabilité, planification</td></tr><tr><td><code>MEDECIN</code></td><td>Médecin</td><td>Dossier médical, prescriptions, validation et signature, cibles cliniques, greffe</td></tr><tr><td><code>INFIRMIER</code></td><td>Infirmier</td><td>Séances, consommables, administrations, « mon planning », absences</td></tr><tr><td><code>SECRETAIRE</code></td><td>Secrétaire</td><td>Accueil, patients, PEC, règlements, planning, absences</td></tr><tr><td><code>PHARMACIEN</code></td><td>Pharmacien / magasinier</td><td>Stock : bons, lots, inventaire</td></tr><tr><td><code>DIRECTION</code></td><td>Direction de société</td><td>Tableaux de bord consolidés et anonymes, instantanés, rapports</td></tr><tr><td><code>SUPERADMIN</code></td><td>Propriétaire de la plateforme</td><td>Sociétés, centres, comptes d'encadrement, licences, journal d'audit</td></tr></table>
 <h2>Comment lire les règles</h2><p>Chaque règle porte un identifiant stable <code>RG-XXX-nnn</code>, jamais renuméroté. Le code d'erreur renvoyé à l'utilisateur figure entre apostrophes inversées ; la source dans le code est citée. Un encadré <b>point d'attention</b> signale un écart connu entre l'intention métier et le comportement actuel : il est conservé tant qu'il n'est pas corrigé.</p></section>
 <section class="part" id="p01"><h1><span class="n">Partie 1</span>Règles transverses</h1>
@@ -236,6 +237,99 @@ canaux de société exigent une session de direction valide. <em>Source :</em> <
 <td>RG-DIR-100</td>
 </tr>
 </tbody></table>
+<h2>1.9 Navigation de l&#39;interface</h2>
+<div class="rule" id="RG-TRV-070"><div class="rid">RG-TRV-070</div><div class="rtxt"><p><em>Barre de module (19/11/2026)</em> : chaque module présente ses écrans dans une <strong>barre de module</strong>
+ordonnée en groupes séparés discrètement — d&#39;abord le <strong>Tableau de bord</strong> du module, puis les <strong>écrans de travail</strong>,
+puis le <strong>paramétrage</strong> (et, pour l&#39;Administration, la <strong>supervision</strong>). Une seule entrée est active à la fois (le
+plus long préfixe d&#39;URL parmi les entrées du module) ; le fil d&#39;Ariane suit une règle commune à tous les modules
+(identifiants techniques affichés « Fiche »). Une entrée n&#39;est visible que si le profil y a accès (RG-SEC-022 à
+RG-SEC-024). Les libellés sont traduits dans les quatre langues (RG-TRV-050). <em>Source :</em> <code>ShellComponent</code>
+(<code>NavItemKind</code>).</p>
+</div></div>
+<div class="rule" id="RG-TRV-071"><div class="rid">RG-TRV-071</div><div class="rtxt"><p><em>Tableau de bord et écran d&#39;arrivée de chaque module</em> : le tableau de bord d&#39;un module est à
+<code>/&lt;module&gt;/tableau-de-bord</code> (lecture seule, indicateurs cliquables vers la liste filtrée quand le filtre existe) ;
+cliquer sur le module mène à son <strong>écran de travail</strong>, pas à son tableau de bord (tableau ci-dessous). Le profil
+propriétaire de la plateforme (<code>SUPERADMIN</code>) garde sa barre d&#39;administration sans tableau de bord ni groupes.
+<em>Source :</em> <code>ShellComponent</code>, routes des modules.</p>
+</div></div>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Tableau de bord (1re entrée de la barre)</th>
+<th>Arrivée dans le module</th>
+<th>Règles détaillées</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Patients</td>
+<td><code>/patients/tableau-de-bord</code></td>
+<td>liste des patients (<code>/patients</code>)</td>
+<td>RG-PAT-024, RG-PAT-042, RG-PEC-010</td>
+</tr>
+<tr>
+<td>Séances</td>
+<td><code>/seances/tableau-de-bord</code></td>
+<td>poste infirmier (<code>/seances</code>)</td>
+<td>RG-SEA-029</td>
+</tr>
+<tr>
+<td>Infirmiers</td>
+<td><code>/infirmiers/tableau-de-bord</code></td>
+<td>grille de présence (<code>/infirmiers</code>)</td>
+<td>RG-INF-062</td>
+</tr>
+<tr>
+<td>Stock</td>
+<td><code>/stock/tableau-de-bord</code></td>
+<td>état du stock (<code>/stock</code>)</td>
+<td>RG-STK-042, RG-STK-044</td>
+</tr>
+<tr>
+<td>GMAO</td>
+<td><code>/gmao/tableau-de-bord</code></td>
+<td>liste des équipements</td>
+<td>RG-GMA-067</td>
+</tr>
+<tr>
+<td>Facturation</td>
+<td><code>/facturation/tableau-de-bord</code></td>
+<td>calcul de la facturation (<code>/facturation</code>)</td>
+<td>RG-FAC-024</td>
+</tr>
+<tr>
+<td>Règlements</td>
+<td><code>/reglement/tableau-de-bord</code></td>
+<td>saisie des règlements (<code>/reglement</code>)</td>
+<td>RG-REG-003</td>
+</tr>
+<tr>
+<td>Comptabilité</td>
+<td>— (pas de tableau de bord)</td>
+<td>journal comptable (<code>/comptabilite</code>)</td>
+<td>RG-CPT-007</td>
+</tr>
+<tr>
+<td>Direction</td>
+<td>« Tableau de bord » = vue d&#39;ensemble (<code>/direction</code>), puis « Analyses » et « Rapports »</td>
+<td>vue d&#39;ensemble</td>
+<td>RG-DIR-118, RG-DIR-119</td>
+</tr>
+<tr>
+<td>Administration</td>
+<td>— (comptes, puis paramétrage, puis supervision)</td>
+<td>utilisateurs</td>
+<td>RG-DOC-006</td>
+</tr>
+</tbody></table>
+<div class="rule" id="RG-TRV-072"><div class="rid">RG-TRV-072</div><div class="rtxt"><p><em>Accueil du centre</em> (<code>/dashboard</code>, entrée « Accueil ») : une <strong>tuile par module</strong> accessible au
+profil (même règle que le menu des modules), avec 1 ou 2 chiffres clés lus sur les API des tableaux de bord et un
+lien vers le tableau de bord du module (RG-PEC-010). Une tuile dont la lecture est refusée par le serveur (403) est
+<strong>masquée</strong> plutôt qu&#39;affichée vide ; une nouvelle lecture annule la précédente (une réponse tardive d&#39;un autre
+centre n&#39;écrase jamais l&#39;affichage) ; un évènement temps réel du centre ne recharge que la tuile concernée
+(rafales regroupées). L&#39;action « Ouvrir l&#39;accueil » d&#39;une notification y mène. <em>Source :</em>
+<code>CenterDashboardComponent</code>, <code>AccueilStore</code>, <code>accueil-tuiles.ts</code>.</p>
+</div></div>
 </section>
 <section class="part" id="p02"><h1><span class="n">Partie 2</span>Sécurité, comptes, rôles, licences et traçabilité</h1>
 <blockquote>
@@ -377,7 +471,10 @@ donnée de centre (patients, séances, absences, stock, facturation…). <em>Sou
 <div class="rule" id="RG-SEC-022"><div class="rid">RG-SEC-022</div><div class="rtxt"><p>Infirmier « seul » (rôle <code>INFIRMIER</code> sans autre rôle de centre) : routes <code>/api/v1/infirmiers/**</code> et
 <code>/api/v1/planning/**</code> interdites, hormis son propre planning <code>/api/v1/infirmiers/moi/**</code>. Côté interface il n&#39;accède
 qu&#39;à son
-planning du jour, au tableau de bord des séances et au suivi des absences de patients. <em>Source :</em> <code>RoleScopeFilter</code>,
+planning du jour, au poste infirmier (<code>/seances</code>), à l&#39;historique des séances (<code>/seances/historique</code>), au <strong>tableau
+de bord des séances</strong> (<code>/seances/tableau-de-bord</code>, les statistiques du mois qu&#39;il voyait dans l&#39;historique) et au
+suivi des absences de patients ; le <strong>tableau de bord des infirmiers</strong> (<code>/infirmiers/tableau-de-bord</code>, RG-INF-062),
+comme la présence et la charge, lui reste fermé. <em>Source :</em> <code>RoleScopeFilter</code>,
 <code>role-scope.guard</code>.</p>
 </div></div>
 <div class="rule" id="RG-SEC-023"><div class="rid">RG-SEC-023</div><div class="rtxt"><p>Médecin « seul » (rôle <code>MEDECIN</code> sans <code>ADMIN</code>/<code>SECRETAIRE</code>/<code>INFIRMIER</code>) : routes <code>infirmiers</code>,
@@ -385,8 +482,11 @@ planning du jour, au tableau de bord des séances et au suivi des absences de pa
 <code>facturation</code>, <code>reglements</code>, <code>comptabilite</code> et <code>gmao</code> interdites, sauf la lecture du planning de la semaine
 (<code>/planning/semaine</code>) et de la présence des infirmiers (<code>/infirmiers/presence/semaine</code>). Il consulte patients (fiche
 en
-lecture seule), dossier médical, cahier de dialyse, statistiques, le suivi des absences et, comme accueil
-(<code>/medecin</code>), <strong>exactement le planning des séances</strong> (vues semaine et jour, RG-PLN-103).
+lecture seule), dossier médical, cahier de dialyse, statistiques, le suivi des absences, le <strong>tableau de bord
+Patients</strong> (<code>/patients/tableau-de-bord</code>, synthèse mensuelle seulement : les indicateurs PEC et attestations lui
+restent masqués) et, comme accueil
+(<code>/medecin</code>), <strong>exactement le planning des séances</strong> (vues semaine et jour, RG-PLN-103). Création, liste et validation
+des PEC, attestations lui restent fermées (<code>/patients/new</code>, <code>pec-list</code>, <code>pec-admin</code>, <code>attestations-list</code>).
 <em>Source :</em> idem.</p>
 </div></div>
 <div class="rule" id="RG-SEC-024"><div class="rid">RG-SEC-024</div><div class="rtxt"><p>Les écrans interdits à un profil restreint le redirigent vers son accueil (<code>/infirmiers/moi</code>,
@@ -909,7 +1009,19 @@ page (pas de requête par ligne).</p>
 <div class="rule" id="RG-PAT-024"><div class="rid">RG-PAT-024</div><div class="rtxt"><p>La synthèse mensuelle des patients (comptages par sexe, âge, KT) est calculée pour le mois demandé
 (mois courant par défaut) sur l&#39; <strong>effectif du mois</strong> (RG-PAT-037), mise en cache <strong>par centre et par mois</strong> (3 min) ;
 ses détails de même (motif d&#39;inclusion : <code>PERMANENT</code>, <code>EVENT_MONTH</code> = sortie ou fin de séjour dans le mois,
-<code>ACTIVE_PERIOD</code> = sortie ou fin de séjour postérieure au mois).</p>
+<code>ACTIVE_PERIOD</code> = sortie ou fin de séjour postérieure au mois). Elle est affichée (mois, répartitions, rapport
+imprimable, détails) dans le <strong>tableau de bord Patients</strong> (<code>/patients/tableau-de-bord</code>, première entrée de la barre du
+module), et non plus dans la liste : l&#39;arrivée dans le module (<code>/patients</code>) mène directement à la liste des patients.</p>
+</div></div>
+<div class="rule" id="RG-PAT-042"><div class="rid">RG-PAT-042</div><div class="rtxt"><p><em>Export et création depuis la liste des patients (19/11/2026)</em> : l&#39;export de la liste est celui
+<strong>intégré au tableau</strong> ; il produit un classeur Excel mis en forme contenant <strong>toutes les lignes qui répondent aux
+filtres et au tri affichés</strong> (pas seulement la page courante, lues page par page avec la même requête que la liste,
+RG-PAT-020, RG-PAT-021), avec les <strong>colonnes visibles dans l&#39;ordre affiché</strong> (sans la colonne d&#39;actions), les
+libellés traduits et une vraie date pour l&#39;admission. Les anciens boutons « Réinitialiser » et « Excel » de la barre
+d&#39;outils sont retirés. Le nom du patient s&#39;affiche avec son avatar, l&#39;état sous forme de pastille colorée traduite.
+La création d&#39;un patient se fait depuis la liste (bouton de la liste, <code>/patients/new</code>) : l&#39;entrée « Nouveau
+patient » ne figure plus dans la barre du module. <em>Source :</em> <code>PatientListComponent.onExportRequested</code>,
+<code>PatientListStore.exportFilteredRows</code>, <code>ShellComponent</code>.</p>
 </div></div>
 <h2>4.3 Assurés (ayants droit)</h2>
 <div class="rule" id="RG-ASS-001"><div class="rid">RG-ASS-001</div><div class="rtxt"><p>Qualité d&#39;assuré : <code>ASSURE_LUI_MEME</code> (défaut), <code>ENFANT</code>, <code>CONJOINT</code>, <code>ASCENDANT</code>, <code>AUTRE</code>.</p>
@@ -1057,7 +1169,13 @@ par date de création, ou au total), d&#39;attestations (idem), de patients, de 
 atteinte</strong> et d&#39; <strong>attestations dont la fin est atteinte</strong> dans l&#39;horizon d&#39;alerte (30 jours par défaut,
 paramétrable). <strong>Point d&#39;attention :</strong> ces deux compteurs « à échéance » comptent aussi les documents <strong>déjà expirés</strong>
 de toute ancienneté (condition « date de fin ≤ horizon »), ce qui
-surestime le besoin de renouvellement ; à borner en bas par la date du jour.</p>
+surestime le besoin de renouvellement ; à borner en bas par la date du jour. Ces indicateurs sont affichés dans le
+<strong>tableau de bord Patients</strong> (<code>/patients/tableau-de-bord</code>, masqués au médecin seul) : PEC créées et validées ouvrent
+la liste des PEC filtrée sur ce statut (<code>/patients/pec-list?statut=CREE|VALIDEE</code>) ; PEC à échéance et attestations
+ouvrent la liste sans filtre (pas de filtre d&#39;échéance dans ces listes). L&#39;<strong>Accueil</strong> du centre (<code>/dashboard</code>, URL
+inchangée) ne les détaille plus : il présente une tuile par module accessible au profil (même règle que le menu des
+modules), avec 1 ou 2 chiffres clés lus sur les API des tableaux de bord et un lien vers le tableau de bord du module ;
+la tuile Patients reprend le nombre de patients et de PEC à échéance sous 30 jours (RG-TRV-072).</p>
 </div></div>
 <div class="rule attention" id="RG-PEC-009"><div class="rid">RG-PEC-009<small>point d'attention</small></div><div class="rtxt"><p><code>GET /api/v1/pec</code> (PEC du centre) et <code>GET /api/v1/pec/patient/{id}</code> renvoient des
 listes non
@@ -2526,8 +2644,9 @@ jour avec leur statut : à valider, validée, signée, facturée, absent) et sai
 constantes (avec le poids sec prescrit), consommables, anémie, remarques. Les constantes s&#39;enregistrent à la sortie de
 chaque champ et les remarques après une courte pause de frappe, sans bouton « Enregistrer » ; une séance facturée est
 en lecture seule. Les consommables les plus sortis du jour dans le centre sont proposés en un toucher (+1 unité,
-RG-SEA-025). Une alerte non bloquante signale un générateur affecté dont l&#39;état n&#39;est pas « en service ». Les
-statistiques et le tableau des séances sont dans l&#39; <strong>historique</strong> (RG-SEA-029), accessible depuis le poste. La
+RG-SEA-025). Une alerte non bloquante signale un générateur affecté dont l&#39;état n&#39;est pas « en service ». Le poste
+ne garde que les indicateurs du jour (total, validées, à faire) ; les statistiques du mois sont au <strong>tableau de
+bord des séances</strong> (<code>/seances/tableau-de-bord</code>) et le tableau des séances dans l&#39; <strong>historique</strong> (RG-SEA-029). La
 secrétaire voit la file et scanne mais n&#39;ouvre pas la saisie clinique. L&#39;écran est responsive : une
 colonne (file puis séance) sur mobile, deux colonnes sur tablette, toutes les sections visibles sur PC.
 L&#39;habillage suit la charte de l&#39;application (thème actif, titres Fraunces, cartes vitrées, indicateurs du jour).
@@ -2581,8 +2700,10 @@ concernée. <em>Source :</em> <code>SeanceDomainService.verifierProgramme</code>
 <code>HorsPlanningConfirmComponent</code>.</p>
 </div></div>
 <div class="rule attention" id="RG-SEA-029"><div class="rid">RG-SEA-029<small>point d'attention</small></div><div class="rtxt"><p><strong>Historique des séances</strong> (<code>GET /seances</code>, tous profils de centre ; écran « Historique des
-séances ») : statistiques du mois (séances prévues, présences, absences, total, répartitions par sexe et par âge,
-détail et export) et <strong>liste paginée</strong> des séances du centre. La recherche, les filtres et le tri sont appliqués <strong>par
+séances », <code>/seances/historique</code>) : <strong>liste paginée</strong> des séances du centre, seule sur l&#39;écran. Les statistiques du
+mois (séances prévues, présences, absences, total, répartitions par sexe et par âge, détail et export,
+<code>/seances/dashboard</code>) sont au <strong>tableau de bord des séances</strong> (<code>/seances/tableau-de-bord</code>, première entrée de la
+barre du module Séances, mêmes profils qu&#39;auparavant : l&#39;infirmier seul y accède, le médecin seul non). La recherche, les filtres et le tri sont appliqués <strong>par
 le serveur</strong> sur toute la liste, jamais sur la seule page affichée : période (<code>from</code>, <code>to</code>, bornes incluses,
 début ≤ fin), statut (un ou plusieurs), texte libre sur le nom, le prénom ou le code du patient (tous les mots
 doivent correspondre), tri sur la date, le patient, le code, le statut ou la création (liste blanche ; toute autre
@@ -2873,7 +2994,8 @@ un identifiant de tâche et un verrou par article (réservé <code>ADMIN</code>,
 (colonne <code>saisi_le</code>, migration V38).</p>
 </div></div>
 <div class="rule" id="RG-STK-042"><div class="rid">RG-STK-042</div><div class="rtxt"><p>L&#39;écran « explication du PMP » détaille, mouvement par mouvement, l&#39;état avant/après et la formule
-appliquée.</p>
+appliquée. Il s&#39;ouvre depuis chaque ligne de l&#39;<strong>état du stock</strong> (<code>/stock</code>, stock valorisé au PMP par article), qui
+est l&#39;écran d&#39;arrivée du module Stock.</p>
 </div></div>
 <div class="rule" id="RG-STK-043"><div class="rid">RG-STK-043</div><div class="rtxt"><p><strong>Valorisation historique</strong> d&#39;une période : valeur de début, entrées (valorisées au prix), sorties
 (valorisées au PMP qui précède), « autres variations » (inventaires, ajustements sans prix, arrondis = fin − début −
@@ -2882,7 +3004,12 @@ entrées + sorties) et valeur de fin ; elle est mise en cache par centre, pério
 </div></div>
 <div class="rule" id="RG-STK-044"><div class="rid">RG-STK-044</div><div class="rtxt"><p>Les statistiques du tableau de bord stock portent sur 7, 30 ou 90 jours (30 par défaut) : quantité et
 valeur totales, tendance journalière des mouvements (jours sans mouvement comblés) et « top articles » (10 par défaut,
-50 maximum) triés par valeur ou volume.</p>
+50 maximum) triés par valeur ou volume. Elles sont affichées dans le <strong>tableau de bord du stock</strong>
+(<code>/stock/tableau-de-bord</code>, première entrée de la barre du module), avec les indicateurs (valeur et quantité totales,
+articles en stock, alertes actives, lots en péremption, flux de la période), les lots proches de la péremption et le
+centre d&#39;alertes (rupture, seuil, péremption). La barre du module propose ensuite les écrans de travail (état du
+stock, bons de commande, réceptions, sorties, sorties pour séances, inventaires) puis le paramétrage (articles,
+fournisseurs) ; le bandeau d&#39;inventaire en cours reste affiché au-dessus de chaque écran du module.</p>
 </div></div>
 <h2>8.6 Inventaire</h2>
 <div class="rule" id="RG-STK-050"><div class="rid">RG-STK-050</div><div class="rtxt"><p>Un seul inventaire peut être <strong>en cours</strong> par centre (<code>INVENTORY_ALREADY_IN_PROGRESS</code>). La date est
@@ -2961,7 +3088,7 @@ stock est ≤ 0) et <strong>seuil</strong> (stock &gt; 0 mais ≤ seuil d&#39;al
 chaque centre) : pour chaque centre <strong>actif</strong>, les lots contenant du stock (&gt; 0) d&#39;articles <strong>actifs</strong> et expirant dans les 30 jours
 (borne J+30 incluse) sont signalés ; un lot <strong>déjà périmé</strong> est signalé le lendemain de sa péremption puis rappelé chaque semaine
 (J+1, J+8, J+15…, sans état conservé) ; un lot <strong>reçu déjà périmé</strong> est signalé au premier contrôle qui suit sa réception ; si le contrôle de J+1 est manqué, le rappel suivant est J+8. Le signalement est une <strong>alerte durable unique par centre et par jour</strong> (identifiant
-déterministe, sûre en multi-instance) destinée à <code>ADMIN</code> et <code>PHARMACIEN</code> (comptes des lots et des périmés, date la plus proche ; le détail est au tableau de bord), et un événement
+déterministe, sûre en multi-instance) destinée à <code>ADMIN</code> et <code>PHARMACIEN</code> (comptes des lots et des périmés, date la plus proche ; le détail est au tableau de bord du stock, <code>/stock/tableau-de-bord</code>, vers lequel mène la notification), et un événement
 d&#39;intégration <code>LotProcheExpiration</code> v1 par lot (registre Spring Modulith, consommateurs idempotents sur son identifiant). Un centre en
 échec est journalisé sans arrêter les autres ; les centres inactifs ne sont plus parcourus. <strong>« Centre actif » a le même sens
 pour le Stock que pour tous les contextes (KB-ORG-09 CORRIGÉ le 2026-11-09, lot L7, ADR 0115, à confirmer par les métiers Stock avant le
@@ -3219,7 +3346,10 @@ bloquant : la décision reste au personnel. Équipement inconnu ou d&#39;un autr
 <div class="rule" id="RG-GMA-067"><div class="rid">RG-GMA-067</div><div class="rtxt"><p><strong>Statistiques GMAO du centre</strong> (<code>GET /api/v1/gmao/stats</code>) : totaux d&#39;équipements (tous statuts) et par statut
 (en service, en maintenance, hors service ; les autres statuts ne sont comptés que dans le total, KB-GMAO-77), d&#39;interventions
 (total, en cours, terminées), plans actifs et en retard, interventions à relancer (RG-GMA-030) ; les éléments supprimés
-logiquement ne sont jamais comptés. <em>Source :</em> <code>ConsulterLesStatistiques</code>.</p>
+logiquement ne sont jamais comptés. Elles sont affichées dans le <strong>tableau de bord GMAO</strong> (<code>/gmao/tableau-de-bord</code>,
+première entrée de la barre du module ; l&#39;ancienne adresse <code>/gmao/dashboard</code> y redirige) ; l&#39;arrivée dans le module
+(<code>/gmao</code>) mène à la liste des équipements. Chaque compteur par statut ouvre la liste filtrée sur ce statut ; les totaux
+et les interventions à relancer ouvrent la liste sans filtre. <em>Source :</em> <code>ConsulterLesStatistiques</code>.</p>
 </div></div>
 <div class="rule" id="RG-GMA-068"><div class="rid">RG-GMA-068</div><div class="rtxt"><p><strong>Impression du bon d&#39;intervention</strong> (<code>GET /api/v1/gmao/interventions/{id}/bon</code>, PL6, ADR 0145) : le bon est
 rendu par Documents (type <code>BON_INTERVENTION</code>, modèle actif du centre, papier en-tête) ; la GMAO fournit les données (RG-GMA-031).
@@ -3512,6 +3642,17 @@ n&#39;embarque plus de requête ; la Planification fournit les lignes du plannin
 et remplaçants posés ce jour-là) et lit les noms de salle et libellés de créneau par organisation.v1 ; contenu imprimé inchangé. Le
 téléversement d&#39;un modèle portant l&#39;ancienne requête est refusé <code>QUERY_MODIFIED</code> (KB-DOC5E-1, RG-DOC-004) ; l&#39;ordre des lignes est
 désormais trié par le serveur, par points de code (KB-DOC5E-2).</p>
+</div></div>
+<div class="rule" id="RG-INF-062"><div class="rid">RG-INF-062</div><div class="rtxt"><p><strong>Tableau de bord des infirmiers</strong> (<code>/infirmiers/tableau-de-bord</code>, première entrée de la barre du
+module, 19/11/2026), en <strong>lecture seule</strong> : couverture des <strong>7 prochains jours</strong> (créneaux en sous-effectif et
+infirmiers manquants, chaque créneau ouvrant sa semaine dans la grille de présence <code>/infirmiers?date=…</code>), synthèse
+de la <strong>charge du mois</strong> (effectif, moyenne, remplacements, jours d&#39;absence, plus et moins chargés ; détail sur
+<code>/infirmiers/charge</code>) et <strong>absences en cours</strong> ce jour (lien vers <code>/infirmiers/absences</code>, liste non filtrée). Il
+agrège les API déjà servies (alertes de présence, charge, absences, référentiel ; une page de 100 au plus par source)
+sans API dédiée ; une source en échec n&#39;empêche pas l&#39;affichage des autres. Les écrans de travail sont inchangés
+(présence avec ses alertes sur 14 jours, absences, charge) ; l&#39;arrivée dans le module reste la grille de présence.
+Fermé à l&#39;infirmier seul et au médecin seul (RG-SEC-022, RG-SEC-023). <em>Source :</em> <code>InfirmiersTableauDeBordComponent</code>,
+<code>InfirmiersTableauDeBordStore</code>.</p>
 </div></div>
 <h2>10.8 Roulement et remplacements issus de l&#39;optimisation</h2>
 <div class="rule" id="RG-INF-070"><div class="rid">RG-INF-070</div><div class="rtxt"><p>Le roulement des infirmiers peut être <strong>conçu</strong> et les cases en sous-effectif <strong>couvertes</strong> par
@@ -4259,8 +4400,13 @@ d&#39;affaires HT et TTC, séances facturées, patients facturés, factures cré
 facturation, bornes incluses), jamais recalculés. Les « séances facturées » comptent les séances au statut <code>FACTUREE</code>
 dont la date tombe dans le mois, alors que les ventilations comptent les séances rattachées aux factures du mois : les
 deux nombres peuvent différer. Le mois est obligatoire. Accès : <code>ADMIN</code>, <code>MEDECIN</code>, <code>SECRETAIRE</code> (le médecin seul est
-refusé) ; le <strong>centre demandé doit être celui de la session</strong> (403 sinon). <em>Source :</em> <code>ConsulterLeTableauDeBord</code> →
-<code>TableauDeBordControleur</code> (ADR 0034).</p>
+refusé) ; le <strong>centre demandé doit être celui de la session</strong> (403 sinon). À l&#39;écran, ces indicateurs, la courbe du
+chiffre d&#39;affaires HT des six derniers mois et les deux répartitions forment le <strong>tableau de bord du module</strong>
+(<code>/facturation/tableau-de-bord</code>, première entrée de la barre du module), avec un <strong>sélecteur de mois propre</strong>,
+indépendant du mois de l&#39;écran de calcul. L&#39;arrivée dans le module (<code>/facturation</code>) est l&#39;écran de travail « Calcul
+de la facturation » : simulation, exclusions, forfaits, validation, synthèse imprimable et clôture/réouverture des
+mois ; il ne porte plus les indicateurs du mois. Les deux écrans sont réservés à l&#39;<code>ADMIN</code> du centre. <em>Source :</em>
+<code>ConsulterLeTableauDeBord</code> → <code>TableauDeBordControleur</code> (ADR 0034).</p>
 </div></div>
 <div class="rule" id="RG-FAC-025"><div class="rid">RG-FAC-025</div><div class="rtxt"><p>La <strong>synthèse mensuelle de facturation</strong> s&#39;imprime sur une période (début et fin incluses, aucun
 plafond de durée) en PDF, Excel ou HTML (PDF embarqué). Deux voies coexistent : <code>POST /api/v1/facturation/synthese/print</code>
@@ -4418,7 +4564,12 @@ journal de banque <code>BQ</code>. Un mode inconnu est refusé (400).</p>
 </div></div>
 <div class="rule" id="RG-REG-003"><div class="rid">RG-REG-003</div><div class="rtxt"><p>La recherche et le tableau de bord des règlements portent sur une <strong>année</strong> (2000 à 3000) et
 facultativement un <strong>mois</strong> (1 à 12), une caisse, une agence ou un centre payeur ; les listes sont
-paginées (page ≥ 0, taille &gt; 0) et exportables en Excel ou PDF.</p>
+paginées (page ≥ 0, taille &gt; 0) et exportables en Excel ou PDF. À l&#39;écran, l&#39;arrivée dans le module (<code>/reglement</code>,
+« Saisie des règlements ») présente les filtres, la liste à régler avec le mode et la référence du lot, les brouillons,
+l&#39;historique et les exports ; les six indicateurs (total, réglées, non réglées, partielles, trop-perçus, taux
+d&#39;encaissement), la répartition des statuts et l&#39;histogramme des montants sont sur <code>/reglement/tableau-de-bord</code>
+(première entrée de la barre du module), avec leurs propres filtres année / mois / caisse / agence. Mêmes droits
+pour les deux écrans (l&#39;infirmier seul et le médecin seul en restent écartés).</p>
 </div></div>
 <div class="rule" id="RG-REG-004"><div class="rid">RG-REG-004</div><div class="rtxt"><p>Chaque règlement enregistré déclenche, après son enregistrement, la génération d&#39;une écriture de
 trésorerie (RG-CPT-002) par l&#39;événement <code>FactureReglementRecordedEvent</code> (langage publié du contexte <code>facturation</code>,
@@ -4503,9 +4654,13 @@ facturée</strong> (comme RG-CPT-001). Chaque source est traitée indépendammen
 suivantes</strong> ; il est rapporté avec sa raison (RG-CPT-024). Consultation des écritures et des journaux :
 <code>ADMIN</code>, <code>SECRETAIRE</code> (paginée) ; la liste des écritures est <strong>relue à chaque ouverture de l&#39;écran Comptabilité</strong>
 (les écritures générées entre-temps — stock, ventes, règlements — apparaissent sans recharger la page) ; validation,
-export, paramétrage (comptes, journaux, mapping), règles TVA, clôture, comptabilisation du stock : <code>ADMIN</code>. <em>Source :</em>
+export, paramétrage (comptes, journaux, mapping), règles TVA, clôture, comptabilisation du stock : <code>ADMIN</code>. À l&#39;écran,
+le module Comptabilité n&#39;a <strong>pas de tableau de bord</strong> : l&#39;arrivée (<code>/comptabilite</code>) est le journal comptable, avec ses
+deux totaux de contrôle (nombre d&#39;écritures, total débit et équilibre) ; la barre du module propose ensuite « Saisir
+une pièce » (<code>/comptabilite/pieces</code>, <code>ADMIN</code> et <code>SECRETAIRE</code>) puis, en dernier, « Paramétrage »
+(<code>/comptabilite/parametrage</code>, visible et accessible au seul <code>ADMIN</code>). <em>Source :</em>
 <code>ComptabiliserLesVentesEtReglements.reconstruire</code> → <code>VentesEtReglementsControleur</code> (<code>/rebuild</code>) ;
-<code>ComptabiliteDashboardComponent</code> → <code>ComptabiliteStore.refresh</code>.</p>
+<code>ComptabiliteJournalComponent</code> → <code>ComptabiliteStore.refresh</code>.</p>
 </div></div>
 <div class="rule" id="RG-CPT-008"><div class="rid">RG-CPT-008</div><div class="rtxt"><p><em>(point d&#39;attention levé)</em> Les créances ne sont plus toutes imputées au compte client « autre » :
 chaque facture débite le compte de <strong>son payeur</strong> (RG-CPT-019), le compte par défaut si le payeur n&#39;en a pas, et le
@@ -4628,7 +4783,7 @@ libellée « Extourne &lt;n° de pièce&gt; ». Une pièce ne s&#39;extourne <st
 (<code>PIECE_DEJA_EXTOURNEE</code>) ; une écriture générée par le système (vente, règlement, stock) ne s&#39;extourne pas à la
 main (<code>PIECE_NON_SAISIE</code>) ; la période du jour doit être ouverte (<code>PERIODE_CLOTUREE</code>). <em>Source :</em>
 <code>EcritureComptable.exigerExtournable/extourner</code>, <code>GererLesModelesEtPieces.extourner</code>,
-<code>ComptabiliteDashboardComponent</code> → <code>PiecesComptablesStore</code> → <code>ComptabiliteApiService</code> → <code>ModelesEtPiecesControleur</code>
+<code>ComptabiliteJournalComponent</code> → <code>PiecesComptablesStore</code> → <code>ComptabiliteApiService</code> → <code>ModelesEtPiecesControleur</code>
 (<code>/pieces/{id}/extourne</code>).</p>
 </div></div>
 <div class="rule attention" id="RG-CPT-023"><div class="rid">RG-CPT-023<small>point d'attention</small></div><div class="rtxt"><p>Les comptes propres à un article (RG-STK-008) se saisissent encore librement
@@ -4656,8 +4811,8 @@ du 2026-10-21 (KB-FAC-67).</p>
 </div></div>
 </section>
 <section class="part" id="p13"><h1><span class="n">Partie 13</span>Direction de société : tableaux de bord consolidés, anonymat, alertes, instantanés, temps réel</h1>
-<figure><img src="img/direction-dashboard.png" alt="Tableau de bord de la direction"><figcaption>Tableau de bord de la direction</figcaption></figure>
-<figure><img src="img/direction-capacite.png" alt="Capacité théorique par centre"><figcaption>Capacité théorique par centre</figcaption></figure><blockquote>
+<figure><img src="img/direction-dashboard.png" alt="Tableau de bord de la direction (vue d'ensemble)"><figcaption>Tableau de bord de la direction (vue d'ensemble)</figcaption></figure>
+<figure><img src="img/direction-capacite.png" alt="Capacité théorique par centre (page Analyses)"><figcaption>Capacité théorique par centre (page Analyses)</figcaption></figure><blockquote>
 <p>Préfixe <code>RG-DIR</code>. La direction voit <strong>tous les centres de sa société</strong> sans jamais voir un patient : le système
 <strong>consolide</strong>, <strong>compare</strong> à la période précédente, <strong>lève des alertes</strong> et <strong>diffuse
 les changements en temps réel</strong>. Sources : <code>DirectionDashboardRestController</code>, <code>DirectionSnapshotRestController</code>,
@@ -4681,10 +4836,31 @@ précéder la date de fin (<code>PERIODE_INVALIDE</code>) et l&#39;amplitude ne 
 Le tableau de bord s&#39;ouvre sur le <strong>mois en cours</strong> (du 1er du mois à aujourd&#39;hui) : le raccourci actif (« Ce mois »,
 « Ce trimestre », « Cette année », « 12 derniers mois ») est mis en évidence (bouton plein, coche, état exposé aux
 lecteurs d&#39;écran) et aucun ne l&#39;est pour une période personnalisée ; le bouton a un contour de focus bien visible au
-clavier. <em>Source :</em> <code>DirectionDashboardComponent</code>.</p>
+clavier. <em>Source :</em> <code>DirectionLayoutComponent</code>.</p>
 </div></div>
 <div class="rule" id="RG-DIR-004"><div class="rid">RG-DIR-004</div><div class="rtxt"><p>Chaque écran présente <strong>par centre et pour l&#39;ensemble de la société</strong> ; un centre inactif apparaît
 marqué comme tel.</p>
+</div></div>
+<div class="rule" id="RG-DIR-118"><div class="rid">RG-DIR-118</div><div class="rtxt"><p><em>Navigation du tableau de bord (19/11/2026)</em> : trois pages, chacune une entrée de la barre du module
+Direction — <strong>Tableau de bord</strong> (<code>/direction</code>, vue d&#39;ensemble : alertes et leur historique, KPI de la société et
+deltas, graphiques du CA et de sa tendance), <strong>Analyses</strong> (<code>/direction/analyses</code> : centres et CA, indicateurs
+cliniques KDIGO, stock, GMAO, capacité, absences, groupes d&#39;articles, répartitions) et <strong>Rapports</strong>
+(<code>/direction/rapports</code> : rapports mensuels figés, comparaison de deux mois). La barre de filtres (période,
+raccourcis, centre), l&#39;impression du rapport, l&#39;export CSV, la mention d&#39;anonymat et l&#39;indicateur temps réel sont
+communs aux trois pages ; l&#39;export CSV porte toujours sur tous les tableaux de la période et du centre affichés,
+quelle que soit la page. La période et le centre isolé sont reflétés dans l&#39;URL (<code>?from=aaaa-mm-jj&amp;to=aaaa-mm-jj</code>,
+<code>&amp;centre=&lt;identifiant du centre&gt;</code> absent pour la vue consolidée ; aucune donnée personnelle), relus à l&#39;ouverture
+(période mal formée : mois en cours) et conservés d&#39;une page à l&#39;autre. Droits inchangés : seul le rôle <code>DIRECTION</code>
+accède à <code>/direction</code> et à ses sous-pages (RG-SEC-021) ; une sous-page inconnue ramène à <code>/direction</code>.
+<em>Source :</em> <code>direction.routes.ts</code>, <code>DirectionLayoutComponent</code>, <code>DirectionFilters</code>.</p>
+</div></div>
+<div class="rule" id="RG-DIR-119"><div class="rid">RG-DIR-119</div><div class="rtxt"><p><em>Tableaux des pages Analyses et Rapports (19/11/2026)</em> : les 16 tableaux de <code>/direction/analyses</code> et
+<code>/direction/rapports</code> sont des tableaux interactifs <strong>triables</strong>, la ligne de total restant épinglée en bas. Les
+cellules portent une mise en forme lisible d&#39;un coup d&#39;œil : avatar pour les centres, barres proportionnelles pour
+les montants et effectifs, jauge de 0 à 100 pour les taux, échelle de couleur centrée sur zéro pour les variations
+signées, pastilles pour les niveaux et statuts. Les valeurs affichées gardent leur format (dinars, effectifs masqués
+RG-DIR-012, tirets) ; l&#39;anonymat et l&#39;export CSV sont inchangés (RG-DIR-118). <em>Source :</em> <code>DirectionTableComponent</code>,
+<code>direction-tables.util.ts</code>.</p>
 </div></div>
 <h2>13.2 Anonymat (k-anonymat)</h2>
 <div class="rule" id="RG-DIR-010"><div class="rid">RG-DIR-010</div><div class="rtxt"><p>Seuls des agrégats sortent : aucun nom, identifiant ni ligne de patient. Tout <strong>effectif compris
@@ -4767,7 +4943,7 @@ d&#39;absentéisme</strong> = absences / (absences + séances réalisées) en %,
 HT / CA HT facturé de la période. Effectifs et valorisations faibles masqués, y compris dans les totaux (RG-DIR-012). Sources : RG-ABS. La répartition par
 motif est présentée en tableau (nombre, part, valorisation) <strong>et en deux graphiques en anneau</strong> : l&#39;un par <strong>nombre
 d&#39;absences</strong>, l&#39;autre par <strong>valeur HT</strong> ; les motifs masqués (effectif faible) et à zéro n&#39;y figurent pas, et aucun
-graphique n&#39;est affiché s&#39;il ne reste aucun motif publiable. <em>Source :</em> <code>DirectionDashboardComponent</code>.</p>
+graphique n&#39;est affiché s&#39;il ne reste aucun motif publiable. <em>Source :</em> <code>DirectionAnalysesComponent</code>.</p>
 </div></div>
 <h2>13.9 Capacité théorique et occupation</h2>
 <div class="rule" id="RG-DIR-080"><div class="rid">RG-DIR-080</div><div class="rtxt"><p>Par centre et total, pour la période : générateurs installés au plus tard à la fin de la période
@@ -5093,7 +5269,9 @@ serveur) ; l&#39;impression produit un PDF ou un HTML.</p>
 </div></div>
 <div class="rule" id="RG-DOC-006"><div class="rid">RG-DOC-006</div><div class="rtxt"><p>La liste des modèles (types et modèles du centre) est paginée ; création, modification et suppression
 d&#39;un modèle de document : <code>ADMIN</code>, <code>SUPERADMIN</code> ; l&#39;impression est ouverte aux profils
-de l&#39;écran appelant. Voir RG-DOC-010 pour la gestion des modèles.</p>
+de l&#39;écran appelant. Voir RG-DOC-010 pour la gestion des modèles. L&#39;écran de gestion des modèles vit dans le
+paramétrage de l&#39;administration (<code>/admin/parametrage/modeles-document</code>, groupe Paramétrage de la barre du module
+Administration et raccourci du menu utilisateur <code>ADMIN</code>) ; l&#39;ancienne adresse <code>/modeles-document</code> y redirige.</p>
 </div></div>
 <div class="rule" id="RG-DOC-010"><div class="rid">RG-DOC-010</div><div class="rtxt"><p><strong>Gestion des modèles de document (contexte Documents, DOC4a, ADR 0164)</strong> : mêmes URL, rôles et codes qu&#39;avant
 (liste <code>GET /modeles?centerId=</code> et recherche <code>POST /modeles/search</code> : toute session ; création, modification, suppression :
@@ -5362,7 +5540,8 @@ profil : elle ne mène jamais vers un écran fermé à l&#39;utilisateur.</p>
   | Nouveau patient, fiche modifiée | fiche du patient | fiche du patient (lecture) | — |
   | Prise en charge validée / clôturée / supprimée | liste des prises en charge | fiche du patient | — |
   | Attestation créée / supprimée | liste des attestations | fiche du patient | — |
-  | Mouvement de stock, inventaire ouvert / clôturé / annulé | stock, inventaires | — | — |</p>
+  | Mouvement de stock, inventaire ouvert / clôturé / annulé | état du stock (<code>/stock</code>), inventaires | — | — |
+  | Lots proches de la péremption | Voir les alertes de stock (tableau de bord du stock, <code>/stock/tableau-de-bord</code>) | — | — |</p>
 <p>  « — » : la notification n&#39;est pas destinée à ce profil ; si elle lui parvenait, l&#39;action ouvrirait son écran
   d&#39;accueil. Les évènements purement techniques (<code>PRESCRIPTION_CHANGED</code>, <code>STOCK_RECALC_LOCKS_CHANGED</code>) rafraîchissent
   les écrans sans apparaître dans la cloche. Sur un téléphone, l&#39;action figure directement sous chaque notification.
@@ -6592,8 +6771,8 @@ paginées (volume borné par patient pour la seconde ; non borné pour la premi�
 profit de la
 re…</li>
 <li><a href="#RG-SEA-029"><b>RG-SEA-029</b></a> — Historique des séances (GET /seances, tous profils de centre ; écran « Historique des
-séances ») : statistiques du mois (séances prévues, présences, absences, total, répartitions par sexe et par âge,
-détail et export) et…</li>
+séances », /seances/historique) : liste paginée des séances du centre, seule sur l'écran. Les statistiques du
+mois (séances prévues, p…</li>
 <li><a href="#RG-SEA-024"><b>RG-SEA-024</b></a> — Valider à nouveau une séance déjà validée avec une liste de consommables retraite
 ces consommables (nouvelle sortie) : l'idempotence ne
 porte que sur le statut. L'interface n'expose pas ce cas ; à protéger côté serveur. …</li>
