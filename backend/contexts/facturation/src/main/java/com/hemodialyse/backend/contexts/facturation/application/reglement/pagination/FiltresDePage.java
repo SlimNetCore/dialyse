@@ -70,6 +70,7 @@ public final class FiltresDePage {
     public static Optional<FiltreNumerique> numerique(String nom, String valeur) {
         if (valeur == null || valeur.isBlank()) return Optional.empty();
         String v = valeur.replaceAll("\\s+", "");
+        if (v.contains("...")) throw illisible(nom, valeur);
         int plage = v.indexOf("..");
         if (plage >= 0) {
             String basse = v.substring(0, plage);

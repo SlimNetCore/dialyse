@@ -147,6 +147,8 @@ export class SeancesHistoriqueComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Filtres et page sont rendus à la table ; pas le tri (ng-table n'a pas d'entrée de tri) : retour au défaut.
+    this.store.resetSort();
     const centerId = this.appShell.currentCenterId();
     if (centerId) this.store.reload(centerId);
   }

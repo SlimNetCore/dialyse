@@ -88,7 +88,7 @@ class DemandeDePageTest {
 
     @Test
     void grammaire_numerique_refuse_le_reste() {
-        for (String saisie : List.of("abc", "50..10", "..", "10..x", "!=", "!=5..6", ">>5", "=<5", "1e3", "5..10..20", "1.2.3", "10-50", "!5")) {
+        for (String saisie : List.of("abc", "50..10", "..", "10..x", "!=", "!=5..6", ">>5", "=<5", "1e3", "5..10..20", "1.2.3", "10-50", "!5", "0...5", "5...10", "1. ..5")) {
             assertEquals("FILTRE_INVALIDE", code(() -> FiltresDePage.numerique("quantite", saisie)), saisie);
         }
         assertTrue(FiltresDePage.numerique("quantite", " ").isEmpty());

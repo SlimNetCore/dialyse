@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest';
-import {currentMonthIso, parseDateRange, parseMonth, toSeanceHistoryQuery} from './seance-historique.util';
+import {currentMonthIso, dateRangeFilter, parseDateRange, parseMonth, toSeanceHistoryQuery} from './seance-historique.util';
 
 describe('seance-historique.util', () => {
   it('lit un jour ou une plage de dates, et ignore une saisie invalide', () => {
@@ -44,10 +44,14 @@ describe('seance-historique.util', () => {
     expect(toSeanceHistoryQuery({}, 'status', 'desc')).toMatchObject({sortBy: 'status', sortDir: 'desc'});
   });
 
-  it('la période choisie hors tableau prime sur le filtre de date de la colonne', () => {
-    const query = toSeanceHistoryQuery({dateSeance: '2026-01-01'}, null, '', {from: '2026-10-01', to: ''});
-    expect(query.from).toBe('2026-10-01');
-    expect(query.to).toBe('2026-01-01');
+  it('la période « du … au … » s\'écrit dans le filtre de date de la colonne (une seule source)', () => {
+    expect(dateRangeFilter('2026-10-01', '2026-10-31')).toBe('2026-10-01..2026-10-31');
+    expect(dateRangeFilter('2026-10-01', '')).toBe('2026-10-01..');
+    expect(dateRangeFilter('', '2026-10-31')).toBe('..2026-10-31');
+    expect(dateRangeFilter('', '')).toBe('');
+    expect(dateRangeFilter('nope', '')).toBe('');
+    expect(toSeanceHistoryQuery({dateSeance: dateRangeFilter('2026-10-01', '')}, null, ''))
+      .toMatchObject({from: '2026-10-01', to: null});
   });
 
   it('lit un mois « AAAA-MM »', () => {

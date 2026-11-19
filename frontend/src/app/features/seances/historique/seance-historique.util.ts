@@ -37,20 +37,25 @@ export function parseDateRange(raw: string | undefined): { from: string | null; 
   return {from: day, to: day};
 }
 
+/** Valeur du filtre de date de la colonne pour une période « du … au … » (vide = sans borne ; les deux vides = aucun filtre). */
+export function dateRangeFilter(from: string, to: string): string {
+  const f = ISO_DATE.test((from ?? '').trim()) ? from.trim() : '';
+  const t = ISO_DATE.test((to ?? '').trim()) ? to.trim() : '';
+  return f || t ? `${f}..${t}` : '';
+}
+
 /**
  * Traduit l'état de la liste (filtres par colonne + tri) en critères d'historique pour le serveur. Les colonnes
  * non gérées par le serveur sont ignorées ; sans tri valide, les séances sont triées de la plus récente à la plus
- * ancienne.
+ * ancienne. Le critère de date a une seule source : le filtre `dateSeance` de la colonne (la période « du … au … »
+ * au-dessus de la table écrit ce même filtre), donc la puce de la table montre toujours ce qui est envoyé.
  */
 export function toSeanceHistoryQuery(
   filters: Record<string, string>,
   sortColumnId: string | null,
   sortDirection: 'asc' | 'desc' | '' | null,
-  period: { from: string; to: string } = {from: '', to: ''},
 ): SeanceHistoryQuery {
-  const columnRange = parseDateRange(filters['dateSeance']);
-  const from = ISO_DATE.test(period.from) ? period.from : columnRange.from;
-  const to = ISO_DATE.test(period.to) ? period.to : columnRange.to;
+  const {from, to} = parseDateRange(filters['dateSeance']);
   // La liste de statuts de la table est multiple (CSV) : le serveur accepte plusieurs statuts séparés par une virgule.
   const statuses = (filters['status'] ?? '').split(',').map((s) => s.trim().toUpperCase())
     .filter((s, i, all) => (SEANCE_STATUSES as readonly string[]).includes(s) && all.indexOf(s) === i);

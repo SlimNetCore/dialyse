@@ -41,7 +41,7 @@ class FiltresDePageTest {
 
     @Test
     void toute_autre_saisie_est_refusee_avec_le_code_stable() {
-        for (String saisie : List.of("beaucoup", "500..100", "..", "100..x", "!=", ">>5", "1e3", "1..2..3", "10-50", "!5")) {
+        for (String saisie : List.of("beaucoup", "500..100", "..", "100..x", "!=", ">>5", "1e3", "1..2..3", "10-50", "!5", "0...5", "5...10", "1. ..5")) {
             assertEquals("FILTRE_INVALIDE",
                     assertThrows(PaginationInvalide.class, () -> FiltresDePage.numerique("montantFacture", saisie)).code(), saisie);
         }

@@ -38,6 +38,9 @@ const CHAMPS_FILTRABLES = ['numeroFacture', 'numeroAssurance', 'patientNom', 'pa
 export const CORRESPONDANCE_REGLEMENT: CorrespondanceDePage = {
   tris: Object.fromEntries(CHAMPS_TRIABLES.map((c) => [c, c])),
   filtres: {...Object.fromEntries(CHAMPS_FILTRABLES.map((c) => [c, c])), solde: 'soldeType'},
-  /** Filtres numériques (`[= > >= < <=]montant`) : une saisie que le serveur ne lit pas n'est pas envoyée. */
+  /**
+   * Filtres numériques (`[= != > >= < <=]montant`, plages `a..b`, `a..`, `..b` — grammaire de `filtreNumerique` dans
+   * core/api/page-serveur.ts) : une saisie que le serveur ne lit pas n'est pas envoyée.
+   */
   numeriques: ['montantFacture', 'montantRegle'],
 };

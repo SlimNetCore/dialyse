@@ -39,12 +39,12 @@ describe('SeanceHistoriqueStore', () => {
 
   it('un nouveau tri ou filtre renvoie à la première page et interroge le serveur', () => {
     const store = TestBed.inject(SeanceHistoriqueStore);
-    store.setPage(CENTER, 3, 50);
+    store.applyTableQuery(CENTER, {filters: {}, sortColumnId: null, sortDirection: '', pageIndex: 0, pageSize: 50});
+    store.applyTableQuery(CENTER, {filters: {}, sortColumnId: null, sortDirection: '', pageIndex: 3, pageSize: 50});
+    expect(store.pageIndex()).toBe(3);
 
-    store.applyQuery(CENTER, {
-      filters: {patient: 'dupont', status: 'CREE'},
-      sortColumnId: 'patient',
-      sortDirection: 'asc'
+    store.applyTableQuery(CENTER, {
+      filters: {patient: 'dupont', status: 'CREE'}, sortColumnId: 'patient', sortDirection: 'asc', pageIndex: 3, pageSize: 50,
     });
 
     expect(store.pageIndex()).toBe(0);
@@ -55,12 +55,25 @@ describe('SeanceHistoriqueStore', () => {
 
   it('changer de page garde les filtres et le tri', () => {
     const store = TestBed.inject(SeanceHistoriqueStore);
-    store.applyQuery(CENTER, {filters: {patient: 'dupont'}, sortColumnId: 'status', sortDirection: 'desc'});
+    const base = {filters: {patient: 'dupont'}, sortColumnId: 'status', sortDirection: 'desc' as const, pageSize: 20};
+    store.applyTableQuery(CENTER, {...base, pageIndex: 0});
 
-    store.setPage(CENTER, 2, 20);
+    store.applyTableQuery(CENTER, {...base, pageIndex: 2});
 
     expect(api.listSeances).toHaveBeenLastCalledWith(CENTER, 2, 20,
       expect.objectContaining({q: 'dupont', sortBy: 'status', sortDir: 'desc'}));
+  });
+
+  it('à l\'ouverture, le tri mémorisé revient au défaut (la table ne peut pas l\'afficher)', () => {
+    const store = TestBed.inject(SeanceHistoriqueStore);
+    store.applyTableQuery(CENTER, {filters: {}, sortColumnId: 'patient', sortDirection: 'asc', pageIndex: 0, pageSize: 20});
+
+    store.resetSort();
+    store.reload(CENTER);
+
+    expect(store.sortColumnId()).toBeNull();
+    expect(api.listSeances).toHaveBeenLastCalledWith(CENTER, 0, 20,
+      expect.objectContaining({sortBy: 'dateSeance', sortDir: 'desc'}));
   });
 
   it('la table : page demandée gardée si rien ne change, première page si un filtre ou le tri change', () => {
@@ -88,15 +101,33 @@ describe('SeanceHistoriqueStore', () => {
     expect(api.listSeances).toHaveBeenLastCalledWith(CENTER, 0, 50, expect.anything());
   });
 
-  it('la période est transmise au serveur et revient à la première page', () => {
+  it('la période s\'écrit dans le filtre de date de la colonne, est transmise au serveur et revient à la première page', () => {
     const store = TestBed.inject(SeanceHistoriqueStore);
-    store.setPage(CENTER, 4, 20);
+    const base = {filters: {patient: 'dupont'}, sortColumnId: null, sortDirection: '' as const, pageSize: 20};
+    store.applyTableQuery(CENTER, {...base, pageIndex: 0});
+    store.applyTableQuery(CENTER, {...base, pageIndex: 4});
 
     store.setPeriod(CENTER, '2026-10-01', '2026-10-31');
 
     expect(store.pageIndex()).toBe(0);
+    expect(store.filters()).toEqual({patient: 'dupont', dateSeance: '2026-10-01..2026-10-31'});
+    expect(store.periodFrom()).toBe('2026-10-01');
     expect(api.listSeances).toHaveBeenLastCalledWith(CENTER, 0, 20,
-      expect.objectContaining({from: '2026-10-01', to: '2026-10-31'}));
+      expect.objectContaining({from: '2026-10-01', to: '2026-10-31', q: 'dupont'}));
+
+    store.setPeriod(CENTER, '', '');
+    expect(store.filters()).toEqual({patient: 'dupont'});
+  });
+
+  it('la plage saisie dans la colonne alimente la période affichée (une seule source)', () => {
+    const store = TestBed.inject(SeanceHistoriqueStore);
+    store.applyTableQuery(CENTER, {filters: {dateSeance: '2026-11-01..2026-11-30'}, sortColumnId: null, sortDirection: '',
+      pageIndex: 0, pageSize: 20});
+
+    expect(store.periodFrom()).toBe('2026-11-01');
+    expect(store.periodTo()).toBe('2026-11-30');
+    expect(api.listSeances).toHaveBeenLastCalledWith(CENTER, 0, 20,
+      expect.objectContaining({from: '2026-11-01', to: '2026-11-30'}));
   });
 
   it('une erreur réseau vide la liste et expose un message traduisible', () => {

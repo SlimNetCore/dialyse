@@ -1,11 +1,11 @@
-import {inject} from '@angular/core';
-import {patchState, signalStore, withMethods, withState} from '@ngrx/signals';
+import {computed, inject} from '@angular/core';
+import {patchState, signalStore, withComputed, withMethods, withState} from '@ngrx/signals';
 import {rxMethod} from '@ngrx/signals/rxjs-interop';
 import {withDevtools} from '@angular-architects/ngrx-toolkit';
 import {HttpErrorResponse} from '@angular/common/http';
 import {catchError, EMPTY, firstValueFrom, pipe, switchMap, tap} from 'rxjs';
 import {BackendApiService, SeanceListItem} from '../../../core/api/backend-api.service';
-import {toSeanceHistoryQuery} from './seance-historique.util';
+import {dateRangeFilter, parseDateRange, toSeanceHistoryQuery} from './seance-historique.util';
 
 type SortDirection = 'asc' | 'desc' | '';
 
@@ -16,10 +16,8 @@ export type SeanceHistoriqueState = {
   pageSize: number;
   loading: boolean;
   error: string | null;
+  /** Filtres de colonne ; `dateSeance` (« du..au ») porte aussi la période saisie au-dessus de la table. */
   filters: Record<string, string>;
-  /** Période choisie hors tableau (dates ISO, vide = sans borne). */
-  periodFrom: string;
-  periodTo: string;
   sortColumnId: string | null;
   sortDirection: SortDirection;
   /** Suppression en cours (bouton désactivé) et dernier message de succès. */
@@ -35,8 +33,6 @@ const initialState: SeanceHistoriqueState = {
   loading: false,
   error: null,
   filters: {},
-  periodFrom: '',
-  periodTo: '',
   sortColumnId: null,
   sortDirection: '',
   deleting: false,
@@ -64,6 +60,14 @@ export const SeanceHistoriqueStore = signalStore(
   {providedIn: 'root'},
   withState(initialState),
   withDevtools('SeanceHistoriqueStore'),
+  withComputed((store) => {
+    const period = computed(() => parseDateRange(store.filters()['dateSeance']));
+    return {
+      /** Bornes de la période, lues dans le filtre de date de la colonne (une seule source). */
+      periodFrom: computed(() => period().from ?? ''),
+      periodTo: computed(() => period().to ?? ''),
+    };
+  }),
   withMethods((store, api = inject(BackendApiService)) => {
     const load = rxMethod<string>(
       pipe(
@@ -73,8 +77,7 @@ export const SeanceHistoriqueStore = signalStore(
             centerId,
             store.pageIndex(),
             store.pageSize(),
-            toSeanceHistoryQuery(store.filters(), store.sortColumnId(), store.sortDirection(),
-              {from: store.periodFrom(), to: store.periodTo()}),
+            toSeanceHistoryQuery(store.filters(), store.sortColumnId(), store.sortDirection()),
           ).pipe(
             tap((res) => patchState(store, {rows: res.items, total: res.total, loading: false})),
             catchError(() => {
@@ -87,19 +90,12 @@ export const SeanceHistoriqueStore = signalStore(
     );
     return {
       load,
-      /** Nouveau tri et/ou nouveaux filtres : retour à la première page puis rechargement. */
-      applyQuery(centerId: string, query: {
-        filters: Record<string, string>;
-        sortColumnId: string | null;
-        sortDirection: SortDirection
-      }): void {
-        patchState(store, {
-          filters: query.filters,
-          sortColumnId: query.sortColumnId,
-          sortDirection: query.sortDirection,
-          pageIndex: 0,
-        });
-        load(centerId);
+      /**
+       * La table ne sait pas afficher un tri qu'on lui redonne : à l'ouverture de l'écran, le tri revient au défaut
+       * (date décroissante) pour que l'en-tête et le serveur restent d'accord.
+       */
+      resetSort(): void {
+        patchState(store, {sortColumnId: null, sortDirection: ''});
       },
       /**
        * Requête de la table (tri, filtres, page) : un tri ou des filtres changés reviennent à la première page, sinon
@@ -128,13 +124,14 @@ export const SeanceHistoriqueStore = signalStore(
         });
         load(centerId);
       },
-      /** Nouvelle période (dates ISO, vide = sans borne) : retour à la première page puis rechargement. */
+      /**
+       * Nouvelle période (dates ISO, vide = sans borne) : écrite dans le filtre de date de la colonne (la puce de la
+       * table la montre), retour à la première page puis rechargement.
+       */
       setPeriod(centerId: string, periodFrom: string, periodTo: string): void {
-        patchState(store, {periodFrom, periodTo, pageIndex: 0});
-        load(centerId);
-      },
-      setPage(centerId: string, pageIndex: number, pageSize: number): void {
-        patchState(store, {pageIndex, pageSize});
+        const autres = Object.fromEntries(Object.entries(store.filters()).filter(([k]) => k !== 'dateSeance'));
+        const plage = dateRangeFilter(periodFrom, periodTo);
+        patchState(store, {filters: plage ? {...autres, dateSeance: plage} : autres, pageIndex: 0});
         load(centerId);
       },
       reload(centerId: string): void {

@@ -1,5 +1,6 @@
 import {TestBed} from '@angular/core/testing';
-import {NO_ERRORS_SCHEMA, provideZonelessChangeDetection, signal} from '@angular/core';
+import {Component, input, NO_ERRORS_SCHEMA, output, provideZonelessChangeDetection, signal} from '@angular/core';
+import {By} from '@angular/platform-browser';
 import {provideRouter} from '@angular/router';
 import {TranslateModule} from '@ngx-translate/core';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
@@ -14,13 +15,34 @@ import {of} from 'rxjs';
 
 const CENTER_ID = '11111111-1111-1111-1111-111111111111';
 
+/** Doublure de ng-table : expose les entrées liées par le gabarit et la sortie de requête distante. */
+@Component({selector: 'ng-table', standalone: true, template: ''})
+class NgTableStubComponent {
+  readonly columns = input<unknown[]>([]);
+  readonly rows = input<unknown[]>([]);
+  readonly dataMode = input<string>('local');
+  readonly totalCount = input<number>(0);
+  readonly pageIndex = input<number>(0);
+  readonly pageSize = input<number>(0);
+  readonly pageSizeOptions = input<number[]>([]);
+  readonly filters = input<Record<string, string>>({});
+  readonly loading = input<boolean>(false);
+  readonly paginator = input<boolean>(false);
+  readonly inlineFilters = input<boolean>(false);
+  readonly showActiveFiltersBar = input<boolean>(false);
+  readonly emptyLabel = input<string>('');
+  readonly labels = input<unknown>(null);
+  readonly rowKeyAccessor = input<unknown>(null);
+  readonly remoteQueryChange = output<unknown>();
+}
+
 function fakeStore() {
   return {
     rows: signal<unknown[]>([]), total: signal(0), pageIndex: signal(0), pageSize: signal(20), loading: signal(false),
     error: signal<string | null>(null), periodFrom: signal(''), periodTo: signal(''),
     filters: signal<Record<string, string>>({}),
     deleting: signal(false), successMessage: signal<string | null>(null),
-    reload: vi.fn(), applyTableQuery: vi.fn(), setPeriod: vi.fn(),
+    reload: vi.fn(), applyTableQuery: vi.fn(), setPeriod: vi.fn(), resetSort: vi.fn(),
     supprimer: vi.fn().mockResolvedValue(true),
   };
 }
@@ -50,7 +72,7 @@ describe('SeancesHistoriqueComponent', () => {
     });
     TestBed.overrideComponent(SeancesHistoriqueComponent, {
       remove: {imports: [NgTableComponent]},
-      add: {schemas: [NO_ERRORS_SCHEMA]},
+      add: {imports: [NgTableStubComponent], schemas: [NO_ERRORS_SCHEMA]},
     });
   });
 
@@ -60,9 +82,11 @@ describe('SeancesHistoriqueComponent', () => {
     return {fixture, cmp: fixture.componentInstance as any, root: fixture.nativeElement as HTMLElement};
   }
 
-  it('charge l\'historique du centre actif à l\'ouverture', () => {
+  it('charge l\'historique du centre actif à l\'ouverture, tri remis au défaut', () => {
     render();
+    expect(store.resetSort).toHaveBeenCalled();
     expect(store.reload).toHaveBeenCalledWith(CENTER_ID);
+    expect(store.resetSort.mock.invocationCallOrder[0]).toBeLessThan(store.reload.mock.invocationCallOrder[0]);
   });
 
   it('n\'affiche plus les statistiques du mois : la page est une liste seule', () => {
@@ -97,11 +121,22 @@ describe('SeancesHistoriqueComponent', () => {
     store.total.set(57);
     store.pageIndex.set(1);
     store.filters.set({patient: 'dup'});
-    const {root} = render();
-    const table = root.querySelector('ng-table');
-    expect(table).not.toBeNull();
+    const {fixture, root} = render();
+    const table = fixture.debugElement.query(By.directive(NgTableStubComponent)).componentInstance as NgTableStubComponent;
+    expect(table.dataMode()).toBe('remote');
+    expect(table.totalCount()).toBe(57);
+    expect(table.pageIndex()).toBe(1);
+    expect(table.pageSize()).toBe(20);
+    expect(table.filters()).toEqual({patient: 'dup'});
+    expect(table.paginator()).toBe(true);
     expect(root.querySelector('app-configurable-list')).toBeNull();
     expect(root.querySelector('mat-paginator')).toBeNull();
+
+    const query = {sort: {columnId: 'status', direction: 'desc'}, filters: {patient: 'dup'}, page: {index: 1, size: 20}};
+    table.remoteQueryChange.emit(query);
+    expect(store.applyTableQuery).toHaveBeenCalledWith(CENTER_ID, {
+      filters: {patient: 'dup'}, sortColumnId: 'status', sortDirection: 'desc', pageIndex: 1, pageSize: 20,
+    });
   });
 
   it('la période combine les deux bornes et peut être effacée', () => {
