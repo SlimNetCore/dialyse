@@ -136,7 +136,8 @@ class InventairePl7CharacterizationIntegrationTest extends ReferentielStockChara
             return null;
         }
         brut = brut.replaceAll("\\d{4}-\\d{2}-\\d{2}T[\\d:.]+(Z|[+-]\\d{2}:?\\d{2})?", "<HORODATAGE>");
-        for (int n = -120; n <= 120; n++) {
+        // Fenêtre future jusqu'à J+400 : le lot L-DECIMAL de la feuille de comptage périme à J+400 (date glissante, jamais figée).
+        for (int n = -400; n <= 120; n++) {
             String jour = n >= 0 ? "<J-" + n + ">" : "<J+" + (-n) + ">";
             brut = brut.replace(LocalDate.now().minusDays(n).toString(), jour);
             brut = brut.replace(LocalDate.now().minusDays(n).format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), jour);
