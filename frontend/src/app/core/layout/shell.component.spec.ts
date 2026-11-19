@@ -4,7 +4,7 @@ import {provideRouter, Router} from '@angular/router';
 import {TranslateModule} from '@ngx-translate/core';
 import {beforeEach, describe, expect, it} from 'vitest';
 import {of} from 'rxjs';
-import {activeModuleItemRoute, breadcrumbLabels, ShellComponent, toModuleBarItems} from './shell.component';
+import {activeModuleItemRoute, breadcrumbLabels, breadcrumbTarget, ShellComponent, toModuleBarItems} from './shell.component';
 import {NotificationBellComponent} from './notification-bell.component';
 import {DirectionNotificationBellComponent} from '../../features/direction/direction-notification-bell.component';
 import {AuthStore} from '../state/auth.store';
@@ -287,6 +287,29 @@ describe('ShellComponent — barre de module', () => {
       const entrees = autre.modules.flatMap((m) => m.items.map((i) => i.route));
       expect(entrees).not.toContain('/admin/parametrage/clotures');
     });
+
+  it('le segment Paramétrage du fil d\'Ariane mène à une page du paramétrage, jamais à la connexion', async () => {
+    const {component} = await renderAt('/admin/parametrage/reprise');
+    const router = TestBed.inject(Router);
+    let cible = '';
+    router.navigateByUrl = ((url: string) => { cible = url; return Promise.resolve(true); }) as typeof router.navigateByUrl;
+
+    component.goBreadcrumb(1);
+
+    expect(cible.startsWith('/admin/parametrage/')).toBe(true);
+    const entrees = component.modules.flatMap((m) => m.items.map((i) => i.route));
+    expect(entrees).toContain(cible);
+  });
+
+  it('breadcrumbTarget garde les modules, les entrées du menu et les fiches sans entrée en dessous', () => {
+    const modules = [{route: '/patients', items: [{route: '/patients'}, {route: '/patients/pec-list'}]},
+      {route: '/admin', items: [{route: '/admin/users'}, {route: '/admin/parametrage/tva'}]}];
+
+    expect(breadcrumbTarget('/patients', modules)).toBe('/patients');
+    expect(breadcrumbTarget('/patients/123', modules)).toBe('/patients/123');
+    expect(breadcrumbTarget('/admin', modules)).toBe('/admin');
+    expect(breadcrumbTarget('/admin/parametrage', modules)).toBe('/admin/parametrage/tva');
+  });
 
   it('les modèles de documents s\'activent dans la barre Administration, plus dans l\'Accueil', async () => {
     const {component} = await renderAt('/admin/parametrage/modeles-document');

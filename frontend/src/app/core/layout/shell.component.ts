@@ -162,6 +162,19 @@ const BREADCRUMB_LABELS: Record<string, string> = {
 const ID_SEGMENT = /^(\d+|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i;
 
 /**
+ * Destination d'un segment du fil d'Ariane. Un segment qui n'est pas une page à lui seul (ex. `/admin/parametrage`)
+ * tomberait sur la route par défaut et renverrait à la connexion : il mène à la première entrée visible du menu placée
+ * sous lui. Un module ou une entrée du menu, ou un segment sans entrée en dessous (fiche `/patients/123`), reste tel quel.
+ */
+export function breadcrumbTarget(
+  target: string, modules: ReadonlyArray<{ route: string; items: ReadonlyArray<{ route: string }> }>,
+): string {
+  const items = modules.flatMap((m) => m.items.map((i) => i.route));
+  if (modules.some((m) => m.route === target) || items.includes(target)) return target;
+  return items.find((route) => route.startsWith(target + '/')) ?? target;
+}
+
+/**
  * Libellés (clés i18n ou texte brut) du fil d'Ariane pour une URL. Le libellé d'un segment ne dépend que du segment,
  * sauf les sous-pages du paramétrage d'administration, dont « facturation » désigne le paramétrage de la facturation.
  */
@@ -496,7 +509,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
   goBreadcrumb(index: number): void {
     if (index < 0 || index >= this.breadcrumbRoutes.length) return;
     const target = '/' + this.breadcrumbRoutes.slice(0, index + 1).join('/');
-    this.router.navigateByUrl(target);
+    this.router.navigateByUrl(breadcrumbTarget(target, this.modules));
   }
 
   /** Entrée de la barre de module active : une seule à la fois, celle du plus long préfixe de l'URL. */
