@@ -1176,12 +1176,69 @@
         "DESC": "Fren aggur neɣ tallit tmawalt i wammas urmid."
       },
       "PREVIEW": {
-        "TITLE": "Preview",
+        "TITLE": "Taskant",
         "DESC": "Tiqiṭ n ufeter tesɛeddi asmi kan deg tkatut."
       },
       "VALIDATE": {
         "TITLE": "Asentem",
         "DESC": "Asentem n tfaturin iḥrez ifaturen yerna yegga tmsirin d FACTUREE."
+      }
+    },
+    "FACTURES": {
+      "TITLE": "Tifaturin yettwasuffɣen",
+      "SUBTITLE": "Tifaturin n wammas i yesɛan azemz n ufeter deg tallit. Sit ɣef tfaturt akken ad twaliḍ timsirin-is, afurfi-ines d wazalen.",
+      "PERIODE": "Tallit n ufeter",
+      "DU": "Seg",
+      "AU": "Ar",
+      "MOIS_PRECEDENT": "Aggur yezrin",
+      "MOIS_COURANT": "Aggur-a",
+      "PERIODE_INVALIDE": "Azemz n tazwara ilaq ad yili send azemz n taggara.",
+      "EMPTY": "Ulac tafaturt deg tallit-a.",
+      "REESSAYER": "Ɛreḍ tikkelt nniḍen",
+      "TOTAUX": {
+        "NOMBRE": "Tifaturin"
+      },
+      "COL": {
+        "NUMERO": "Uṭṭun n tfaturt",
+        "DATE": "Azemz",
+        "PERIODE": "Tallit yettwafetren",
+        "PATIENT": "Amuḍin",
+        "CAISSE": "Tanaka",
+        "SEANCES": "Timsirin",
+        "HT": "HT",
+        "TVA": "TVA",
+        "TTC": "TTC",
+        "REGLE": "Yettwaxelṣen",
+        "RESTE": "Ayen d-yeqqimen",
+        "ETAT": "Addad"
+      },
+      "ETAT": {
+        "NON_REGLEE": "Ur tettwaxelleṣ ara",
+        "PARTIELLEMENT_REGLEE": "Tettwaxelleṣ s ubeḍḍu",
+        "REGLEE": "Tettwaxelleṣ"
+      },
+      "DETAIL": {
+        "SEANCES": "Timsirin yettwafetren",
+        "DATE": "Azemz",
+        "STATUT": "Addad",
+        "FORFAIT": "Afurfi",
+        "PU_HT": "Ssuma n yiwet HT",
+        "QUANTITE": "Timsirin",
+        "LIGNES": "Azalen s ufurfi",
+        "NON_ATTRIBUABLE": "ur yettwamuddu ara",
+        "NON_ATTRIBUABLE_AIDE": "Afurfi n temsirt-a ur yezmir ara ad d-yettwassefhem seg yizirigen n tfaturt; azalen n yizirigen d nutni i d-yettwaḥesben.",
+        "AUCUNE_SEANCE": "Ulac tamsirt yeqqnen ɣer tfaturt-a.",
+        "CHARGEMENT": "Asali n telqayt…"
+      },
+      "ERREURS": {
+        "GENERALE": "Ur d-ttalin ara tfaturin.",
+        "ACCES_REFUSE": "Anekcum yettwagi: asenqed n tfaturin i unedbal n wammas kan.",
+        "REQUETE_INVALIDE": "Ifernen ttwagin sɣur aqeddac.",
+        "PERIODE_INVALIDE": "Tallit d tarameɣtut: tazwara send taggara, 366 n wussan ugar.",
+        "TRI_INVALIDE": "Asmizzwer ur yettwasefrak ara.",
+        "ETAT_INVALIDE": "Addad n uxelleṣ d arussin.",
+        "MONTANT_INVALIDE": "Azal adday ilaq ad yili ddaw n wazal afellay.",
+        "INTROUVABLE": "Tafaturt ulac-itt deg wammas-a."
       }
     },
     "CALCULATOR": {
@@ -2957,6 +3014,7 @@
     "PATIENTS_PEC_LISTE": "Tabdart n tneḍrutin",
     "PATIENTS_ATTESTATIONS": "Agiren",
     "FACTURATION_CALCUL": "Asiḍen n usefru",
+    "FACTURATION_FACTURES": "Tifaturin",
     "REGLEMENT_SAISIE": "Asekcem n yixelleṣen",
     "STOCK_ETAT": "Addad n ugdez",
     "STOCK_ARTICLES": "Imsalen",

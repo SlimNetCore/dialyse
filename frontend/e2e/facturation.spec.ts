@@ -25,7 +25,8 @@ test.describe('Module facturation', () => {
     await page.waitForLoadState('networkidle');
 
     await expect(page.locator('h1, .app-section-title')).toContainText(/facturation|billing/i);
-    await expect(page.locator('.flow-grid')).toBeVisible();
+    await expect(page.locator('app-facturation-etapes ol.etapes li.etape')).toHaveCount(3);
+    await expect(page.locator('app-facturation-etapes [aria-current="step"]')).toBeVisible();
     await expect(page.locator('.dashboard-grids')).toHaveCount(0);
   });
 

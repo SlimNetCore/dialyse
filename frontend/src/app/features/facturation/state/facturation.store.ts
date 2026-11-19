@@ -18,6 +18,9 @@ import {SeanceExclue} from './facturation-exclusion';
 
 export type FacturationPeriodMode = 'month' | 'custom';
 
+/** Message de succès posé après une validation réussie ; l'indicateur d'étapes en déduit l'étape Validation (RG-FAC-049). */
+export const FACTURATION_VALIDEE = 'FACTURATION.SUCCESS.VALIDATED';
+
 type FacturationState = {
   activeCenterId: string | null;
   periodMode: FacturationPeriodMode;
@@ -434,7 +437,7 @@ export const FacturationStore = signalStore(
               validating: false,
               preview: null,
               excludedSeances: [],
-              successMessage: 'FACTURATION.SUCCESS.VALIDATED',
+              successMessage: FACTURATION_VALIDEE,
             })),
             catchError((err: unknown) => {
               patchState(store, {validating: false, ...facturationErrorState(err)});

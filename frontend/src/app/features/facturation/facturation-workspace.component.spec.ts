@@ -1,7 +1,7 @@
 import {TestBed} from '@angular/core/testing';
 import {vi} from 'vitest';
 import {FacturationWorkspaceComponent} from './facturation-workspace.component';
-import {FacturationStore} from './state/facturation.store';
+import {FACTURATION_VALIDEE, FacturationStore} from './state/facturation.store';
 import {AppShellStore} from '../../core/state/app-shell.store';
 import {AuthStore} from '../../core/state/auth.store';
 import {TranslateService} from '@ngx-translate/core';
@@ -16,7 +16,8 @@ describe('FacturationWorkspaceComponent', () => {
     periodMode: vi.fn(() => 'month'),
     startDate: vi.fn(() => '2026-08-01'),
     endDate: vi.fn(() => '2026-08-31'),
-    successMessage: vi.fn(() => null),
+    successMessage: vi.fn((): string | null => null),
+    preview: vi.fn((): unknown => null),
     setMonth: vi.fn(),
     validateFacturation: vi.fn(),
     removeSeanceFromPreview: vi.fn(),
@@ -83,6 +84,25 @@ describe('FacturationWorkspaceComponent', () => {
     expect(facturationStoreMock.setMonth).toHaveBeenCalledWith('2026-09');
     expect('refreshDashboard' in component).toBe(false);
   });
+
+  it('indicateur d\'étapes (remplace le bloc « Cycle de facturation ») : Sélection, puis Aperçu, puis Validation',
+    () => {
+      const component = TestBed.runInInjectionContext(() => new FacturationWorkspaceComponent());
+      const etape = (): number => component['etape']();
+
+      expect(etape()).toBe(1);
+
+      facturationStoreMock.preview.mockReturnValue({lignes: []});
+      const avecApercu = TestBed.runInInjectionContext(() => new FacturationWorkspaceComponent());
+      expect(avecApercu['etape']()).toBe(2);
+
+      facturationStoreMock.preview.mockReturnValue(null);
+      facturationStoreMock.successMessage.mockReturnValue(FACTURATION_VALIDEE);
+      const valide = TestBed.runInInjectionContext(() => new FacturationWorkspaceComponent());
+      expect(valide['etape']()).toBe(3);
+
+      facturationStoreMock.successMessage.mockReturnValue(null);
+    });
 
   it('propage centerId et userId lors de la validation', () => {
     const component = TestBed.runInInjectionContext(() => new FacturationWorkspaceComponent());

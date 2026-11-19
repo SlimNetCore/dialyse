@@ -35,6 +35,7 @@ import {
   motifDeReouvertureValide
 } from './state/facturation-periodes';
 import {ROLES_SYNTHESE_FACTURATION} from '../../core/api/http-error-detail';
+import {etapeCourante, FacturationEtapesComponent} from './etapes/facturation-etapes.component';
 
 /** Exclusion en cours de saisie pour une séance de la simulation. */
 type ExclusionDraft = { seanceId: string; motif: MotifAbsence | null; commentaire: string };
@@ -56,6 +57,7 @@ type ExclusionDraft = { seanceId: string; motif: MotifAbsence | null; commentair
     DecimalPipe,
     DatePipe,
     ConfigurableListComponent,
+    FacturationEtapesComponent,
   ],
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './facturation-workspace.component.html',
@@ -74,6 +76,10 @@ export class FacturationWorkspaceComponent {
 
   /** La synthèse mensuelle est réservée à ADMIN et SECRETAIRE (le backend refuse les autres en 403). */
   protected readonly canPrintSynthese = computed(() => ROLES_SYNTHESE_FACTURATION.some((role) => this.auth.hasRole(role)));
+
+  /** Étape courante de l'indicateur compact (RG-FAC-049). */
+  protected readonly etape = computed(() =>
+    etapeCourante({preview: this.store.preview(), successMessage: this.store.successMessage()}));
 
   protected readonly motifs = MOTIFS_ABSENCE;
   /** ADR 0044 : seul un mois passé se clôture (bouton désactivé sinon ; le serveur reste juge). */

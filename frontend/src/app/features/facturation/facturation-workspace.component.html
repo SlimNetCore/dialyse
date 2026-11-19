@@ -9,32 +9,8 @@
         {{ 'FACTURATION.SETTINGS.GOTO_ADMIN' | translate }}
       </a>
     </div>
+    <app-facturation-etapes [etape]="etape()"/>
   </div>
-
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>{{ 'FACTURATION.FLOW.TITLE' | translate }}</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <div class="flow-grid">
-        <div class="flow-item">
-          <span class="flow-index">1</span>
-          <h3>{{ 'FACTURATION.FLOW.SELECT.TITLE' | translate }}</h3>
-          <p>{{ 'FACTURATION.FLOW.SELECT.DESC' | translate }}</p>
-        </div>
-        <div class="flow-item">
-          <span class="flow-index">2</span>
-          <h3>{{ 'FACTURATION.FLOW.PREVIEW.TITLE' | translate }}</h3>
-          <p>{{ 'FACTURATION.FLOW.PREVIEW.DESC' | translate }}</p>
-        </div>
-        <div class="flow-item">
-          <span class="flow-index">3</span>
-          <h3>{{ 'FACTURATION.FLOW.VALIDATE.TITLE' | translate }}</h3>
-          <p>{{ 'FACTURATION.FLOW.VALIDATE.DESC' | translate }}</p>
-        </div>
-      </div>
-    </mat-card-content>
-  </mat-card>
 
   <mat-card>
     <mat-card-header>

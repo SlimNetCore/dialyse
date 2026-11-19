@@ -771,6 +771,94 @@ export type FacturePaymentItem = {
   referencePaiement?: string | null;
 };
 
+/** État de règlement d'une facture émise (RG-FAC-046), calculé à chaque lecture. */
+export type FactureEtat = ReglementEtat;
+
+/** Champs triables de la liste des factures (`sort=champ,direction`). */
+export type FactureChampDeTri = 'dateFacturation' | 'numeroFacture' | 'patient' | 'caisse' | 'nombreDeSeances'
+  | 'montantTtc' | 'montantRegle' | 'reste' | 'etat';
+
+/** Critères de `GET /facturation/factures` : `du`/`au` ensemble ou aucun (mois courant côté serveur). */
+export type FacturesQuery = {
+  du?: string | null;
+  au?: string | null;
+  page: number;
+  size: number;
+  sort?: { champ: FactureChampDeTri; direction: 'asc' | 'desc' } | null;
+  numero?: string | null;
+  patient?: string | null;
+  caisseId?: string | null;
+  etat?: FactureEtat | null;
+  montantMin?: number | null;
+  montantMax?: number | null;
+};
+
+/** Facture émise telle que listée (montants figés, réglé et reste recalculés). */
+export type FactureListee = {
+  factureId: string;
+  numeroFacture: string;
+  dateFacturation: string;
+  periodeDebut: string;
+  periodeFin: string;
+  patientId: string;
+  numeroAssurance: string;
+  patientNom: string;
+  patientPrenom: string;
+  caisseId: string | null;
+  caisse: string;
+  nombreDeSeances: number;
+  tauxTva: number;
+  montantHt: number;
+  montantTva: number;
+  montantTtc: number;
+  montantRegle: number;
+  reste: number;
+  tropPercu: number;
+  etat: FactureEtat;
+};
+
+/** Totaux de toutes les factures filtrées (pas seulement la page). */
+export type TotauxDesFactures = {
+  nombreDeFactures: number;
+  montantHt: number;
+  montantTva: number;
+  montantTtc: number;
+  montantRegle: number;
+  reste: number;
+};
+
+export type PageDeFactures = PagedResponse<FactureListee> & { du: string; au: string; totaux: TotauxDesFactures };
+
+/** Ligne figée d'une facture (un forfait, son prix unitaire HT et son nombre de séances). */
+export type LigneDeFactureDetaillee = {
+  forfaitId: string | null;
+  forfaitLibelle: string;
+  prixUnitaireHt: number;
+  nombreDeSeances: number;
+  montantHt: number;
+  montantTva: number;
+  montantTtc: number;
+};
+
+/** Séance rattachée à la facture ; forfait null = non attribuable (RG-FAC-048). */
+export type SeanceDeFactureDetaillee = {
+  seanceId: string;
+  dateSeance: string;
+  statut: string;
+  forfaitId: string | null;
+  forfaitLibelle: string | null;
+  prixUnitaireHt: number | null;
+};
+
+export type DetailDeFacture = {
+  factureId: string;
+  numeroFacture: string;
+  tauxTva: number;
+  lignes: LigneDeFactureDetaillee[];
+  seances: SeanceDeFactureDetaillee[];
+  totaux: { montantHt: number; montantTva: number; montantTtc: number; montantRegle: number; reste: number };
+};
+
 @Injectable({ providedIn: 'root' })
 export class BackendApiService {
   private readonly http = inject(HttpClient);
@@ -1345,6 +1433,32 @@ export class BackendApiService {
     if (query.agenceId) params = params.set('agenceId', query.agenceId);
     if (query.centrePayeurId) params = params.set('centrePayeurId', query.centrePayeurId);
     return this.http.get<ReglementDashboardResponse>(`${this.baseUrl}/reglements/dashboard`, {params});
+  }
+
+  /** Factures émises du centre sur la période (RG-FAC-046) ; les critères vides ne sont pas envoyés. */
+  listFactures(centerId: string, query: FacturesQuery): Observable<PageDeFactures> {
+    let params = new HttpParams()
+      .set('centerId', centerId)
+      .set('page', String(query.page))
+      .set('size', String(query.size));
+    if (query.du && query.au) params = params.set('du', query.du).set('au', query.au);
+    if (query.sort) params = params.set('sort', `${query.sort.champ},${query.sort.direction}`);
+    const numero = query.numero?.trim();
+    if (numero) params = params.set('numero', numero);
+    const patient = query.patient?.trim();
+    if (patient) params = params.set('patient', patient);
+    if (query.caisseId) params = params.set('caisseId', query.caisseId);
+    if (query.etat) params = params.set('etat', query.etat);
+    if (query.montantMin != null) params = params.set('montantMin', String(query.montantMin));
+    if (query.montantMax != null) params = params.set('montantMax', String(query.montantMax));
+    return this.http.get<PageDeFactures>(`${this.baseUrl}/facturation/factures`, {params});
+  }
+
+  /** Détail d'une facture émise : lignes figées, séances rattachées et totaux (RG-FAC-047/048). */
+  getFactureDetail(centerId: string, factureId: string): Observable<DetailDeFacture> {
+    const params = new HttpParams().set('centerId', centerId);
+    return this.http.get<DetailDeFacture>(
+      `${this.baseUrl}/facturation/factures/${encodeURIComponent(factureId)}/lignes`, {params});
   }
 
   registerFacturePayment(factureId: string, payload: RegisterFacturePaymentPayload): Observable<ReglementInvoiceRow> {

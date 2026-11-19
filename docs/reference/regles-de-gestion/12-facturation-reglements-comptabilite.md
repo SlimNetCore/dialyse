@@ -247,7 +247,9 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
   `SeancesDeLaFacturePubliees` (ACL vers la Séance).
 - **RG-FAC-049** (écran) — L'écran de calcul affiche les trois étapes Sélection → Aperçu → Validation sur une seule ligne ; l'étape
   courante est déduite de l'état de l'écran (pas d'aperçu : Sélection ; aperçu calculé non validé : Aperçu ; validation réussie :
-  Validation) ; l'explication de chaque étape est en info-bulle et lue par les lecteurs d'écran. *Source :* écran Facturation
+  Validation ; toute autre action ensuite, par exemple la clôture du mois, ramène à Sélection) ; l'explication de chaque étape
+  est en info-bulle et lue une seule fois par les lecteurs d'écran ; sur un écran étroit, seuls les numéros des étapes non
+  courantes restent visibles et la ligne défile, aucune étape n'est coupée. *Source :* écran Facturation
   (frontend).
 
 ## 12.5 Règlements des factures

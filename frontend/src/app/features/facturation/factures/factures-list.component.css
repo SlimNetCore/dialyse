@@ -1,0 +1,113 @@
+:host {
+  display: block;
+}
+
+.factures-card mat-card-content {
+  display: grid;
+  gap: 12px;
+}
+
+.periode {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px 12px;
+}
+
+.periode__borne {
+  display: grid;
+  gap: 2px;
+  font-size: 0.8rem;
+  color: var(--app-muted);
+}
+
+.periode__borne input {
+  height: 36px;
+  padding: 0 8px;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  font-size: 0.9rem;
+}
+
+.periode__erreur {
+  color: var(--mat-sys-error, #b3261e);
+  font-size: 0.85rem;
+}
+
+.totaux {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.totaux > div {
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+}
+
+.totaux dt {
+  color: var(--app-muted);
+}
+
+.totaux dd {
+  margin: 0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.erreur {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--mat-sys-error, #b3261e);
+}
+
+.table-container {
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.detail {
+  display: grid;
+  gap: 8px;
+  padding: 8px 12px 12px;
+}
+
+.detail h4 {
+  margin: 4px 0 0;
+  font-size: 0.9rem;
+}
+
+.detail__table {
+  width: 100%;
+  max-width: 900px;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.detail__table th,
+.detail__table td {
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--app-border);
+  text-align: start;
+}
+
+.detail__table th {
+  color: var(--app-muted);
+  font-weight: 600;
+}
+
+.detail__table .num {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.muet {
+  color: var(--app-muted);
+}

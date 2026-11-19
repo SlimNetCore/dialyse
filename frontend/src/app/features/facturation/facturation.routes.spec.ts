@@ -3,6 +3,7 @@ import {facturationRoutes} from './facturation.routes';
 import {centreAdminGuard} from '../../core/auth/admin.guard';
 import {FacturationWorkspaceComponent} from './facturation-workspace.component';
 import {FacturationTableauDeBordComponent} from './tableau-de-bord/facturation-tableau-de-bord.component';
+import {FacturesListComponent} from './factures/factures-list.component';
 
 describe('routes Facturation', () => {
   it('l\'arrivée dans le module mène à l\'écran de calcul et de validation, réservé à l\'admin du centre', async () => {
@@ -18,6 +19,13 @@ describe('routes Facturation', () => {
 
     expect(tableauDeBord?.canActivate).toEqual([centreAdminGuard]);
     expect(await tableauDeBord?.loadComponent?.()).toBe(FacturationTableauDeBordComponent);
+  });
+
+  it('la liste des factures émises est servie sur /facturation/factures avec les mêmes droits', async () => {
+    const factures = facturationRoutes.find((r) => r.path === 'factures');
+
+    expect(factures?.canActivate).toEqual([centreAdminGuard]);
+    expect(await factures?.loadComponent?.()).toBe(FacturesListComponent);
   });
 
   it('ne garde aucune redirection vide (route morte supprimée)', () => {

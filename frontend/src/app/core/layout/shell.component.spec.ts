@@ -165,14 +165,36 @@ describe('ShellComponent — barre de module', () => {
     expect(component.modules.map((m) => m.key)).toEqual(expect.arrayContaining(['stock', 'gmao']));
   });
 
-  it('module Facturation : le tableau de bord en tête, puis le calcul et la validation', async () => {
-    const {component} = await renderAt('/facturation');
+  it('module Facturation : le tableau de bord en tête, puis le calcul et la validation, puis la liste des factures',
+    async () => {
+      const {component} = await renderAt('/facturation');
 
-    expect(component.activeModuleItems().map((i) => i.route)).toEqual(['/facturation/tableau-de-bord',
-      '/facturation']);
-    expect(component.activeModuleItems()[0]).toMatchObject({label: 'NAV.TABLEAU_DE_BORD', icon: 'insights'});
-    expect(component.activeModuleItems()[1]).toMatchObject({label: 'NAV.FACTURATION_CALCUL'});
-    expect(component.activeItemRoute()).toBe('/facturation');
+      expect(component.activeModuleItems().map((i) => i.route)).toEqual(['/facturation/tableau-de-bord',
+        '/facturation', '/facturation/factures']);
+      expect(component.activeModuleItems()[0]).toMatchObject({label: 'NAV.TABLEAU_DE_BORD', icon: 'insights'});
+      expect(component.activeModuleItems()[1]).toMatchObject({label: 'NAV.FACTURATION_CALCUL'});
+      expect(component.activeModuleItems()[2]).toMatchObject({
+        label: 'NAV.FACTURATION_FACTURES', icon: 'receipt_long'});
+      expect(component.activeItemRoute()).toBe('/facturation');
+    });
+
+  it.each([
+    [['MEDECIN']],
+    [['INFIRMIER']],
+    [['SECRETAIRE']],
+  ])('la liste des factures n\'est proposée qu\'à l\'ADMIN (absente pour %j, que le serveur refuse)', async (profil) => {
+    roles = profil;
+    const fixture = TestBed.createComponent(ShellComponent);
+
+    const routes = fixture.componentInstance.modules.flatMap((m) => m.items.map((i) => i.route));
+    expect(routes).not.toContain('/facturation/factures');
+  });
+
+  it('la liste des factures est l\'entrée active sur /facturation/factures, avec son fil d\'Ariane', async () => {
+    const {component} = await renderAt('/facturation/factures');
+
+    expect(component.activeItemRoute()).toBe('/facturation/factures');
+    expect(breadcrumbLabels('/facturation/factures')).toEqual(['NAV.FACTURATION', 'NAV.FACTURATION_FACTURES']);
   });
 
   it('module Règlement : le tableau de bord en tête, puis la saisie des règlements', async () => {

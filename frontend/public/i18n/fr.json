@@ -1184,6 +1184,63 @@
         "DESC": "Valider la facturation persiste les factures et marque les séances FACTUREE."
       }
     },
+    "FACTURES": {
+      "TITLE": "Factures émises",
+      "SUBTITLE": "Factures du centre dont la date de facturation est dans la période. Cliquez sur une facture pour voir ses séances, son forfait et ses montants.",
+      "PERIODE": "Période de facturation",
+      "DU": "Du",
+      "AU": "Au",
+      "MOIS_PRECEDENT": "Mois précédent",
+      "MOIS_COURANT": "Mois courant",
+      "PERIODE_INVALIDE": "La date de début doit précéder la date de fin.",
+      "EMPTY": "Aucune facture sur cette période.",
+      "REESSAYER": "Réessayer",
+      "TOTAUX": {
+        "NOMBRE": "Factures"
+      },
+      "COL": {
+        "NUMERO": "N° facture",
+        "DATE": "Date",
+        "PERIODE": "Période facturée",
+        "PATIENT": "Patient",
+        "CAISSE": "Caisse",
+        "SEANCES": "Séances",
+        "HT": "HT",
+        "TVA": "TVA",
+        "TTC": "TTC",
+        "REGLE": "Réglé",
+        "RESTE": "Reste",
+        "ETAT": "État"
+      },
+      "ETAT": {
+        "NON_REGLEE": "Non réglée",
+        "PARTIELLEMENT_REGLEE": "Partiellement réglée",
+        "REGLEE": "Réglée"
+      },
+      "DETAIL": {
+        "SEANCES": "Séances facturées",
+        "DATE": "Date",
+        "STATUT": "Statut",
+        "FORFAIT": "Forfait",
+        "PU_HT": "Prix unitaire HT",
+        "QUANTITE": "Séances",
+        "LIGNES": "Montants par forfait",
+        "NON_ATTRIBUABLE": "non attribuable",
+        "NON_ATTRIBUABLE_AIDE": "Le forfait de cette séance ne peut pas être déduit des lignes de la facture ; les montants des lignes font foi.",
+        "AUCUNE_SEANCE": "Aucune séance rattachée à cette facture.",
+        "CHARGEMENT": "Chargement du détail…"
+      },
+      "ERREURS": {
+        "GENERALE": "Impossible de charger les factures.",
+        "ACCES_REFUSE": "Accès refusé : la consultation des factures est réservée à l'administrateur du centre.",
+        "REQUETE_INVALIDE": "Critères refusés par le serveur.",
+        "PERIODE_INVALIDE": "Période invalide : début avant la fin, 366 jours au plus.",
+        "TRI_INVALIDE": "Tri non pris en charge.",
+        "ETAT_INVALIDE": "État de règlement inconnu.",
+        "MONTANT_INVALIDE": "Le montant minimum doit être inférieur au montant maximum.",
+        "INTROUVABLE": "Facture introuvable dans ce centre."
+      }
+    },
     "CALCULATOR": {
       "TITLE": "Sélection de campagne",
       "MODE_MONTH": "Par mois",
@@ -3317,6 +3374,7 @@
     "PATIENTS_PEC_LISTE": "Liste des PEC",
     "PATIENTS_ATTESTATIONS": "Attestations",
     "FACTURATION_CALCUL": "Calcul de la facturation",
+    "FACTURATION_FACTURES": "Factures",
     "REGLEMENT_SAISIE": "Saisie des règlements",
     "STOCK_ETAT": "État du stock",
     "STOCK_ARTICLES": "Articles",

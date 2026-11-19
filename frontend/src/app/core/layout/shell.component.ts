@@ -103,6 +103,7 @@ const BREADCRUMB_LABELS: Record<string, string> = {
   seances: 'NAV.SEANCES',
   infirmiers: 'NAV.INFIRMIERS',
   facturation: 'NAV.FACTURATION',
+  factures: 'NAV.FACTURATION_FACTURES',
   reglement: 'NAV.REGLEMENT',
   stock: 'NAV.STOCK',
   gmao: 'NAV.GMAO',
@@ -308,6 +309,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
           role: 'ADMIN'
         },
         {route: '/facturation', label: 'NAV.FACTURATION_CALCUL', icon: 'calculate', role: 'ADMIN'},
+        {route: '/facturation/factures', label: 'NAV.FACTURATION_FACTURES', icon: 'receipt_long', role: 'ADMIN'},
       ],
     },
     {

@@ -29,40 +29,6 @@ mat-card-content {
   gap: 12px;
 }
 
-.flow-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.flow-item {
-  border: 1px solid var(--app-border);
-  border-radius: 16px;
-  padding: 16px;
-  background: color-mix(in srgb, var(--app-surface) 94%, var(--app-primary-soft) 6%);
-}
-
-.flow-item h3 {
-  margin: 8px 0;
-}
-
-.flow-item p {
-  margin: 0;
-  color: var(--app-muted);
-}
-
-.flow-index {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 999px;
-  background: var(--app-primary);
-  color: var(--mat-sys-on-primary, #ffffff);
-  font-weight: 700;
-}
-
 .mode-toggle {
   display: flex;
   flex-wrap: wrap;
@@ -443,7 +409,6 @@ mat-card {
 }
 
 @media (max-width: 1024px) {
-  .flow-grid,
   .settings-grid {
     grid-template-columns: 1fr;
   }

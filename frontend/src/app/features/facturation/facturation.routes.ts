@@ -15,4 +15,10 @@ export const facturationRoutes: Routes = [
     loadComponent: () => import('./tableau-de-bord/facturation-tableau-de-bord.component')
       .then((m) => m.FacturationTableauDeBordComponent),
   },
+  {
+    // consultation des factures émises (RG-FAC-046/047) : mêmes droits que l'écran de calcul
+    path: 'factures',
+    canActivate: [centreAdminGuard],
+    loadComponent: () => import('./factures/factures-list.component').then((m) => m.FacturesListComponent),
+  },
 ];

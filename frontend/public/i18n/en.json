@@ -1184,6 +1184,63 @@
         "DESC": "Validate billing persists invoices and marks sessions as BILLED."
       }
     },
+    "FACTURES": {
+      "TITLE": "Issued invoices",
+      "SUBTITLE": "Center invoices whose billing date falls within the period. Click an invoice to see its sessions, package and amounts.",
+      "PERIODE": "Billing period",
+      "DU": "From",
+      "AU": "To",
+      "MOIS_PRECEDENT": "Previous month",
+      "MOIS_COURANT": "Current month",
+      "PERIODE_INVALIDE": "The start date must be before the end date.",
+      "EMPTY": "No invoice in this period.",
+      "REESSAYER": "Retry",
+      "TOTAUX": {
+        "NOMBRE": "Invoices"
+      },
+      "COL": {
+        "NUMERO": "Invoice no.",
+        "DATE": "Date",
+        "PERIODE": "Billed period",
+        "PATIENT": "Patient",
+        "CAISSE": "Insurer",
+        "SEANCES": "Sessions",
+        "HT": "Excl. tax",
+        "TVA": "VAT",
+        "TTC": "Incl. tax",
+        "REGLE": "Paid",
+        "RESTE": "Outstanding",
+        "ETAT": "Status"
+      },
+      "ETAT": {
+        "NON_REGLEE": "Unpaid",
+        "PARTIELLEMENT_REGLEE": "Partially paid",
+        "REGLEE": "Paid"
+      },
+      "DETAIL": {
+        "SEANCES": "Billed sessions",
+        "DATE": "Date",
+        "STATUT": "Status",
+        "FORFAIT": "Package",
+        "PU_HT": "Unit price excl. tax",
+        "QUANTITE": "Sessions",
+        "LIGNES": "Amounts per package",
+        "NON_ATTRIBUABLE": "not attributable",
+        "NON_ATTRIBUABLE_AIDE": "This session's package cannot be inferred from the invoice lines; the line amounts are authoritative.",
+        "AUCUNE_SEANCE": "No session attached to this invoice.",
+        "CHARGEMENT": "Loading details…"
+      },
+      "ERREURS": {
+        "GENERALE": "Unable to load invoices.",
+        "ACCES_REFUSE": "Access denied: invoice consultation is restricted to the center administrator.",
+        "REQUETE_INVALIDE": "Criteria rejected by the server.",
+        "PERIODE_INVALIDE": "Invalid period: start before end, 366 days at most.",
+        "TRI_INVALIDE": "Unsupported sort.",
+        "ETAT_INVALIDE": "Unknown payment status.",
+        "MONTANT_INVALIDE": "The minimum amount must be lower than the maximum amount.",
+        "INTROUVABLE": "Invoice not found in this center."
+      }
+    },
     "CALCULATOR": {
       "TITLE": "Campaign selection",
       "MODE_MONTH": "By month",
@@ -3317,6 +3374,7 @@
     "PATIENTS_PEC_LISTE": "Coverage list",
     "PATIENTS_ATTESTATIONS": "Certificates",
     "FACTURATION_CALCUL": "Billing calculation",
+    "FACTURATION_FACTURES": "Invoices",
     "REGLEMENT_SAISIE": "Payment entry",
     "STOCK_ETAT": "Stock status",
     "STOCK_ARTICLES": "Articles",

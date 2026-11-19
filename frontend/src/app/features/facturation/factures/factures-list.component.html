@@ -1,0 +1,155 @@
+<mat-card class="factures-card">
+  <mat-card-header>
+    <mat-card-title id="factures-titre">{{ 'FACTURATION.FACTURES.TITLE' | translate }}</mat-card-title>
+    <mat-card-subtitle>{{ 'FACTURATION.FACTURES.SUBTITLE' | translate }}</mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <div class="periode" role="group" [attr.aria-label]="'FACTURATION.FACTURES.PERIODE' | translate">
+      <label class="periode__borne">
+        <span>{{ 'FACTURATION.FACTURES.DU' | translate }}</span>
+        <input type="date" data-testid="factures-du" [value]="du()" [max]="au()"
+               (change)="changerDu($any($event.target).value)"/>
+      </label>
+      <label class="periode__borne">
+        <span>{{ 'FACTURATION.FACTURES.AU' | translate }}</span>
+        <input type="date" data-testid="factures-au" [value]="au()" [min]="du()"
+               (change)="changerAu($any($event.target).value)"/>
+      </label>
+      <button mat-stroked-button type="button" data-testid="factures-mois-precedent" (click)="choisirMois(-1)">
+        {{ 'FACTURATION.FACTURES.MOIS_PRECEDENT' | translate }}
+      </button>
+      <button mat-stroked-button type="button" (click)="choisirMois(0)">
+        {{ 'FACTURATION.FACTURES.MOIS_COURANT' | translate }}
+      </button>
+      @if (periodeInvalide()) {
+        <span class="periode__erreur" role="alert">{{ 'FACTURATION.FACTURES.PERIODE_INVALIDE' | translate }}</span>
+      }
+    </div>
+
+    @if (store.totaux(); as totaux) {
+      <dl class="totaux" data-testid="factures-totaux" aria-live="polite">
+        <div><dt>{{ 'FACTURATION.FACTURES.TOTAUX.NOMBRE' | translate }}</dt><dd>{{ totaux.nombreDeFactures }}</dd></div>
+        <div><dt>{{ 'FACTURATION.FACTURES.COL.HT' | translate }}</dt><dd>{{ montant(totaux.montantHt) }}</dd></div>
+        <div><dt>{{ 'FACTURATION.FACTURES.COL.TVA' | translate }}</dt><dd>{{ montant(totaux.montantTva) }}</dd></div>
+        <div><dt>{{ 'FACTURATION.FACTURES.COL.TTC' | translate }}</dt><dd>{{ montant(totaux.montantTtc) }}</dd></div>
+        <div><dt>{{ 'FACTURATION.FACTURES.COL.REGLE' | translate }}</dt><dd>{{ montant(totaux.montantRegle) }}</dd></div>
+        <div><dt>{{ 'FACTURATION.FACTURES.COL.RESTE' | translate }}</dt><dd>{{ montant(totaux.reste) }}</dd></div>
+      </dl>
+    }
+
+    @if (store.erreur(); as erreur) {
+      <div class="erreur" role="alert" data-testid="factures-erreur">
+        <mat-icon aria-hidden="true">error_outline</mat-icon>
+        <span>{{ erreur | translate }}</span>
+        <button mat-button type="button" (click)="store.recharger()">{{ 'FACTURATION.FACTURES.REESSAYER' | translate }}</button>
+      </div>
+    }
+
+    <section class="table-container" aria-labelledby="factures-titre">
+      <ng-table
+        [columns]="colonnes()"
+        [rows]="store.lignes()"
+        [dataMode]="'remote'"
+        [paginator]="true"
+        [totalCount]="store.total()"
+        [pageIndex]="store.criteres().page"
+        [pageSize]="store.criteres().size"
+        [pageSizeOptions]="taillesDePage"
+        [loading]="store.chargement()"
+        [labels]="ngTableLabels()"
+        [emptyLabel]="libelleVide()"
+        [showActiveFiltersBar]="true"
+        [rowKeyAccessor]="cleDeFacture"
+        [detailRowTemplate]="detailTemplate()"
+        [expandedRowKeys]="store.clesDepliees()"
+        (remoteQueryChange)="onRemoteQueryChange($event)"
+        (rowClick)="onRowClick($event)"
+        (detailToggle)="onDetailToggle($event)"
+      />
+    </section>
+  </mat-card-content>
+</mat-card>
+
+<ng-template #detailFacture let-row>
+  <div class="detail" data-testid="facture-detail">
+    @if (detailDe(row.factureId); as detail) {
+      <h4>{{ 'FACTURATION.FACTURES.DETAIL.SEANCES' | translate }} ({{ detail.seances.length }})</h4>
+      @if (detail.seances.length) {
+        <table class="detail__table" data-testid="facture-detail-seances">
+          <thead>
+          <tr>
+            <th scope="col">{{ 'FACTURATION.FACTURES.DETAIL.DATE' | translate }}</th>
+            <th scope="col">{{ 'FACTURATION.FACTURES.DETAIL.STATUT' | translate }}</th>
+            <th scope="col">{{ 'FACTURATION.FACTURES.DETAIL.FORFAIT' | translate }}</th>
+            <th scope="col" class="num">{{ 'FACTURATION.FACTURES.DETAIL.PU_HT' | translate }}</th>
+          </tr>
+          </thead>
+          <tbody>
+            @for (s of detail.seances; track s.seanceId) {
+              <tr>
+                <td>{{ dateCourte(s.dateSeance) }}</td>
+                <td>{{ statutDeSeance(s.statut) | translate }}</td>
+                <td>
+                  @if (s.forfaitLibelle) {
+                    {{ s.forfaitLibelle }}
+                  } @else {
+                    <span class="muet" [attr.title]="'FACTURATION.FACTURES.DETAIL.NON_ATTRIBUABLE_AIDE' | translate">
+                      — {{ 'FACTURATION.FACTURES.DETAIL.NON_ATTRIBUABLE' | translate }}
+                    </span>
+                  }
+                </td>
+                <td class="num">{{ montant(s.prixUnitaireHt) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <p class="muet">{{ 'FACTURATION.FACTURES.DETAIL.AUCUNE_SEANCE' | translate }}</p>
+      }
+
+      <h4>{{ 'FACTURATION.FACTURES.DETAIL.LIGNES' | translate }}</h4>
+      <table class="detail__table" data-testid="facture-detail-lignes">
+        <thead>
+        <tr>
+          <th scope="col">{{ 'FACTURATION.FACTURES.DETAIL.FORFAIT' | translate }}</th>
+          <th scope="col" class="num">{{ 'FACTURATION.FACTURES.DETAIL.QUANTITE' | translate }}</th>
+          <th scope="col" class="num">{{ 'FACTURATION.FACTURES.DETAIL.PU_HT' | translate }}</th>
+          <th scope="col" class="num">{{ 'FACTURATION.FACTURES.COL.HT' | translate }}</th>
+          <th scope="col" class="num">{{ 'FACTURATION.FACTURES.COL.TVA' | translate }} ({{ detail.tauxTva }} %)</th>
+          <th scope="col" class="num">{{ 'FACTURATION.FACTURES.COL.TTC' | translate }}</th>
+        </tr>
+        </thead>
+        <tbody>
+          @for (l of detail.lignes; track $index) {
+            <tr>
+              <td>{{ l.forfaitLibelle }}</td>
+              <td class="num">{{ l.nombreDeSeances }}</td>
+              <td class="num">{{ montant(l.prixUnitaireHt) }}</td>
+              <td class="num">{{ montant(l.montantHt) }}</td>
+              <td class="num">{{ montant(l.montantTva) }}</td>
+              <td class="num">{{ montant(l.montantTtc) }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <dl class="totaux totaux--detail" data-testid="facture-detail-totaux">
+        <div><dt>{{ 'FACTURATION.FACTURES.COL.HT' | translate }}</dt><dd>{{ montant(detail.totaux.montantHt) }}</dd></div>
+        <div><dt>{{ 'FACTURATION.FACTURES.COL.TVA' | translate }}</dt><dd>{{ montant(detail.totaux.montantTva) }}</dd></div>
+        <div><dt>{{ 'FACTURATION.FACTURES.COL.TTC' | translate }}</dt><dd>{{ montant(detail.totaux.montantTtc) }}</dd></div>
+        <div><dt>{{ 'FACTURATION.FACTURES.COL.REGLE' | translate }}</dt><dd>{{ montant(detail.totaux.montantRegle) }}</dd></div>
+        <div><dt>{{ 'FACTURATION.FACTURES.COL.RESTE' | translate }}</dt><dd>{{ montant(detail.totaux.reste) }}</dd></div>
+      </dl>
+    } @else if (erreurDuDetail(row.factureId); as message) {
+      <div class="erreur" role="alert" data-testid="facture-detail-erreur">
+        <span>{{ message | translate }}</span>
+        <button mat-button type="button" (click)="store.reessayerDetail(row.factureId)">
+          {{ 'FACTURATION.FACTURES.REESSAYER' | translate }}
+        </button>
+      </div>
+    } @else {
+      <p class="muet" aria-live="polite">{{ 'FACTURATION.FACTURES.DETAIL.CHARGEMENT' | translate }}</p>
+    }
+  </div>
+</ng-template>
