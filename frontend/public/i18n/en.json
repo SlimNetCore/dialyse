@@ -1230,7 +1230,11 @@
       "INVOICE_TTC": "TTC"
     },
     "DASHBOARD": {
+      "EYEBROW": "Billing",
       "TITLE": "Billing dashboard",
+      "DESCRIPTION": "Revenue, billed sessions and patients for the selected month, six-month trend and breakdowns by insurance fund and patient status.",
+      "MONTH": "Displayed month",
+      "INDICATEURS": "Month indicators",
       "EMPTY": "No billing data for this period.",
       "KPI": {
         "REVENUE_HT": "Revenue HT",

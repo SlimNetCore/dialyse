@@ -145,6 +145,16 @@ describe('ShellComponent — barre de module', () => {
       expect(component.activeModuleItems().slice(-2).map((i) => i.kind)).toEqual(['parametrage', 'parametrage']);
     });
 
+  it('module Facturation : le tableau de bord en tête, puis le calcul et la validation', async () => {
+    const {component} = await renderAt('/facturation');
+
+    expect(component.activeModuleItems().map((i) => i.route)).toEqual(['/facturation/tableau-de-bord',
+      '/facturation']);
+    expect(component.activeModuleItems()[0]).toMatchObject({label: 'NAV.TABLEAU_DE_BORD', icon: 'insights'});
+    expect(component.activeModuleItems()[1]).toMatchObject({label: 'NAV.FACTURATION_CALCUL'});
+    expect(component.activeItemRoute()).toBe('/facturation');
+  });
+
   it('le référentiel des infirmiers, déclaré aussi dans la barre Administration, s\'active dans son module d\'origine',
     async () => {
       const {component} = await renderAt('/infirmiers/referentiel');

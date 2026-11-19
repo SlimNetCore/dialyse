@@ -1230,7 +1230,11 @@
       "INVOICE_TTC": "TTC"
     },
     "DASHBOARD": {
-      "TITLE": "Dashboard facturation",
+      "EYEBROW": "Facturation",
+      "TITLE": "Tableau de bord facturation",
+      "DESCRIPTION": "Chiffre d'affaires, séances et patients facturés du mois choisi, évolution sur six mois et répartitions par caisse et par statut patient.",
+      "MONTH": "Mois affiché",
+      "INDICATEURS": "Indicateurs du mois",
       "EMPTY": "Aucune donnée de facturation pour la période.",
       "KPI": {
         "REVENUE_HT": "Chiffre d'affaires HT",

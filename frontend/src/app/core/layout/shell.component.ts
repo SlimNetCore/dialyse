@@ -294,7 +294,11 @@ export class ShellComponent implements OnInit, AfterViewInit {
       icon: 'receipt',
       label: 'NAV.FACTURATION',
       items: [
-        {route: '/facturation', label: 'NAV.FACTURATION_CALCUL', icon: 'space_dashboard', role: 'ADMIN'},
+        {
+          route: '/facturation/tableau-de-bord', label: 'NAV.TABLEAU_DE_BORD', icon: 'insights', kind: 'tableau-de-bord',
+          role: 'ADMIN'
+        },
+        {route: '/facturation', label: 'NAV.FACTURATION_CALCUL', icon: 'calculate', role: 'ADMIN'},
       ],
     },
     {

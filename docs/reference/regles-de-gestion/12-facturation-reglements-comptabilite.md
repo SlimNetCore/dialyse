@@ -100,8 +100,13 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
   facturation, bornes incluses), jamais recalculés. Les « séances facturées » comptent les séances au statut `FACTUREE`
   dont la date tombe dans le mois, alors que les ventilations comptent les séances rattachées aux factures du mois : les
   deux nombres peuvent différer. Le mois est obligatoire. Accès : `ADMIN`, `MEDECIN`, `SECRETAIRE` (le médecin seul est
-  refusé) ; le **centre demandé doit être celui de la session** (403 sinon). *Source :* `ConsulterLeTableauDeBord` →
-  `TableauDeBordControleur` (ADR 0034).
+  refusé) ; le **centre demandé doit être celui de la session** (403 sinon). À l'écran, ces indicateurs, la courbe du
+  chiffre d'affaires HT des six derniers mois et les deux répartitions forment le **tableau de bord du module**
+  (`/facturation/tableau-de-bord`, première entrée de la barre du module), avec un **sélecteur de mois propre**,
+  indépendant du mois de l'écran de calcul. L'arrivée dans le module (`/facturation`) est l'écran de travail « Calcul
+  de la facturation » : simulation, exclusions, forfaits, validation, synthèse imprimable et clôture/réouverture des
+  mois ; il ne porte plus les indicateurs du mois. Les deux écrans sont réservés à l'`ADMIN` du centre. *Source :*
+  `ConsulterLeTableauDeBord` → `TableauDeBordControleur` (ADR 0034).
 - **RG-FAC-025** — La **synthèse mensuelle de facturation** s'imprime sur une période (début et fin incluses, aucun
   plafond de durée) en PDF, Excel ou HTML (PDF embarqué). Deux voies coexistent : `POST /api/v1/facturation/synthese/print`
   (tableau forfait x caisse, une colonne HT et TTC par caisse, indicateurs, barres de répartition par caisse et par

@@ -93,10 +93,6 @@
             {{ 'COMMON.PRINT_MONTHLY_SUMMARY' | translate }}
           </button>
         }
-        <button mat-stroked-button (click)="refreshDashboard()">
-          <mat-icon>refresh</mat-icon>
-          {{ 'COMMON.REFRESH_BUTTON' | translate }}
-        </button>
       </div>
 
       @if (canPrintSynthese()) {
@@ -492,90 +488,5 @@
       </mat-card-content>
     </mat-card>
   }
-
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>{{ 'FACTURATION.DASHBOARD.TITLE' | translate }}</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      @if (store.dashboardLoading()) {
-        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-      }
-
-      @if (store.dashboard(); as dashboard) {
-        <div class="kpi-grid">
-          <div class="app-data-pill"><span>{{ 'FACTURATION.DASHBOARD.KPI.REVENUE_HT' | translate }}</span><strong>{{ dashboard.revenueHt | number:'1.2-2' }}</strong></div>
-          <div class="app-data-pill"><span>{{ 'FACTURATION.DASHBOARD.KPI.REVENUE_TTC' | translate }}</span><strong>{{ dashboard.revenueTtc | number:'1.2-2' }}</strong></div>
-          <div class="app-data-pill"><span>{{ 'FACTURATION.DASHBOARD.KPI.BILLED_SESSIONS' | translate }}</span><strong>{{ dashboard.billedSeances }}</strong></div>
-          <div class="app-data-pill"><span>{{ 'FACTURATION.DASHBOARD.KPI.BILLED_PATIENTS' | translate }}</span><strong>{{ dashboard.billedPatients }}</strong></div>
-          <div class="app-data-pill"><span>{{ 'FACTURATION.DASHBOARD.KPI.INVOICES' | translate }}</span><strong>{{ dashboard.createdInvoices }}</strong></div>
-        </div>
-
-        <div class="dashboard-grids">
-          <article class="distribution-card distribution-card-wide">
-            <h3>{{ 'FACTURATION.DASHBOARD.CHART.REVENUE_EVOLUTION' | translate }}</h3>
-            @if (store.revenueTrendLoading()) {
-              <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-            }
-            @if (store.revenueTrend().length === 0) {
-              <p class="app-muted-note">{{ 'FACTURATION.DASHBOARD.CHART.EMPTY' | translate }}</p>
-            } @else {
-              <div class="chart-wrap">
-                <canvas [data]="revenueChartData()" [options]="revenueChartOptions()" [type]="'line'" baseChart></canvas>
-              </div>
-            }
-          </article>
-
-          <article class="distribution-card">
-            <h3>{{ 'FACTURATION.DASHBOARD.BY_INSURANCE' | translate }}</h3>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                <tr>
-                  <th>{{ 'FACTURATION.DASHBOARD.TABLE.LABEL' | translate }}</th>
-                  <th>{{ 'FACTURATION.DASHBOARD.TABLE.SESSIONS' | translate }}</th>
-                  <th>{{ 'FACTURATION.DASHBOARD.TABLE.PATIENTS' | translate }}</th>
-                </tr>
-                </thead>
-                <tbody>
-                  @for (row of byCaisseRows(); track row.code) {
-                    <tr>
-                      <td>{{ row.label }}</td>
-                      <td>{{ row.seancesCount }}</td>
-                      <td>{{ row.patientsCount }}</td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-          </article>
-
-          <article class="distribution-card">
-            <h3>{{ 'FACTURATION.DASHBOARD.BY_PATIENT_STATUS' | translate }}</h3>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                <tr>
-                  <th>{{ 'FACTURATION.DASHBOARD.TABLE.LABEL' | translate }}</th>
-                  <th>{{ 'FACTURATION.DASHBOARD.TABLE.SESSIONS' | translate }}</th>
-                </tr>
-                </thead>
-                <tbody>
-                  @for (row of dashboard.byPatientStatus; track row.code) {
-                    <tr>
-                      <td>{{ row.label }}</td>
-                      <td>{{ row.seancesCount }}</td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-          </article>
-        </div>
-      } @else {
-        <p class="app-muted-note">{{ 'FACTURATION.DASHBOARD.EMPTY' | translate }}</p>
-      }
-    </mat-card-content>
-  </mat-card>
 </section>
 

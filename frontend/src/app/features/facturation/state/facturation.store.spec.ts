@@ -65,7 +65,6 @@ describe('FacturationStore', () => {
     includeSeanceInPreview: ReturnType<typeof vi.fn>;
     updatePreviewSeanceForfait: ReturnType<typeof vi.fn>;
     validateFacturation: ReturnType<typeof vi.fn>;
-    getFacturationDashboard: ReturnType<typeof vi.fn>;
     getFacturationSettings: ReturnType<typeof vi.fn>;
     updateFacturationSettings: ReturnType<typeof vi.fn>;
     listForfaitsReferential: ReturnType<typeof vi.fn>;
@@ -100,17 +99,6 @@ describe('FacturationStore', () => {
       includeSeanceInPreview: vi.fn().mockReturnValue(of(previewFixture(FORFAIT_A))),
       updatePreviewSeanceForfait: vi.fn().mockReturnValue(of(previewFixture(FORFAIT_B))),
       validateFacturation: vi.fn().mockReturnValue(of({createdInvoices: 1})),
-      getFacturationDashboard: vi.fn().mockReturnValue(of({
-        centerId: CENTER_ID,
-        month: '2026-08',
-        revenueTtc: 4760,
-        revenueHt: 4000,
-        billedSeances: 1,
-        billedPatients: 1,
-        createdInvoices: 1,
-        byInsurance: [],
-        byPatientStatus: [],
-      })),
       getFacturationSettings: vi.fn().mockReturnValue(of({
         codeFormat: 'FAC-{YEAR}-{SEQ}',
         regroupementMultiForfait: true,

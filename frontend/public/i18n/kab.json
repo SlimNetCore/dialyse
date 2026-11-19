@@ -1230,7 +1230,11 @@
       "INVOICE_TTC": "TTC"
     },
     "DASHBOARD": {
+      "EYEBROW": "Tifaturin",
       "TITLE": "Tafelwit n tfaturin",
+      "DESCRIPTION": "Aɣelmis, tiɣimiyin d yimuḍan yettwafeṛṛen n wayyur yettwafernen, tikli n 6 wayyuren d beṭṭu s lkaṣa d waddad n umuḍin.",
+      "MONTH": "Ayyur yettwaskanen",
+      "INDICATEURS": "Imesknan n wayyur",
       "EMPTY": "Ulac isefka n tfaturin deg tallit-agi.",
       "KPI": {
         "REVENUE_HT": "Aɣelmis HT",

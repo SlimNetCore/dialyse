@@ -2,10 +2,9 @@ import {computed, inject} from '@angular/core';
 import {patchState, signalStore, withComputed, withHooks, withMethods, withState} from '@ngrx/signals';
 import {withDevtools} from '@angular-architects/ngrx-toolkit';
 import {rxMethod} from '@ngrx/signals/rxjs-interop';
-import {catchError, concatMap, EMPTY, forkJoin, map, of, pipe, switchMap, tap} from 'rxjs';
+import {catchError, concatMap, EMPTY, map, of, pipe, switchMap, tap} from 'rxjs';
 import {
   BackendApiService,
-  FacturationDashboardResponse,
   FacturationPreviewResponse,
   FacturationSettings,
   MoisDeFacturationReponse,
@@ -19,14 +18,6 @@ import {SeanceExclue} from './facturation-exclusion';
 
 export type FacturationPeriodMode = 'month' | 'custom';
 
-export type FacturationRevenuePoint = {
-  month: string;
-  revenueHt: number;
-  revenueTtc: number;
-  billedSeances: number;
-  createdInvoices: number;
-};
-
 type FacturationState = {
   activeCenterId: string | null;
   periodMode: FacturationPeriodMode;
@@ -35,13 +26,9 @@ type FacturationState = {
   endDate: string;
   previewLoading: boolean;
   validating: boolean;
-  dashboardLoading: boolean;
-  revenueTrendLoading: boolean;
   settingsLoading: boolean;
   savingSettings: boolean;
   preview: FacturationPreviewResponse | null;
-  dashboard: FacturationDashboardResponse | null;
-  revenueTrend: FacturationRevenuePoint[];
   settings: FacturationSettings | null;
   settingsDraft: FacturationSettings | null;
   forfaits: ReferentialForfait[];
@@ -69,13 +56,9 @@ const initialState: FacturationState = {
   endDate: todayIsoDate(),
   previewLoading: false,
   validating: false,
-  dashboardLoading: false,
-  revenueTrendLoading: false,
   settingsLoading: false,
   savingSettings: false,
   preview: null,
-  dashboard: null,
-  revenueTrend: [],
   settings: null,
   settingsDraft: null,
   forfaits: [],
@@ -304,49 +287,6 @@ export const FacturationStore = signalStore(
       )
     ),
 
-    loadDashboard: rxMethod<{centerId: string; month: string}>(
-      pipe(
-        tap(() => patchState(store, {dashboardLoading: true, error: null})),
-        switchMap(({centerId, month}) =>
-          api.getFacturationDashboard(centerId, month).pipe(
-            tap((dashboard) => patchState(store, {dashboard, dashboardLoading: false})),
-            catchError((err: unknown) => {
-              patchState(store, {dashboardLoading: false, dashboard: null, ...facturationErrorState(err)});
-              return EMPTY;
-            })
-          )
-        )
-      )
-    ),
-
-    loadRevenueTrend: rxMethod<{centerId: string; endingMonth: string; months: number}>(
-      pipe(
-        tap(() => patchState(store, {revenueTrendLoading: true})),
-        switchMap(({centerId, endingMonth, months}) => {
-          const monthSeries = buildMonthSeries(endingMonth, months);
-          return forkJoin(
-            monthSeries.map((month) =>
-              api.getFacturationDashboard(centerId, month).pipe(
-                map((dashboard) => ({
-                  month,
-                  revenueHt: dashboard.revenueHt,
-                  revenueTtc: dashboard.revenueTtc,
-                  billedSeances: dashboard.billedSeances,
-                  createdInvoices: dashboard.createdInvoices,
-                }))
-              )
-            )
-          ).pipe(
-            tap((revenueTrend) => patchState(store, {revenueTrend, revenueTrendLoading: false})),
-            catchError(() => {
-              patchState(store, {revenueTrendLoading: false, revenueTrend: []});
-              return EMPTY;
-            })
-          );
-        })
-      )
-    ),
-
     calculatePreview: rxMethod<{centerId: string}>(
       pipe(
         tap(() => patchState(store, {previewLoading: true, error: null, successMessage: null})),
@@ -567,23 +507,6 @@ function defaultSettings(): FacturationSettings {
     regroupementMultiForfait: true,
     updatedAt: null,
   };
-}
-
-function buildMonthSeries(endingMonth: string, months: number): string[] {
-  if (!/^\d{4}-\d{2}$/.test(endingMonth) || months <= 0) {
-    return [currentMonthIso()];
-  }
-  const [year, month] = endingMonth.split('-').map((value) => Number(value));
-  const cursor = new Date(Date.UTC(year, month - 1, 1));
-  const result: string[] = [];
-  for (let i = months - 1; i >= 0; i -= 1) {
-    const d = new Date(cursor);
-    d.setUTCMonth(d.getUTCMonth() - i);
-    const y = d.getUTCFullYear();
-    const m = `${d.getUTCMonth() + 1}`.padStart(2, '0');
-    result.push(`${y}-${m}`);
-  }
-  return result;
 }
 
 /** Retrouve la séance (date, patient) dans la simulation courante, pour la lister une fois exclue. */

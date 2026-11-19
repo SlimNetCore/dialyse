@@ -70,7 +70,8 @@ describe('roleScopeGuard', () => {
     expect(run(['INFIRMIER'], '/seances')).toBe(true);
     expect(run(['INFIRMIER'], '/seances?date=2026-10-05')).toBe(true);
     for (const url of ['/dashboard', '/patients', '/stock', '/stock/tableau-de-bord', '/admin/users', '/infirmiers',
-      '/infirmiers/referentiel', '/infirmiers/absences', '/seances/planning', '/gmao', '/facturation']) {
+      '/infirmiers/referentiel', '/infirmiers/absences', '/seances/planning', '/gmao', '/facturation',
+      '/facturation/tableau-de-bord']) {
       expect(run(['INFIRMIER'], url), url).toEqual({redirect: '/infirmiers/moi'});
     }
   });
@@ -93,7 +94,7 @@ describe('roleScopeGuard', () => {
     }
     for (const url of ['/dashboard', '/patients/new', '/patients/pec-admin', '/patients/pec-list',
       '/patients/attestations-list', '/seances', '/stock', '/stock/tableau-de-bord', '/admin/users', '/infirmiers', '/infirmiers/moi',
-      '/patients/abc/autre', '/gmao', '/facturation']) {
+      '/patients/abc/autre', '/gmao', '/facturation', '/facturation/tableau-de-bord']) {
       expect(run(['MEDECIN'], url), url).toEqual({redirect: '/medecin'});
     }
   });

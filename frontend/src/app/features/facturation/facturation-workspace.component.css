@@ -438,60 +438,14 @@ mat-card-content {
   background: var(--app-table-header);
 }
 
-.dashboard-grids {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-  margin-top: 12px;
-}
-
-.distribution-card {
-  border: 1px solid var(--app-border);
-  border-radius: 16px;
-  padding: 18px;
-  background: var(--app-surface-solid);
-  min-width: 0;
-}
-
 mat-card {
   border-radius: 20px;
 }
 
-.distribution-card h3 {
-  margin: 0 0 12px;
-}
-
-.distribution-card-wide {
-  grid-column: 1 / -1;
-}
-
-.distribution-card .table-wrap table {
-  min-width: 360px;
-}
-
-.chart-wrap {
-  position: relative;
-  display: block;
-  width: 100%;
-  min-width: 0;
-  height: clamp(220px, 32vw, 320px);
-}
-
-.chart-wrap canvas {
-  display: block;
-  width: 100% !important;
-  height: 100% !important;
-}
-
 @media (max-width: 1024px) {
   .flow-grid,
-  .dashboard-grids,
   .settings-grid {
     grid-template-columns: 1fr;
-  }
-
-  .distribution-card {
-    padding: 16px;
   }
 }
 
@@ -501,10 +455,6 @@ mat-card {
   }
 
   .app-page {
-    gap: 12px;
-  }
-
-  .dashboard-grids {
     gap: 12px;
   }
 
@@ -520,18 +470,6 @@ mat-card {
   .invoice-seances-side {
     width: 100%;
     justify-content: space-between;
-  }
-
-  .chart-wrap {
-    height: 210px;
-  }
-
-  .distribution-card {
-    padding: 14px;
-  }
-
-  .distribution-card .table-wrap table {
-    min-width: 320px;
   }
 
   .table-wrap th,

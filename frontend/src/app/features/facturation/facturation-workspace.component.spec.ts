@@ -16,12 +16,8 @@ describe('FacturationWorkspaceComponent', () => {
     periodMode: vi.fn(() => 'month'),
     startDate: vi.fn(() => '2026-08-01'),
     endDate: vi.fn(() => '2026-08-31'),
-    dashboard: vi.fn(() => null),
-    revenueTrend: vi.fn(() => []),
     successMessage: vi.fn(() => null),
     setMonth: vi.fn(),
-    loadDashboard: vi.fn(),
-    loadRevenueTrend: vi.fn(),
     validateFacturation: vi.fn(),
     removeSeanceFromPreview: vi.fn(),
     reincludeSeanceInPreview: vi.fn(),
@@ -79,26 +75,17 @@ describe('FacturationWorkspaceComponent', () => {
     });
   });
 
-  it('recharge le dashboard quand le mois change', () => {
+  it('change le mois de calcul sans charger d indicateurs (ils sont sur le tableau de bord)', () => {
     const component = TestBed.runInInjectionContext(() => new FacturationWorkspaceComponent());
 
     component['onMonthChange']('2026-09');
 
     expect(facturationStoreMock.setMonth).toHaveBeenCalledWith('2026-09');
-    expect(facturationStoreMock.loadDashboard).toHaveBeenCalledWith({
-      centerId: '11111111-1111-1111-1111-111111111111',
-      month: '2026-09',
-    });
-    expect(facturationStoreMock.loadRevenueTrend).toHaveBeenCalledWith({
-      centerId: '11111111-1111-1111-1111-111111111111',
-      endingMonth: '2026-09',
-      months: 6,
-    });
+    expect('refreshDashboard' in component).toBe(false);
   });
 
   it('propage centerId et userId lors de la validation', () => {
     const component = TestBed.runInInjectionContext(() => new FacturationWorkspaceComponent());
-    const dashboardRefreshCallsBeforeValidation = facturationStoreMock.loadDashboard.mock.calls.length;
 
     component['onValidateFacturation']();
 
@@ -106,7 +93,6 @@ describe('FacturationWorkspaceComponent', () => {
       centerId: '11111111-1111-1111-1111-111111111111',
       userId: 'billing.user',
     });
-    expect(facturationStoreMock.loadDashboard.mock.calls.length).toBe(dashboardRefreshCallsBeforeValidation);
   });
 
   it('envoie l exclusion avec le motif et le commentaire saisis, et refuse AUTRE sans commentaire', () => {

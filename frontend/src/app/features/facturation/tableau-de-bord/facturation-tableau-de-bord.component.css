@@ -1,0 +1,156 @@
+/* Règles déplacées de facturation-workspace.component.css (carte « Dashboard facturation »). */
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.app-page,
+mat-card,
+mat-card-content {
+  min-width: 0;
+}
+
+.app-page {
+  display: grid;
+  gap: 18px;
+}
+
+mat-card {
+  border-radius: 20px;
+}
+
+.app-hero-card {
+  display: grid;
+  gap: 12px;
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.field-block {
+  width: 100%;
+}
+
+.feedback {
+  margin-top: 10px;
+  font-weight: 600;
+}
+
+.feedback.error {
+  color: var(--mat-sys-error, #c62828);
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.kpi-grid .app-data-pill {
+  min-width: 0;
+}
+
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.table-wrap table {
+  width: 100%;
+  min-width: 560px;
+  border-collapse: collapse;
+}
+
+.table-wrap th,
+.table-wrap td {
+  text-align: left;
+  padding: 10px;
+  border-bottom: 1px solid var(--app-border);
+}
+
+.table-wrap th {
+  background: var(--app-table-header);
+}
+
+.dashboard-grids {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.distribution-card {
+  border: 1px solid var(--app-border);
+  border-radius: 16px;
+  padding: 18px;
+  background: var(--app-surface-solid);
+  min-width: 0;
+}
+
+.distribution-card h3 {
+  margin: 0 0 12px;
+}
+
+.distribution-card-wide {
+  grid-column: 1 / -1;
+}
+
+.distribution-card .table-wrap table {
+  min-width: 360px;
+}
+
+.chart-wrap {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  height: clamp(220px, 32vw, 320px);
+}
+
+.chart-wrap canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-grids {
+    grid-template-columns: 1fr;
+  }
+
+  .distribution-card {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 767px) {
+  .filters-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .app-page,
+  .dashboard-grids {
+    gap: 12px;
+  }
+
+  .chart-wrap {
+    height: 210px;
+  }
+
+  .distribution-card {
+    padding: 14px;
+  }
+
+  .distribution-card .table-wrap table {
+    min-width: 320px;
+  }
+
+  .table-wrap th,
+  .table-wrap td {
+    padding: 8px;
+  }
+}

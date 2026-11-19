@@ -26,6 +26,16 @@ test.describe('Module facturation', () => {
 
     await expect(page.locator('h1, .app-section-title')).toContainText(/facturation|billing/i);
     await expect(page.locator('.flow-grid')).toBeVisible();
+    await expect(page.locator('.dashboard-grids')).toHaveCount(0);
+  });
+
+  test('affiche le tableau de bord facturation avec son propre mois', async ({page}) => {
+    await login(page);
+    await page.goto(`${baseUrl}/facturation/tableau-de-bord`);
+    await page.waitForLoadState('networkidle');
+
+    await expect(page.locator('h1, .app-section-title')).toContainText(/tableau de bord facturation|billing dashboard/i);
+    await expect(page.locator('input[type="month"]')).toBeVisible();
     await expect(page.locator('.dashboard-grids')).toBeVisible();
   });
 
