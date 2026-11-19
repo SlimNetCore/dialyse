@@ -27,7 +27,7 @@ import {catchError, map, merge, of} from 'rxjs';
 import {DetailDeFacture, FactureEtat, FactureListee} from '../../../core/api/backend-api.service';
 import {OrganisationApiService} from '../../../core/api/organisation-api.service';
 import {AppShellStore} from '../../../core/state/app-shell.store';
-import {NgTableTranslatedLabels} from '../../direction/ng-table-labels';
+import {NgTableTranslatedLabels} from '../../../shared/ng-table-labels';
 import {FacturesListStore, moisDe, PeriodeDeFactures, periodeValide, TAILLES_DE_PAGE} from './factures-list.store';
 
 /** Teinte de l'état de règlement (RG-FAC-046). */

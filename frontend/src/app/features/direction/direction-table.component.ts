@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, Component, computed, inject, input, TemplateRef, viewChild} from '@angular/core';
 import {NgTableCellFormat, NgTableCellFormatComponent, NgTableColumn, NgTableComponent} from '@sbourahla/ng-table';
 import {cellFormatOf, cellTextOf, DirectionColumn, isTotalRow} from './direction-tables.util';
-import {NgTableTranslatedLabels} from './ng-table-labels';
+import {NgTableTranslatedLabels} from '../../shared/ng-table-labels';
 
 /**
  * Tableau d'analyse de la direction : un `<ng-table>` en mode local (données déjà en mémoire), sans barre d'outils,
