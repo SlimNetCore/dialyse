@@ -45,29 +45,20 @@
       <mat-card-title>{{ 'STOCK.SUPPLIERS_LIST_TITLE' | translate }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <div class="table-wrap">
-      <table [dataSource]="items()" class="full-width" mat-table>
-        <ng-container matColumnDef="code">
-          <th *matHeaderCellDef mat-header-cell>{{ 'COMMON.CODE_LABEL' | translate }}</th>
-          <td *matCellDef="let f" mat-cell>{{ f.code }}</td>
-        </ng-container>
-        <ng-container matColumnDef="raisonSociale">
-          <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.COMPANY_NAME_LABEL' | translate }}</th>
-          <td *matCellDef="let f" mat-cell>{{ f.raisonSociale }}</td>
-        </ng-container>
-        <ng-container matColumnDef="contact">
-          <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.CONTACT_LABEL' | translate }}</th>
-          <td *matCellDef="let f" mat-cell>{{ f.contact }}</td>
-        </ng-container>
-        <ng-container matColumnDef="telephone">
-          <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.PHONE_LABEL' | translate }}</th>
-          <td *matCellDef="let f" mat-cell>{{ f.telephone }}</td>
-        </ng-container>
-        <tr *matHeaderRowDef="cols" mat-header-row></tr>
-        <tr *matRowDef="let row; columns: cols" [attr.data-row-id]="row.code || ''" mat-row></tr>
-      </table>
+      <div class="table-wrap" data-testid="fournisseurs-table">
+        <ng-table
+          [ariaLabel]="'STOCK.SUPPLIERS_LIST_TITLE' | translate"
+          [columns]="columns()"
+          [rows]="items()"
+          [paginator]="true"
+          [pageSize]="pageSize"
+          [pageSizeOptions]="pageSizes"
+          [labels]="ngTableLabels()"
+          [rowKeyAccessor]="supplierKey"
+          [columnsMenuEnabled]="false"
+          [showResetFilters]="false"
+        />
       </div>
     </mat-card-content>
   </mat-card>
 </section>
-

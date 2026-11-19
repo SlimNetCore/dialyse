@@ -51,34 +51,21 @@
   border-color: var(--app-accent);
 }
 
-.full-width {
-  width: 100%;
-}
-
 .pmp-table-wrap {
+  min-width: 0;
   max-width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  border: 1px solid var(--app-border);
-  border-radius: 14px;
 }
 
-.pmp-table-wrap .full-width {
-  min-width: 820px;
+.num {
+  display: block;
+  text-align: end;
+  font-variant-numeric: tabular-nums;
 }
 
 .formule {
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
-  white-space: nowrap;
-}
-
-mat-chip.entry {
-  background: color-mix(in srgb, var(--app-primary) 16%, var(--app-surface-solid));
-}
-
-mat-chip.exit {
-  background: color-mix(in srgb, var(--app-accent) 16%, var(--app-surface-solid));
+  overflow-wrap: anywhere;
 }
 
 @media (max-width: 600px) {

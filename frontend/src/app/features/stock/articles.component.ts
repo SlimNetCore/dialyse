@@ -1,4 +1,15 @@
-import {ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+  TemplateRef,
+  untracked,
+  viewChild,
+} from '@angular/core';
+import {toSignal} from '@angular/core/rxjs-interop';
 import {compatForm} from '@angular/forms/signals/compat';
 import {FormField, FormRoot, maxLength, required} from '@angular/forms/signals';
 import {MatCardModule} from '@angular/material/card';
@@ -6,13 +17,14 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
-import {MatTableModule} from '@angular/material/table';
-import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatSelectModule} from '@angular/material/select';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {NgTableColumn, NgTableComponent, NgTableRemoteQuery, NgTableTone} from '@sbourahla/ng-table';
+import {map, merge} from 'rxjs';
 import {AppShellStore} from '../../core/state/app-shell.store';
+import {NgTableTranslatedLabels} from '../../shared/ng-table-labels';
 import {
   ArticleFichePayload,
   ArticleStock,
@@ -65,12 +77,21 @@ const toNumber = (raw: string): number | null => {
   return Number.isFinite(value) ? value : null;
 };
 
+/** Tailles de page proposées par la liste des articles (pagination côté serveur). */
+export const ARTICLE_PAGE_SIZES: readonly number[] = [10, 20, 50, 100];
+
+/** Teinte de la pastille de statut d'un article. */
+export const ARTICLE_STATUT_TONES: Record<string, NgTableTone> = {ACTIVE: 'success', INACTIVE: 'neutral'};
+
+type CellTemplate = NgTableColumn<ArticleStock>['cellTemplate'];
+
 const toText = (value: string): string | null => value.trim() || null;
 const fromNumber = (value: number | null | undefined): string => (value == null ? '' : String(value));
 
 /**
  * Fiche article complète : identité, unités et conditionnement (dont le dosage par unité qui relie la prescription
- * du médecin à la sortie de stock), achat et valorisation, conservation et sécurité. Liste paginée.
+ * du médecin à la sortie de stock), achat et valorisation, conservation et sécurité. Liste en `<ng-table>` paginée
+ * côté serveur (mode `remote`) ; recherche et filtre actif/inactif restent dans la barre au-dessus de la table.
  * Traçabilité : ArticlesComponent → ArticlesStore → StockApiService → /stock/referentiel/articles
  * → StockReferentialUseCase → Article (agrégat) → ArticleRepositoryPort / ArticleCatalogPort.
  */
@@ -78,8 +99,8 @@ const fromNumber = (value: number | null | undefined): string => (value == null 
   selector: 'app-stock-articles',
   standalone: true,
   imports: [
-    MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatTableModule,
-    MatPaginatorModule, MatCheckboxModule, MatSelectModule, FormRoot, FormField, TranslateModule,
+    MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule,
+    MatCheckboxModule, MatSelectModule, FormRoot, FormField, TranslateModule, NgTableComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './articles.component.html',
@@ -87,7 +108,50 @@ const fromNumber = (value: number | null | undefined): string => (value == null 
 })
 export class ArticlesComponent {
   protected readonly store = inject(ArticlesStore);
-  protected readonly cols = ['code', 'libelle', 'unite', 'dosage', 'stock', 'statut', 'actions'];
+  protected readonly ngTableLabels = inject(NgTableTranslatedLabels).labels;
+  protected readonly pageSizes = ARTICLE_PAGE_SIZES;
+  protected readonly articleKey = (row: ArticleStock): unknown => row.id;
+  private readonly translate = inject(TranslateService);
+  private readonly lang = toSignal(
+    merge(this.translate.onLangChange, this.translate.onTranslationChange).pipe(map(() => Date.now())),
+    {initialValue: 0});
+  private readonly numTemplate = viewChild<TemplateRef<unknown>>('numCell');
+  private readonly actionsTemplate = viewChild<TemplateRef<unknown>>('actionsCell');
+  protected readonly emptyLabel = computed(() => {
+    this.lang();
+    return this.translate.instant('STOCK.ARTICLES.EMPTY');
+  });
+  /** Colonnes de la liste : mêmes données qu'avant ; statut en pastille, stock aligné à droite, actions sans export. */
+  protected readonly columns = computed<NgTableColumn<ArticleStock>[]>(() => {
+    this.lang();
+    const t = (key: string): string => this.translate.instant(key);
+    const statut = (value: unknown): string =>
+      t(value === 'ACTIVE' ? 'STOCK.ARTICLES.ACTIVE' : 'STOCK.ARTICLES.INACTIVE');
+    return [
+      {id: 'code', header: t('COMMON.CODE_LABEL'), valueAccessor: (a) => a.code},
+      {id: 'libelle', header: t('STOCK.ARTICLE_LIBELLE_LABEL'), valueAccessor: (a) => a.libelle},
+      {id: 'unite', header: t('STOCK.UNIT_LABEL'), valueAccessor: (a) => a.unite || '—'},
+      {id: 'dosage', header: t('STOCK.ARTICLES.COL_DOSAGE'), valueAccessor: (a) => this.dosageLabel(a)},
+      {
+        id: 'stock', header: t('STOCK.ARTICLES.COL_STOCK'), valueAccessor: (a) => a.stockQuantity,
+        cellTemplate: this.numTemplate() as CellTemplate,
+      },
+      {
+        id: 'statut', header: t('STOCK.ARTICLES.COL_STATUT'),
+        valueAccessor: (a) => (a.active ? 'ACTIVE' : 'INACTIVE'),
+        cell: {type: 'badge', tone: ARTICLE_STATUT_TONES, label: statut},
+        exportValueAccessor: (a) => statut(a.active ? 'ACTIVE' : 'INACTIVE'),
+      },
+      {
+        id: 'actions', header: '', valueAccessor: () => '', exportable: false, searchable: false,
+        mobileRowActions: true, cellTemplate: this.actionsTemplate() as CellTemplate,
+      },
+    ];
+  });
+  protected readonly rowClassFn = computed(() => {
+    const editing = this.editingId();
+    return (row: ArticleStock): Record<string, boolean> => ({editing: row.id === editing});
+  });
   protected readonly editingId = signal<string | null>(null);
   protected readonly formModel = signal<ArticleFormModel>(emptyForm());
   protected readonly articleForm = compatForm(this.formModel, (form) => {
@@ -132,7 +196,6 @@ export class ArticlesComponent {
 
   private readonly shell = inject(AppShellStore);
   private readonly snack = inject(MatSnackBar);
-  private readonly translate = inject(TranslateService);
 
   constructor() {
     effect(() => {
@@ -169,8 +232,15 @@ export class ArticlesComponent {
     this.store.setActiveFilter(filter);
   }
 
-  protected onPage(event: PageEvent): void {
-    this.store.loadPage({page: event.pageIndex, size: event.pageSize});
+  /**
+   * Paginateur de la table (mode `remote`) : ne charge que la page demandée, et seulement si elle diffère de celle
+   * déjà affichée (la première émission de la table ne relance pas le chargement initial).
+   */
+  protected onRemoteQuery(query: NgTableRemoteQuery): void {
+    const index = query.page.index;
+    const size = query.page.size || this.store.pageSize();
+    if (index === this.store.pageIndex() && size === this.store.pageSize()) return;
+    this.store.loadPage({page: index, size});
   }
 
   protected edit(article: ArticleStock): void {

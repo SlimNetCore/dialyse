@@ -1,5 +1,9 @@
 import {provideZonelessChangeDetection} from '@angular/core';
-import {TestBed} from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {By} from '@angular/platform-browser';
+import {TestbedHarnessEnvironment} from '@angular/cdk/testing/testbed';
+import {NgTableComponent} from '@sbourahla/ng-table';
+import {NgTableHarness} from '@sbourahla/ng-table/testing';
 import {NoopAnimationsModule} from '@angular/platform-browser/animations';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {TranslateModule} from '@ngx-translate/core';
@@ -56,13 +60,45 @@ describe('ArticlesComponent (fiche article)', () => {
     input.dispatchEvent(new Event('input', {bubbles: true}));
   }
 
-  it('liste les articles du centre en page paginée avec leur dosage par unité', async () => {
+  function table(fixture: ComponentFixture<ArticlesComponent>): NgTableComponent<ArticleStock> {
+    return fixture.debugElement.query(By.directive(NgTableComponent)).componentInstance;
+  }
+
+  it('liste les articles du centre en ng-table paginée côté serveur avec leur dosage par unité', async () => {
+    const {fixture, root} = await render();
+
+    expect(api['searchArticles']).toHaveBeenCalledTimes(1);
+    expect(api['searchArticles']).toHaveBeenCalledWith(CENTRE, {q: '', active: true, page: 0, size: 20});
+    const harness = await TestbedHarnessEnvironment.loader(fixture).getHarness(NgTableHarness);
+    expect(await harness.getRowCount()).toBe(1);
+    expect(await harness.getPaginator()).not.toBeNull();
+    expect(root.textContent).toContain('4000 UI / seringue');
+    const ngTable = table(fixture);
+    expect(ngTable.dataMode()).toBe('remote');
+    expect(ngTable.totalCount()).toBe(1);
+    expect(ngTable.pageSizeOptions()).toEqual([10, 20, 50, 100]);
+    expect(ngTable.columns().map((c) => c.id)).toEqual(['code', 'libelle', 'unite', 'dosage', 'stock', 'statut', 'actions']);
+    const statut = ngTable.columns().find((c) => c.id === 'statut')!;
+    expect(statut.cell).toEqual(expect.objectContaining({type: 'badge', tone: {ACTIVE: 'success', INACTIVE: 'neutral'}}));
+    expect(ngTable.columns().find((c) => c.id === 'actions')!.exportable).toBe(false);
+  });
+
+  it('charge seulement la page demandée par le paginateur de la table', async () => {
+    const {fixture} = await render();
+
+    table(fixture).remoteQueryChange.emit({sort: {columnId: '', direction: ''}, filters: {}, page: {index: 0, size: 20}});
+    expect(api['searchArticles']).toHaveBeenCalledTimes(1);
+
+    table(fixture).remoteQueryChange.emit({sort: {columnId: '', direction: ''}, filters: {}, page: {index: 2, size: 50}});
+    expect(api['searchArticles']).toHaveBeenLastCalledWith(CENTRE, {q: '', active: true, page: 2, size: 50});
+  });
+
+  it('garde la recherche et le filtre actif/inactif au-dessus de la table', async () => {
     const {root} = await render();
 
-    expect(api['searchArticles']).toHaveBeenCalledWith(CENTRE, {q: '', active: true, page: 0, size: 20});
-    expect(root.querySelectorAll('[data-testid="art-table"] tr.mat-mdc-row')).toHaveLength(1);
-    expect(root.textContent).toContain('4000 UI / seringue');
-    expect(root.querySelector('mat-paginator')).not.toBeNull();
+    type(root, 'art-search', 'epo');
+
+    expect(api['searchArticles']).toHaveBeenLastCalledWith(CENTRE, {q: 'epo', active: true, page: 0, size: 20});
   });
 
   it('affiche l\'aperçu de conversion et refuse un dosage sans unité', async () => {

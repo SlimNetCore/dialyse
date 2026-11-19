@@ -10,17 +10,9 @@
   align-items: center;
 }
 
-.full-width {
-  width: 100%;
-}
-
 .table-wrap {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-.table-wrap table {
-  min-width: 640px;
+  min-width: 0;
+  max-width: 100%;
 }
 
 mat-card {
@@ -33,4 +25,3 @@ mat-card {
     gap: 10px;
   }
 }
-

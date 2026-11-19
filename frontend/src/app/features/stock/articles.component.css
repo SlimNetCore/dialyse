@@ -71,24 +71,23 @@
 }
 
 .row-actions {
+  display: inline-flex;
   white-space: nowrap;
 }
 
-tr.editing {
+.num {
+  display: block;
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+:host ::ng-deep tr.editing td {
   background: var(--app-primary-soft);
 }
 
-.full-width {
-  width: 100%;
-}
-
 .table-wrap {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-.table-wrap table {
-  min-width: 640px;
+  min-width: 0;
+  max-width: 100%;
 }
 
 mat-card {

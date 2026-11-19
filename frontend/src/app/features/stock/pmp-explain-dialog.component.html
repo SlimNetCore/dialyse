@@ -29,46 +29,31 @@
     @if (ex.etapes.length === 0) {
       <p class="app-muted-note">{{ 'STOCK.PMP_EXPLAIN.EMPTY_MOVEMENTS' | translate }}</p>
     } @else {
-      <div class="pmp-table-wrap">
-        <table [dataSource]="ex.etapes" class="full-width" mat-table>
-          <ng-container matColumnDef="piece">
-            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.PMP_EXPLAIN.COL_PIECE' | translate }}</th>
-            <td *matCellDef="let s" mat-cell>{{ s.piece || '—' }}</td>
-          </ng-container>
-          <ng-container matColumnDef="datePiece">
-            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.PMP_EXPLAIN.COL_DATE_PIECE' | translate }}</th>
-            <td *matCellDef="let s" mat-cell>{{ s.datePiece ? (s.datePiece | date:'dd/MM/yyyy') : '—' }}</td>
-          </ng-container>
-          <ng-container matColumnDef="type">
-            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.PMP_EXPLAIN.COL_TYPE' | translate }}</th>
-            <td *matCellDef="let s" mat-cell>
-              <mat-chip [class.entry]="s.type === 'ENTREE'" [class.exit]="s.type === 'SORTIE'">{{ s.type }}</mat-chip>
-            </td>
-          </ng-container>
-          <ng-container matColumnDef="qte">
-            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.PMP_EXPLAIN.COL_QTE' | translate }}</th>
-            <td *matCellDef="let s" mat-cell>{{ s.quantite | number:'1.0-2' }}</td>
-          </ng-container>
-          <ng-container matColumnDef="pu">
-            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.PMP_EXPLAIN.COL_PU' | translate }}</th>
-            <td *matCellDef="let s" mat-cell>{{ s.prixUnitaire != null ? (s.prixUnitaire | number:'1.0-2') : '—' }}
-            </td>
-          </ng-container>
-          <ng-container matColumnDef="pmp">
-            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.PMP_EXPLAIN.COL_PMP_APRES' | translate }}</th>
-            <td *matCellDef="let s" mat-cell>{{ s.pmpApres | number:'1.0-4' }}</td>
-          </ng-container>
-          <ng-container matColumnDef="formule">
-            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.PMP_EXPLAIN.COL_FORMULE' | translate }}</th>
-            <td *matCellDef="let s" class="formule" mat-cell>{{ s.formule }}</td>
-          </ng-container>
-          <tr *matHeaderRowDef="cols" mat-header-row></tr>
-          <tr *matRowDef="let row; columns: cols" [attr.data-step-date]="row?.date" mat-row></tr>
-        </table>
+      <div class="pmp-table-wrap" data-testid="pmp-steps">
+        <ng-table
+          [ariaLabel]="'STOCK.PMP_EXPLAIN.TITLE' | translate:{article: data.libelle}"
+          [columns]="columns()"
+          [rows]="ex.etapes"
+          [paginator]="true"
+          [pageSize]="pageSize"
+          [pageSizeOptions]="pageSizes"
+          [labels]="ngTableLabels()"
+          [columnsMenuEnabled]="false"
+          [showResetFilters]="false"
+          density="compact"
+        />
       </div>
     }
   }
 </mat-dialog-content>
+
+<ng-template #numCell let-value="value">
+  <span class="num">{{ value }}</span>
+</ng-template>
+
+<ng-template #formuleCell let-value="value">
+  <span class="formule">{{ value }}</span>
+</ng-template>
 
 <mat-dialog-actions align="end">
   <button (click)="ref.close()" color="primary" mat-flat-button>{{ 'STOCK.PMP_EXPLAIN.CLOSE' | translate }}</button>

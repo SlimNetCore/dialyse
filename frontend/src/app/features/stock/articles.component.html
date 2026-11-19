@@ -211,58 +211,45 @@
           </mat-select>
         </mat-form-field>
       </div>
-      <div class="table-wrap">
-        <table [dataSource]="store.rows()" class="full-width" data-testid="art-table" mat-table>
-          <ng-container matColumnDef="code">
-            <th *matHeaderCellDef mat-header-cell>{{ 'COMMON.CODE_LABEL' | translate }}</th>
-            <td *matCellDef="let a" mat-cell>{{ a.code }}</td>
-          </ng-container>
-          <ng-container matColumnDef="libelle">
-            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.ARTICLE_LIBELLE_LABEL' | translate }}</th>
-            <td *matCellDef="let a" mat-cell>{{ a.libelle }}</td>
-          </ng-container>
-          <ng-container matColumnDef="unite">
-            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.UNIT_LABEL' | translate }}</th>
-            <td *matCellDef="let a" mat-cell>{{ a.unite || '—' }}</td>
-          </ng-container>
-          <ng-container matColumnDef="dosage">
-            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.ARTICLES.COL_DOSAGE' | translate }}</th>
-            <td *matCellDef="let a" mat-cell>{{ dosageLabel(a) }}</td>
-          </ng-container>
-          <ng-container matColumnDef="stock">
-            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.ARTICLES.COL_STOCK' | translate }}</th>
-            <td *matCellDef="let a" mat-cell>{{ a.stockQuantity }}</td>
-          </ng-container>
-          <ng-container matColumnDef="statut">
-            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.ARTICLES.COL_STATUT' | translate }}</th>
-            <td *matCellDef="let a" mat-cell>
-              {{ (a.active ? 'STOCK.ARTICLES.ACTIVE' : 'STOCK.ARTICLES.INACTIVE') | translate }}
-            </td>
-          </ng-container>
-          <ng-container matColumnDef="actions">
-            <th *matHeaderCellDef mat-header-cell></th>
-            <td *matCellDef="let a" class="row-actions" mat-cell>
-              <button (click)="edit(a)" [attr.aria-label]="'COMMON.EDIT' | translate" data-testid="art-edit"
-                      mat-icon-button type="button">
-                <mat-icon>edit</mat-icon>
-              </button>
-              <button (click)="toggleActive(a)"
-                      [attr.aria-label]="(a.active ? 'STOCK.ARTICLES.DEACTIVATE' : 'STOCK.ARTICLES.ACTIVATE') | translate"
-                      data-testid="art-toggle" mat-icon-button type="button">
-                <mat-icon>{{ a.active ? 'block' : 'check_circle' }}</mat-icon>
-              </button>
-            </td>
-          </ng-container>
-
-          <tr *matHeaderRowDef="cols" mat-header-row></tr>
-          <tr *matRowDef="let row; columns: cols" [class.editing]="row.id === editingId()" mat-row></tr>
-        </table>
+      <div class="table-wrap" data-testid="art-table">
+        <ng-table
+          [ariaLabel]="'STOCK.ARTICLES.LIST_TITLE' | translate"
+          [columns]="columns()"
+          [rows]="store.rows()"
+          [dataMode]="'remote'"
+          [paginator]="true"
+          [totalCount]="store.total()"
+          [pageIndex]="store.pageIndex()"
+          [pageSize]="store.pageSize()"
+          [pageSizeOptions]="pageSizes"
+          [loading]="store.loading()"
+          [labels]="ngTableLabels()"
+          [emptyLabel]="emptyLabel()"
+          [rowKeyAccessor]="articleKey"
+          [rowClassFn]="rowClassFn()"
+          [columnsMenuEnabled]="false"
+          [showResetFilters]="false"
+          (remoteQueryChange)="onRemoteQuery($event)"
+        />
       </div>
-      @if (store.isEmpty() && !store.loading()) {
-        <p class="hint">{{ 'STOCK.ARTICLES.EMPTY' | translate }}</p>
-      }
-      <mat-paginator (page)="onPage($event)" [length]="store.total()" [pageIndex]="store.pageIndex()"
-                     [pageSizeOptions]="[10, 20, 50, 100]" [pageSize]="store.pageSize()"/>
     </mat-card-content>
   </mat-card>
 </section>
+
+<ng-template #numCell let-value="value">
+  <span class="num">{{ value }}</span>
+</ng-template>
+
+<ng-template #actionsCell let-a>
+  <span class="row-actions">
+    <button (click)="edit(a); $event.stopPropagation()" [attr.aria-label]="'COMMON.EDIT' | translate"
+            data-testid="art-edit" mat-icon-button type="button">
+      <mat-icon>edit</mat-icon>
+    </button>
+    <button (click)="toggleActive(a); $event.stopPropagation()"
+            [attr.aria-label]="(a.active ? 'STOCK.ARTICLES.DEACTIVATE' : 'STOCK.ARTICLES.ACTIVATE') | translate"
+            data-testid="art-toggle" mat-icon-button type="button">
+      <mat-icon>{{ a.active ? 'block' : 'check_circle' }}</mat-icon>
+    </button>
+  </span>
+</ng-template>
