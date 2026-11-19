@@ -5,14 +5,21 @@ import {MatDialog} from '@angular/material/dialog';
 import {TranslateModule} from '@ngx-translate/core';
 import {EtatDuStockComponent, tonDeLaQuantite} from './etat-du-stock.component';
 import {StockApiService} from '../../core/api/stock-api.service';
+import {StockPagesApiService} from '../../core/api/stock-pages-api.service';
 import {AuthStore} from '../../core/state/auth.store';
 import {WebSocketService} from '../../core/ws/websocket.service';
 
 describe('EtatDuStockComponent', () => {
   const stockApiMock = {
-    stockValorise: vi.fn(() => of([{articleId: 'a-1', code: 'DIA', libelle: 'Dialyseur', unite: 'u', quantite: 3, pmpCourant: 10, valeur: 30}])),
+    stockValorise: vi.fn(),
     alertes: vi.fn(() => of([])),
     dashboardAnalytics: vi.fn(() => of({trend: [], topArticles: []})),
+  };
+  const pagesApiMock = {
+    etatDuStock: vi.fn((_c: string, p: Record<string, string>) => of({
+      items: [{articleId: 'a-1', code: 'DIA', libelle: 'Dialyseur', unite: 'u', quantite: 3, pmpCourant: 10, valeur: 30}],
+      total: 41, page: Number(p['page']), size: Number(p['size']),
+    })),
   };
 
   const authMock = {
@@ -34,6 +41,7 @@ describe('EtatDuStockComponent', () => {
       imports: [EtatDuStockComponent, TranslateModule.forRoot()],
       providers: [
         {provide: StockApiService, useValue: stockApiMock},
+        {provide: StockPagesApiService, useValue: pagesApiMock},
         {provide: AuthStore, useValue: authMock},
         {provide: WebSocketService, useValue: wsMock},
         {provide: MatDialog, useValue: dialogMock},
@@ -47,16 +55,36 @@ describe('EtatDuStockComponent', () => {
     return {fixture, c: fixture.componentInstance as any};
   }
 
-  it('charge le stock valorise du centre courant sans les statistiques ni les alertes du tableau de bord', () => {
+  it('charge la premiere page du stock valorise du centre courant sans les statistiques ni les alertes', () => {
     const {c} = creer();
 
-    expect(stockApiMock.stockValorise).toHaveBeenCalledWith('center-1');
+    expect(pagesApiMock.etatDuStock).toHaveBeenCalledWith('center-1', {page: '0', size: '20'});
+    expect(stockApiMock.stockValorise).not.toHaveBeenCalled();
     expect(c.stock().map((a: { articleId: string }) => a.articleId)).toEqual(['a-1']);
+    expect(c.liste.total()).toBe(41);
     expect(stockApiMock.alertes).not.toHaveBeenCalled();
     expect(stockApiMock.dashboardAnalytics).not.toHaveBeenCalled();
   });
 
-  it('affiche le stock dans une ng-table locale paginee (20 par page, 10/20/50/100), sans configurable-list', () => {
+  it('envoie tri et filtres de colonne au serveur et revient en premiere page', () => {
+    const {c} = creer();
+    c.onRemoteQueryChange({sort: {columnId: 'valeur', direction: 'desc'}, filters: {libelle: ' dia ', quantite: '<=0'},
+      page: {index: 2, size: 20}});
+
+    expect(pagesApiMock.etatDuStock).toHaveBeenLastCalledWith('center-1',
+      {page: '0', size: '20', sort: 'valeur,desc', libelle: 'dia', quantite: '<=0'});
+  });
+
+  it('filtres numeriques sur quantite, PMP et valeur ; texte sur code et article ; actions ni triables ni filtrables', () => {
+    const {c} = creer();
+    const parId = (id: string) => c.stockColumns().find((col: { id: string }) => col.id === id);
+    expect(['quantite', 'pmp', 'valeur'].map((id) => parId(id).filter.type)).toEqual(['number', 'number', 'number']);
+    expect(['code', 'libelle'].map((id) => parId(id).filter.type)).toEqual(['text', 'text']);
+    expect(parId('actions').sortable).toBe(false);
+    expect(parId('actions').filter).toBeUndefined();
+  });
+
+  it('affiche le stock dans une ng-table distante paginee (20 par page, 10/20/50/100), sans configurable-list', () => {
     const {fixture, c} = creer();
     const el: HTMLElement = fixture.nativeElement;
 

@@ -20,13 +20,17 @@
         <ng-table
           [columns]="stockColumns()"
           [rows]="stock()"
+          [dataMode]="'remote'"
           [paginator]="true"
-          [pageSize]="defaultPageSize"
+          [totalCount]="liste.total()"
+          [pageIndex]="liste.pageIndex()"
+          [pageSize]="liste.pageSize()"
           [pageSizeOptions]="pageSizes"
           [rowKeyAccessor]="cleArticle"
           [loading]="loading()"
           [labels]="labels()"
           [emptyLabel]="emptyLabel()"
+          (remoteQueryChange)="onRemoteQueryChange($event)"
         />
       </section>
 
