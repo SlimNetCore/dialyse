@@ -1,5 +1,6 @@
 import {Routes} from '@angular/router';
 import {superadminGuard} from '../../core/auth/superadmin.guard';
+import {centreAdminGuard} from '../../core/auth/admin.guard';
 
 export const adminRoutes: Routes = [
   { path: 'users', loadComponent: () => import('./user-list.component').then(m => m.UserListComponent) },
@@ -66,6 +67,13 @@ export const adminRoutes: Routes = [
     path: 'parametrage/modeles-document',
     loadComponent: () =>
       import('../reporting/modeles-document.component').then((m) => m.ModelesDocumentComponent),
+  },
+  {
+    // clôtures mensuelles de la facturation et des séances (mois d'absences) : actions réservées à l'ADMIN du centre
+    path: 'parametrage/clotures',
+    canActivate: [centreAdminGuard],
+    loadComponent: () =>
+      import('./clotures-mensuelles/clotures-mensuelles.component').then((m) => m.CloturesMensuellesComponent),
   },
   {
     path: 'parametrage/reprise',

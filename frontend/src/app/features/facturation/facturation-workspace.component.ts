@@ -8,7 +8,7 @@ import {
   TemplateRef,
   viewChild
 } from '@angular/core';
-import {DatePipe, DecimalPipe} from '@angular/common';
+import {DecimalPipe} from '@angular/common';
 import {RouterLink} from '@angular/router';
 import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';
@@ -27,13 +27,9 @@ import {BackendApiService, FacturationPreviewInvoice} from '../../core/api/backe
 import {ConfigurableListComponent, SharedListColumn} from '../../shared/configurable-list.component';
 import {MOTIFS_ABSENCE, MotifAbsence} from '../../core/api/absence-patient-api.service';
 import {exclusionEstValide} from './state/facturation-exclusion';
+import {estSuccesDeCloture} from './state/facturation-periodes';
 import {synthesePrintError} from './state/facturation-errors';
-import {
-  anneesDesMois,
-  moisClosable,
-  MOTIF_REOUVERTURE_MAX,
-  motifDeReouvertureValide
-} from './state/facturation-periodes';
+import {anneesDesMois} from './state/facturation-periodes';
 import {ROLES_SYNTHESE_FACTURATION} from '../../core/api/http-error-detail';
 import {etapeCourante, FacturationEtapesComponent} from './etapes/facturation-etapes.component';
 
@@ -55,7 +51,6 @@ type ExclusionDraft = { seanceId: string; motif: MotifAbsence | null; commentair
     MatTooltipModule,
     TranslateModule,
     DecimalPipe,
-    DatePipe,
     ConfigurableListComponent,
     FacturationEtapesComponent,
   ],
@@ -77,33 +72,27 @@ export class FacturationWorkspaceComponent {
   /** La synthèse mensuelle est réservée à ADMIN et SECRETAIRE (le backend refuse les autres en 403). */
   protected readonly canPrintSynthese = computed(() => ROLES_SYNTHESE_FACTURATION.some((role) => this.auth.hasRole(role)));
 
+  /** Message de succès du calcul : ceux de la clôture mensuelle appartiennent à l'écran d'administration. */
+  protected readonly succesDuCalcul = computed(() => {
+    const message = this.store.successMessage();
+    return estSuccesDeCloture(message) ? null : message;
+  });
+
   /** Étape courante de l'indicateur compact (RG-FAC-049). */
   protected readonly etape = computed(() =>
-    etapeCourante({preview: this.store.preview(), successMessage: this.store.successMessage()}));
+    etapeCourante({preview: this.store.preview(), successMessage: this.succesDuCalcul()}));
+
+  /**
+   * La clôture mensuelle vit dans Administration › Paramétrage › Clôtures mensuelles : le lien n'est montré qu'à l'ADMIN,
+   * seul profil autorisé à la lire et à l'exercer (le serveur refuse les autres).
+   */
+  protected readonly estAdmin = computed(() => this.auth.hasRole('ADMIN'));
 
   protected readonly motifs = MOTIFS_ABSENCE;
-  /** ADR 0044 : seul un mois passé se clôture (bouton désactivé sinon ; le serveur reste juge). */
-  protected readonly moisClosable = moisClosable;
   protected readonly exclusionDraft = signal<ExclusionDraft | null>(null);
   protected readonly exclusionValid = computed(() => {
     const draft = this.exclusionDraft();
     return !!draft && exclusionEstValide(draft.motif, draft.commentaire);
-  });
-
-  /** Clôture / réouverture mensuelle (F7) : confirmation de clôture et saisie du motif de réouverture. */
-  protected readonly clotureAConfirmer = signal<string | null>(null);
-  protected readonly reouvertureDraft = signal<{ mois: string; motif: string } | null>(null);
-  protected readonly reouvertureValide = computed(() => {
-    const draft = this.reouvertureDraft();
-    return !!draft && motifDeReouvertureValide(draft.motif) !== '';
-  });
-  protected readonly motifMax = MOTIF_REOUVERTURE_MAX;
-  protected readonly anneeOptions = computed(() => {
-    const courante = new Date().getUTCFullYear();
-    const choisie = this.store.anneePeriodes();
-    const debut = Math.min(courante - 4, choisie);
-    const fin = Math.max(courante + 1, choisie);
-    return Array.from({length: fin - debut + 1}, (_, i) => debut + i);
   });
 
   protected readonly invoiceExpandCellTemplate = viewChild<TemplateRef<any>>('invoiceExpandCell');
@@ -218,14 +207,15 @@ export class FacturationWorkspaceComponent {
       this.store.loadForfaits({centerId});
     });
 
-    // Charge les mois de l'année affichée et de toute année visée par la période choisie (une fois par année).
+    // Charge les mois de toute année visée par la période choisie (une fois par année) : la validation et les actions
+    // sur une séance d'un mois clos sont bloquées ici, la clôture elle-même se fait dans le paramétrage.
     effect(() => {
       const centerId = this.currentCenterId();
       if (!centerId) {
         return;
       }
       const chargees = this.store.anneesChargees();
-      const voulues = new Set([this.store.anneePeriodes(), ...anneesDesMois(this.store.moisVises())]);
+      const voulues = new Set(anneesDesMois(this.store.moisVises()));
       for (const annee of voulues) {
         if (!chargees.includes(annee)) {
           this.store.loadPeriodes({centerId, annee});
@@ -329,60 +319,6 @@ export class FacturationWorkspaceComponent {
   /** Mois de la date d'une séance (AAAA-MM) clos : exclusion, réinclusion et changement de forfait sont refusés. */
   protected moisDeSeanceClos(seanceDate: string | null | undefined): boolean {
     return !!seanceDate && this.store.moisEstClos(seanceDate.slice(0, 7));
-  }
-
-  protected onAnneePeriodes(annee: number): void {
-    this.store.setAnneePeriodes(annee);
-  }
-
-  protected onRafraichirPeriodes(): void {
-    const centerId = this.currentCenterId();
-    if (centerId) {
-      this.store.loadPeriodes({centerId, annee: this.store.anneePeriodes()});
-    }
-  }
-
-  protected onDemanderCloture(mois: string): void {
-    this.reouvertureDraft.set(null);
-    this.clotureAConfirmer.set(mois);
-  }
-
-  protected onAnnulerCloture(): void {
-    this.clotureAConfirmer.set(null);
-  }
-
-  protected onConfirmerCloture(): void {
-    const centerId = this.currentCenterId();
-    const mois = this.clotureAConfirmer();
-    if (!centerId || !mois) {
-      return;
-    }
-    this.store.cloturerMois({centerId, mois});
-    this.clotureAConfirmer.set(null);
-  }
-
-  protected onOuvrirReouverture(mois: string): void {
-    this.clotureAConfirmer.set(null);
-    this.reouvertureDraft.set({mois, motif: ''});
-  }
-
-  protected onAnnulerReouverture(): void {
-    this.reouvertureDraft.set(null);
-  }
-
-  protected onMotifReouverture(motif: string): void {
-    this.reouvertureDraft.update((draft) => (draft ? {...draft, motif} : draft));
-  }
-
-  protected onConfirmerReouverture(): void {
-    const centerId = this.currentCenterId();
-    const draft = this.reouvertureDraft();
-    const motif = draft ? motifDeReouvertureValide(draft.motif) : '';
-    if (!centerId || !draft || !motif) {
-      return;
-    }
-    this.store.rouvrirMois({centerId, mois: draft.mois, motif});
-    this.reouvertureDraft.set(null);
   }
 
   protected seanceStatusClass(status: string | null | undefined): string {

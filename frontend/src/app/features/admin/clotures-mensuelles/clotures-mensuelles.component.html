@@ -1,0 +1,34 @@
+<section class="app-page">
+  <div class="app-hero-card">
+    <span class="app-eyebrow">{{ 'NAV.PARAMETRAGE' | translate }}</span>
+    <h1 class="app-section-title">{{ 'NAV.ADMIN_CLOTURES' | translate }}</h1>
+    <p class="app-section-copy">{{ 'NAV.ADMIN_CLOTURES_DESCRIPTION' | translate }}</p>
+  </div>
+
+  <mat-tab-group animationDuration="0ms" mat-stretch-tabs="false">
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon class="tab-icon">receipt</mat-icon>
+        {{ 'NAV.ADMIN_CLOTURES_FACTURATION' | translate }}
+      </ng-template>
+      <ng-template matTabContent>
+        <mat-card class="tab-card" data-testid="clotures-facturation">
+          <mat-card-content>
+            <app-facturation-cloture/>
+          </mat-card-content>
+        </mat-card>
+      </ng-template>
+    </mat-tab>
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon class="tab-icon">event_note</mat-icon>
+        {{ 'NAV.ADMIN_CLOTURES_SEANCES' | translate }}
+      </ng-template>
+      <ng-template matTabContent>
+        <div data-testid="clotures-seances">
+          <app-mois-d-absences/>
+        </div>
+      </ng-template>
+    </mat-tab>
+  </mat-tab-group>
+</section>

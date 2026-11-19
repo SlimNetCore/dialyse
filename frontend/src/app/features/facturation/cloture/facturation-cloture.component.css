@@ -1,0 +1,102 @@
+.cloture-title {
+  margin: 0 0 4px;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.cloture-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.periodes-table {
+  width: 100%;
+}
+
+.periodes-table td,
+.periodes-table th {
+  text-align: start;
+  vertical-align: top;
+  padding: 6px 8px;
+}
+
+.feedback {
+  margin-top: 10px;
+  font-weight: 600;
+}
+
+.feedback.error {
+  color: var(--mat-sys-error, #c62828);
+}
+
+.feedback.success {
+  color: #1b5e20;
+}
+
+.feedback.cloture-warning {
+  color: #8a5300;
+}
+
+.confirmation-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field-block {
+  width: 100%;
+}
+
+.cloture-filters .field-block {
+  width: auto;
+  min-width: 140px;
+}
+
+.actions-cell {
+  white-space: nowrap;
+}
+
+/* Pastilles du mois (code) et de son statut (clos / ouvert) — reprises de l'espace de facturation. */
+.code-chip {
+  display: inline-block;
+  background: var(--app-primary-soft);
+  color: var(--app-primary);
+  border: 1px solid var(--app-primary-outline);
+  border-radius: 8px;
+  padding: 3px 9px;
+  font-size: 0.73rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  font-family: monospace;
+}
+
+.seance-status-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.status-done {
+  color: var(--app-success, #1b5e20);
+  background: color-mix(in srgb, var(--app-success, #1b5e20) 10%, transparent);
+  border-color: color-mix(in srgb, var(--app-success, #1b5e20) 22%, transparent);
+}
+
+.status-pending {
+  color: var(--app-warning, #bf360c);
+  background: color-mix(in srgb, var(--app-warning, #bf360c) 10%, transparent);
+  border-color: color-mix(in srgb, var(--app-warning, #bf360c) 22%, transparent);
+}

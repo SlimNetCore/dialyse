@@ -155,6 +155,7 @@ const BREADCRUMB_LABELS: Record<string, string> = {
   'planning-centre': 'NAV.ADMIN_PLANNING',
   reprise: 'NAV.ADMIN_REPRISE',
   'modeles-document': 'NAV.MODELES_DOCUMENT',
+  clotures: 'NAV.ADMIN_CLOTURES',
 };
 
 /** Segment d'identifiant technique (numérique ou UUID) : affiché comme « Fiche », jamais tel quel. */
@@ -402,6 +403,11 @@ export class ShellComponent implements OnInit, AfterViewInit {
         },
         {
           route: '/admin/parametrage/modeles-document', label: 'NAV.MODELES_DOCUMENT', icon: 'description',
+          kind: 'parametrage'
+        },
+        {
+          // clôtures mensuelles de la facturation et des séances : actions réservées à l'ADMIN (comme le serveur)
+          route: '/admin/parametrage/clotures', label: 'NAV.ADMIN_CLOTURES', icon: 'event_busy', role: 'ADMIN',
           kind: 'parametrage'
         },
         {

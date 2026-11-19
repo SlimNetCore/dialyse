@@ -22,13 +22,13 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <div class="cover"><div style="font-size:12pt;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700">Document de référence</div>
 <h1>HemoDialyse<br><em>Documentation fonctionnelle</em><br>et règles de gestion</h1>
 <p>Tout ce que la plateforme sait faire pour gérer un centre d'hémodialyse — et chaque règle qu'elle applique, sans exception.</p>
-<div class="meta">Version 1.0 · 2026-11-19<br>693 règles de gestion · 16 domaines · 562 codes d'erreur métier</div></div>
+<div class="meta">Version 1.0 · 2026-11-19<br>695 règles de gestion · 16 domaines · 562 codes d'erreur métier</div></div>
 <div class="page">
 <section><h1><span class="n">Sommaire</span>Contenu du document</h1><ol class="toc"><li><a href="#intro">Présentation de la plateforme</a></li><li><a href="#p01">1. Règles transverses</a></li><li><a href="#p02">2. Sécurité, comptes, rôles, licences et traçabilité</a></li><li><a href="#p03">3. Organisation : sociétés, centres, comptes d'encadrement</a></li><li><a href="#p04">4. Patients, assurés, attestations de droits, prises en charge</a></li><li><a href="#p05">5. Planification : placement des patients, planning de la semaine, salles, générateurs, capacité</a></li><li><a href="#p06">6. Absences des patients</a></li><li><a href="#p07">7. Séances de dialyse (cahier de dialyse)</a></li><li><a href="#p08">8. Stock : articles, fournisseurs, bons, lots, PMP, inventaire, alertes, groupes d'articles</a></li><li><a href="#p09">9. GMAO : parc d'équipements, interventions, plans de maintenance, coûts et aide à la décision</a></li><li><a href="#p10">10. Infirmiers : référentiel, roulement, présence, absences, remplaçants, charge, comptes</a></li><li><a href="#p11">11. Dossier médical : antécédents, allergies, sérologies, examens, ordonnances, prescriptions, anémie, greffe, KDIGO, export</a></li><li><a href="#p12">12. Facturation, TVA, règlements et comptabilité</a></li><li><a href="#p13">13. Direction de société : tableaux de bord consolidés, anonymat, alertes, instantanés, temps réel</a></li><li><a href="#p14">14. Référentiels du centre, modèles de documents, imports et reprise de données</a></li><li><a href="#p15">15. Notifications temps réel et catalogue des alertes</a></li><li><a href="#p16">16. Annexe de traçabilité : contrôleurs REST, tâches planifiées et règles</a></li><li><a href="#attentions">Annexe — Points d'attention connus</a></li></ol></section>
 <section class="part" id="intro"><h1><span class="n">Introduction</span>Présentation de la plateforme</h1>
 <p>HemoDialyse couvre <b>toute la gestion d'un centre d'hémodialyse</b> : accueil et dossier administratif des patients, prises en charge, planification des postes et du personnel, séances et cahier de dialyse, dossier médical et suivi clinique, stock et pharmacie, maintenance des équipements, facturation, règlements et comptabilité, pilotage de la direction. La plateforme est multi-centres et multi-sociétés, en français, arabe, kabyle et anglais.</p>
 <p>Au-delà de la disponibilité de l'information, le système <b>surveille</b> (absences, observance des traitements, sous-effectif, péremptions, indisponibilité des équipements, licences), <b>propose</b> (meilleures places de dialyse classées, remplaçants, réforme d'un équipement, simulation de facturation) et <b>protège</b> (placement incohérent refusé, isolement automatique des patients à risque, gel du stock pendant un inventaire, anonymat de la direction, cloisonnement par centre).</p>
-<div class="stat"><div><b>693</b>règles de gestion</div><div><b>16</b>domaines</div><div><b>15</b>surveillances automatiques</div><div><b>8</b>points d'attention</div></div>
+<div class="stat"><div><b>695</b>règles de gestion</div><div><b>16</b>domaines</div><div><b>15</b>surveillances automatiques</div><div><b>8</b>points d'attention</div></div>
 <h2>Se repérer dans l'application</h2><p>L'<b>Accueil</b> présente une tuile par module accessible au profil, avec un ou deux chiffres clés à jour en temps réel et un lien vers le tableau de bord du module ; une tuile que le profil n'a pas le droit de lire est masquée.</p><p>Chaque module s'organise en une <b>barre de module</b> identique partout : d'abord le <b>Tableau de bord</b> du module (<code>/&lt;module&gt;/tableau-de-bord</code>, indicateurs en lecture seule, cliquables vers la liste filtrée), puis les <b>écrans de travail</b>, puis le <b>paramétrage</b>. Ouvrir un module mène directement à son écran de travail (liste des patients, poste infirmier, grille de présence, état du stock, liste des équipements, calcul de la facturation, saisie des règlements, journal comptable) ; la Comptabilité n'a pas de tableau de bord.</p><p>La <b>Direction</b> dispose de trois pages partageant les mêmes filtres de période et de centre : <b>Tableau de bord</b> (vue d'ensemble : alertes, indicateurs de la société, chiffre d'affaires), <b>Analyses</b> (centres, clinique, stock, GMAO, capacité, absences, en tableaux triables) et <b>Rapports</b> (rapports mensuels figés, comparaison de deux mois).</p><p>La liste des patients s'exporte depuis le tableau lui-même : l'export Excel reprend toutes les lignes qui répondent aux filtres et au tri affichés, avec les colonnes visibles dans l'ordre affiché.</p>
 <h2>Profils et périmètres</h2><table><tr><th>Profil</th><th>Rôle</th><th>Périmètre principal</th></tr><tr><td><code>ADMIN</code></td><td>Administrateur du centre</td><td>Paramétrage, utilisateurs, séances, facturation, GMAO, comptabilité, planification</td></tr><tr><td><code>MEDECIN</code></td><td>Médecin</td><td>Dossier médical, prescriptions, validation et signature, cibles cliniques, greffe</td></tr><tr><td><code>INFIRMIER</code></td><td>Infirmier</td><td>Séances, consommables, administrations, « mon planning », absences</td></tr><tr><td><code>SECRETAIRE</code></td><td>Secrétaire</td><td>Accueil, patients, PEC, règlements, planning, absences</td></tr><tr><td><code>PHARMACIEN</code></td><td>Pharmacien / magasinier</td><td>Stock : bons, lots, inventaire</td></tr><tr><td><code>DIRECTION</code></td><td>Direction de société</td><td>Tableaux de bord consolidés et anonymes, instantanés, rapports</td></tr><tr><td><code>SUPERADMIN</code></td><td>Propriétaire de la plateforme</td><td>Sociétés, centres, comptes d'encadrement, licences, journal d'audit</td></tr></table>
 <h2>Comment lire les règles</h2><p>Chaque règle porte un identifiant stable <code>RG-XXX-nnn</code>, jamais renuméroté. Le code d'erreur renvoyé à l'utilisateur figure entre apostrophes inversées ; la source dans le code est citée. Un encadré <b>point d'attention</b> signale un écart connu entre l'intention métier et le comportement actuel : il est conservé tant qu'il n'est pas corrigé.</p></section>
@@ -2066,7 +2066,9 @@ La période de la Direction reste refusée en 422 si inversée (<code>PERIODE_IN
 </div></div>
 <h2>6.7 Clôture mensuelle des absences (slice A6, ADR 0042)</h2>
 <p>Un <strong>mois d&#39;absences</strong> (un mois d&#39;un centre) est ouvert ou clos. Un mois sans ligne est ouvert ; aucun mois n&#39;est clos
-au déploiement.</p>
+au déploiement. À l&#39;écran, la clôture et la réouverture d&#39;un mois (RG-ABS-070 à RG-ABS-076) se font dans
+<strong>Administration › Paramétrage › Clôtures mensuelles</strong>, réservé à l&#39;<code>ADMIN</code> du centre (RG-ABS-079) ; l&#39;écran des absences
+n&#39;en garde que l&#39;état des mois, en lecture seule, pour les autres profils.</p>
 <div class="rule" id="RG-ABS-070"><div class="rid">RG-ABS-070</div><div class="rtxt"><p><strong>Clôturer un mois d&#39;absences</strong> (<code>POST /api/v1/absences-patients/mois/{AAAA-MM}/cloturer</code>, <code>ADMIN</code>
 seul, centre de la session) :
 <strong>sans condition d&#39;état</strong> (l&#39;administrateur décide), mais <strong>seul un mois terminé se clôture</strong> : le mois en cours et
@@ -2137,6 +2139,12 @@ réouverture. Les événements d&#39;intégration
 0013 ; aucun consommateur pour l&#39;instant) ; les écritures
 <code>POST</code> sont aussi tracées par le journal d&#39;audit de la plateforme. <em>Source :</em> <code>MoisAbsencesJdbc</code>,
 <code>PublicationDesMoisDAbsencesSpring</code>, <code>AuditRequestFilter</code>.</p>
+</div></div>
+<div class="rule" id="RG-ABS-079"><div class="rid">RG-ABS-079</div><div class="rtxt"><p>(écran) — L&#39;<code>ADMIN</code> clôture et rouvre les mois d&#39;absences dans <strong>Administration › Paramétrage › Clôtures
+mensuelles</strong> (<code>/admin/parametrage/clotures</code>, écran réservé à l&#39;<code>ADMIN</code> du centre, avec la clôture de la facturation,
+RG-FAC-050) ; l&#39;écran des absences ne lui montre plus que le lien vers cet écran. Les autres profils (secrétaire, médecin…)
+gardent sur l&#39;écran des absences l&#39;<strong>état des mois en lecture seule</strong> (ouvert / clos, sans action ; <code>GET /mois</code> leur reste
+ouvert, sans motif ni auteurs, RG-ABS-077). <em>Source :</em> écrans Absences de patients et Clôtures mensuelles (frontend).</p>
 </div></div>
 </section>
 <section class="part" id="p07"><h1><span class="n">Partie 7</span>Séances de dialyse (cahier de dialyse)</h1>
@@ -4477,6 +4485,8 @@ cette date (RG-ABS-024) ; les séances facturées deviennent immuables (RG-SEA-0
 <code>FacturationValideeEvent</code> (langage publié du contexte <code>facturation</code>) → <code>ComptabilisationDesVentesApresLaValidation</code> (contexte <code>facturation</code>, ACL vers la Comptabilité ; ex-écouteur de la plateforme, LST ADR 0183).</p>
 </div></div>
 <h2>12.4 bis Clôture mensuelle de facturation</h2>
+<p>À l&#39;écran, la clôture et la réouverture d&#39;un mois (RG-FAC-040 à RG-FAC-045) se font dans <strong>Administration › Paramétrage ›
+Clôtures mensuelles</strong>, réservé à l&#39;<code>ADMIN</code> du centre (RG-FAC-050) ; l&#39;écran de calcul de la facturation ne les propose plus.</p>
 <div class="rule" id="RG-FAC-040"><div class="rid">RG-FAC-040</div><div class="rtxt"><p><strong>Clôture d&#39;un mois</strong> (<code>POST /api/v1/facturation/periodes/{mois}/cloturer</code>, mois <code>AAAA-MM</code>, <code>ADMIN</code>) : un
 mois par centre, <strong>sans précondition d&#39;état</strong> (l&#39;administrateur décide, y compris un mois sans séance), mais <strong>seul un
 mois terminé
@@ -4530,6 +4540,16 @@ refusé ; aucun consommateur pour l&#39;instant). <code>GET /api/v1/facturation/
 <code>ANNEE_INVALIDE</code> sinon) donne l&#39;état des 12 mois du centre : ouvert ou clôturé, dernière clôture (par, le), dernière
 réouverture (par, le, motif). <em>Source :</em> <code>PeriodesDeFacturationControleur</code>, <code>ConsulterLesPeriodes</code>.</p>
 </div></div>
+<div class="rule" id="RG-FAC-050"><div class="rid">RG-FAC-050</div><div class="rtxt"><p>(écran) — La clôture et la réouverture des mois de facturation se font dans <strong>Administration › Paramétrage ›
+Clôtures mensuelles</strong> (<code>/admin/parametrage/clotures</code>), écran réservé à l&#39;<code>ADMIN</code> du centre (entrée de menu et route gardées,
+le serveur restant juge) qui réunit la clôture de la facturation et celle des séances (mois d&#39;absences, RG-ABS-079) ; l&#39;ordre
+recommandé y est rappelé (clôturer les absences, puis la facturation du mois). Par année : état des 12 mois en pastilles
+(ouvert / clos), dernière clôture et dernière réouverture ; seul un mois terminé se clôture, après confirmation ; la
+réouverture exige le motif (RG-FAC-043) ; l&#39;avertissement de clôture (séances restantes, absences non closes) s&#39;y affiche.
+L&#39;écran de calcul de la facturation ne propose plus ces actions : il montre à l&#39;<code>ADMIN</code> un lien vers cet écran, et ses
+messages (erreurs, succès) ne se mélangent pas à ceux de la clôture. <em>Source :</em> écrans Clôtures mensuelles et Facturation
+(frontend).</p>
+</div></div>
 <h2>12.4 ter Consultation des factures émises</h2>
 <div class="rule" id="RG-FAC-046"><div class="rid">RG-FAC-046</div><div class="rtxt"><p>La <strong>liste des factures</strong> (<code>GET /api/v1/facturation/factures</code>, <code>ADMIN</code> ; centre de la requête = centre de la
 session sinon 403 ; médecin « seul » refusé par le filtre de rôles) présente les factures <strong>émises</strong> du centre dont la <strong>date de
@@ -4563,7 +4583,7 @@ d&#39;une séance = prix unitaire HT de sa ligne. <em>Source :</em> <code>Attrib
 </div></div>
 <div class="rule" id="RG-FAC-049"><div class="rid">RG-FAC-049</div><div class="rtxt"><p>(écran) — L&#39;écran de calcul affiche les trois étapes Sélection → Aperçu → Validation sur une seule ligne ; l&#39;étape
 courante est déduite de l&#39;état de l&#39;écran (pas d&#39;aperçu : Sélection ; aperçu calculé non validé : Aperçu ; validation réussie :
-Validation ; toute autre action ensuite, par exemple la clôture du mois, ramène à Sélection) ; l&#39;explication de chaque étape
+Validation ; toute autre action ensuite ramène à Sélection ; la clôture du mois, faite ailleurs (RG-FAC-050), ne la change pas) ; l&#39;explication de chaque étape
 est en info-bulle et lue une seule fois par les lecteurs d&#39;écran ; sur un écran étroit, seuls les numéros des étapes non
 courantes restent visibles et la ligne défile, aucune étape n&#39;est coupée. <em>Source :</em> écran Facturation
 (frontend).</p>

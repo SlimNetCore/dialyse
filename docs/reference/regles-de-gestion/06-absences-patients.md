@@ -213,7 +213,9 @@
 ## 6.7 Clôture mensuelle des absences (slice A6, ADR 0042)
 
 Un **mois d'absences** (un mois d'un centre) est ouvert ou clos. Un mois sans ligne est ouvert ; aucun mois n'est clos
-au déploiement.
+au déploiement. À l'écran, la clôture et la réouverture d'un mois (RG-ABS-070 à RG-ABS-076) se font dans
+**Administration › Paramétrage › Clôtures mensuelles**, réservé à l'`ADMIN` du centre (RG-ABS-079) ; l'écran des absences
+n'en garde que l'état des mois, en lecture seule, pour les autres profils.
 
 - **RG-ABS-070** — **Clôturer un mois d'absences** (`POST /api/v1/absences-patients/mois/{AAAA-MM}/cloturer`, `ADMIN`
   seul, centre de la session) :
@@ -277,3 +279,8 @@ au déploiement.
   0013 ; aucun consommateur pour l'instant) ; les écritures
   `POST` sont aussi tracées par le journal d'audit de la plateforme. *Source :* `MoisAbsencesJdbc`,
   `PublicationDesMoisDAbsencesSpring`, `AuditRequestFilter`.
+- **RG-ABS-079** (écran) — L'`ADMIN` clôture et rouvre les mois d'absences dans **Administration › Paramétrage › Clôtures
+  mensuelles** (`/admin/parametrage/clotures`, écran réservé à l'`ADMIN` du centre, avec la clôture de la facturation,
+  RG-FAC-050) ; l'écran des absences ne lui montre plus que le lien vers cet écran. Les autres profils (secrétaire, médecin…)
+  gardent sur l'écran des absences l'**état des mois en lecture seule** (ouvert / clos, sans action ; `GET /mois` leur reste
+  ouvert, sans motif ni auteurs, RG-ABS-077). *Source :* écrans Absences de patients et Clôtures mensuelles (frontend).

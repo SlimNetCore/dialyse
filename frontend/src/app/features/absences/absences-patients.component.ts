@@ -112,7 +112,8 @@ export class AbsencesPatientsComponent {
   /** Le médecin consulte le suivi et corrige les absences qualifiées, mais ne déclare pas d'absence. */
   protected readonly peutDeclarer = computed(() => peutDeclarerParRole((role) => this.auth.hasRole(role)));
 
-  // --- Rattrapage de la détection (administrateur) : un mois par défaut, jusqu'à hier
+  // --- Rattrapage de la détection (administrateur) : un mois par défaut, jusqu'à hier. L'administrateur clôture les mois
+  // d'absences dans Paramétrage › Clôtures mensuelles (lien) ; les autres profils gardent ici l'état des mois en lecture.
   protected readonly estAdmin = computed(() => this.auth.hasRole('ADMIN'));
   protected readonly rattrapageOpen = signal(false);
   protected readonly rattrapageModel = signal(periodeParDefaut());

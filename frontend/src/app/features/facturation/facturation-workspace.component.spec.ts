@@ -31,7 +31,7 @@ describe('FacturationWorkspaceComponent', () => {
     previewLoading: vi.fn(() => false),
     seanceActionLoadingId: vi.fn(() => null),
     anneePeriodes: vi.fn(() => 2026),
-    anneesChargees: vi.fn(() => [2026]),
+    anneesChargees: vi.fn((): number[] => [2026]),
     moisVises: vi.fn(() => ['2026-08']),
     moisClosVises: vi.fn(() => [] as string[]),
     moisEstClos: vi.fn((mois: string) => mois === '2026-08'),
@@ -152,46 +152,47 @@ describe('FacturationWorkspaceComponent', () => {
     });
   });
 
-  it('clôture un mois seulement après confirmation', () => {
+  it('la clôture mensuelle a quitté l\'espace de calcul : plus d\'action de clôture ni de réouverture ici', () => {
     const component = TestBed.runInInjectionContext(() => new FacturationWorkspaceComponent());
 
-    component['onConfirmerCloture']();
-    expect(facturationStoreMock.cloturerMois).not.toHaveBeenCalled();
-
-    component['onDemanderCloture']('2026-07');
-    expect(facturationStoreMock.cloturerMois).not.toHaveBeenCalled();
-    component['onConfirmerCloture']();
-
-    expect(facturationStoreMock.cloturerMois).toHaveBeenCalledWith({
-      centerId: '11111111-1111-1111-1111-111111111111',
-      mois: '2026-07',
-    });
-    expect(component['clotureAConfirmer']()).toBeNull();
+    for (const action of ['onDemanderCloture', 'onConfirmerCloture', 'onOuvrirReouverture', 'onConfirmerReouverture']) {
+      expect(action in component, action).toBe(false);
+    }
   });
 
-  it('rouvre un mois avec un motif obligatoire, nettoyé et borné à 500 caractères', () => {
+  it('ignore les messages de succès de la clôture mensuelle (ils appartiennent à l\'écran d\'administration)', () => {
+    facturationStoreMock.successMessage.mockReturnValue('FACTURATION.SUCCESS.MOIS_CLOTURE');
     const component = TestBed.runInInjectionContext(() => new FacturationWorkspaceComponent());
+    expect(component['succesDuCalcul']()).toBeNull();
+    expect(component['etape']()).toBe(1);
 
-    component['onOuvrirReouverture']('2026-08');
-    expect(component['reouvertureValide']()).toBe(false);
-    component['onMotifReouverture']('   ');
-    expect(component['reouvertureValide']()).toBe(false);
-    component['onConfirmerReouverture']();
-    expect(facturationStoreMock.rouvrirMois).not.toHaveBeenCalled();
+    facturationStoreMock.successMessage.mockReturnValue('FACTURATION.SUCCESS.SEANCE_EXCLUDED');
+    expect(TestBed.runInInjectionContext(() => new FacturationWorkspaceComponent())['succesDuCalcul']())
+      .toBe('FACTURATION.SUCCESS.SEANCE_EXCLUDED');
+    facturationStoreMock.successMessage.mockReturnValue(null);
+  });
 
-    component['onMotifReouverture']('x'.repeat(501));
-    expect(component['reouvertureValide']()).toBe(false);
+  it('le lien vers Paramétrage › Clôtures mensuelles n\'est proposé qu\'à l\'ADMIN', () => {
+    expect(TestBed.runInInjectionContext(() => new FacturationWorkspaceComponent())['estAdmin']()).toBe(false);
 
-    component['onMotifReouverture']('  séances oubliées  ');
-    expect(component['reouvertureValide']()).toBe(true);
-    component['onConfirmerReouverture']();
+    authMock.hasRole.mockImplementation((role: string) => role === 'ADMIN');
+    expect(TestBed.runInInjectionContext(() => new FacturationWorkspaceComponent())['estAdmin']()).toBe(true);
+    authMock.hasRole.mockImplementation((role: string) => role === 'SECRETAIRE');
+  });
 
-    expect(facturationStoreMock.rouvrirMois).toHaveBeenCalledWith({
+  it('charge les mois des années visées par la période (blocage de la validation), pas l\'année de la clôture', () => {
+    facturationStoreMock.anneesChargees.mockReturnValue([]);
+    facturationStoreMock.anneePeriodes.mockReturnValue(2024);
+    TestBed.runInInjectionContext(() => new FacturationWorkspaceComponent());
+    TestBed.tick();
+
+    expect(facturationStoreMock.loadPeriodes).toHaveBeenCalledTimes(1);
+    expect(facturationStoreMock.loadPeriodes).toHaveBeenCalledWith({
       centerId: '11111111-1111-1111-1111-111111111111',
-      mois: '2026-08',
-      motif: 'séances oubliées',
+      annee: 2026,
     });
-    expect(component['reouvertureDraft']()).toBeNull();
+    facturationStoreMock.anneesChargees.mockReturnValue([2026]);
+    facturationStoreMock.anneePeriodes.mockReturnValue(2026);
   });
 
   it('bloque les actions d une séance dont le mois est clos (mois de la date de la séance)', () => {

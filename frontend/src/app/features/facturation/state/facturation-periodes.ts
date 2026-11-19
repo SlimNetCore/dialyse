@@ -63,3 +63,11 @@ export function douzeMois(annee: number, index: Record<string, MoisDeFacturation
     };
   });
 }
+
+/** Messages de succès propres à la clôture / réouverture d'un mois (écran Administration › Clôtures mensuelles). */
+export const SUCCES_DE_CLOTURE: readonly string[] = ['FACTURATION.SUCCESS.MOIS_CLOTURE', 'FACTURATION.SUCCESS.MOIS_ROUVERT'];
+
+/** Vrai si le message de succès vient d'une clôture ou d'une réouverture de mois. */
+export function estSuccesDeCloture(message: string | null | undefined): boolean {
+  return !!message && SUCCES_DE_CLOTURE.includes(message);
+}

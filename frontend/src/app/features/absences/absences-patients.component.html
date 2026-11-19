@@ -358,5 +358,16 @@
     </mat-card>
   }
 
-  <app-mois-d-absences/>
+  <!-- Clôture mensuelle des séances (mois d'absences) : déplacée dans Paramétrage › Clôtures mensuelles pour l'ADMIN ;
+       les autres profils, qui lisaient l'état des mois sans pouvoir agir, gardent cette vue en lecture seule. -->
+  @if (estAdmin()) {
+    <p class="abs-full">
+      <a data-testid="lien-clotures-mensuelles" mat-button routerLink="/admin/parametrage/clotures">
+        <mat-icon>event_busy</mat-icon>
+        {{ 'NAV.ADMIN_CLOTURES_LIEN' | translate }}
+      </a>
+    </p>
+  } @else {
+    <app-mois-d-absences/>
+  }
 </section>

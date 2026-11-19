@@ -8,6 +8,12 @@
         <mat-icon>tune</mat-icon>
         {{ 'FACTURATION.SETTINGS.GOTO_ADMIN' | translate }}
       </a>
+      @if (estAdmin()) {
+        <a data-testid="lien-clotures-mensuelles" mat-button routerLink="/admin/parametrage/clotures">
+          <mat-icon>event_busy</mat-icon>
+          {{ 'NAV.ADMIN_CLOTURES_LIEN' | translate }}
+        </a>
+      }
     </div>
     <app-facturation-etapes [etape]="etape()"/>
   </div>
@@ -81,152 +87,9 @@
       @if (store.error()) {
         <p class="feedback error">{{ store.error() | translate: (store.errorParams() ?? undefined) }}</p>
       }
-      @if (store.successMessage()) {
-        <p class="feedback success">{{ store.successMessage() | translate }}</p>
+      @if (succesDuCalcul(); as succes) {
+        <p class="feedback success">{{ succes | translate }}</p>
       }
-    </mat-card-content>
-  </mat-card>
-
-  <mat-card class="periodes-card">
-    <mat-card-header>
-      <mat-card-title>{{ 'FACTURATION.PERIODES.TITLE' | translate }}</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <p class="app-muted-note">{{ 'FACTURATION.PERIODES.HINT' | translate }}</p>
-      <div class="filters-grid">
-        <mat-form-field appearance="outline" class="field-block">
-          <mat-label>{{ 'FACTURATION.PERIODES.YEAR' | translate }}</mat-label>
-          <mat-select (selectionChange)="onAnneePeriodes($event.value)" [value]="store.anneePeriodes()">
-            @for (annee of anneeOptions(); track annee) {
-              <mat-option [value]="annee">{{ annee }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-        <div class="app-button-cluster">
-          <button (click)="onRafraichirPeriodes()" mat-stroked-button>
-            <mat-icon>refresh</mat-icon>
-            {{ 'COMMON.REFRESH_BUTTON' | translate }}
-          </button>
-        </div>
-      </div>
-
-      @if (store.periodesLoading() || store.periodeActionMois()) {
-        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-      }
-
-      @if (store.clotureAvertissement(); as avertissement) {
-        @if (avertissement.seancesRestantes > 0) {
-          <p class="feedback cloture-warning">
-            {{ 'FACTURATION.PERIODES.AVERTISSEMENT' | translate: {count: avertissement.seancesRestantes, mois: avertissement.mois} }}
-          </p>
-        }
-        @if (avertissement.absencesNonCloses) {
-          <p class="feedback cloture-warning" data-testid="avertissement-absences-non-closes">
-            {{ 'FACTURATION.PERIODES.AVERTISSEMENT_ABSENCES' | translate: {mois: avertissement.mois} }}
-          </p>
-        }
-      }
-
-      <div class="table-wrap">
-        <table class="periodes-table">
-          <thead>
-          <tr>
-            <th>{{ 'FACTURATION.PERIODES.MONTH' | translate }}</th>
-            <th>{{ 'COMMON.STATUS_LABEL' | translate }}</th>
-            <th>{{ 'FACTURATION.PERIODES.CLOSED' | translate }}</th>
-            <th>{{ 'FACTURATION.PERIODES.REOPENED' | translate }}</th>
-            <th>{{ 'COMMON.COL_ACTIONS' | translate }}</th>
-          </tr>
-          </thead>
-          <tbody>
-            @for (periode of store.moisDeLAnnee(); track periode.mois) {
-              <tr>
-                <td><span class="code-chip">{{ periode.mois }}</span></td>
-                <td>
-                  <span [class]="'seance-status-chip ' + (periode.statut === 'CLOTURE' ? 'status-done' : 'status-pending')">
-                    {{ (periode.statut === 'CLOTURE' ? 'FACTURATION.PERIODES.STATUS_CLOSED' : 'FACTURATION.PERIODES.STATUS_OPEN') | translate }}
-                  </span>
-                </td>
-                <td>
-                  @if (periode.statut === 'CLOTURE' && periode.clotureLe) {
-                    {{ 'FACTURATION.PERIODES.CLOSED_BY' | translate: {par: periode.cloturePar ?? '-', le: (periode.clotureLe | date: 'short')} }}
-                  }
-                </td>
-                <td>
-                  @if (periode.rouvertLe) {
-                    {{ 'FACTURATION.PERIODES.REOPENED_BY' | translate: {par: periode.rouvertPar ?? '-', le: (periode.rouvertLe | date: 'short')} }}
-                    @if (periode.motifDeReouverture) {
-                      <br><em>{{ 'FACTURATION.PERIODES.REASON' | translate }} : {{ periode.motifDeReouverture }}</em>
-                    }
-                  }
-                </td>
-                <td class="actions-cell">
-                  @if (periode.statut === 'CLOTURE') {
-                    <button (click)="onOuvrirReouverture(periode.mois)"
-                            [disabled]="store.periodeActionMois() !== null"
-                            mat-stroked-button>
-                      <mat-icon>lock_open</mat-icon>
-                      {{ 'FACTURATION.PERIODES.REOPEN' | translate }}
-                    </button>
-                  } @else {
-                    <button (click)="onDemanderCloture(periode.mois)"
-                            [disabled]="store.periodeActionMois() !== null || !moisClosable(periode.mois)"
-                            [matTooltip]="moisClosable(periode.mois) ? '' : ('FACTURATION.PERIODES.NON_TERMINE' | translate)"
-                            color="warn"
-                            mat-stroked-button>
-                      <mat-icon>lock</mat-icon>
-                      {{ 'FACTURATION.PERIODES.CLOSE' | translate }}
-                    </button>
-                  }
-                </td>
-              </tr>
-              @if (clotureAConfirmer() === periode.mois) {
-                <tr class="exclusion-row">
-                  <td colspan="5">
-                    <div class="exclusion-form">
-                      <p>{{ 'FACTURATION.PERIODES.CONFIRM_CLOSE' | translate: {mois: periode.mois} }}</p>
-                      <div class="app-button-cluster">
-                        <button (click)="onConfirmerCloture()" color="warn" mat-flat-button>
-                          {{ 'FACTURATION.PERIODES.CONFIRM_CLOSE_BUTTON' | translate }}
-                        </button>
-                        <button (click)="onAnnulerCloture()" mat-stroked-button>
-                          {{ 'COMMON.CANCEL' | translate }}
-                        </button>
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-              }
-              @if (reouvertureDraft(); as draft) {
-                @if (draft.mois === periode.mois) {
-                  <tr class="exclusion-row">
-                    <td colspan="5">
-                      <div class="exclusion-form">
-                        <mat-form-field appearance="outline" class="field-block">
-                          <mat-label>{{ 'FACTURATION.PERIODES.MOTIF' | translate }}</mat-label>
-                          <textarea (input)="onMotifReouverture($any($event.target).value)"
-                                    [attr.maxlength]="motifMax" [value]="draft.motif" matInput required
-                                    rows="2"></textarea>
-                          <mat-hint align="end">{{ draft.motif.length }} / {{ motifMax }}</mat-hint>
-                        </mat-form-field>
-                        <div class="app-button-cluster">
-                          <button (click)="onConfirmerReouverture()" [disabled]="!reouvertureValide()" color="primary"
-                                  mat-flat-button>
-                            {{ 'FACTURATION.PERIODES.CONFIRM_REOPEN_BUTTON' | translate }}
-                          </button>
-                          <button (click)="onAnnulerReouverture()" mat-stroked-button>
-                            {{ 'COMMON.CANCEL' | translate }}
-                          </button>
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                }
-              }
-            }
-          </tbody>
-        </table>
-      </div>
     </mat-card-content>
   </mat-card>
 

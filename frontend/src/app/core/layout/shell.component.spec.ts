@@ -262,6 +262,7 @@ describe('ShellComponent — barre de module', () => {
       ['/admin/parametrage/groupes-articles', 'parametrage'],
       ['/admin/parametrage/planning-centre', 'parametrage'],
       ['/admin/parametrage/modeles-document', 'parametrage'],
+      ['/admin/parametrage/clotures', 'parametrage'],
       ['/infirmiers/referentiel', 'parametrage'],
       ['/admin/audit', 'supervision'],
       ['/admin/parametrage/reprise', 'supervision'],
@@ -270,6 +271,22 @@ describe('ShellComponent — barre de module', () => {
     // le journal d'audit n'est plus déclaré en double
     expect(component.activeModuleItems().filter((i) => i.route === '/admin/audit')).toHaveLength(1);
   });
+
+  it('les clôtures mensuelles (facturation, séances) sont sous Administration › Paramétrage, pour l\'ADMIN seul',
+    async () => {
+      const {component} = await renderAt('/admin/parametrage/clotures');
+
+      expect(component.activeItemRoute()).toBe('/admin/parametrage/clotures');
+      expect(component.activeModuleItems().find((i) => i.route === '/admin/parametrage/clotures'))
+        .toMatchObject({label: 'NAV.ADMIN_CLOTURES', icon: 'event_busy', kind: 'parametrage'});
+      expect(breadcrumbLabels('/admin/parametrage/clotures'))
+        .toEqual(['NAV.ADMIN', 'NAV.PARAMETRAGE', 'NAV.ADMIN_CLOTURES']);
+
+      roles = ['SECRETAIRE', 'MEDECIN', 'INFIRMIER'];
+      const autre = TestBed.createComponent(ShellComponent).componentInstance;
+      const entrees = autre.modules.flatMap((m) => m.items.map((i) => i.route));
+      expect(entrees).not.toContain('/admin/parametrage/clotures');
+    });
 
   it('les modèles de documents s\'activent dans la barre Administration, plus dans l\'Accueil', async () => {
     const {component} = await renderAt('/admin/parametrage/modeles-document');
@@ -302,6 +319,9 @@ describe('ShellComponent — barre de module', () => {
       'NAV.TABLEAU_DE_BORD', 'NAV.ACCUEIL', 'NAV.MODULES', 'NAV.FICHE', 'NAV.MODELES_DOCUMENT',
       ...breadcrumbLabels('/stock/articles/bons-commande/bons-reception/bons-sortie/inventaires/fournisseurs'),
       ...breadcrumbLabels('/admin/societes/licenses/audit/users/roles/parametrage/facturation/tva/referentiels/reprise'),
+      ...breadcrumbLabels('/admin/parametrage/clotures'),
+      'NAV.ADMIN_CLOTURES_DESCRIPTION', 'NAV.ADMIN_CLOTURES_FACTURATION', 'NAV.ADMIN_CLOTURES_SEANCES',
+      'NAV.ADMIN_CLOTURES_LIEN',
     ]);
     for (const [langue, {NAV: nav}] of Object.entries(LANGUES)) {
       for (const cle of cles) {

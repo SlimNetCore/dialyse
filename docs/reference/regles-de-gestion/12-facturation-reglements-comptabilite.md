@@ -168,6 +168,9 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
 
 ## 12.4 bis Clôture mensuelle de facturation
 
+À l'écran, la clôture et la réouverture d'un mois (RG-FAC-040 à RG-FAC-045) se font dans **Administration › Paramétrage ›
+Clôtures mensuelles**, réservé à l'`ADMIN` du centre (RG-FAC-050) ; l'écran de calcul de la facturation ne les propose plus.
+
 - **RG-FAC-040** — **Clôture d'un mois** (`POST /api/v1/facturation/periodes/{mois}/cloturer`, mois `AAAA-MM`, `ADMIN`) : un
   mois par centre, **sans précondition d'état** (l'administrateur décide, y compris un mois sans séance), mais **seul un
   mois terminé
@@ -215,6 +218,15 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
   refusé ; aucun consommateur pour l'instant). `GET /api/v1/facturation/periodes?annee=AAAA` (`ADMIN`, 2000 à 2100, 400
   `ANNEE_INVALIDE` sinon) donne l'état des 12 mois du centre : ouvert ou clôturé, dernière clôture (par, le), dernière
   réouverture (par, le, motif). *Source :* `PeriodesDeFacturationControleur`, `ConsulterLesPeriodes`.
+- **RG-FAC-050** (écran) — La clôture et la réouverture des mois de facturation se font dans **Administration › Paramétrage ›
+  Clôtures mensuelles** (`/admin/parametrage/clotures`), écran réservé à l'`ADMIN` du centre (entrée de menu et route gardées,
+  le serveur restant juge) qui réunit la clôture de la facturation et celle des séances (mois d'absences, RG-ABS-079) ; l'ordre
+  recommandé y est rappelé (clôturer les absences, puis la facturation du mois). Par année : état des 12 mois en pastilles
+  (ouvert / clos), dernière clôture et dernière réouverture ; seul un mois terminé se clôture, après confirmation ; la
+  réouverture exige le motif (RG-FAC-043) ; l'avertissement de clôture (séances restantes, absences non closes) s'y affiche.
+  L'écran de calcul de la facturation ne propose plus ces actions : il montre à l'`ADMIN` un lien vers cet écran, et ses
+  messages (erreurs, succès) ne se mélangent pas à ceux de la clôture. *Source :* écrans Clôtures mensuelles et Facturation
+  (frontend).
 
 ## 12.4 ter Consultation des factures émises
 
@@ -247,7 +259,7 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
   `SeancesDeLaFacturePubliees` (ACL vers la Séance).
 - **RG-FAC-049** (écran) — L'écran de calcul affiche les trois étapes Sélection → Aperçu → Validation sur une seule ligne ; l'étape
   courante est déduite de l'état de l'écran (pas d'aperçu : Sélection ; aperçu calculé non validé : Aperçu ; validation réussie :
-  Validation ; toute autre action ensuite, par exemple la clôture du mois, ramène à Sélection) ; l'explication de chaque étape
+  Validation ; toute autre action ensuite ramène à Sélection ; la clôture du mois, faite ailleurs (RG-FAC-050), ne la change pas) ; l'explication de chaque étape
   est en info-bulle et lue une seule fois par les lecteurs d'écran ; sur un écran étroit, seuls les numéros des étapes non
   courantes restent visibles et la ligne défile, aucune étape n'est coupée. *Source :* écran Facturation
   (frontend).
