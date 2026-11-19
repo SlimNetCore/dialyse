@@ -410,6 +410,7 @@
       "HINT": "Compare two already-frozen months on figures that no longer change.",
       "MONTH_A": "Month A",
       "MONTH_B": "Month B",
+      "INDICATEUR": "Indicator",
       "DELTA": "Change",
       "ERROR": "Unable to load this month."
     },
@@ -595,6 +596,7 @@
       "TAUX": "Collection rate"
     },
     "COL": {
+      "RANG": "Rank",
       "CENTRE": "Centre",
       "SOUS_KT": "Patients on catheter",
       "FACTURES": "Invoices",
@@ -4062,6 +4064,37 @@
     "GENERATEUR_MARQUE": "Brand",
     "GENERATEUR_ETAT": "Status",
     "GENERATEUR_RESUME": "Summary"
+  },
+  "NG_TABLE": {
+    "SORT": "Sort",
+    "SORT_ASC": "Sorted ascending",
+    "SORT_DESC": "Sorted descending",
+    "SORT_PRIORITY": "priority {{priority}}",
+    "MULTI_SORT_HINT": "Shift+click: add a sort level",
+    "COPY": "Copy",
+    "NO_DATA": "No data",
+    "NO_DATA_FILTERED": "No rows match the filters",
+    "LOADING": "Loading",
+    "TABLE_LABEL": "Data table",
+    "TOTALS_LABEL": "Total",
+    "ANNOUNCE_SORT_ASC": "{{column}}, sorted ascending",
+    "ANNOUNCE_SORT_DESC": "{{column}}, sorted descending",
+    "ANNOUNCE_SORT_CLEARED": "Sort cleared",
+    "ANNOUNCE_ROW_COUNT": "{{count}} row(s) shown",
+    "ANNOUNCE_NO_ROWS": "No matching rows",
+    "EXPORT_BUTTON": "Export",
+    "EXPORT_DIALOG_TITLE": "Export data",
+    "EXPORT_FROM_PAGE": "From page",
+    "EXPORT_TO_PAGE": "to page",
+    "EXPORT_CONFIRM": "Export",
+    "PAGINATOR_LABEL": "Pagination",
+    "PAGINATOR_ITEMS_PER_PAGE": "Items per page",
+    "PAGINATOR_FIRST": "First page",
+    "PAGINATOR_PREVIOUS": "Previous page",
+    "PAGINATOR_NEXT": "Next page",
+    "PAGINATOR_LAST": "Last page",
+    "PAGINATOR_RANGE": "{{from}} – {{to}} of {{total}}",
+    "PAGINATOR_RANGE_EMPTY": "0 of {{total}}"
   },
   "COMMON": {
     "FILTER_BY": "Filter by {{field}}",

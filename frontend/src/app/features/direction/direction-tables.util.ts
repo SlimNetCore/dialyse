@@ -43,11 +43,19 @@ export type DirectionColumn<T> = NgTableColumn<T> & {
   strong?: boolean;
   /** Garde l'avatar sur une ligne de total (par défaut une ligne de total s'écrit en texte simple). */
   totalFormat?: boolean;
+  /**
+   * Barre mesurée sur une échelle commune à plusieurs colonnes (sexe, tranches d'âge, centres du tableau croisé) :
+   * elle se compare d'une colonne à l'autre, donc elle reste dessinée même quand le tableau n'a qu'une ligne.
+   */
+  sharedScale?: boolean;
 };
 
 /** Mise en forme des valeurs, fournie par la page (langue, locale, seuil d'anonymat). */
 export interface DirectionTableContext {
   t(key: string, params?: Record<string, unknown>): string;
+
+  /** Seuil d'anonymat : un effectif inférieur est masqué par le serveur (`null`). */
+  threshold: number;
 
   /** Effectif, « < seuil » quand il est masqué. */
   headcount(value: number | null): string;
@@ -116,11 +124,24 @@ export function cellTextOf<T>(column: DirectionColumn<T>, row: T): string {
 }
 
 /**
+ * Clé de tri d'un effectif : un effectif masqué (« < seuil ») se range juste sous le seuil — avant les effectifs
+ * publiés en ordre croissant, après en ordre décroissant — au lieu de finir dernier dans les deux sens comme une
+ * cellule vide. `undefined` (pas de valeur du tout) reste une cellule vide.
+ */
+export function headcountSortValue(value: number | null | undefined, threshold: number): number | null {
+  if (value === undefined) return null;
+  return value === null ? threshold - 0.5 : value;
+}
+
+/**
  * Cellule ng-table à dessiner pour une ligne, ou `null` pour un texte simple : pas de barre pour une valeur masquée,
- * ni pour une ligne de total (elle écraserait l'échelle des centres) ; pas de pastille vide.
+ * ni pour une ligne de total (elle écraserait l'échelle des centres) ; pas de pastille vide. Une barre de données se
+ * mesure sur le maximum des lignes affichées : avec moins de deux lignes à comparer (`comparedRows`, hors totaux —
+ * typiquement un seul centre isolé par le filtre) elle serait toujours pleine, donc le nombre s'écrit seul, sauf si
+ * la colonne partage son échelle avec d'autres colonnes (`sharedScale`).
  */
 export function cellFormatOf<T>(
-  column: DirectionColumn<T>, row: T, value: unknown, text: string,
+  column: DirectionColumn<T>, row: T, value: unknown, text: string, comparedRows = 2,
 ): NgTableCellFormat<T> | null {
   const cell = column.cell;
   if (!cell) return null;
@@ -129,6 +150,7 @@ export function cellFormatOf<T>(
     case 'avatar':
       return text === '' || (total && !column.totalFormat) ? null : cell;
     case 'dataBar':
+      return total || typeof value !== 'number' || (comparedRows < 2 && !column.sharedScale) ? null : cell;
     case 'colorScale':
       return total || typeof value !== 'number' ? null : cell;
     case 'progress':
@@ -170,7 +192,11 @@ function kit<T>(sortable: boolean) {
   };
 }
 
-const levelEmphasis = (level: 'good' | 'warn' | 'bad' | 'none'): CellEmphasis | null => (level === 'none' ? null : level);
+/** Tri d'une colonne d'effectifs : voir {@link headcountSortValue}. */
+const headcountSort = <T>(ctx: DirectionTableContext, value: (row: T) => number | null | undefined): Extra<T> =>
+  ({sortValueAccessor: (row) => headcountSortValue(value(row), ctx.threshold)});
+
+const levelEmphasis =(level: 'good' | 'warn' | 'bad' | 'none'): CellEmphasis | null => (level === 'none' ? null : level);
 const moneyOrDash = (ctx: DirectionTableContext, value: number | null): string => (value === null ? '—' : ctx.money(value));
 
 /** Activité et finances par centre, classés par chiffre d'affaires. */
@@ -184,11 +210,12 @@ export function centresColumns(
   const money = (id: 'caTtc' | 'encaisse' | 'resteARecouvrer', header: string, tone?: NgTableTone) =>
     k.bar(id, ctx.t(header), (r) => r[id], maxOf(rows, (r) => r[id]), (r) => ctx.money(r[id]), {tone, minWidthPx: 150});
   const headcount = (id: 'patients' | 'patientsSousKt', header: string) =>
-    k.bar(id, ctx.t(header), (r) => r[id], maxOf(rows, (r) => r[id]), (r) => ctx.headcount(r[id]));
+    k.bar(id, ctx.t(header), (r) => r[id], maxOf(rows, (r) => r[id]), (r) => ctx.headcount(r[id]),
+      headcountSort(ctx, (r) => r[id]));
   return [
     {
-      id: 'rang', header: '#', valueAccessor: (r) => rankOf(r.centerId), sortable: true, widthPx: 64, minWidthPx: 56,
-      cell: {type: 'badge', tone: RANK_TONES},
+      id: 'rang', header: ctx.t('DIRECTION.COL.RANG'), valueAccessor: (r) => rankOf(r.centerId), sortable: true,
+      widthPx: 96, minWidthPx: 84, cell: {type: 'badge', tone: RANK_TONES},
     },
     k.avatar('centre', ctx.t('DIRECTION.COL.CENTRE'), (r) => r.nom),
     headcount('patients', 'DIRECTION.KPI.PATIENTS'),
@@ -232,7 +259,7 @@ export function clinicalColumns(ctx: DirectionTableContext, rows: readonly Indic
       {emphasis: (r) => levelEmphasis(kdigoLevel(clinique(r)[marker].pctDansCible))})),
     ...CLINICAL_COUNTS.map(([field, key, tone]) => k.bar(field, ctx.t(`DIRECTION.CLINICAL.${key}`),
       (r) => clinique(r)[field], maxOf(rows, (r) => clinique(r)[field]), (r) => ctx.headcount(clinique(r)[field]),
-      {tone})),
+      {tone, ...headcountSort(ctx, (r) => clinique(r)[field])})),
   ];
 }
 
@@ -325,7 +352,8 @@ export function capaciteColumns(ctx: DirectionTableContext, rows: readonly Capac
       maxOf(rows, (r) => r.ligne.capacite), (r) => (r.ligne.capacite === null ? '—' : String(r.ligne.capacite)),
       {strong: true}),
     k.bar('fileActive', ctx.t('DIRECTION.CAPACITE.COL_FILE'), (r) => r.ligne.fileActive,
-      maxOf(rows, (r) => r.ligne.fileActive), (r) => ctx.headcount(r.ligne.fileActive)),
+      maxOf(rows, (r) => r.ligne.fileActive), (r) => ctx.headcount(r.ligne.fileActive),
+      headcountSort(ctx, (r) => r.ligne.fileActive)),
     k.rate('tauxOccupation', ctx.t('DIRECTION.CAPACITE.COL_TAUX'), (r) => r.ligne.tauxOccupation,
       (r) => formatPct(r.ligne.tauxOccupation)),
     k.text('niveau', ctx.t('DIRECTION.CAPACITE.COL_STATUT'), (r) => r.ligne.niveau, {
@@ -342,7 +370,7 @@ export function absencesColumns(ctx: DirectionTableContext, rows: readonly Absen
   const k = kit<AbsencesRow>(true);
   const count = (field: AbsencesCount, key: string, extra: Extra<AbsencesRow> & { tone?: NgTableTone } = {}) =>
     k.bar(field, ctx.t(`DIRECTION.ABSENCES.${key}`), (r) => r.stats[field], maxOf(rows, (r) => r.stats[field]),
-      (r) => ctx.headcount(r.stats[field]), extra);
+      (r) => ctx.headcount(r.stats[field]), {...headcountSort(ctx, (r) => r.stats[field]), ...extra});
   return [
     k.avatar('centre', ctx.t('DIRECTION.COL.CENTRE'), (r) => r.nom ?? ctx.t('DIRECTION.TOTAL')),
     count('nbAbsences', 'COL_NB'),
@@ -374,7 +402,7 @@ export function motifsColumns(
       cell: {type: 'badge', tone: (_value, m) => (m.motif === 'NON_QUALIFIE' ? 'warning' : 'info')},
     }),
     k.bar('nb', ctx.t('DIRECTION.ABSENCES.COL_NB'), (m) => m.nb, maxOf(motifs, (m) => m.nb),
-      (m) => ctx.headcount(m.nb)),
+      (m) => ctx.headcount(m.nb), headcountSort(ctx, (m) => m.nb)),
     k.rate('part', ctx.t('DIRECTION.ABSENCES.COL_PART'), (m) => motifShare(m, motifs),
       (m) => formatPct(motifShare(m, motifs))),
     k.bar('valorisationHt', ctx.t('DIRECTION.ABSENCES.COL_VALORISATION'), (m) => m.valorisationHt,
@@ -391,7 +419,7 @@ export function absencesMensuelColumns(
   return [
     k.text('mois', ctx.t('DIRECTION.REPORTS.MONTH'), (m) => `${m.annee}-${m.mois < 10 ? '0' + m.mois : m.mois}`),
     k.bar('nbAbsences', ctx.t('DIRECTION.ABSENCES.COL_NB'), (m) => m.nbAbsences, maxOf(rows, (m) => m.nbAbsences),
-      (m) => ctx.headcount(m.nbAbsences)),
+      (m) => ctx.headcount(m.nbAbsences), headcountSort(ctx, (m) => m.nbAbsences)),
     k.bar('valorisationHt', ctx.t('DIRECTION.ABSENCES.COL_VALORISATION'), (m) => m.valorisationHt,
       maxOf(rows, (m) => m.valorisationHt), (m) => moneyOrDash(ctx, m.valorisationHt),
       {minWidthPx: 150, tone: 'warning'}),
@@ -437,7 +465,8 @@ export function sexeColumns(ctx: DirectionTableContext, rows: readonly SexeRow[]
   const k = kit<SexeRow>(true);
   const max = maxOf(rows, (r) => r.masculin, (r) => r.feminin, (r) => r.autre);
   const count = (field: 'masculin' | 'feminin' | 'autre', key: string) =>
-    k.bar(field, ctx.t(`DIRECTION.BREAKDOWN.${key}`), (r) => r[field], max, (r) => ctx.headcount(r[field]));
+    k.bar(field, ctx.t(`DIRECTION.BREAKDOWN.${key}`), (r) => r[field], max, (r) => ctx.headcount(r[field]),
+      {sharedScale: true, ...headcountSort(ctx, (r) => r[field])});
   return [
     k.avatar('centre', ctx.t('DIRECTION.COL.CENTRE'), (r) => r.nom),
     count('masculin', 'MASCULIN'), count('feminin', 'FEMININ'), count('autre', 'AUTRE'),
@@ -459,7 +488,10 @@ export function agesColumns(
   return [
     k.avatar('centre', ctx.t('DIRECTION.COL.CENTRE'), (r) => r.nom),
     ...codes.map((code) => k.bar(`age_${code}`, ctx.t(`DIRECTION.BREAKDOWN.AGE.${code}`), (r) => countOf(r, code), max,
-      (r) => text(r, code))),
+      (r) => text(r, code), {
+        sharedScale: codes.length > 1,
+        ...headcountSort(ctx, (r) => r.tranches.find((t) => t.code === code)?.count),
+      })),
   ];
 }
 
@@ -478,13 +510,16 @@ export function caissesColumns(
   };
   const max = maxOf(lines, ...centres.map((c) => (l: PivotLine) => l.cells[c.id]));
   const minWidthPx = metric === 'caHt' ? 150 : 120;
+  // Seuls les effectifs de patients sont masqués : les autres mesures gardent le tri par défaut de leur valeur.
+  const sort = (value: (l: PivotLine) => number | null | undefined): Extra<PivotLine> =>
+    (metric === 'patients' ? headcountSort(ctx, (l) => value(l) ?? null) : {});
   return [
     k.avatar('caisse', ctx.t('DIRECTION.BREAKDOWN.CAISSE'),
       (l) => l.nom || ctx.t('DIRECTION.BREAKDOWN.CAISSE_INCONNUE')),
     ...centres.map((c) => k.bar(`centre_${c.id}`, c.nom, (l) => l.cells[c.id] ?? null, max,
-      (l) => text(l.cells[c.id]), {minWidthPx})),
+      (l) => text(l.cells[c.id]), {minWidthPx, sharedScale: centres.length > 1, ...sort((l) => l.cells[c.id])})),
     k.bar('total', ctx.t('DIRECTION.TOTAL'), (l) => l.total, maxOf(lines, (l) => l.total), (l) => text(l.total),
-      {minWidthPx, strong: true, tone: 'neutral'}),
+      {minWidthPx, strong: true, tone: 'neutral', ...sort((l) => l.total)}),
   ];
 }
 
@@ -493,7 +528,7 @@ export function anemieColumns(ctx: DirectionTableContext, rows: readonly AnemieR
   const k = kit<AnemieRow>(true);
   const headcount = (field: 'patientsSousEpo' | 'patientsSousFer' | 'patientsEpo' | 'patientsFer', key: string) =>
     k.bar(field, ctx.t(`DIRECTION.BREAKDOWN.${key}`), (r) => r[field], maxOf(rows, (r) => r[field]),
-      (r) => ctx.headcount(r[field]));
+      (r) => ctx.headcount(r[field]), headcountSort(ctx, (r) => r[field]));
   const count = (
     field: 'administreesEpo' | 'administreesFer' | 'nonAdministrees', key: string,
     extra: Extra<AnemieRow> & { tone?: NgTableTone } = {},
@@ -569,7 +604,7 @@ export function compareRows(ctx: DirectionTableContext, a: Snapshot, b: Snapshot
 export function compareColumns(ctx: DirectionTableContext, moisA: string, moisB: string): DirectionColumn<CompareRow>[] {
   const k = kit<CompareRow>(false);
   return [
-    k.text('indicateur', ctx.t('DIRECTION.COL.CENTRE'), (r) => r.label, {minWidthPx: 180}),
+    k.text('indicateur', ctx.t('DIRECTION.COMPARE.INDICATEUR'), (r) => r.label, {minWidthPx: 180}),
     k.text('a', moisA, (r) => r.a, {numeric: true, minWidthPx: 150}),
     k.text('b', moisB, (r) => r.b, {numeric: true, minWidthPx: 150}),
     k.text('delta', ctx.t('DIRECTION.COMPARE.DELTA'), (r) => r.delta?.pct ?? null, {

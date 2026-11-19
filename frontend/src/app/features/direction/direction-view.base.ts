@@ -69,6 +69,7 @@ export abstract class DirectionViewBase {
     const symbol = getCurrencySymbol('DZD', 'narrow', this.locale);
     return {
       t: (key, params) => this.translate.instant(key, params),
+      threshold,
       headcount: (value) => formatHeadcount(value, threshold),
       money: (value) => (value === null ? '' : formatCurrency(value, this.locale, symbol, 'DZD', '1.0-0')),
       decimal: (value, digits) => formatNumber(value, this.locale, digits),

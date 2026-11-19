@@ -28,10 +28,12 @@ import {
   formatDelta,
   gmaoColumns,
   gmaoTopColumns,
+  headcountSortValue,
   IndicatorRow,
   maxOf,
   motifsColumns,
   NIVEAU_CAPACITE_TONES,
+  RANK_TONES,
   RATE_CELL,
   REPORT_STATUS_TONES,
   reportColumns,
@@ -43,6 +45,7 @@ import {
 /** Mise en forme lisible dans les attentes : clé de traduction telle quelle, montants suffixés « DA ». */
 const ctx: DirectionTableContext = {
   t: (key) => key,
+  threshold: 5,
   headcount: (value) => (value === null ? '< 5' : String(value)),
   money: (value) => (value === null ? '' : `${value} DA`),
   decimal: (value, digits) => value.toFixed(digits === '1.0-0' ? 0 : 1),
@@ -87,7 +90,69 @@ describe('tableaux de la direction — cellules ng-table par colonne', () => {
     expect(cellFormatOf(c['tauxEncaissement'], rows[1], null, '—')).toBeNull();
     expect(cellTextOf(c['partCa'], rows[1])).toBe('20 %');
     expect(c['rang'].valueAccessor(rows[1])).toBe(2);
+    // rang : en-tête traduit (plus de « # » muet pour un lecteur d'écran), pastille teintée selon le rang
+    expect(c['rang'].header).toBe('DIRECTION.COL.RANG');
+    expect(c['rang'].cell).toEqual({type: 'badge', tone: RANK_TONES});
+    expect(RANK_TONES).toEqual({'1': 'success', '2': 'info', '3': 'info'});
     expect(columns.every((col) => col.sortable)).toBe(true);
+  });
+
+  it('effectif masqué : trié juste sous le seuil d\'anonymat, pas comme une cellule vide', () => {
+    const rows = [centre('a', 'Centre Alpha'), centre('b', 'Centre Beta', {patients: null, patientsSousKt: null})];
+    const c = byId(centresColumns(ctx, rows, () => 1, () => 50));
+
+    expect(headcountSortValue(null, 5)).toBe(4.5);
+    expect(headcountSortValue(12, 5)).toBe(12);
+    expect(headcountSortValue(undefined, 5)).toBeNull();
+    expect(c['patients'].sortValueAccessor?.(rows[0])).toBe(40);
+    expect(c['patients'].sortValueAccessor?.(rows[1])).toBe(4.5);
+    expect(c['patientsSousKt'].sortValueAccessor?.(rows[1])).toBe(4.5);
+    // la valeur des barres reste `null` (pas de barre pour un effectif masqué) ; les montants gardent le tri par défaut
+    expect(c['patients'].valueAccessor(rows[1])).toBeNull();
+    expect(c['caTtc'].sortValueAccessor).toBeUndefined();
+
+    // tranche d'âge absente de la ligne : cellule vide, toujours rangée en dernier
+    const ages = [{centerId: 'a', nom: 'Centre Alpha', tranches: [{code: '0_17', count: null}]}];
+    const a = byId(agesColumns(ctx, ages, ['0_17', '60_PLUS']));
+    expect(a['age_0_17'].sortValueAccessor?.(ages[0])).toBe(4.5);
+    expect(a['age_60_PLUS'].sortValueAccessor?.(ages[0])).toBeNull();
+
+    // caisses : seule la mesure « patients » est un effectif masquable
+    const centres = [{id: 'a', nom: 'Centre Alpha'}];
+    const lines = [{code: 'CNAS', nom: 'CNAS', cells: {a: null}, total: null}];
+    const patients = byId(caissesColumns(ctx, centres, lines, 'patients'));
+    expect(patients['centre_a'].sortValueAccessor?.(lines[0])).toBe(4.5);
+    expect(patients['total'].sortValueAccessor?.(lines[0])).toBe(4.5);
+    expect(byId(caissesColumns(ctx, centres, lines, 'caHt'))['centre_a'].sortValueAccessor).toBeUndefined();
+  });
+
+  it('barre de données : masquée quand le tableau n\'a qu\'une ligne à comparer, sauf échelle commune à plusieurs colonnes', () => {
+    const rows = [centre('a', 'Centre Alpha')];
+    const c = byId(centresColumns(ctx, rows, () => 1, () => 100));
+
+    expect(cellFormatOf(c['caTtc'], rows[0], 1_000_000, '1000000 DA', 2)).toBe(c['caTtc'].cell);
+    expect(cellFormatOf(c['caTtc'], rows[0], 1_000_000, '1000000 DA', 1)).toBeNull();
+    // un taux (bornes fixes 0-100), un avatar ou une pastille ne dépendent pas des autres lignes
+    expect(cellFormatOf(c['tauxEncaissement'], rows[0], 80, '80 %', 1)).toBe(RATE_CELL);
+    expect(cellFormatOf(c['centre'], rows[0], 'Centre Alpha', 'Centre Alpha', 1)).toBe(c['centre'].cell);
+    expect(cellFormatOf(c['rang'], rows[0], 1, '1', 1)).toBe(c['rang'].cell);
+
+    // sexe / âges : les colonnes se comparent entre elles sur une échelle commune, la barre reste
+    const sexe = [{centerId: 'a', nom: 'Centre Alpha', masculin: 20, feminin: 12, autre: null}];
+    const s = byId(sexeColumns(ctx, sexe));
+    expect(s['masculin'].sharedScale).toBe(true);
+    expect(cellFormatOf(s['masculin'], sexe[0], 20, '20', 1)).toBe(s['masculin'].cell);
+    const ages = [{centerId: 'a', nom: 'Centre Alpha', tranches: [{code: '0_17', count: 8}]}];
+    expect(byId(agesColumns(ctx, ages, ['0_17', '60_PLUS']))['age_0_17'].sharedScale).toBe(true);
+    expect(byId(agesColumns(ctx, ages, ['0_17']))['age_0_17'].sharedScale).toBe(false);
+
+    // caisses : les colonnes de centres partagent leur échelle s'il y en a plusieurs ; le total a la sienne
+    const lines = [{code: 'CNAS', nom: 'CNAS', cells: {a: 440, b: 10}, total: 450}];
+    const pivot = byId(caissesColumns(ctx, [{id: 'a', nom: 'Alpha'}, {id: 'b', nom: 'Beta'}], lines, 'seances'));
+    expect(cellFormatOf(pivot['centre_a'], lines[0], 440, '440', 1)).toBe(pivot['centre_a'].cell);
+    expect(cellFormatOf(pivot['total'], lines[0], 450, '450', 1)).toBeNull();
+    const isole = byId(caissesColumns(ctx, [{id: 'a', nom: 'Alpha'}], lines, 'seances'));
+    expect(cellFormatOf(isole['centre_a'], lines[0], 440, '440', 1)).toBeNull();
   });
 
   const marker = (pct: number | null) => ({evalues: 10, pctDansCible: pct, pctSousCible: null, pctAuDessus: null});
@@ -107,10 +172,15 @@ describe('tableaux de la direction — cellules ng-table par colonne', () => {
     const columns = clinicalColumns(ctx, [alpha]);
     const c = byId(columns);
 
-    expect(cellTypes(columns)).toMatchObject({
+    expect(cellTypes(columns)).toEqual({
       centre: 'avatar', ktV: 'progress', hemoglobine: 'progress', phosphore: 'progress', pth: 'progress',
-      albumine: 'progress', vhbPositifs: 'dataBar', greffesPeriode: 'dataBar',
+      albumine: 'progress', vhbPositifs: 'dataBar', vhcPositifs: 'dataBar', vihPositifs: 'dataBar',
+      patientsObservanceEnRetard: 'dataBar', greffeListeAttente: 'dataBar', greffesPeriode: 'dataBar',
     });
+    expect(columns.map((col) => col.id)).toEqual([
+      'centre', 'ktV', 'hemoglobine', 'phosphore', 'pth', 'albumine', 'vhbPositifs', 'vhcPositifs', 'vihPositifs',
+      'patientsObservanceEnRetard', 'greffeListeAttente', 'greffesPeriode',
+    ]);
     expect(cellTextOf(c['ktV'], alpha)).toBe('62.5 %');
     expect(c['ktV'].emphasis?.(alpha)).toBe('warn');
     expect(c['hemoglobine'].emphasis?.(alpha)).toBe('good');
@@ -319,7 +389,7 @@ describe('tableaux de la direction — cellules ng-table par colonne', () => {
     const row = (id: string) => rows.find((r) => r.id === id)!;
 
     expect(rows.map((r) => r.id)).toEqual(['patients', 'seances', 'caTtc', 'encaisse', 'tauxEncaissement']);
-    expect(columns.map((col) => col.header)).toEqual(['DIRECTION.COL.CENTRE', '2026-07', '2026-08', 'DIRECTION.COMPARE.DELTA']);
+    expect(columns.map((col) => col.header)).toEqual(['DIRECTION.COMPARE.INDICATEUR', '2026-07', '2026-08', 'DIRECTION.COMPARE.DELTA']);
     expect(cellTypes(columns)).toEqual({indicateur: undefined, a: undefined, b: undefined, delta: 'colorScale'});
     expect(DELTA_CELL).toEqual({type: 'colorScale', diverging: true, min: -100, max: 100});
     expect(c['delta'].cell).toBe(DELTA_CELL);

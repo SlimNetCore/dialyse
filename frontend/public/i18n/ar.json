@@ -410,6 +410,7 @@
       "HINT": "قارن بين شهرين مثبّتين مسبقًا على أرقام لم تعد تتغيّر.",
       "MONTH_A": "الشهر أ",
       "MONTH_B": "الشهر ب",
+      "INDICATEUR": "المؤشر",
       "DELTA": "التغيّر",
       "ERROR": "تعذّر تحميل هذا الشهر."
     },
@@ -595,6 +596,7 @@
       "TAUX": "نسبة التحصيل"
     },
     "COL": {
+      "RANG": "الترتيب",
       "CENTRE": "المركز",
       "SOUS_KT": "المرضى بالقسطرة",
       "FACTURES": "الفواتير",
@@ -3924,6 +3926,37 @@
     "GENERATEUR_MARQUE": "العلامة التجارية",
     "GENERATEUR_ETAT": "الحالة",
     "GENERATEUR_RESUME": "ملخص"
+  },
+  "NG_TABLE": {
+    "SORT": "فرز",
+    "SORT_ASC": "مرتّب تصاعديًا",
+    "SORT_DESC": "مرتّب تنازليًا",
+    "SORT_PRIORITY": "الأولوية {{priority}}",
+    "MULTI_SORT_HINT": "Shift+نقر: إضافة مستوى فرز",
+    "COPY": "نسخ",
+    "NO_DATA": "لا توجد بيانات",
+    "NO_DATA_FILTERED": "لا توجد صفوف مطابقة لعوامل التصفية",
+    "LOADING": "جارٍ التحميل",
+    "TABLE_LABEL": "جدول البيانات",
+    "TOTALS_LABEL": "الإجمالي",
+    "ANNOUNCE_SORT_ASC": "{{column}}، ترتيب تصاعدي",
+    "ANNOUNCE_SORT_DESC": "{{column}}، ترتيب تنازلي",
+    "ANNOUNCE_SORT_CLEARED": "تمت إزالة الفرز",
+    "ANNOUNCE_ROW_COUNT": "تم عرض {{count}} صف",
+    "ANNOUNCE_NO_ROWS": "لا توجد صفوف مطابقة",
+    "EXPORT_BUTTON": "تصدير",
+    "EXPORT_DIALOG_TITLE": "تصدير البيانات",
+    "EXPORT_FROM_PAGE": "من الصفحة",
+    "EXPORT_TO_PAGE": "إلى الصفحة",
+    "EXPORT_CONFIRM": "تصدير",
+    "PAGINATOR_LABEL": "ترقيم الصفحات",
+    "PAGINATOR_ITEMS_PER_PAGE": "عدد العناصر في الصفحة",
+    "PAGINATOR_FIRST": "الصفحة الأولى",
+    "PAGINATOR_PREVIOUS": "الصفحة السابقة",
+    "PAGINATOR_NEXT": "الصفحة التالية",
+    "PAGINATOR_LAST": "الصفحة الأخيرة",
+    "PAGINATOR_RANGE": "{{from}} – {{to}} من {{total}}",
+    "PAGINATOR_RANGE_EMPTY": "0 من {{total}}"
   },
   "COMMON": {
     "FILTER_BY": "تصفية حسب {{field}}",

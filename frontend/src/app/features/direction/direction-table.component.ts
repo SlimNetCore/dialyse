@@ -1,6 +1,7 @@
-import {ChangeDetectionStrategy, Component, computed, input, TemplateRef, viewChild} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject, input, TemplateRef, viewChild} from '@angular/core';
 import {NgTableCellFormat, NgTableCellFormatComponent, NgTableColumn, NgTableComponent} from '@sbourahla/ng-table';
 import {cellFormatOf, cellTextOf, DirectionColumn, isTotalRow} from './direction-tables.util';
+import {NgTableTranslatedLabels} from './ng-table-labels';
 
 /**
  * Tableau d'analyse de la direction : un `<ng-table>` en mode local (données déjà en mémoire), sans barre d'outils,
@@ -14,7 +15,7 @@ import {cellFormatOf, cellTextOf, DirectionColumn, isTotalRow} from './direction
   standalone: true,
   imports: [NgTableComponent, NgTableCellFormatComponent],
   template: `
-    <ng-table [ariaLabel]="label()" [columns]="tableColumns()" [columnsMenuEnabled]="false"
+    <ng-table [ariaLabel]="label()" [columns]="tableColumns()" [columnsMenuEnabled]="false" [labels]="labels()"
               [pinnedBottomRows]="totals()" [rowClassFn]="rowClassFn()" [rows]="tableRows()"
               [showResetFilters]="false" density="compact"/>
 
@@ -23,7 +24,10 @@ import {cellFormatOf, cellTextOf, DirectionColumn, isTotalRow} from './direction
       @let format = formatOf(column, row, value, text);
       <span [class]="cellClass(column, row, format)">
         @if (format) {
-          <ng-table-cell-format [format]="format" [label]="column.header" [row]="row" [text]="text" [value]="value"/>
+          <!-- Taux : la barre de ng-table borne aria-valuenow à 0-100 alors qu'un taux peut dépasser 100 % ; elle
+               est donc décorative, la valeur exacte écrite à côté étant celle que lit un lecteur d'écran. -->
+          <ng-table-cell-format [attr.aria-hidden]="format.type === 'progress' ? 'true' : null" [format]="format"
+                                [label]="column.header" [row]="row" [text]="text" [value]="value"/>
           @if (format.type === 'progress') {
             <span class="dt-rate">{{ text }}</span>
           }
@@ -103,6 +107,10 @@ export class DirectionTableComponent<T> {
   /** Lignes à estomper (centre inactif). */
   readonly inactive = input<((row: T) => boolean) | null>(null);
 
+  /** Textes de ng-table (tri, tableau vide…) dans la langue de l'application. */
+  protected readonly labels = inject(NgTableTranslatedLabels).labels;
+  /** Lignes que les barres de données comparent entre elles : celles du tableau, hors totaux. */
+  private readonly comparedRows = computed(() => this.rows().filter((row) => !isTotalRow(row)).length);
   private readonly cellTemplate = viewChild<TemplateRef<unknown>>('cell');
   /** Colonnes ng-table : le gabarit commun, sauf pour une colonne qui apporte le sien (boutons d'action). */
   protected readonly tableColumns = computed<NgTableColumn<T>[]>(() => {
@@ -123,7 +131,7 @@ export class DirectionTableComponent<T> {
   }
 
   protected formatOf(column: DirectionColumn<T>, row: T, value: unknown, text: string): NgTableCellFormat<T> | null {
-    return cellFormatOf(column, row, value, text);
+    return cellFormatOf(column, row, value, text, this.comparedRows());
   }
 
   protected cellClass(column: DirectionColumn<T>, row: T, format: NgTableCellFormat<T> | null): string {

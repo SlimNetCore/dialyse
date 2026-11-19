@@ -410,6 +410,7 @@
       "HINT": "Comparez deux mois déjà figés sur des chiffres qui ne bougent plus.",
       "MONTH_A": "Mois A",
       "MONTH_B": "Mois B",
+      "INDICATEUR": "Indicateur",
       "DELTA": "Évolution",
       "ERROR": "Impossible de charger ce mois."
     },
@@ -595,6 +596,7 @@
       "TAUX": "Taux d'encaissement"
     },
     "COL": {
+      "RANG": "Rang",
       "CENTRE": "Centre",
       "SOUS_KT": "Patients sous KT",
       "FACTURES": "Factures",
@@ -4062,6 +4064,37 @@
     "GENERATEUR_MARQUE": "Marque",
     "GENERATEUR_ETAT": "État",
     "GENERATEUR_RESUME": "Résumé"
+  },
+  "NG_TABLE": {
+    "SORT": "Trier",
+    "SORT_ASC": "Trié croissant",
+    "SORT_DESC": "Trié décroissant",
+    "SORT_PRIORITY": "priorité {{priority}}",
+    "MULTI_SORT_HINT": "Maj+clic : ajouter un niveau de tri",
+    "COPY": "Copier",
+    "NO_DATA": "Aucune donnée",
+    "NO_DATA_FILTERED": "Aucune ligne ne correspond aux filtres",
+    "LOADING": "Chargement en cours",
+    "TABLE_LABEL": "Tableau de données",
+    "TOTALS_LABEL": "Total",
+    "ANNOUNCE_SORT_ASC": "{{column}}, tri croissant",
+    "ANNOUNCE_SORT_DESC": "{{column}}, tri décroissant",
+    "ANNOUNCE_SORT_CLEARED": "Tri retiré",
+    "ANNOUNCE_ROW_COUNT": "{{count}} ligne(s) affichée(s)",
+    "ANNOUNCE_NO_ROWS": "Aucune ligne ne correspond",
+    "EXPORT_BUTTON": "Exporter",
+    "EXPORT_DIALOG_TITLE": "Exporter les données",
+    "EXPORT_FROM_PAGE": "De la page",
+    "EXPORT_TO_PAGE": "à la page",
+    "EXPORT_CONFIRM": "Exporter",
+    "PAGINATOR_LABEL": "Pagination",
+    "PAGINATOR_ITEMS_PER_PAGE": "Éléments par page",
+    "PAGINATOR_FIRST": "Première page",
+    "PAGINATOR_PREVIOUS": "Page précédente",
+    "PAGINATOR_NEXT": "Page suivante",
+    "PAGINATOR_LAST": "Dernière page",
+    "PAGINATOR_RANGE": "{{from}} – {{to}} sur {{total}}",
+    "PAGINATOR_RANGE_EMPTY": "0 sur {{total}}"
   },
   "COMMON": {
     "FILTER_BY": "Filtrer par {{field}}",

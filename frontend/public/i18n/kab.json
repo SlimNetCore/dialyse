@@ -410,6 +410,7 @@
       "HINT": "Sɣit sin wagguren yettwaḥbesen zik ɣef yimḍanen ur nettbeddil ara.",
       "MONTH_A": "Aggur A",
       "MONTH_B": "Aggur B",
+      "INDICATEUR": "Anamal",
       "DELTA": "Asnifel",
       "ERROR": "Ur izmir ara ad yali wagur-agi."
     },
@@ -595,6 +596,7 @@
       "TAUX": "Ameskar n uḥṣal"
     },
     "COL": {
+      "RANG": "Amḍiq",
       "CENTRE": "Aseɣwen",
       "SOUS_KT": "Inelmaden s KT",
       "FACTURES": "Isfuyla",
@@ -3697,6 +3699,37 @@
     "FICHE_PATIENT_TITLE": "Takarḍa n umuḍin",
     "FICHE_INFO": "Isefka imezwura n usulay",
     "FICHE_READONLY": "Takarḍa n umuḍin d taɣuri kan deg wemkanik n dializ."
+  },
+  "NG_TABLE": {
+    "SORT": "Smizzwer",
+    "SORT_ASC": "Yettusmizzwer s usali",
+    "SORT_DESC": "Yettusmizzwer s usader",
+    "SORT_PRIORITY": "tazwart {{priority}}",
+    "MULTI_SORT_HINT": "Shift+asiti: rnu aswir n usmizzwer",
+    "COPY": "Nɣel",
+    "NO_DATA": "Ulac isefka",
+    "NO_DATA_FILTERED": "Ulac izirig yemṣadan d yimsizdigen",
+    "LOADING": "Asali…",
+    "TABLE_LABEL": "Tafelwit n yisefka",
+    "TOTALS_LABEL": "Asemday",
+    "ANNOUNCE_SORT_ASC": "{{column}}, asmizzwer s usali",
+    "ANNOUNCE_SORT_DESC": "{{column}}, asmizzwer s usader",
+    "ANNOUNCE_SORT_CLEARED": "Asmizzwer yettwakkes",
+    "ANNOUNCE_ROW_COUNT": "{{count}} n yizirigen i d-yettwaskanen",
+    "ANNOUNCE_NO_ROWS": "Ulac izirig yemṣadan",
+    "EXPORT_BUTTON": "Sifeḍ",
+    "EXPORT_DIALOG_TITLE": "Sifeḍ isefka",
+    "EXPORT_FROM_PAGE": "Seg usebter",
+    "EXPORT_TO_PAGE": "ɣer usebter",
+    "EXPORT_CONFIRM": "Sifeḍ",
+    "PAGINATOR_LABEL": "Asebter",
+    "PAGINATOR_ITEMS_PER_PAGE": "Iferdisen deg usebter",
+    "PAGINATOR_FIRST": "Asebter amezwaru",
+    "PAGINATOR_PREVIOUS": "Asebter yezrin",
+    "PAGINATOR_NEXT": "Asebter d-iteddun",
+    "PAGINATOR_LAST": "Asebter aneggaru",
+    "PAGINATOR_RANGE": "{{from}} – {{to}} seg {{total}}",
+    "PAGINATOR_RANGE_EMPTY": "0 seg {{total}}"
   },
   "COMMON": {
     "FILTER_BY": "Sizdeg s {{field}}",
