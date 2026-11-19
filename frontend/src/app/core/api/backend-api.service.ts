@@ -1424,6 +1424,24 @@ export class BackendApiService {
     return this.http.get<PagedResponse<ReglementInvoiceRow>>(`${this.baseUrl}/reglements`, {params});
   }
 
+  /**
+   * Saisie des règlements paginée côté serveur (RG-REG-009, `GET /reglements/page`) : critères de la période plus `page`,
+   * `size` (≤ 100), `sort` et filtres de colonne (`colonnes`, déjà au format de l'API, voir `parametresDePage`).
+   */
+  listReglementsPage(centerId: string, query: ReglementListQuery, colonnes: Readonly<Record<string, string>> = {}):
+    Observable<PagedResponse<ReglementInvoiceRow>> {
+    let params = new HttpParams().set('centerId', centerId).set('year', String(query.year));
+    if (query.month != null) params = params.set('month', String(query.month));
+    if (query.caisseId) params = params.set('caisseId', query.caisseId);
+    if (query.agenceId) params = params.set('agenceId', query.agenceId);
+    if (query.centrePayeurId) params = params.set('centrePayeurId', query.centrePayeurId);
+    for (const [nom, valeur] of Object.entries(colonnes)) {
+      if (nom !== 'page' && nom !== 'size' && valeur != null && valeur !== '') params = params.set(nom, valeur);
+    }
+    params = params.set('page', String(query.page)).set('size', String(query.size));
+    return this.http.get<PagedResponse<ReglementInvoiceRow>>(`${this.baseUrl}/reglements/page`, {params});
+  }
+
   getReglementDashboard(centerId: string, query: ReglementDashboardQuery): Observable<ReglementDashboardResponse> {
     let params = new HttpParams()
       .set('centerId', centerId)

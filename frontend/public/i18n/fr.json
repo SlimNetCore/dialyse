@@ -1435,6 +1435,7 @@
       "SOLDE_SETTLED": "Réglée",
       "SOLDE_REMAINING": "Reste : {{amount}}",
       "SOLDE_OVERPAID": "Trop-perçu : {{amount}}",
+      "SOLDE_TYPE": {"RESTE": "Reste dû", "REGLE": "Réglée", "TROP_PERCU": "Trop-perçu"},
       "DRAFT_TOOLTIP": "Aperçu avant sauvegarde",
       "CODE_REGLEMENT": "Code règlement",
       "MULTIPLE_BADGE_TOOLTIP": "Règlement multiple : {{count}} paiements",

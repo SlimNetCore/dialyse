@@ -47,6 +47,10 @@ export type ReglementState = PagedListState<ReglementInvoiceRow> & {
   referencePaiement: string;
   /** Clé d'idempotence par facture, réutilisée tant que l'envoi n'a pas réussi. */
   idempotenceKeys: Record<string, string>;
+  /** Tri et filtres de colonne de la table, au format de l'API (`sort`, `patientNom`, `etat`…) : appliqués par le serveur. */
+  colonnes: Record<string, string>;
+  /** Incrémenté après une écriture réussie : recharge la page courante (tri/filtres serveur à jour). */
+  rechargement: number;
 };
 
 const initialState: ReglementState = {
@@ -72,6 +76,8 @@ const initialState: ReglementState = {
   modeReglement: null,
   referencePaiement: '',
   idempotenceKeys: {},
+  colonnes: {},
+  rechargement: 0,
 };
 
 export const ReglementStore = signalStore(
@@ -173,6 +179,11 @@ export const ReglementStore = signalStore(
     setCentrePayeurId(centrePayeurId: string | null): void {
       patchState(store, {centrePayeurId: centrePayeurId || null, pageIndex: 0});
     },
+    /** Nouveau tri ou nouveaux filtres de colonne (format API) : la liste repart de la première page. */
+    setColonnes(colonnes: Record<string, string>): void {
+      if (memesColonnes(colonnes, store.colonnes())) return;
+      patchState(store, {colonnes: {...colonnes}, pageIndex: 0});
+    },
     clearFilters(): void {
       patchState(store, {
         month: currentDate.getMonth() + 1,
@@ -224,17 +235,16 @@ export const ReglementStore = signalStore(
       )
     ),
 
-    loadPage: rxMethod<{ centerId: string; userId: string; page: number; size: number }>(
+    loadPage: rxMethod<{ centerId: string; userId: string; page: number; size: number; conserverMessages?: boolean }>(
       pipe(
-        tap(({centerId, userId}) => patchState(store, {
+        tap(({centerId, userId, conserverMessages}) => patchState(store, {
           loading: true,
-          error: null,
-          successMessage: null,
+          ...(conserverMessages ? {} : {error: null, successMessage: null}),
           activeCenterId: centerId,
           activeUserId: userId,
         })),
         switchMap(({centerId, page, size}) =>
-          api.listReglements(centerId, {
+          api.listReglementsPage(centerId, {
             year: store.year(),
             month: store.month(),
             caisseId: store.caisseId(),
@@ -242,7 +252,7 @@ export const ReglementStore = signalStore(
             centrePayeurId: store.centrePayeurId(),
             page,
             size,
-          }).pipe(
+          }, store.colonnes()).pipe(
             tap((response) => patchState(store, {
               rows: response.items ?? [],
               total: response.total ?? 0,
@@ -282,6 +292,7 @@ export const ReglementStore = signalStore(
                 rows: store.rows().map((row) => row.factureId === factureId ? updatedRow : row),
                 savingFactureIds: store.savingFactureIds().filter((id) => id !== factureId),
                 successMessage: 'REGLEMENT_MODULE.SUCCESS.PAYMENT_SAVED',
+                rechargement: store.rechargement() + 1,
               });
             }),
             catchError((err: unknown) => {
@@ -368,6 +379,7 @@ export const ReglementStore = signalStore(
                 idempotenceKeys: remainingKeys,
                 batchSaving: false,
                 saveCycleKey: store.saveCycleKey() + 1,
+                ...(successCount > 0 ? {rechargement: store.rechargement() + 1} : {}),
                 ...(failCount === 0 ? {modeReglement: null, referencePaiement: ''} : {}),
                 successMessage: failCount === 0 ? 'REGLEMENT_MODULE.SUCCESS.BATCH_SAVED' : null,
                 error: failCount === 0 ? null : successCount === 0 ? firstFailure : 'REGLEMENT_MODULE.ERROR.BATCH_PARTIAL',
@@ -416,6 +428,7 @@ export const ReglementStore = signalStore(
   })),
   withHooks((store, appShell = inject(AppShellStore), auth = inject(AuthStore)) => ({
     onInit() {
+      let dernierRechargement = store.rechargement();
       effect(() => {
         const centerId = appShell.currentCenterId();
         const userId = auth.username() ?? 'system';
@@ -435,10 +448,17 @@ export const ReglementStore = signalStore(
         store.caisseId();
         store.agenceId();
         store.centrePayeurId();
+        store.colonnes();
         store.pageIndex();
         store.pageSize();
+        // Rechargement de la page courante après une écriture : le message de succès est conservé.
+        const rechargement = store.rechargement();
+        const apresEcriture = rechargement !== dernierRechargement;
+        dernierRechargement = rechargement;
 
-        store.loadPage({centerId, userId, page: store.pageIndex(), size: store.pageSize()});
+        store.loadPage({
+          centerId, userId, page: store.pageIndex(), size: store.pageSize(), conserverMessages: apresEcriture,
+        });
       });
 
       effect(() => {
@@ -454,6 +474,13 @@ export const ReglementStore = signalStore(
 );
 
 const errorMessage = reglementErrorMessage;
+
+/** Mêmes paramètres de tri/filtre (mêmes clés, mêmes valeurs), quel que soit l'ordre des clés. */
+export function memesColonnes(a: Readonly<Record<string, string>>, b: Readonly<Record<string, string>>): boolean {
+  const clesA = Object.keys(a);
+  if (clesA.length !== Object.keys(b).length) return false;
+  return clesA.every((cle) => Object.prototype.hasOwnProperty.call(b, cle) && a[cle] === b[cle]);
+}
 
 
 

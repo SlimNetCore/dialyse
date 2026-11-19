@@ -73,3 +73,49 @@ describe('BackendApiService — consultation des factures émises', () => {
     expect(recu).toEqual(detail);
   });
 });
+
+describe('BackendApiService — saisie des règlements paginée côté serveur (RG-REG-009)', () => {
+  let api: BackendApiService;
+  let http: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideZonelessChangeDetection(), provideHttpClient(), provideHttpClientTesting()],
+    });
+    api = TestBed.inject(BackendApiService);
+    http = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => http.verify());
+
+  it('appelle /reglements/page avec la période, la page, le tri et les filtres de colonne', () => {
+    let total = -1;
+    api.listReglementsPage(CENTRE, {year: 2026, month: 2, caisseId: 'c1', agenceId: null, centrePayeurId: 'p1', page: 3, size: 50},
+      {sort: 'patientNom,desc', etat: 'REGLEE', montantFacture: '>=100', page: '9', vide: ''})
+      .subscribe((page) => (total = page.total));
+
+    const req = http.expectOne((r) => r.url === `${environment.apiBaseUrl}/reglements/page`);
+    const p = req.request.params;
+    expect(p.get('centerId')).toBe(CENTRE);
+    expect(p.get('year')).toBe('2026');
+    expect(p.get('month')).toBe('2');
+    expect(p.get('caisseId')).toBe('c1');
+    expect(p.has('agenceId')).toBe(false);
+    expect(p.get('centrePayeurId')).toBe('p1');
+    expect(p.get('page')).toBe('3');
+    expect(p.get('size')).toBe('50');
+    expect(p.get('sort')).toBe('patientNom,desc');
+    expect(p.get('etat')).toBe('REGLEE');
+    expect(p.get('montantFacture')).toBe('>=100');
+    expect(p.has('vide')).toBe(false);
+    req.flush({items: [], total: 7, page: 3, size: 50});
+    expect(total).toBe(7);
+  });
+
+  it('garde la route historique /reglements pour la liste sans tri ni filtre', () => {
+    api.listReglements(CENTRE, {year: 2026, page: 0, size: 20}).subscribe();
+    const req = http.expectOne((r) => r.url === `${environment.apiBaseUrl}/reglements`);
+    expect(req.request.params.get('page')).toBe('0');
+    req.flush({items: [], total: 0, page: 0, size: 20});
+  });
+});

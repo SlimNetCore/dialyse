@@ -12,7 +12,7 @@ const CENTER_ID = '11111111-1111-1111-1111-111111111111';
 
 describe('ReglementStore', () => {
   let apiMock: {
-    listReglements: ReturnType<typeof vi.fn>;
+    listReglementsPage: ReturnType<typeof vi.fn>;
     getReglementDashboard: ReturnType<typeof vi.fn>;
     registerFacturePayment: ReturnType<typeof vi.fn>;
   };
@@ -24,7 +24,7 @@ describe('ReglementStore', () => {
 
   beforeEach(() => {
     apiMock = {
-      listReglements: vi.fn().mockReturnValue(of({
+      listReglementsPage: vi.fn().mockReturnValue(of({
         items: [{
           factureId: 'fac-1',
           numeroFacture: 'FAC-2026-0001',
@@ -106,10 +106,46 @@ describe('ReglementStore', () => {
   it('charge la liste paginée au démarrage avec le centerId courant', () => {
     const store = TestBed.inject(ReglementStore);
     store.loadPage({centerId: CENTER_ID, userId: 'secretaire', page: 0, size: 20});
-    expect(apiMock.listReglements).toHaveBeenCalled();
+    expect(apiMock.listReglementsPage).toHaveBeenCalled();
     expect(store.rows().length).toBe(1);
     expect(store.total()).toBe(1);
     expect(store.pageSize()).toBe(20);
+  });
+
+  it('envoie le tri et les filtres de colonne à GET /reglements/page', () => {
+    const store = TestBed.inject(ReglementStore);
+    store.setColonnes({sort: 'patientNom,desc', etat: 'REGLEE'});
+    store.loadPage({centerId: CENTER_ID, userId: 'secretaire', page: 0, size: 20});
+    const [centre, criteres, colonnes] = apiMock.listReglementsPage.mock.calls.at(-1)!;
+    expect(centre).toBe(CENTER_ID);
+    expect(criteres).toMatchObject({page: 0, size: 20});
+    expect(colonnes).toEqual({sort: 'patientNom,desc', etat: 'REGLEE'});
+  });
+
+  it('des colonnes identiques ne réinitialisent pas la page ; des colonnes changées ramènent en page 0', () => {
+    const store = TestBed.inject(ReglementStore);
+    store.setColonnes({etat: 'REGLEE', sort: 'caisse,asc'});
+    store.setPagination(3, 20);
+    store.setColonnes({sort: 'caisse,asc', etat: 'REGLEE'});
+    expect(store.pageIndex()).toBe(3);
+    store.setColonnes({sort: 'caisse,desc', etat: 'REGLEE'});
+    expect(store.pageIndex()).toBe(0);
+    expect(store.colonnes()).toEqual({sort: 'caisse,desc', etat: 'REGLEE'});
+  });
+
+  it('recharge la page courante après un paiement enregistré, en gardant le message de succès', () => {
+    apiMock.listReglementsPage.mockImplementation((_c: string, q: { page: number; size: number }) =>
+      of({items: [], total: 60, page: q.page, size: q.size}));
+    const store = TestBed.inject(ReglementStore);
+    TestBed.tick();
+    store.setPagination(2, 20);
+    TestBed.tick();
+    const appelsAvant = apiMock.listReglementsPage.mock.calls.length;
+    store.savePayment({centerId: CENTER_ID, factureId: 'fac-1', montant: 1000});
+    TestBed.tick();
+    expect(apiMock.listReglementsPage.mock.calls.length).toBe(appelsAvant + 1);
+    expect(apiMock.listReglementsPage.mock.calls.at(-1)![1]).toMatchObject({page: 2, size: 20});
+    expect(store.successMessage()).toBe('REGLEMENT_MODULE.SUCCESS.PAYMENT_SAVED');
   });
 
   it('met à jour la pagination', () => {

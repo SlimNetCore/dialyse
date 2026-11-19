@@ -4,7 +4,6 @@ import {
   computed,
   effect,
   inject,
-  signal,
   TemplateRef,
   viewChild
 } from '@angular/core';
@@ -23,15 +22,17 @@ import {toSignal} from '@angular/core/rxjs-interop';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {NgTableColumn, NgTableComponent, NgTableRemoteQuery} from '@sbourahla/ng-table';
 import {map, merge} from 'rxjs';
-import {ReglementPreviewRow, ReglementStore} from './state/reglement.store';
+import {memesColonnes, ReglementPreviewRow, ReglementStore} from './state/reglement.store';
 import {MODES_DE_REGLEMENT} from './state/reglement-payment.util';
 import {
-  CriteresDeLaPage,
-  filtrerEtTrierLaPage,
+  CORRESPONDANCE_REGLEMENT,
+  ETATS_DE_REGLEMENT,
   TAILLES_DE_PAGE_REGLEMENT,
   TONS_ETAT_REGLEMENT,
   TONS_SOLDE_REGLEMENT,
+  TYPES_DE_SOLDE,
 } from './state/reglement-table.util';
+import {parametresDePage} from '../../core/api/page-serveur';
 import {AppShellStore} from '../../core/state/app-shell.store';
 import {AuthStore} from '../../core/state/auth.store';
 import {ReglementInvoiceRow} from '../../core/api/backend-api.service';
@@ -70,14 +71,10 @@ export class ReglementWorkspaceComponent {
   protected readonly montantFactureCellTemplate = viewChild<TemplateRef<any>>('montantFactureCell');
   protected readonly codeReglementCellTemplate = viewChild<TemplateRef<any>>('codeReglementCell');
   protected readonly actionsCellTemplate = viewChild<TemplateRef<any>>('actionsCell');
-  private readonly table = viewChild(NgTableComponent);
   private readonly translate = inject(TranslateService);
   private readonly langue = toSignal(
     merge(this.translate.onLangChange, this.translate.onTranslationChange).pipe(map(() => Date.now())),
     {initialValue: 0});
-
-  /** Tri et filtres de colonne courants de la table (appliqués à la page chargée). */
-  private readonly criteresDeLaPage = signal<CriteresDeLaPage>({sort: null, filters: {}});
 
   protected readonly libelleVide = computed(() => {
     this.langue();
@@ -104,35 +101,38 @@ export class ReglementWorkspaceComponent {
         id: 'montantFacture', header: t('MONTANT_FACTURE'),
         valueAccessor: (row) => Number(row.montantFacture ?? 0),
         sortable: true, resizable: true, minWidthPx: 150,
-        filter: {type: 'text', label: t('MONTANT_FACTURE')},
+        filter: {type: 'number', label: t('MONTANT_FACTURE'), placeholder: '>=100'},
         cellTemplate: this.montantFactureCellTemplate() ?? undefined,
       },
       {
         id: 'montantRegle', header: t('MONTANT_REGLE'),
         valueAccessor: (row) => Number(row.montantRegle ?? 0),
         sortable: true, resizable: true, minWidthPx: 180,
-        filter: {type: 'text', label: t('MONTANT_REGLE')},
+        filter: {type: 'number', label: t('MONTANT_REGLE'), placeholder: '>=100'},
         cellTemplate: this.montantRegleCellTemplate() ?? undefined,
       },
       {
+        // Pas de tri serveur sur le solde (hors liste blanche) ; filtre = paramètre `soldeType` (TypeDeSolde).
         id: 'solde', header: t('SOLDE'), valueAccessor: (row) => row.soldeType,
         sortable: false, resizable: true, minWidthPx: 190, textOverflow: 'wrap',
-        filterPredicate: (row, valeur) => this.soldeLabel(row).toLocaleLowerCase()
-          .includes(valeur.trim().toLocaleLowerCase()),
         searchable: (row) => this.soldeLabel(row),
         exportValueAccessor: (row) => this.soldeLabel(row),
-        filter: {type: 'text', label: t('SOLDE')},
+        filter: {
+          type: 'enum', label: t('SOLDE'),
+          options: TYPES_DE_SOLDE.map((value) => ({value, label: t(`SOLDE_TYPE.${value}`)})),
+        },
         cell: {type: 'badge', tone: TONS_SOLDE_REGLEMENT, label: (_valeur, row) => this.soldeLabel(row)},
       },
       {
         id: 'etat', header: t('ETAT'), valueAccessor: (row) => row.etat,
-        sortValueAccessor: (row) => this.statusLabel(row),
         sortable: true, resizable: true, minWidthPx: 140,
-        filterPredicate: (row, valeur) => this.statusLabel(row).toLocaleLowerCase()
-          .includes(valeur.trim().toLocaleLowerCase()),
         searchable: (row) => this.statusLabel(row),
         exportValueAccessor: (row) => this.statusLabel(row),
-        filter: {type: 'text', label: t('ETAT')},
+        filter: {
+          type: 'enum', label: t('ETAT'),
+          options: ETATS_DE_REGLEMENT.map((value) =>
+            ({value, label: this.translate.instant(`REGLEMENT_MODULE.STATUS.${value}`)})),
+        },
         cell: {type: 'badge', tone: TONS_ETAT_REGLEMENT, label: (_valeur, row) => this.statusLabel(row)},
       },
       {
@@ -150,9 +150,8 @@ export class ReglementWorkspaceComponent {
     ];
   });
 
-  /** Lignes de la page chargée (avec l'aperçu des brouillons), triées et filtrées par les colonnes. */
-  protected readonly lignes = computed(() =>
-    filtrerEtTrierLaPage(this.store.visibleRows(), this.reglementColumns(), this.criteresDeLaPage()));
+  /** Lignes de la page renvoyée par le serveur (déjà triée et filtrée), avec l'aperçu des brouillons. */
+  protected readonly lignes = computed(() => this.store.visibleRows());
 
   protected readonly rowKey = (row: ReglementPreviewRow): unknown => row.factureId;
 
@@ -199,26 +198,19 @@ export class ReglementWorkspaceComponent {
   }
 
   /**
-   * Requête de la table (mode remote) : la page et sa taille sont demandées au serveur ; le tri et les filtres de
-   * colonne, que l'API ne connaît pas, s'appliquent à la page chargée comme dans l'ancienne liste.
+   * Requête de la table (mode remote, RG-REG-009) : page, taille, tri et filtres de colonne partent au serveur
+   * (`GET /reglements/page`). Un nouveau tri ou filtre ramène en première page (store.setColonnes).
    */
   protected onRemoteQueryChange(requete: NgTableRemoteQuery): void {
-    const criteres: CriteresDeLaPage = {sort: requete.sort?.direction ? requete.sort : null, filters: requete.filters ?? {}};
-    const criteresChanges = JSON.stringify(criteres) !== JSON.stringify(this.criteresDeLaPage());
-    this.criteresDeLaPage.set(criteres);
-    const taille = requete.page?.size && requete.page.size > 0 ? requete.page.size : this.store.pageSize();
-    const page = requete.page?.index ?? this.store.pageIndex();
-    if (criteresChanges && page === 0 && taille === this.store.pageSize()) {
-      // Tri ou filtre de colonne seul : la table revient d'elle-même en page 0 ; on garde la page chargée (l'API ne
-      // trie ni ne filtre) et on resynchronise le paginateur sur la page du store.
-      const table = this.table();
-      if (table && table.pageIndex() !== this.store.pageIndex()) {
-        table.pageIndex.set(this.store.pageIndex());
-      }
-      return;
-    }
-    if (page !== this.store.pageIndex() || taille !== this.store.pageSize()) {
-      this.store.setPagination(taille !== this.store.pageSize() ? 0 : page, taille);
+    const {page, size, ...colonnes} = parametresDePage(requete, CORRESPONDANCE_REGLEMENT);
+    const taille = Number(size);
+    const index = Number(page);
+    const colonnesChangees = !memesColonnes(colonnes, this.store.colonnes());
+    if (colonnesChangees) this.store.setColonnes(colonnes);
+    if (taille !== this.store.pageSize()) {
+      this.store.setPagination(0, taille);
+    } else if (!colonnesChangees && index !== this.store.pageIndex()) {
+      this.store.setPagination(index, taille);
     }
   }
 

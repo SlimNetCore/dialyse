@@ -1,8 +1,15 @@
-import type {NgTableColumn, NgTableSortChange, NgTableTone} from '@sbourahla/ng-table';
+import type {NgTableTone} from '@sbourahla/ng-table';
 import {ReglementEtat, ReglementSoldeType} from '../../../core/api/backend-api.service';
+import {CorrespondanceDePage} from '../../../core/api/page-serveur';
 
 /** Tailles de page proposées par la liste des factures à régler (20 par défaut, comme le store). */
 export const TAILLES_DE_PAGE_REGLEMENT: readonly number[] = [10, 20, 50, 100];
+
+/** Valeurs de `EtatDeReglement` (filtre énuméré envoyé tel quel au serveur). */
+export const ETATS_DE_REGLEMENT: readonly ReglementEtat[] = ['NON_REGLEE', 'PARTIELLEMENT_REGLEE', 'REGLEE'];
+
+/** Valeurs de `TypeDeSolde` (paramètre `soldeType`). */
+export const TYPES_DE_SOLDE: readonly ReglementSoldeType[] = ['RESTE', 'REGLE', 'TROP_PERCU'];
 
 /** Teinte de l'état de règlement d'une facture. */
 export const TONS_ETAT_REGLEMENT: Record<ReglementEtat, NgTableTone> = {
@@ -18,36 +25,17 @@ export const TONS_SOLDE_REGLEMENT: Record<ReglementSoldeType, NgTableTone> = {
   RESTE: 'danger',
 };
 
-/** Tri et filtres de colonne demandés par la table (ils s'appliquent à la page chargée). */
-export type CriteresDeLaPage = { sort: NgTableSortChange | null; filters: Record<string, string> };
+const CHAMPS_TRIABLES = ['numeroFacture', 'numeroAssurance', 'patientNom', 'patientPrenom', 'caisse', 'agence',
+  'centrePayeur', 'montantFacture', 'montantRegle', 'etat', 'codeReglement', 'dateFacturation'] as const;
 
-const texte = (valeur: unknown): string => (valeur == null ? '' : String(valeur)).toLocaleLowerCase();
+const CHAMPS_FILTRABLES = ['numeroFacture', 'numeroAssurance', 'patientNom', 'patientPrenom', 'caisse', 'agence',
+  'centrePayeur', 'codeReglement', 'montantFacture', 'montantRegle', 'etat'] as const;
 
 /**
- * L'API des règlements ne pagine que par année / mois / caisse / agence / centre payeur : comme l'ancienne liste,
- * le tri et les filtres texte des colonnes portent sur la page chargée (filtre « contient », insensible à la casse).
+ * Colonnes de la table ⇒ paramètres de `GET /reglements/page` (RG-REG-009) : liste blanche de tri du serveur ;
+ * la colonne Solde n'est pas triable et son filtre devient le paramètre `soldeType`.
  */
-export function filtrerEtTrierLaPage<T>(rows: readonly T[], columns: readonly NgTableColumn<T>[],
-                                        criteres: CriteresDeLaPage): T[] {
-  const parId = new Map(columns.map((c) => [c.id, c]));
-  const filtres = Object.entries(criteres.filters ?? {})
-    .map(([id, brut]) => ({colonne: parId.get(id), brut: brut ?? '', valeur: texte(brut).trim()}))
-    .filter((f) => !!f.colonne && f.valeur !== '');
-  const garde = (row: T, f: (typeof filtres)[number]): boolean => f.colonne!.filterPredicate
-    ? f.colonne!.filterPredicate(row, f.brut)
-    : texte(f.colonne!.valueAccessor(row)).includes(f.valeur);
-  let resultat = filtres.length ? rows.filter((row) => filtres.every((f) => garde(row, f))) : [...rows];
-  const sort = criteres.sort;
-  const colonne = sort?.direction ? parId.get(sort.columnId) : undefined;
-  if (sort && colonne) {
-    const cle = (row: T): unknown => (colonne.sortValueAccessor ?? colonne.valueAccessor)(row);
-    const sens = sort.direction === 'desc' ? -1 : 1;
-    resultat = resultat.sort((a, b) => {
-      const va = cle(a);
-      const vb = cle(b);
-      if (typeof va === 'number' && typeof vb === 'number') return (va - vb) * sens;
-      return texte(va).localeCompare(texte(vb)) * sens;
-    });
-  }
-  return resultat;
-}
+export const CORRESPONDANCE_REGLEMENT: CorrespondanceDePage = {
+  tris: Object.fromEntries(CHAMPS_TRIABLES.map((c) => [c, c])),
+  filtres: {...Object.fromEntries(CHAMPS_FILTRABLES.map((c) => [c, c])), solde: 'soldeType'},
+};

@@ -49,6 +49,8 @@ describe('ReglementWorkspaceComponent', () => {
     setAgenceId: vi.fn(),
     setCentrePayeurId: vi.fn(),
     setPagination: vi.fn(),
+    colonnes: vi.fn((): Record<string, string> => ({})),
+    setColonnes: vi.fn(),
     clearFilters: vi.fn(),
     clearMessages: vi.fn(),
     loadPage: vi.fn(),
@@ -115,32 +117,56 @@ describe('ReglementWorkspaceComponent', () => {
     expect(storeMock.setPagination).toHaveBeenLastCalledWith(0, 50);
   });
 
-  it('trie et filtre la page chargée selon les colonnes, sans requête serveur', () => {
-    const component = TestBed.runInInjectionContext(() => new ReglementWorkspaceComponent());
-    const lignes = (): ReglementPreviewRow[] => (component as any).lignes();
-
-    component['onRemoteQueryChange'](requete(0, 20, {sort: {columnId: 'montantFacture', direction: 'asc'}}));
-    expect(lignes().map((r) => r.factureId)).toEqual(['b', 'a']);
-
-    component['onRemoteQueryChange'](requete(0, 20, {filters: {patientNom: 'zi'}}));
-    expect(lignes().map((r) => r.factureId)).toEqual(['a']);
-    expect(storeMock.setPagination).not.toHaveBeenCalled();
-  });
-
-  it('garde la page chargée quand seul le tri ou un filtre de colonne change (la table revient en page 0)', () => {
+  it('envoie le tri et les filtres de colonne au serveur au format de l\'API (le solde devient soldeType)', () => {
     storeMock.pageIndex.mockReturnValue(2);
     const component = TestBed.runInInjectionContext(() => new ReglementWorkspaceComponent());
-    const pageIndexDeLaTable = Object.assign(vi.fn(() => 0), {set: vi.fn()});
-    (component as any).table = () => ({pageIndex: pageIndexDeLaTable});
 
-    component['onRemoteQueryChange'](requete(0, 20, {sort: {columnId: 'montantFacture', direction: 'asc'}}));
     component['onRemoteQueryChange'](requete(0, 20, {
-      sort: {columnId: 'montantFacture', direction: 'asc'}, filters: {patientNom: 'zi'},
+      sort: {columnId: 'montantFacture', direction: 'desc'},
+      filters: {patientNom: ' zi ', etat: 'NON_REGLEE,REGLEE', solde: 'TROP_PERCU', montantRegle: '>=100'},
     }));
 
+    expect(storeMock.setColonnes).toHaveBeenCalledWith({
+      sort: 'montantFacture,desc', patientNom: 'zi', etat: 'NON_REGLEE,REGLEE', soldeType: 'TROP_PERCU',
+      montantRegle: '>=100',
+    });
+    // setColonnes ramène lui-même en page 0 : pas de setPagination sur la page 0 demandée par la table.
     expect(storeMock.setPagination).not.toHaveBeenCalled();
-    expect(pageIndexDeLaTable.set).toHaveBeenCalledWith(2);
     storeMock.pageIndex.mockReturnValue(0);
+  });
+
+  it('n\'envoie pas de tri sur la colonne Solde (hors liste blanche) et ne réinitialise pas des colonnes identiques', () => {
+    storeMock.colonnes.mockReturnValue({etat: 'REGLEE'});
+    const component = TestBed.runInInjectionContext(() => new ReglementWorkspaceComponent());
+
+    component['onRemoteQueryChange'](requete(1, 20, {
+      sort: {columnId: 'solde', direction: 'asc'}, filters: {etat: 'REGLEE'},
+    }));
+
+    expect(storeMock.setColonnes).not.toHaveBeenCalled();
+    expect(storeMock.setPagination).toHaveBeenCalledWith(1, 20);
+    storeMock.colonnes.mockReturnValue({});
+  });
+
+  it('filtres énumérés sur l\'état et le solde (valeurs = noms d\'énumération), numériques sur les montants', () => {
+    const component = TestBed.runInInjectionContext(() => new ReglementWorkspaceComponent());
+    const cols = colonnes(component);
+    const etat = cols.find((c) => c.id === 'etat')!;
+    const solde = cols.find((c) => c.id === 'solde')!;
+
+    expect(etat.filter?.type).toBe('enum');
+    expect(etat.filter?.options?.map((o) => o.value)).toEqual(['NON_REGLEE', 'PARTIELLEMENT_REGLEE', 'REGLEE']);
+    expect(solde.filter?.type).toBe('enum');
+    expect(solde.filter?.options?.map((o) => o.value)).toEqual(['RESTE', 'REGLE', 'TROP_PERCU']);
+    expect(solde.sortable).toBe(false);
+    expect(cols.find((c) => c.id === 'montantFacture')!.filter?.type).toBe('number');
+    expect(cols.find((c) => c.id === 'montantRegle')!.filter?.type).toBe('number');
+  });
+
+  it('affiche la page renvoyée par le serveur sans la retrier localement', () => {
+    const component = TestBed.runInInjectionContext(() => new ReglementWorkspaceComponent());
+    component['onRemoteQueryChange'](requete(0, 20, {sort: {columnId: 'montantFacture', direction: 'asc'}}));
+    expect(((component as any).lignes() as ReglementPreviewRow[]).map((r) => r.factureId)).toEqual(['a', 'b']);
   });
 
   it('propage les filtres année/mois au store', () => {

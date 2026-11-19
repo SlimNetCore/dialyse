@@ -1435,6 +1435,7 @@
       "SOLDE_SETTLED": "Settled",
       "SOLDE_REMAINING": "Remaining: {{amount}}",
       "SOLDE_OVERPAID": "Overpaid: {{amount}}",
+      "SOLDE_TYPE": {"RESTE": "Remaining", "REGLE": "Settled", "TROP_PERCU": "Overpaid"},
       "DRAFT_TOOLTIP": "Preview before saving",
       "CODE_REGLEMENT": "Payment ref.",
       "MULTIPLE_BADGE_TOOLTIP": "Multiple payment: {{count}} payments",

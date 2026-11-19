@@ -1765,6 +1765,7 @@
       "SOLDE_SETTLED": "Tettwaxelleṣ",
       "SOLDE_REMAINING": "Ayeffus: {{amount}}",
       "SOLDE_OVERPAID": "Tamerna: {{amount}}",
+      "SOLDE_TYPE": {"RESTE": "Ayeffus", "REGLE": "Tettwaxelleṣ", "TROP_PERCU": "Tamerna"},
       "DRAFT_TOOLTIP": "Askan send taskelt",
       "CODE_REGLEMENT": "Acode n uxelleṣ",
       "MULTIPLE_BADGE_TOOLTIP": "Axeḍṣ agettu: {{count}} ixelleṣen",

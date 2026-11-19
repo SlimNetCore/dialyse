@@ -1674,6 +1674,7 @@
       "SOLDE_SETTLED": "مسددة",
       "SOLDE_REMAINING": "الباقي: {{amount}}",
       "SOLDE_OVERPAID": "زيادة: {{amount}}",
+      "SOLDE_TYPE": {"RESTE": "الباقي", "REGLE": "مسددة", "TROP_PERCU": "زيادة"},
       "DRAFT_TOOLTIP": "معاينة قبل الحفظ",
       "CODE_REGLEMENT": "رمز التسديد",
       "MULTIPLE_BADGE_TOOLTIP": "تسديدات متعددة: {{count}} دفعات",
