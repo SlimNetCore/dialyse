@@ -8,7 +8,7 @@ import {
   TemplateRef,
   viewChild
 } from '@angular/core';
-import {DecimalPipe, PercentPipe} from '@angular/common';
+import {DecimalPipe} from '@angular/common';
 import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
@@ -23,8 +23,6 @@ import {MatMenuModule} from '@angular/material/menu';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatDialog} from '@angular/material/dialog';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
-import {BaseChartDirective} from 'ng2-charts';
-import {Chart, ChartData, ChartOptions, registerables} from 'chart.js';
 import {ReglementPreviewRow, ReglementStore} from './state/reglement.store';
 import {MODES_DE_REGLEMENT} from './state/reglement-payment.util';
 import {AppShellStore} from '../../core/state/app-shell.store';
@@ -36,14 +34,11 @@ import {
 } from './payment-history-dialog/payment-history-dialog.component';
 import {ConfigurableListComponent, SharedListColumn} from '../../shared/configurable-list.component';
 
-Chart.register(...registerables);
-
 @Component({
   selector: 'app-reglement-workspace',
   standalone: true,
   imports: [
     DecimalPipe,
-    PercentPipe,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
@@ -57,7 +52,6 @@ Chart.register(...registerables);
     MatMenuModule,
     MatCheckboxModule,
     TranslateModule,
-    BaseChartDirective,
     ConfigurableListComponent,
   ],
   templateUrl: './reglement-workspace.component.html',
@@ -233,43 +227,6 @@ export class ReglementWorkspaceComponent {
   private readonly auth = inject(AuthStore);
   protected readonly userId = computed(() => this.auth.username() ?? 'system');
   private readonly translate = inject(TranslateService);
-  protected readonly statusChartData = computed<ChartData<'doughnut'>>(() => {
-    const dashboard = this.store.dashboard();
-    const buckets = dashboard?.statusBreakdown ?? [];
-    return {
-      labels: buckets.map((bucket) => this.translate.instant(`REGLEMENT_MODULE.DASHBOARD.BUCKETS.${bucket.code}`)),
-      datasets: [
-        {
-          data: buckets.map((bucket) => Number(bucket.count ?? 0)),
-          backgroundColor: [
-            '#c62828',
-            '#ef6c00',
-            '#1b5e20',
-            '#ff9800',
-          ],
-        },
-      ],
-    };
-  });
-  protected readonly amountChartData = computed<ChartData<'bar'>>(() => {
-    const cards = this.store.dashboardCards();
-    return {
-      labels: [
-        this.translate.instant('REGLEMENT_MODULE.DASHBOARD.AMOUNTS.TOTAL_FACTURE'),
-        this.translate.instant('REGLEMENT_MODULE.DASHBOARD.AMOUNTS.TOTAL_REGLE'),
-        this.translate.instant('REGLEMENT_MODULE.DASHBOARD.AMOUNTS.TOTAL_RESTE'),
-        this.translate.instant('REGLEMENT_MODULE.DASHBOARD.AMOUNTS.TOTAL_TROP_PERCU'),
-      ],
-      datasets: [
-        {
-          label: this.translate.instant('REGLEMENT_MODULE.DASHBOARD.AMOUNTS.TITLE'),
-          data: [cards.totalFacture, cards.totalRegle, cards.totalReste, cards.totalTropPercu],
-          backgroundColor: ['#006a6a', '#1b5e20', '#c62828', '#ef6c00'],
-          borderRadius: 12,
-        },
-      ],
-    };
-  });
   private readonly dialog = inject(MatDialog);
 
   constructor() {
@@ -317,7 +274,6 @@ export class ReglementWorkspaceComponent {
       return;
     }
     this.store.loadPage({centerId, userId, page: this.store.pageIndex(), size: this.store.pageSize()});
-    this.store.loadDashboard({centerId});
   }
 
   protected onPaymentInput(factureId: string, value: string): void {
@@ -436,16 +392,6 @@ export class ReglementWorkspaceComponent {
 
   protected monthLabel(month: number): string {
     return this.translate.instant(`REGLEMENT_MODULE.MONTHS.${month}`);
-  }
-
-  protected chartOptions(): ChartOptions<'bar' | 'doughnut'> {
-    return {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {display: true, position: 'bottom'},
-      },
-    };
   }
 }
 

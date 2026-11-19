@@ -1702,6 +1702,9 @@
     },
     "DASHBOARD": {
       "TITLE": "Tafelwit n uxelleṣ",
+      "EYEBROW": "Tafelwit n uselkim n yixelleṣen",
+      "DESCRIPTION": "Imesktayen n ulqaḍ n tfaturin (yettwaxelleṣen, s uḥric, ur yettwaxelleṣ ara, ugar) s tallit, tkerrust d tneɣlit.",
+      "INDICATEURS": "Imesktayen",
       "KPI": {
         "TOTAL_FACTURES": "Asemday n tfaturin",
         "REGLEES": "Tifaturin yettwaxelleṣen",

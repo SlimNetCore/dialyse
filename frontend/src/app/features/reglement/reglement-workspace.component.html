@@ -100,6 +100,26 @@
         </button>
       </div>
 
+      @if (store.loading() || store.referentialsLoading() || store.batchSaving()) {
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      }
+      @if (store.error()) {
+        <p class="feedback error">{{ store.error()! | translate }}</p>
+      }
+      @if (store.successMessage()) {
+        <p class="feedback success">{{ store.successMessage()! | translate }}</p>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <!-- ─── Tableau règlements ───────────────────────── -->
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ 'REGLEMENT_MODULE.TABLE.TITLE' | translate }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+
+      <!-- Mode et référence appliqués aux règlements du lot saisi dans la liste -->
       <div class="payment-options">
         <mat-form-field appearance="outline">
           <mat-label>{{ 'REGLEMENT_MODULE.PAYMENT_OPTIONS.MODE' | translate }}</mat-label>
@@ -117,75 +137,6 @@
         </mat-form-field>
         <p class="payment-options-hint">{{ 'REGLEMENT_MODULE.PAYMENT_OPTIONS.HINT' | translate }}</p>
       </div>
-
-      @if (store.loading() || store.dashboardLoading() || store.referentialsLoading() || store.batchSaving()) {
-        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-      }
-      @if (store.error()) {
-        <p class="feedback error">{{ store.error()! | translate }}</p>
-      }
-      @if (store.successMessage()) {
-        <p class="feedback success">{{ store.successMessage()! | translate }}</p>
-      }
-    </mat-card-content>
-  </mat-card>
-
-  <!-- ─── Dashboard KPIs + Charts ──────────────────── -->
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>{{ 'REGLEMENT_MODULE.DASHBOARD.TITLE' | translate }}</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <div class="kpi-grid">
-        <div class="app-data-pill">
-          <span>{{ 'REGLEMENT_MODULE.DASHBOARD.KPI.TOTAL_FACTURES' | translate }}</span>
-          <strong>{{ store.dashboardCards().totalFactures }}</strong>
-        </div>
-        <div class="app-data-pill">
-          <span>{{ 'REGLEMENT_MODULE.DASHBOARD.KPI.REGLEES' | translate }}</span>
-          <strong>{{ store.dashboardCards().reglees }}</strong>
-        </div>
-        <div class="app-data-pill">
-          <span>{{ 'REGLEMENT_MODULE.DASHBOARD.KPI.NON_REGLEES' | translate }}</span>
-          <strong>{{ store.dashboardCards().nonReglees }}</strong>
-        </div>
-        <div class="app-data-pill">
-          <span>{{ 'REGLEMENT_MODULE.DASHBOARD.KPI.PARTIAL' | translate }}</span>
-          <strong>{{ store.dashboardCards().partiellementReglees }}</strong>
-        </div>
-        <div class="app-data-pill">
-          <span>{{ 'REGLEMENT_MODULE.DASHBOARD.KPI.TROP_PERCU' | translate }}</span>
-          <strong>{{ store.dashboardCards().tropPercus }}</strong>
-        </div>
-        <div class="app-data-pill">
-          <span>{{ 'REGLEMENT_MODULE.DASHBOARD.KPI.COLLECTION_RATE' | translate }}</span>
-          <strong>{{ store.dashboardCards().tauxEncaissement | percent:'1.0-0' }}</strong>
-        </div>
-      </div>
-
-      <div class="dashboard-grid">
-        <article class="dashboard-card">
-          <h3>{{ 'REGLEMENT_MODULE.DASHBOARD.CHART.STATUS' | translate }}</h3>
-          <div class="chart-wrap">
-            <canvas [data]="statusChartData()" [options]="chartOptions()" [type]="'doughnut'" baseChart></canvas>
-          </div>
-        </article>
-        <article class="dashboard-card">
-          <h3>{{ 'REGLEMENT_MODULE.DASHBOARD.AMOUNTS.TITLE' | translate }}</h3>
-          <div class="chart-wrap">
-            <canvas [data]="amountChartData()" [options]="chartOptions()" [type]="'bar'" baseChart></canvas>
-          </div>
-        </article>
-      </div>
-    </mat-card-content>
-  </mat-card>
-
-  <!-- ─── Tableau règlements ───────────────────────── -->
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>{{ 'REGLEMENT_MODULE.TABLE.TITLE' | translate }}</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
 
       @if (store.hasDrafts()) {
         <div class="draft-hint" role="status">

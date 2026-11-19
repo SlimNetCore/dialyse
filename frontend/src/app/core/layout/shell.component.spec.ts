@@ -155,6 +155,15 @@ describe('ShellComponent — barre de module', () => {
     expect(component.activeItemRoute()).toBe('/facturation');
   });
 
+  it('module Règlement : le tableau de bord en tête, puis la saisie des règlements', async () => {
+    const {component} = await renderAt('/reglement');
+
+    expect(component.activeModuleItems().map((i) => i.route)).toEqual(['/reglement/tableau-de-bord', '/reglement']);
+    expect(component.activeModuleItems()[0]).toMatchObject({label: 'NAV.TABLEAU_DE_BORD', icon: 'insights'});
+    expect(component.activeModuleItems()[1]).toMatchObject({label: 'NAV.REGLEMENT_SAISIE'});
+    expect(component.activeItemRoute()).toBe('/reglement');
+  });
+
   it('le référentiel des infirmiers, déclaré aussi dans la barre Administration, s\'active dans son module d\'origine',
     async () => {
       const {component} = await renderAt('/infirmiers/referentiel');

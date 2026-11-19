@@ -18,24 +18,9 @@ describe('ReglementWorkspaceComponent', () => {
     pageIndex: vi.fn(() => 0),
     pageSize: vi.fn(() => 20),
     loading: vi.fn(() => false),
-    dashboardLoading: vi.fn(() => false),
     referentialsLoading: vi.fn(() => false),
     error: vi.fn(() => null),
     successMessage: vi.fn(() => null),
-    dashboard: vi.fn(() => null),
-    dashboardCards: vi.fn(() => ({
-      totalFactures: 0,
-      reglees: 0,
-      nonReglees: 0,
-      partiellementReglees: 0,
-      tropPercus: 0,
-      totalFacture: 0,
-      totalRegle: 0,
-      totalReste: 0,
-      totalTropPercu: 0,
-      tauxEncaissement: 0,
-    })),
-    statusBreakdown: vi.fn(() => []),
     caisses: vi.fn(() => []),
     agences: vi.fn(() => []),
     centresPayeurs: vi.fn(() => []),
@@ -53,7 +38,6 @@ describe('ReglementWorkspaceComponent', () => {
     clearFilters: vi.fn(),
     clearMessages: vi.fn(),
     loadPage: vi.fn(),
-    loadDashboard: vi.fn(),
     setPaymentDraft: vi.fn(),
     batchSavePayments: vi.fn(),
   };
@@ -102,6 +86,16 @@ describe('ReglementWorkspaceComponent', () => {
     expect(storeMock.setModeReglement).toHaveBeenNthCalledWith(1, 'ESPECES');
     expect(storeMock.setModeReglement).toHaveBeenNthCalledWith(2, null);
     expect(storeMock.setReferencePaiement).toHaveBeenCalledWith('REF-1');
+  });
+
+  it('rafraîchit seulement la liste à régler : les indicateurs vivent dans le tableau de bord', () => {
+    const component = TestBed.runInInjectionContext(() => new ReglementWorkspaceComponent());
+    component['onRefresh']();
+
+    expect(storeMock.loadPage).toHaveBeenCalledWith({
+      centerId: '11111111-1111-1111-1111-111111111111', userId: 'sec-user', page: 0, size: 20,
+    });
+    expect('loadDashboard' in storeMock).toBe(false);
   });
 });
 

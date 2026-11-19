@@ -133,6 +133,10 @@ describe('ReglementStore', () => {
     expect(store.rows()[0].etat).toBe('REGLEE');
     expect(store.rows()[0].soldeType).toBe('REGLE');
     expect(store.idempotenceKeys()['fac-1']).toBeUndefined();
+    expect(store.savingFactureIds()).toEqual([]);
+    expect(store.successMessage()).toBe('REGLEMENT_MODULE.SUCCESS.PAYMENT_SAVED');
+    // les indicateurs ne sont plus chargés par l'écran de saisie (tableau de bord dédié)
+    expect(apiMock.getReglementDashboard).not.toHaveBeenCalled();
   });
 
   it('envoie le mode et la référence du lot, et les vide après succès', () => {

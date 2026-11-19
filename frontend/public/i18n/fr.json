@@ -1372,6 +1372,9 @@
     },
     "DASHBOARD": {
       "TITLE": "Dashboard règlements",
+      "EYEBROW": "Tableau de bord des règlements",
+      "DESCRIPTION": "Indicateurs de recouvrement des factures (réglées, partielles, non réglées, trop-perçus) par période, caisse et agence.",
+      "INDICATEURS": "Indicateurs",
       "KPI": {
         "TOTAL_FACTURES": "Total factures",
         "REGLEES": "Factures réglées",

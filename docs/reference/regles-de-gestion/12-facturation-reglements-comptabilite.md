@@ -250,7 +250,12 @@ facturation que des séances validées et couvertes**, **fige** prix, TVA et
   événement, ni écriture et répond la situation courante de la facture. Sans clé, un renvoi crée un second règlement.
 - **RG-REG-003** — La recherche et le tableau de bord des règlements portent sur une **année** (2000 à 3000) et
   facultativement un **mois** (1 à 12), une caisse, une agence ou un centre payeur ; les listes sont
-  paginées (page ≥ 0, taille > 0) et exportables en Excel ou PDF.
+  paginées (page ≥ 0, taille > 0) et exportables en Excel ou PDF. À l'écran, l'arrivée dans le module (`/reglement`,
+  « Saisie des règlements ») présente les filtres, la liste à régler avec le mode et la référence du lot, les brouillons,
+  l'historique et les exports ; les six indicateurs (total, réglées, non réglées, partielles, trop-perçus, taux
+  d'encaissement), la répartition des statuts et l'histogramme des montants sont sur `/reglement/tableau-de-bord`
+  (première entrée de la barre du module), avec leurs propres filtres année / mois / caisse / agence. Mêmes droits
+  pour les deux écrans (l'infirmier seul et le médecin seul en restent écartés).
 - **RG-REG-004** — Chaque règlement enregistré déclenche, après son enregistrement, la génération d'une écriture de
   trésorerie (RG-CPT-002) par l'événement `FactureReglementRecordedEvent` (langage publié du contexte `facturation`,
   porteur de l'identifiant du règlement, du montant signé et du mode) → `ComptabilisationDuReglementApresEncaissement` (contexte `facturation`, ex-écouteur de la plateforme, LST ADR 0183). Un mois

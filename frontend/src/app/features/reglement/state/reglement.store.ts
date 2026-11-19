@@ -5,7 +5,6 @@ import {rxMethod} from '@ngrx/signals/rxjs-interop';
 import {catchError, EMPTY, forkJoin, map, of, pipe, switchMap, tap} from 'rxjs';
 import {
   BackendApiService,
-  ReglementDashboardResponse,
   ReglementEtat,
   ReglementInvoiceRow,
   ReglementListQuery,
@@ -32,8 +31,6 @@ export type ReglementState = PagedListState<ReglementInvoiceRow> & {
   caisseId: string | null;
   agenceId: string | null;
   centrePayeurId: string | null;
-  dashboardLoading: boolean;
-  dashboard: ReglementDashboardResponse | null;
   referentialsLoading: boolean;
   caisses: RefItem[];
   agences: RefItem[];
@@ -61,8 +58,6 @@ const initialState: ReglementState = {
   caisseId: null,
   agenceId: null,
   centrePayeurId: null,
-  dashboardLoading: false,
-  dashboard: null,
   referentialsLoading: false,
   caisses: [],
   agences: [],
@@ -85,37 +80,6 @@ export const ReglementStore = signalStore(
   withDevtools('ReglementStore'),
   withComputed((store) => ({
     hasFilters: computed(() => !!store.caisseId() || !!store.agenceId() || !!store.centrePayeurId() || store.month() !== null),
-    dashboardCards: computed(() => {
-      const dashboard = store.dashboard();
-      if (!dashboard) {
-        return {
-          totalFactures: 0,
-          reglees: 0,
-          nonReglees: 0,
-          partiellementReglees: 0,
-          tropPercus: 0,
-          totalFacture: 0,
-          totalRegle: 0,
-          totalReste: 0,
-          totalTropPercu: 0,
-          tauxEncaissement: 0,
-        };
-      }
-      const totalFacture = Number(dashboard.totalFacture ?? 0);
-      const totalRegle = Number(dashboard.totalRegle ?? 0);
-      return {
-        totalFactures: dashboard.totalFactures,
-        reglees: dashboard.reglees,
-        nonReglees: dashboard.nonReglees,
-        partiellementReglees: dashboard.partiellementReglees,
-        tropPercus: dashboard.tropPercus,
-        totalFacture,
-        totalRegle,
-        totalReste: Number(dashboard.totalReste ?? 0),
-        totalTropPercu: Number(dashboard.totalTropPercu ?? 0),
-        tauxEncaissement: totalFacture > 0 ? totalRegle / totalFacture : 0,
-      };
-    }),
     previewRows: computed((): ReglementPreviewRow[] => {
       const rows = store.rows();
       const drafts = store.paymentDrafts();
@@ -300,27 +264,6 @@ export const ReglementStore = signalStore(
       )
     ),
 
-    loadDashboard: rxMethod<{ centerId: string }>(
-      pipe(
-        tap(() => patchState(store, {dashboardLoading: true, error: null})),
-        switchMap(({centerId}) =>
-          api.getReglementDashboard(centerId, {
-            year: store.year(),
-            month: store.month(),
-            caisseId: store.caisseId(),
-            agenceId: store.agenceId(),
-            centrePayeurId: store.centrePayeurId(),
-          }).pipe(
-            tap((dashboard) => patchState(store, {dashboard, dashboardLoading: false})),
-            catchError((err: unknown) => {
-              patchState(store, {dashboardLoading: false, dashboard: null, error: errorMessage(err)});
-              return of(null);
-            })
-          )
-        )
-      )
-    ),
-
     savePayment: rxMethod<{ centerId: string; factureId: string; montant: number; userId?: string }>(pipe(
         tap(({factureId}) => patchState(store, {
           savingFactureIds: [...store.savingFactureIds(), factureId],
@@ -332,36 +275,15 @@ export const ReglementStore = signalStore(
             store.referencePaiement(), store.idempotenceKeys());
           patchState(store, {idempotenceKeys: prepared.keys});
           return api.registerFacturePayment(factureId, prepared.payload).pipe(
-            tap(() => {
+            tap((updatedRow) => {
               const {[factureId]: _done, ...keys} = store.idempotenceKeys();
-              patchState(store, {idempotenceKeys: keys});
+              patchState(store, {
+                idempotenceKeys: keys,
+                rows: store.rows().map((row) => row.factureId === factureId ? updatedRow : row),
+                savingFactureIds: store.savingFactureIds().filter((id) => id !== factureId),
+                successMessage: 'REGLEMENT_MODULE.SUCCESS.PAYMENT_SAVED',
+              });
             }),
-            switchMap((updatedRow) =>
-              api.getReglementDashboard(centerId, {
-                year: store.year(),
-                month: store.month(),
-                caisseId: store.caisseId(),
-                agenceId: store.agenceId(),
-                centrePayeurId: store.centrePayeurId(),
-              }).pipe(
-                tap((dashboard) => {
-                  patchState(store, {
-                    rows: store.rows().map((row) => row.factureId === factureId ? updatedRow : row),
-                    dashboard,
-                    savingFactureIds: store.savingFactureIds().filter((id) => id !== factureId),
-                    successMessage: 'REGLEMENT_MODULE.SUCCESS.PAYMENT_SAVED',
-                  });
-                }),
-                catchError(() => {
-                  patchState(store, {
-                    rows: store.rows().map((row) => row.factureId === factureId ? updatedRow : row),
-                    savingFactureIds: store.savingFactureIds().filter((id) => id !== factureId),
-                    successMessage: 'REGLEMENT_MODULE.SUCCESS.PAYMENT_SAVED',
-                  });
-                  return of(null);
-                })
-              )
-            ),
             catchError((err: unknown) => {
               patchState(store, {
                 savingFactureIds: store.savingFactureIds().filter((id) => id !== factureId),
@@ -414,7 +336,7 @@ export const ReglementStore = signalStore(
           );
 
           return forkJoin(requests$).pipe(
-            switchMap((results) => {
+            tap((results) => {
               const successCount = results.filter((r) => r.ok).length;
               const failCount = results.filter((r) => !r.ok).length;
 
@@ -450,17 +372,6 @@ export const ReglementStore = signalStore(
                 successMessage: failCount === 0 ? 'REGLEMENT_MODULE.SUCCESS.BATCH_SAVED' : null,
                 error: failCount === 0 ? null : successCount === 0 ? firstFailure : 'REGLEMENT_MODULE.ERROR.BATCH_PARTIAL',
               });
-
-              return api.getReglementDashboard(centerId, {
-                year: store.year(),
-                month: store.month(),
-                caisseId: store.caisseId(),
-                agenceId: store.agenceId(),
-                centrePayeurId: store.centrePayeurId(),
-              }).pipe(
-                tap((dashboard) => patchState(store, {dashboard})),
-                catchError(() => of(null))
-              );
             }),
             catchError((err: unknown) => {
               patchState(store, {batchSaving: false, error: errorMessage(err)});
@@ -513,8 +424,6 @@ export const ReglementStore = signalStore(
             rows: [],
             total: 0,
             loading: false,
-            dashboard: null,
-            dashboardLoading: false,
             activeCenterId: null,
             activeUserId: userId,
           });
@@ -530,7 +439,6 @@ export const ReglementStore = signalStore(
         store.pageSize();
 
         store.loadPage({centerId, userId, page: store.pageIndex(), size: store.pageSize()});
-        store.loadDashboard({centerId});
       });
 
       effect(() => {

@@ -36,78 +36,6 @@ mat-card {
   margin-bottom: 16px;
 }
 
-/* ─── KPI pills ────────────────────────────────────── */
-.kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-}
-
-.app-data-pill {
-  background: var(--app-surface-solid, #fff);
-  border: 1px solid var(--app-border, #e5e8ec);
-  border-radius: 14px;
-  padding: 12px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, .04);
-  transition: box-shadow 0.18s;
-  min-width: 0;
-}
-
-.app-data-pill:hover {
-  box-shadow: 0 4px 16px rgba(0, 106, 106, .1);
-}
-
-.app-data-pill span {
-  font-size: 0.70rem;
-  color: var(--mat-sys-on-surface-variant, #666);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.app-data-pill strong {
-  font-size: 1.18rem;
-  font-weight: 700;
-  color: var(--mat-sys-primary, #006a6a);
-}
-
-/* ─── Dashboard charts ─────────────────────────────── */
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-  margin-top: 16px;
-}
-
-.dashboard-card {
-  min-width: 0;
-  border: 1px solid var(--app-border, #e5e8ec);
-  border-radius: 18px;
-  background: var(--app-surface-solid, #fff);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, .05);
-  padding: 18px;
-}
-
-.dashboard-card h3 {
-  margin: 0 0 12px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--mat-sys-on-surface, #1a1a1a);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.chart-wrap {
-  position: relative;
-  min-width: 0;
-  height: clamp(200px, 25vw, 300px);
-}
-
 /* ─── Tableau ──────────────────────────────────────── */
 .table-wrap {
   overflow-x: auto;
@@ -355,30 +283,10 @@ mat-card {
   .filters-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-
-  .kpi-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
 }
 
 /* ── ≤900px  (tablette portrait) ────────────────── */
 @media (max-width: 900px) {
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .dashboard-card {
-    padding: 14px;
-  }
-
-  .chart-wrap {
-    height: 240px;
-  }
-
-  .kpi-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
   .floating-save {
     bottom: 80px;
     right: 12px;
@@ -396,14 +304,6 @@ mat-card {
     grid-template-columns: 1fr 1fr;
   }
 
-  .kpi-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .chart-wrap {
-    height: 200px;
-  }
-
   .app-button-cluster {
     flex-direction: column;
     align-items: stretch;
@@ -419,10 +319,6 @@ mat-card {
 
   .payment-box {
     min-width: 160px;
-  }
-
-  .dashboard-card {
-    padding: 12px;
   }
 
   mat-card {
@@ -452,19 +348,6 @@ mat-card {
     display: none;
   }
 
-  .kpi-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-  }
-
-  .app-data-pill {
-    padding: 10px 12px;
-  }
-
-  .app-data-pill strong {
-    font-size: 1.05rem;
-  }
-
   .floating-save {
     bottom: 72px;
     right: 10px;
@@ -484,15 +367,6 @@ mat-card {
     margin-bottom: 10px;
   }
 
-  .kpi-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-
-  .app-data-pill {
-    padding: 9px 10px;
-  }
-
   .data-table {
     min-width: 920px;
   }
@@ -505,10 +379,6 @@ mat-card {
   .draft-hint {
     font-size: 0.78rem;
     padding: 7px 10px;
-  }
-
-  .chart-wrap {
-    height: 180px;
   }
 
   mat-card {
@@ -531,14 +401,6 @@ mat-card {
   .filters-grid {
     grid-template-columns: 1fr;
   }
-
-  .kpi-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .app-data-pill strong {
-    font-size: 1rem;
-  }
 }
 
 
@@ -551,7 +413,7 @@ mat-card {
   flex-wrap: wrap;
   align-items: center;
   gap: 12px;
-  margin-top: 8px;
+  margin-bottom: 12px;
 }
 
 .payment-options mat-form-field {

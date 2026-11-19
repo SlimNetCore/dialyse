@@ -1372,6 +1372,9 @@
     },
     "DASHBOARD": {
       "TITLE": "Payments dashboard",
+      "EYEBROW": "Payments dashboard",
+      "DESCRIPTION": "Invoice collection indicators (paid, partial, unpaid, overpaid) by period, insurance fund and agency.",
+      "INDICATEURS": "Indicators",
       "KPI": {
         "TOTAL_FACTURES": "Total invoices",
         "REGLEES": "Paid invoices",
