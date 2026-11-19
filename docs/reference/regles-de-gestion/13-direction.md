@@ -22,9 +22,21 @@
   Le tableau de bord s'ouvre sur le **mois en cours** (du 1er du mois à aujourd'hui) : le raccourci actif (« Ce mois »,
   « Ce trimestre », « Cette année », « 12 derniers mois ») est mis en évidence (bouton plein, coche, état exposé aux
   lecteurs d'écran) et aucun ne l'est pour une période personnalisée ; le bouton a un contour de focus bien visible au
-  clavier. *Source :* `DirectionDashboardComponent`.
+  clavier. *Source :* `DirectionLayoutComponent`.
 - **RG-DIR-004** — Chaque écran présente **par centre et pour l'ensemble de la société** ; un centre inactif apparaît
   marqué comme tel.
+- **RG-DIR-118** — *Navigation du tableau de bord (19/11/2026)* : trois pages, chacune une entrée de la barre du module
+  Direction — **Tableau de bord** (`/direction`, vue d'ensemble : alertes et leur historique, KPI de la société et
+  deltas, graphiques du CA et de sa tendance), **Analyses** (`/direction/analyses` : centres et CA, indicateurs
+  cliniques KDIGO, stock, GMAO, capacité, absences, groupes d'articles, répartitions) et **Rapports**
+  (`/direction/rapports` : rapports mensuels figés, comparaison de deux mois). La barre de filtres (période,
+  raccourcis, centre), l'impression du rapport, l'export CSV, la mention d'anonymat et l'indicateur temps réel sont
+  communs aux trois pages ; l'export CSV porte toujours sur tous les tableaux de la période et du centre affichés,
+  quelle que soit la page. La période et le centre isolé sont reflétés dans l'URL (`?from=aaaa-mm-jj&to=aaaa-mm-jj`,
+  `&centre=<identifiant du centre>` absent pour la vue consolidée ; aucune donnée personnelle), relus à l'ouverture
+  (période mal formée : mois en cours) et conservés d'une page à l'autre. Droits inchangés : seul le rôle `DIRECTION`
+  accède à `/direction` et à ses sous-pages (RG-SEC-021) ; une sous-page inconnue ramène à `/direction`.
+  *Source :* `direction.routes.ts`, `DirectionLayoutComponent`, `DirectionFilters`.
 
 ## 13.2 Anonymat (k-anonymat)
 
@@ -107,7 +119,7 @@
   HT / CA HT facturé de la période. Effectifs et valorisations faibles masqués, y compris dans les totaux (RG-DIR-012). Sources : RG-ABS. La répartition par
   motif est présentée en tableau (nombre, part, valorisation) **et en deux graphiques en anneau** : l'un par **nombre
   d'absences**, l'autre par **valeur HT** ; les motifs masqués (effectif faible) et à zéro n'y figurent pas, et aucun
-  graphique n'est affiché s'il ne reste aucun motif publiable. *Source :* `DirectionDashboardComponent`.
+  graphique n'est affiché s'il ne reste aucun motif publiable. *Source :* `DirectionAnalysesComponent`.
 
 ## 13.9 Capacité théorique et occupation
 

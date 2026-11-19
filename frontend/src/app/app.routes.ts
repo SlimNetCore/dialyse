@@ -60,7 +60,7 @@ export const routes: Routes = [
       {
         path: 'direction',
         canActivate: [directionGuard],
-        loadComponent: () => import('./features/direction/direction-dashboard.component').then(m => m.DirectionDashboardComponent)
+        loadChildren: () => import('./features/direction/direction.routes').then(m => m.directionRoutes)
       },
       { path: 'admin', loadChildren: () => import('./features/admin/admin.routes').then(m => m.adminRoutes) },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }

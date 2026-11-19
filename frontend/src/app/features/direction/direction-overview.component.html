@@ -1,0 +1,98 @@
+<div class="direction-page" data-testid="direction-overview">
+  @if (store.overview()) {
+    @if (displayAlerts().length > 0) {
+      <mat-card class="block alerts" data-testid="direction-alerts">
+        <h2>
+          <mat-icon>notifications_active</mat-icon>
+          {{ 'DIRECTION.ALERTS.TITLE' | translate }}
+        </h2>
+        <ul>
+          @for (a of displayAlerts(); track a.centerId + a.code) {
+            <li [class]="'alert ' + a.severity.toLowerCase()">
+              <strong>{{ a.centre }}</strong>
+              <span>{{ alertKey(a.code) | translate: {value: a.valeur} }}</span>
+            </li>
+          }
+        </ul>
+      </mat-card>
+    }
+
+    @if (displayAlertHistory().length > 0) {
+      <mat-card class="block" data-testid="direction-alert-history">
+        <h2>
+          <mat-icon>history</mat-icon>
+          {{ 'DIRECTION.ALERTS.HISTORY_TITLE' | translate }}
+        </h2>
+        <p class="muted">{{ 'DIRECTION.ALERTS.HISTORY_HINT' | translate }}</p>
+        <ul class="history-list">
+          @for (h of displayAlertHistory(); track h.centerId + h.code + h.firstSeenAt) {
+            <li [class.resolved]="h.resolvedAt">
+              <span [class]="'status-pill ' + (h.resolvedAt ? 'resolved' : h.severity.toLowerCase())">
+                {{ (h.resolvedAt ? 'DIRECTION.ALERTS.STATUS_RESOLVED' : 'DIRECTION.ALERTS.STATUS_OPEN') | translate }}
+              </span>
+              <strong>{{ h.centre }}</strong>
+              <span>{{ alertKey(h.code) | translate: {value: h.valeur} }}</span>
+              <span class="history-dates">
+                {{ 'DIRECTION.ALERTS.SINCE' | translate }} {{ h.firstSeenAt | date: 'dd/MM/yyyy HH:mm' }}
+                @if (h.resolvedAt) {
+                  — {{ 'DIRECTION.ALERTS.UNTIL' | translate }} {{ h.resolvedAt | date: 'dd/MM/yyyy HH:mm' }}
+                }
+              </span>
+            </li>
+          }
+        </ul>
+      </mat-card>
+    }
+
+    <div class="kpis" data-testid="direction-kpis">
+      @if (displayTotals(); as t) {
+        <mat-card class="kpi">
+          <span>{{ 'DIRECTION.KPI.PATIENTS' | translate }}</span><strong>{{ headcount(t.patients) }}</strong>
+        </mat-card>
+        <mat-card class="kpi">
+          <span>{{ 'DIRECTION.KPI.SEANCES' | translate }}</span><strong>{{ t.seances }}</strong>
+          @if (formatDelta(kpiDeltas()?.seances); as d) {
+            <em [class]="'delta ' + kpiDeltas()!.seances.direction" data-testid="delta-seances">{{ d }}</em>
+          }
+        </mat-card>
+        <mat-card class="kpi">
+          <span>{{ 'DIRECTION.KPI.CA_TTC' | translate }}</span><strong>{{ t.caTtc | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</strong>
+          @if (formatDelta(kpiDeltas()?.caTtc); as d) {
+            <em [class]="'delta ' + kpiDeltas()!.caTtc.direction" data-testid="delta-ca-ttc">{{ d }}</em>
+          }
+        </mat-card>
+        <mat-card class="kpi">
+          <span>{{ 'DIRECTION.KPI.ENCAISSE' | translate }}</span><strong>{{ t.encaisse | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</strong>
+          @if (formatDelta(kpiDeltas()?.encaisse); as d) {
+            <em [class]="'delta ' + kpiDeltas()!.encaisse.direction" data-testid="delta-encaisse">{{ d }}</em>
+          }
+        </mat-card>
+        <mat-card class="kpi">
+          <span>{{ 'DIRECTION.KPI.RESTE' | translate }}</span><strong>{{ t.resteARecouvrer | currency: 'DZD' : 'symbol-narrow' : '1.0-0' }}</strong>
+        </mat-card>
+        <mat-card class="kpi">
+          <span>{{ 'DIRECTION.KPI.TAUX' | translate }}</span><strong>{{ t.tauxEncaissement === null ? '—' : t.tauxEncaissement + ' %' }}</strong>
+        </mat-card>
+      }
+    </div>
+
+    <div class="charts">
+      <mat-card class="block">
+        <h2>{{ 'DIRECTION.CHART_REVENUE' | translate }}</h2>
+        <div class="chart-wrap">
+          <canvas [data]="revenueChart()" [options]="barOptions" [type]="'bar'" baseChart></canvas>
+        </div>
+      </mat-card>
+      <mat-card class="block">
+        <h2>{{ 'DIRECTION.CHART_TREND' | translate }}</h2>
+        @if (store.months().length === 0) {
+          <p class="muted">{{ 'DIRECTION.EMPTY_TREND' | translate }}</p>
+        } @else {
+          <div class="chart-wrap">
+            <canvas [data]="trendChart()" [options]="lineOptions" [type]="'line'" baseChart></canvas>
+          </div>
+        }
+      </mat-card>
+    </div>
+  }
+</div>

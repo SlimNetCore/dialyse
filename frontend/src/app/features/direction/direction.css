@@ -6,6 +6,20 @@
   min-width: 0;
 }
 
+/* Les pages filles sont des éléments flexibles de la page parente : sans min-width 0, un tableau large déborderait. */
+:host {
+  display: block;
+  min-width: 0;
+}
+
+/* Page fille (vue d'ensemble, analyses, rapports) : mêmes espacements que la page parente. */
+.direction-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
 .direction-head {
   display: flex;
   flex-wrap: wrap;

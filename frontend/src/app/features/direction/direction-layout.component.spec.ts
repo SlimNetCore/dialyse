@@ -1,12 +1,16 @@
-import {Directive, input, provideZonelessChangeDetection, signal} from '@angular/core';
+import {Component, Directive, input, provideZonelessChangeDetection, signal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
+import {provideRouter, Router} from '@angular/router';
+import {RouterTestingHarness} from '@angular/router/testing';
 import {BaseChartDirective} from 'ng2-charts';
 import {NoopAnimationsModule} from '@angular/platform-browser/animations';
 import {TranslateModule} from '@ngx-translate/core';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {AbsencesOverview, AbsencesStats} from '../../core/api/direction-api.service';
-import {DirectionDashboardComponent} from './direction-dashboard.component';
+import {DirectionLayoutComponent, directionQueryParams} from './direction-layout.component';
+import {DirectionAnalysesComponent} from './direction-analyses.component';
 import {DirectionStore} from './state/direction.store';
+import {DirectionFilters} from './state/direction-filters';
 import {periodForPreset} from './direction.util';
 
 const stats: AbsencesStats = {
@@ -32,6 +36,11 @@ class FakeChartDirective {
   readonly type = input<unknown>();
 }
 
+/** Page fille sans contenu : seule compte ici la page parente (filtres, URL). */
+@Component({selector: 'app-empty-page', standalone: true, template: ''})
+class EmptyPageComponent {
+}
+
 /** Store minimal : les accès non prévus renvoient `null` (le tableau de bord masque alors la section). */
 function fakeStore(overrides: Record<string, unknown>) {
   const base: Record<string, unknown> = {
@@ -44,41 +53,88 @@ function fakeStore(overrides: Record<string, unknown>) {
   return new Proxy(base, {get: (target, key: string) => (key in target ? target[key] : () => null)});
 }
 
-describe('DirectionDashboardComponent — mois en cours et motifs d\'absence', () => {
+describe('DirectionLayoutComponent — filtres période et centre communs aux pages', () => {
   let store: ReturnType<typeof fakeStore>;
   let from: ReturnType<typeof signal<string>>;
   let to: ReturnType<typeof signal<string>>;
   const mois = periodForPreset('MONTH', new Date());
 
-  async function render(motifs: AbsencesOverview['motifs'] = [], total: AbsencesStats = stats) {
+  async function render(url = '/direction') {
     from = signal('');
     to = signal('');
-    store = fakeStore({from, to, absences: signal(absences(motifs, total))});
-    await TestBed.configureTestingModule({
-      imports: [DirectionDashboardComponent, TranslateModule.forRoot(), NoopAnimationsModule],
-      providers: [provideZonelessChangeDetection(), {provide: DirectionStore, useValue: store}],
-    }).overrideComponent(DirectionDashboardComponent, {
-      remove: {imports: [BaseChartDirective]}, add: {imports: [FakeChartDirective]},
-    }).compileComponents();
-    const fixture = TestBed.createComponent(DirectionDashboardComponent);
-    fixture.detectChanges();
-    await fixture.whenStable();
-    return {fixture, root: fixture.nativeElement as HTMLElement};
+    store = fakeStore({from, to});
+    TestBed.configureTestingModule({
+      imports: [TranslateModule.forRoot(), NoopAnimationsModule],
+      providers: [
+        provideZonelessChangeDetection(),
+        {provide: DirectionStore, useValue: store},
+        provideRouter([{
+          path: 'direction', component: DirectionLayoutComponent,
+          children: [{path: '', component: EmptyPageComponent}, {path: 'analyses', component: EmptyPageComponent}],
+        }]),
+      ],
+    });
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl(url);
+    await harness.fixture.whenStable();
+    const fixtureRoot = harness.fixture.nativeElement as HTMLElement;
+    return {harness, root: fixtureRoot.querySelector('app-direction-layout') as HTMLElement};
   }
 
-  beforeEach(() => TestBed.resetTestingModule());
+  const params = () => TestBed.inject(Router).parseUrl(TestBed.inject(Router).url).queryParams;
 
-  it('s\'ouvre sur le mois en cours', async () => {
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+  });
+
+  it('s\'ouvre sur le mois en cours sans paramètre d\'URL', async () => {
     await render();
+
+    expect((store['load'] as ReturnType<typeof vi.fn>)).toHaveBeenCalledWith(mois.from, mois.to);
+    expect(TestBed.inject(DirectionFilters).centre()).toBeNull();
+  });
+
+  it('reprend la période et le centre des paramètres d\'URL', async () => {
+    await render('/direction/analyses?from=2026-01-01&to=2026-01-31&centre=c1');
+
+    expect((store['load'] as ReturnType<typeof vi.fn>)).toHaveBeenCalledWith('2026-01-01', '2026-01-31');
+    expect(TestBed.inject(DirectionFilters).centre()).toBe('c1');
+  });
+
+  it('ignore une période d\'URL mal formée et ouvre le mois en cours', async () => {
+    await render('/direction?from=hier&to=2026-01-31');
 
     expect((store['load'] as ReturnType<typeof vi.fn>)).toHaveBeenCalledWith(mois.from, mois.to);
   });
 
+  it('reflète la période et le centre dans l\'URL et les conserve d\'une page à l\'autre', async () => {
+    const {harness} = await render();
+    from.set('2026-02-01');
+    to.set('2026-02-28');
+    await harness.fixture.whenStable();
+    expect(params()).toEqual({from: '2026-02-01', to: '2026-02-28'});
+
+    TestBed.inject(DirectionFilters).centre.set('c2');
+    await harness.fixture.whenStable();
+    expect(params()).toEqual({from: '2026-02-01', to: '2026-02-28', centre: 'c2'});
+
+    // une entrée de la barre de module mène à la page sans paramètres : la période et le centre y sont reportés
+    await harness.navigateByUrl('/direction/analyses');
+    await harness.fixture.whenStable();
+    expect(TestBed.inject(Router).url.split('?')[0]).toBe('/direction/analyses');
+    expect(params()).toEqual({from: '2026-02-01', to: '2026-02-28', centre: 'c2'});
+
+    TestBed.inject(DirectionFilters).centre.set(null);
+    await harness.fixture.whenStable();
+    expect(params()).toEqual({from: '2026-02-01', to: '2026-02-28'});
+  });
+
   it('met en évidence le bouton « Ce mois » quand la période est le mois en cours', async () => {
-    const {fixture, root} = await render();
+    const {harness, root} = await render();
     from.set(mois.from);
     to.set(mois.to);
-    fixture.detectChanges();
+    await harness.fixture.whenStable();
+    harness.detectChanges();
 
     const mois$ = root.querySelector<HTMLButtonElement>('[data-testid="preset-MONTH"]')!;
     expect(mois$.classList.contains('preset-active')).toBe(true);
@@ -88,13 +144,44 @@ describe('DirectionDashboardComponent — mois en cours et motifs d\'absence', (
   });
 
   it('ne met aucun raccourci en évidence pour une période personnalisée', async () => {
-    const {fixture, root} = await render();
+    const {harness, root} = await render();
     from.set('2026-01-15');
     to.set('2026-02-20');
-    fixture.detectChanges();
+    await harness.fixture.whenStable();
+    harness.detectChanges();
 
     expect(root.querySelectorAll('.preset-active')).toHaveLength(0);
   });
+});
+
+describe('directionQueryParams', () => {
+  it('pose la période et le centre en conservant les autres paramètres', () => {
+    expect(directionQueryParams({x: '1'}, '2026-01-01', '2026-01-31', 'c1'))
+      .toEqual({x: '1', from: '2026-01-01', to: '2026-01-31', centre: 'c1'});
+  });
+
+  it('retire le centre pour la vue consolidée', () => {
+    expect(directionQueryParams({centre: 'c1'}, '2026-01-01', '2026-01-31', null))
+      .toEqual({from: '2026-01-01', to: '2026-01-31'});
+  });
+});
+
+describe('DirectionAnalysesComponent — motifs d\'absence', () => {
+  async function render(motifs: AbsencesOverview['motifs'] = [], total: AbsencesStats = stats) {
+    const store = fakeStore({absences: signal(absences(motifs, total))});
+    await TestBed.configureTestingModule({
+      imports: [DirectionAnalysesComponent, TranslateModule.forRoot(), NoopAnimationsModule],
+      providers: [provideZonelessChangeDetection(), {provide: DirectionStore, useValue: store}],
+    }).overrideComponent(DirectionAnalysesComponent, {
+      remove: {imports: [BaseChartDirective]}, add: {imports: [FakeChartDirective]},
+    }).compileComponents();
+    const fixture = TestBed.createComponent(DirectionAnalysesComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    return {fixture, root: fixture.nativeElement as HTMLElement};
+  }
+
+  beforeEach(() => TestBed.resetTestingModule());
 
   it('affiche la répartition des absences par nombre et par valeur, sans les motifs masqués', async () => {
     const {fixture, root} = await render([

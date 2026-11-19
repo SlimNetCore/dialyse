@@ -311,6 +311,12 @@ describe('breadcrumbLabels', () => {
       .toEqual(['NAV.GMAO', 'NAV.GMAO_EQUIPEMENTS', 'NAV.FICHE']);
   });
 
+  it('nomme les pages du tableau de bord de la direction, paramètres d\'URL ignorés', () => {
+    expect(breadcrumbLabels('/direction?from=2026-01-01&to=2026-01-31')).toEqual(['NAV.DIRECTION']);
+    expect(breadcrumbLabels('/direction/analyses?centre=c1')).toEqual(['NAV.DIRECTION', 'NAV.DIRECTION_ANALYSES']);
+    expect(breadcrumbLabels('/direction/rapports')).toEqual(['NAV.DIRECTION', 'NAV.DIRECTION_RAPPORTS']);
+  });
+
   it('distingue le paramétrage de la facturation du module Facturation', () => {
     expect(breadcrumbLabels('/facturation')).toEqual(['NAV.FACTURATION']);
     expect(breadcrumbLabels('/admin/parametrage/facturation'))

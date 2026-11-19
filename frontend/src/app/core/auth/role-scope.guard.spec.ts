@@ -55,6 +55,9 @@ describe('roleScopeGuard', () => {
 
   it('cantonne la direction à son tableau de bord', () => {
     expect(run(['DIRECTION'], '/direction')).toBe(true);
+    // les trois pages du tableau de bord (vue d'ensemble, analyses, rapports), avec la période et le centre en URL
+    expect(run(['DIRECTION'], '/direction/analyses')).toBe(true);
+    expect(run(['DIRECTION'], '/direction/rapports?from=2026-01-01&to=2026-01-31&centre=c1')).toBe(true);
     for (const url of ['/dashboard', '/patients', '/admin/societes', '/admin/users', '/stock', '/stock/tableau-de-bord']) {
       expect(run(['DIRECTION'], url), url).toEqual({redirect: '/direction'});
     }

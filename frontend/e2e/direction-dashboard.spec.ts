@@ -3,10 +3,21 @@ import {expect, Page, test} from '@playwright/test';
 /**
  * E2E — Direction d'une société (API simulée : aucun backend requis).
  * Couvre : connexion sans centre (mode « Direction »), cantonnement à /direction, affichage des agrégats
- * anonymes (effectifs faibles masqués « < 5 ») et absence de débordement horizontal sur mobile.
+ * anonymes (effectifs faibles masqués « < 5 ») sur les trois pages (vue d'ensemble /direction, analyses
+ * /direction/analyses, rapports /direction/rapports) avec le filtre centre conservé d'une page à l'autre, et absence de
+ * débordement horizontal sur mobile.
  */
 const env = (globalThis as unknown as { process?: { env?: Record<string, string | undefined> } }).process?.env ?? {};
 const baseUrl = env['E2E_BASE_URL'] || 'http://127.0.0.1:4200';
+
+/** Page du tableau de bord de la direction, avec la période et le centre éventuels en paramètres d'URL. */
+const directionUrl = (page = '') => new RegExp(`/direction${page}(\\?.*)?$`);
+
+/** Ouvre une page du tableau de bord par la barre de module (la période et le centre suivent dans l'URL). */
+async function openDirectionPage(page: Page, label: RegExp, path: string): Promise<void> {
+  await page.locator('.module-bar').getByRole('button', {name: label}).click();
+  await page.waitForURL(directionUrl(path));
+}
 
 const SOCIETE = {id: '11111111-1111-1111-1111-111111111111', name: 'Société Démo'};
 const SESSION = {
@@ -210,17 +221,40 @@ test.describe('Direction — tableau de bord consolidé', () => {
     await page.getByTestId('login-password').fill('un-mot-de-passe-de-test-1');
     await page.getByTestId('login-submit').click();
 
-    await page.waitForURL('**/direction');
+    await page.waitForURL(directionUrl());
     expect(loginBodies).toHaveLength(1);
     expect(loginBodies[0]).toMatchObject({societeId: SOCIETE.id, username: 'direction'});
     expect(loginBodies[0]).not.toHaveProperty('centerId');
 
+    // vue d'ensemble (/direction) : alertes, KPI et leurs deltas, raccourcis de période
+    await expect(page.getByTestId('direction-kpis')).toContainText('44');
+    await expect(page.getByTestId('direction-alerts')).toContainText('Centre Alpha');
+    await expect(page.getByTestId('delta-seances')).toContainText('-70.0 %');
+    await expect(page.getByTestId('delta-ca-ttc')).toContainText('+12.0 %');
+    await expect(page.getByTestId('delta-encaisse')).toContainText('+20.0 %');
+    await expect(page.getByTestId('direction-presets')).toContainText('Ce mois');
+
+    // filtre par centre sur la vue d'ensemble : les KPI se recentrent sur Centre Beta
+    await page.getByTestId('direction-centre-filter').click();
+    await page.getByRole('option', {name: 'Centre Beta'}).click();
+    await expect(page.getByTestId('direction-kpis')).toContainText('< 5');
+    await page.waitForURL(/[?&]centre=/);
+
+    // analyses (/direction/analyses) : le centre isolé suit la navigation
+    await openDirectionPage(page, /Analyses/, '/analyses');
+    expect(page.url()).toMatch(/[?&]centre=/);
+    await expect(page.getByTestId('direction-centres').locator('tbody tr')).toHaveCount(1);
+    await expect(page.getByTestId('direction-centres')).toContainText('Centre Beta');
+    await expect(page.getByTestId('direction-centres')).not.toContainText('Centre Alpha');
+
+    // retour à la vue consolidée
+    await page.getByTestId('direction-centre-filter').click();
+    await page.getByRole('option', {name: 'Tous les centres'}).click();
+    await expect(page.getByTestId('direction-centres').locator('tbody tr')).toHaveCount(2);
+
     const table = page.getByTestId('direction-centres');
     await expect(table).toContainText('Centre Alpha');
     await expect(table.locator('tr', {hasText: 'Centre Beta'})).toContainText('< 5');
-    await expect(page.getByTestId('direction-kpis')).toContainText('44');
-
-    await expect(page.getByTestId('direction-alerts')).toContainText('Centre Alpha');
     const clinical = page.getByTestId('direction-clinical');
     await expect(clinical.locator('tr', {hasText: 'Centre Alpha'})).toContainText('62.5 %');
     await expect(clinical.locator('tr', {hasText: 'Centre Beta'})).not.toContainText('%');
@@ -238,25 +272,6 @@ test.describe('Direction — tableau de bord consolidé', () => {
     await expect(caisses.locator('tr', {hasText: 'CNAS Nationale'})).toContainText('< 5');
     await expect(page.getByTestId('direction-anemie').locator('tr', {hasText: 'Centre Alpha'})).toContainText('97.1');
 
-    // deltas vs la période précédente et raccourcis de période
-    await expect(page.getByTestId('delta-seances')).toContainText('-70.0 %');
-    await expect(page.getByTestId('delta-ca-ttc')).toContainText('+12.0 %');
-    await expect(page.getByTestId('delta-encaisse')).toContainText('+20.0 %');
-    await expect(page.getByTestId('direction-presets')).toContainText('Ce mois');
-
-    // filtre par centre : isole Centre Beta, les KPI et le comparatif se recentrent dessus
-    await page.getByTestId('direction-centre-filter').click();
-    await page.getByRole('option', {name: 'Centre Beta'}).click();
-    await expect(page.getByTestId('direction-kpis')).toContainText('< 5');
-    await expect(page.getByTestId('direction-centres').locator('tbody tr')).toHaveCount(1);
-    await expect(page.getByTestId('direction-centres')).toContainText('Centre Beta');
-    await expect(page.getByTestId('direction-centres')).not.toContainText('Centre Alpha');
-
-    // retour à la vue consolidée
-    await page.getByTestId('direction-centre-filter').click();
-    await page.getByRole('option', {name: 'Tous les centres'}).click();
-    await expect(page.getByTestId('direction-centres').locator('tbody tr')).toHaveCount(2);
-
     // rapport imprimable de la période affichée
     const download = page.waitForEvent('download');
     await page.getByTestId('direction-print').click();
@@ -268,7 +283,9 @@ test.describe('Direction — tableau de bord consolidé', () => {
     const csv = await csvDownload;
     expect(csv.suggestedFilename()).toMatch(/^tableau-de-bord-direction-.*\.csv$/);
 
-    // comparateur de deux mois figés
+    // rapports (/direction/rapports) : comparateur de deux mois figés
+    await openDirectionPage(page, /Rapports/, '/rapports');
+    await expect(page.getByTestId('direction-reports')).toBeVisible();
     await page.getByTestId('compare-month-a').click();
     await page.getByRole('option', {name: '2026-07'}).click();
     await page.getByTestId('compare-month-b').click();
@@ -290,7 +307,7 @@ test.describe('Direction — tableau de bord consolidé', () => {
     await page.getByTestId('login-username').fill('direction');
     await page.getByTestId('login-password').fill('un-mot-de-passe-de-test-1');
     await page.getByTestId('login-submit').click();
-    await page.waitForURL('**/direction');
+    await page.waitForURL(directionUrl());
     await expect(page.getByTestId('direction-live')).toContainText(/temps réel actif/i);
 
     // le serveur signale un changement : une séance de plus au Centre Alpha
@@ -320,10 +337,10 @@ test.describe('Direction — tableau de bord consolidé', () => {
     await page.getByTestId('login-username').fill('direction');
     await page.getByTestId('login-password').fill('un-mot-de-passe-de-test-1');
     await page.getByTestId('login-submit').click();
-    await page.waitForURL('**/direction');
+    await page.waitForURL(directionUrl());
 
     await page.goto(`${baseUrl}/patients`);
-    await page.waitForURL('**/direction');
+    await page.waitForURL(directionUrl());
   });
 
   test('reste dans le viewport sur mobile (320 px)', async ({page}) => {
@@ -336,7 +353,7 @@ test.describe('Direction — tableau de bord consolidé', () => {
     await page.getByTestId('login-username').fill('direction');
     await page.getByTestId('login-password').fill('un-mot-de-passe-de-test-1');
     await page.getByTestId('login-submit').click();
-    await page.waitForURL('**/direction');
+    await page.waitForURL(directionUrl());
     await expect(page.getByTestId('direction-dashboard')).toBeVisible();
 
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);

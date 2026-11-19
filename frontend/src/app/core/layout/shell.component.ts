@@ -108,6 +108,9 @@ const BREADCRUMB_LABELS: Record<string, string> = {
   gmao: 'NAV.GMAO',
   comptabilite: 'NAV.COMPTABILITE',
   admin: 'NAV.ADMIN',
+  // direction
+  analyses: 'NAV.DIRECTION_ANALYSES',
+  rapports: 'NAV.DIRECTION_RAPPORTS',
   // patients
   new: 'COMMON.NEW',
   'pec-admin': 'NAV.PEC_ADMIN',
@@ -216,6 +219,8 @@ export class ShellComponent implements OnInit, AfterViewInit {
       label: 'NAV.DIRECTION',
       items: [
         {route: '/direction', label: 'NAV.TABLEAU_DE_BORD', icon: 'insights', kind: 'tableau-de-bord'},
+        {route: '/direction/analyses', label: 'NAV.DIRECTION_ANALYSES', icon: 'analytics'},
+        {route: '/direction/rapports', label: 'NAV.DIRECTION_RAPPORTS', icon: 'picture_as_pdf'},
       ],
     },
     {
