@@ -1,0 +1,36 @@
+{
+  "backend": [
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/application/consultation/**",
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/facture/AttributionDesForfaits.java",
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/domain/facture/SeanceAttribuee.java",
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/persistence/ListeDesFacturesJdbc.java",
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/infrastructure/acl/seance/SeancesDeLaFacturePubliees.java",
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/FacturesControleur.java",
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/FacturesAdvice.java",
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/RequeteInvalide.java",
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/dto/Facture*Reponse.java",
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/dto/PageDeFacturesReponse.java",
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/interfaces/http/dto/DetailDeFactureReponse.java",
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/publishedlanguage/SeancesDesFacturesFournies.java",
+    "backend/contexts/facturation/src/main/java/com/hemodialyse/backend/contexts/facturation/configuration/FacturationContexteConfiguration.java",
+    "backend/contexts/facturation/src/test/**",
+    "backend/contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/publishedlanguage/SeancesDesFacturesPubliees.java",
+    "backend/contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/persistence/FacturationDesSeancesJdbc.java",
+    "backend/contexts/seance/src/main/java/com/hemodialyse/backend/contexts/seance/infrastructure/acl/facturation/SeancesDesFacturesParLaSeance.java",
+    "backend/contexts/seance/src/test/java/com/hemodialyse/backend/contexts/seance/contrat/**",
+    "backend/platform/src/test/java/**"
+  ],
+  "frontend": [
+    "frontend/src/app/core/api/backend-api.service.ts",
+    "frontend/src/app/core/api/backend-api.service.spec.ts",
+    "frontend/src/app/core/layout/shell.component.ts",
+    "frontend/src/app/core/layout/shell.component.spec.ts",
+    "frontend/src/app/features/facturation/**",
+    "frontend/public/i18n/fr.json",
+    "frontend/public/i18n/en.json",
+    "frontend/public/i18n/ar.json",
+    "frontend/public/i18n/kab.json",
+    "docs/reference/regles-de-gestion/12-facturation-reglements-comptabilite.md",
+    "docs/client/**"
+  ]
+}
