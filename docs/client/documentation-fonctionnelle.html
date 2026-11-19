@@ -22,13 +22,13 @@ figure{margin:12px 0;break-inside:avoid}figure img{width:100%;border:1px solid v
 <div class="cover"><div style="font-size:12pt;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700">Document de référence</div>
 <h1>HemoDialyse<br><em>Documentation fonctionnelle</em><br>et règles de gestion</h1>
 <p>Tout ce que la plateforme sait faire pour gérer un centre d'hémodialyse — et chaque règle qu'elle applique, sans exception.</p>
-<div class="meta">Version 1.0 · 2026-11-19<br>695 règles de gestion · 16 domaines · 562 codes d'erreur métier</div></div>
+<div class="meta">Version 1.0 · 2026-11-19<br>703 règles de gestion · 16 domaines · 567 codes d'erreur métier</div></div>
 <div class="page">
 <section><h1><span class="n">Sommaire</span>Contenu du document</h1><ol class="toc"><li><a href="#intro">Présentation de la plateforme</a></li><li><a href="#p01">1. Règles transverses</a></li><li><a href="#p02">2. Sécurité, comptes, rôles, licences et traçabilité</a></li><li><a href="#p03">3. Organisation : sociétés, centres, comptes d'encadrement</a></li><li><a href="#p04">4. Patients, assurés, attestations de droits, prises en charge</a></li><li><a href="#p05">5. Planification : placement des patients, planning de la semaine, salles, générateurs, capacité</a></li><li><a href="#p06">6. Absences des patients</a></li><li><a href="#p07">7. Séances de dialyse (cahier de dialyse)</a></li><li><a href="#p08">8. Stock : articles, fournisseurs, bons, lots, PMP, inventaire, alertes, groupes d'articles</a></li><li><a href="#p09">9. GMAO : parc d'équipements, interventions, plans de maintenance, coûts et aide à la décision</a></li><li><a href="#p10">10. Infirmiers : référentiel, roulement, présence, absences, remplaçants, charge, comptes</a></li><li><a href="#p11">11. Dossier médical : antécédents, allergies, sérologies, examens, ordonnances, prescriptions, anémie, greffe, KDIGO, export</a></li><li><a href="#p12">12. Facturation, TVA, règlements et comptabilité</a></li><li><a href="#p13">13. Direction de société : tableaux de bord consolidés, anonymat, alertes, instantanés, temps réel</a></li><li><a href="#p14">14. Référentiels du centre, modèles de documents, imports et reprise de données</a></li><li><a href="#p15">15. Notifications temps réel et catalogue des alertes</a></li><li><a href="#p16">16. Annexe de traçabilité : contrôleurs REST, tâches planifiées et règles</a></li><li><a href="#attentions">Annexe — Points d'attention connus</a></li></ol></section>
 <section class="part" id="intro"><h1><span class="n">Introduction</span>Présentation de la plateforme</h1>
 <p>HemoDialyse couvre <b>toute la gestion d'un centre d'hémodialyse</b> : accueil et dossier administratif des patients, prises en charge, planification des postes et du personnel, séances et cahier de dialyse, dossier médical et suivi clinique, stock et pharmacie, maintenance des équipements, facturation, règlements et comptabilité, pilotage de la direction. La plateforme est multi-centres et multi-sociétés, en français, arabe, kabyle et anglais.</p>
 <p>Au-delà de la disponibilité de l'information, le système <b>surveille</b> (absences, observance des traitements, sous-effectif, péremptions, indisponibilité des équipements, licences), <b>propose</b> (meilleures places de dialyse classées, remplaçants, réforme d'un équipement, simulation de facturation) et <b>protège</b> (placement incohérent refusé, isolement automatique des patients à risque, gel du stock pendant un inventaire, anonymat de la direction, cloisonnement par centre).</p>
-<div class="stat"><div><b>695</b>règles de gestion</div><div><b>16</b>domaines</div><div><b>15</b>surveillances automatiques</div><div><b>8</b>points d'attention</div></div>
+<div class="stat"><div><b>703</b>règles de gestion</div><div><b>16</b>domaines</div><div><b>15</b>surveillances automatiques</div><div><b>8</b>points d'attention</div></div>
 <h2>Se repérer dans l'application</h2><p>L'<b>Accueil</b> présente une tuile par module accessible au profil, avec un ou deux chiffres clés à jour en temps réel et un lien vers le tableau de bord du module ; une tuile que le profil n'a pas le droit de lire est masquée.</p><p>Chaque module s'organise en une <b>barre de module</b> identique partout : d'abord le <b>Tableau de bord</b> du module (<code>/&lt;module&gt;/tableau-de-bord</code>, indicateurs en lecture seule, cliquables vers la liste filtrée), puis les <b>écrans de travail</b>, puis le <b>paramétrage</b>. Ouvrir un module mène directement à son écran de travail (liste des patients, poste infirmier, grille de présence, état du stock, liste des équipements, calcul de la facturation, saisie des règlements, journal comptable) ; la Comptabilité n'a pas de tableau de bord.</p><p>La <b>Direction</b> dispose de trois pages partageant les mêmes filtres de période et de centre : <b>Tableau de bord</b> (vue d'ensemble : alertes, indicateurs de la société, chiffre d'affaires), <b>Analyses</b> (centres, clinique, stock, GMAO, capacité, absences, en tableaux triables) et <b>Rapports</b> (rapports mensuels figés, comparaison de deux mois).</p><p>La liste des patients s'exporte depuis le tableau lui-même : l'export Excel reprend toutes les lignes qui répondent aux filtres et au tri affichés, avec les colonnes visibles dans l'ordre affiché.</p>
 <h2>Profils et périmètres</h2><table><tr><th>Profil</th><th>Rôle</th><th>Périmètre principal</th></tr><tr><td><code>ADMIN</code></td><td>Administrateur du centre</td><td>Paramétrage, utilisateurs, séances, facturation, GMAO, comptabilité, planification</td></tr><tr><td><code>MEDECIN</code></td><td>Médecin</td><td>Dossier médical, prescriptions, validation et signature, cibles cliniques, greffe</td></tr><tr><td><code>INFIRMIER</code></td><td>Infirmier</td><td>Séances, consommables, administrations, « mon planning », absences</td></tr><tr><td><code>SECRETAIRE</code></td><td>Secrétaire</td><td>Accueil, patients, PEC, règlements, planning, absences</td></tr><tr><td><code>PHARMACIEN</code></td><td>Pharmacien / magasinier</td><td>Stock : bons, lots, inventaire</td></tr><tr><td><code>DIRECTION</code></td><td>Direction de société</td><td>Tableaux de bord consolidés et anonymes, instantanés, rapports</td></tr><tr><td><code>SUPERADMIN</code></td><td>Propriétaire de la plateforme</td><td>Sociétés, centres, comptes d'encadrement, licences, journal d'audit</td></tr></table>
 <h2>Comment lire les règles</h2><p>Chaque règle porte un identifiant stable <code>RG-XXX-nnn</code>, jamais renuméroté. Le code d'erreur renvoyé à l'utilisateur figure entre apostrophes inversées ; la source dans le code est citée. Un encadré <b>point d'attention</b> signale un écart connu entre l'intention métier et le comportement actuel : il est conservé tant qu'il n'est pas corrigé.</p></section>
@@ -2933,6 +2933,17 @@ autre que celui de la session est refusé (403, sauf <code>SUPERADMIN</code>) ; 
 (réception), <code>BS</code> (sortie), <code>INV</code> (inventaire). Les compteurs appartiennent à la Comptabilité (numérotation des documents,
 S-DDL2, ADR 0185) : le Stock les réserve par un port, dans la transaction de la pièce ; comportement inchangé.</p>
 </div></div>
+<div class="rule" id="RG-STK-087"><div class="rid">RG-STK-087</div><div class="rtxt"><p><strong>Listes paginées côté serveur</strong> (convention commune du Stock, slice <code>pagination-serveur</code>) :
+<code>GET &lt;liste&gt;/page</code> avec <code>page</code> (base 0), <code>size</code> (1 à 100, défaut 20), <code>sort=champ[,asc|desc]</code> pris dans une liste
+blanche par liste (départage stable ajouté) et un paramètre par filtre de colonne (texte « contient » sans casse,
+énumération à valeurs séparées par des virgules) ; réponse <code>{items, total, page, size}</code> ; refus 400 avec un code
+stable <code>PAGE_INVALIDE</code>, <code>TAILLE_INVALIDE</code>, <code>TRI_INVALIDE</code>, <code>FILTRE_INVALIDE</code>, <code>PARAMETRE_INVALIDE</code>. Mêmes rôles et même
+centre que la liste complète, qui reste inchangée. Pagination en SQL (<code>COUNT</code> + <code>LIMIT/OFFSET</code>).
+<strong>Fournisseurs</strong> (<code>GET /stock/referentiel/fournisseurs/page</code>) : fournisseurs actifs du centre, tri <code>code</code>,
+<code>raisonSociale</code> (défaut), <code>contact</code> ; recherche <code>q</code> sur le code, la raison sociale ou le contact ; filtres <code>code</code>,
+<code>raisonSociale</code>, <code>contact</code>. <em>Source :</em> <code>FournisseursParPageControleur</code>, <code>ConsulterLesFournisseursParPage</code>,
+<code>FournisseursParPageJdbc</code> (contexte <code>stock</code>).</p>
+</div></div>
 <h2>8.2 Bons de commande</h2>
 <div class="rule" id="RG-STK-010"><div class="rid">RG-STK-010</div><div class="rtxt"><p>Un bon de commande naît en <code>BROUILLON</code> avec un fournisseur et des lignes (article, quantité, prix
 unitaire) ; ses lignes se remplacent tant qu&#39;il est
@@ -2944,6 +2955,12 @@ moins une ligne (« doit contenir au moins une ligne ») ; statut
 </div></div>
 <div class="rule" id="RG-STK-012"><div class="rid">RG-STK-012</div><div class="rtxt"><p>Accès : écriture <code>ADMIN</code>, <code>PHARMACIEN</code> ; lecture + <code>INFIRMIER</code>. Un bon inconnu du centre est
 introuvable.</p>
+</div></div>
+<div class="rule" id="RG-STK-088"><div class="rid">RG-STK-088</div><div class="rtxt"><p><strong>Liste paginée des bons de commande</strong> (<code>GET /stock/bons-commande/page</code>, convention RG-STK-087) :
+tri <code>reference</code>, <code>statut</code> (ordre du cycle <code>BROUILLON</code> &lt; <code>VALIDE</code> &lt; <code>RECU</code>), <code>lignes</code> (nombre de lignes), <code>createdAt</code>
+(défaut : création la plus récente d&#39;abord, puis référence décroissante) ; filtres <code>reference</code> et <code>statut</code>
+(<code>BROUILLON</code>, <code>VALIDE</code>, <code>RECU</code> ; pas d&#39;état annulé, ADR 0045). Chaque bon porte ses lignes. <em>Source :</em>
+<code>BonsDeCommandeParPageControleur</code>, <code>ConsulterLesBonsParPage</code>, <code>BonsParPageJdbc</code> (contexte <code>stock</code>).</p>
 </div></div>
 <h2>8.3 Bons de réception, lots, entrées</h2>
 <div class="rule" id="RG-STK-020"><div class="rid">RG-STK-020</div><div class="rtxt"><p>Un bon de réception (<code>BROUILLON</code> → <code>VALIDE</code>) peut être créé librement ou <strong>depuis un bon de
@@ -2970,6 +2987,17 @@ refusée (« Recalcul en cours … Saisie temporairement bloquee »).</p>
 </div></div>
 <div class="rule" id="RG-STK-025"><div class="rid">RG-STK-025</div><div class="rtxt"><p>Accès : écriture <code>ADMIN</code>, <code>PHARMACIEN</code> ; lecture + <code>INFIRMIER</code>.</p>
 </div></div>
+<div class="rule" id="RG-STK-089"><div class="rid">RG-STK-089</div><div class="rtxt"><p><strong>Listes paginées des bons de réception et de sortie</strong> (convention RG-STK-087). Réception
+(<code>GET /stock/bons-reception/page</code>) : tri <code>reference</code>, <code>dateReception</code>, <code>statut</code>, <code>lignes</code>, <code>createdAt</code> (défaut :
+création la plus récente d&#39;abord) ; filtres <code>reference</code> et <code>statut</code> (<code>BROUILLON</code>, <code>VALIDE</code> seulement). Sortie
+(<code>GET /stock/bons-sortie/page</code>) : tri <code>reference</code>, <code>dateSortie</code>, <code>lignes</code>, <code>createdAt</code> (même défaut) ; filtre
+<code>reference</code> (le bon de sortie n&#39;a pas de statut). <strong>Statut historique <code>RECU</code> d&#39;un bon de réception</strong> (vocabulaire des bons
+de commande, présent dans le jeu d&#39;amorçage H2) : il se lit, se filtre et se trie comme <code>VALIDE</code> (le bon est entré en
+stock ; aucune transition n&#39;existe depuis <code>VALIDE</code>, la donnée n&#39;est pas réécrite) ; tout autre statut inconnu est une
+erreur explicite. Avant cette règle, la liste des bons de réception du centre tombait en 400 (KB-STK-58). <em>Source :</em>
+<code>BonsDeReceptionParPageControleur</code>, <code>BonsDeSortieParPageControleur</code>, <code>BonsParPageJdbc</code>, <code>BonsDeReceptionJdbc</code>
+(contexte <code>stock</code>).</p>
+</div></div>
 <h2>8.4 Bons de sortie, FEFO, consommation en séance</h2>
 <div class="rule" id="RG-STK-030"><div class="rid">RG-STK-030</div><div class="rtxt"><p>Un bon de sortie (BS) peut être rattaché à une séance et un patient (poste, date) ; il exige au moins
 une ligne ; le lot choisi doit appartenir à l&#39;article ; la
@@ -2986,7 +3014,7 @@ Corriger un bon de sortie restitue d&#39;abord les quantités aux lots d&#39;ori
 recréées gardent la <strong>date du bon</strong> et l&#39; <strong>heure de création du bon</strong> comme heure de saisie (RG-STK-041).</p>
 </div></div>
 <div class="rule" id="RG-STK-033"><div class="rid">RG-STK-033</div><div class="rtxt"><p>Accès : <code>ADMIN</code>, <code>PHARMACIEN</code>, <code>INFIRMIER</code>. La liste des lots disponibles d&#39;un article est triée
-FEFO.</p>
+FEFO. La liste des bons de sortie est paginée côté serveur (RG-STK-089).</p>
 </div></div>
 <h2>8.5 PMP (prix moyen pondéré) et valorisation</h2>
 <div class="rule" id="RG-STK-040"><div class="rid">RG-STK-040</div><div class="rtxt"><p>Entrée : nouvelle quantité = quantité + q ; nouvelle valeur = valeur + q × prix ; <strong>PMP = valeur /
@@ -3025,6 +3053,20 @@ articles en stock, alertes actives, lots en péremption, flux de la période), l
 centre d&#39;alertes (rupture, seuil, péremption). La barre du module propose ensuite les écrans de travail (état du
 stock, bons de commande, réceptions, sorties, sorties pour séances, inventaires) puis le paramétrage (articles,
 fournisseurs) ; le bandeau d&#39;inventaire en cours reste affiché au-dessus de chaque écran du module.</p>
+</div></div>
+<div class="rule" id="RG-STK-090"><div class="rid">RG-STK-090</div><div class="rtxt"><p><strong>État du stock paginé côté serveur</strong> (<code>GET /stock/dashboard/stock-valorise/page</code>, convention
+RG-STK-087) : articles actifs du centre avec quantité, PMP courant et valeur (quantité × PMP, calculée en SQL pour le
+tri et le filtre) ; tri <code>code</code> (défaut, croissant), <code>libelle</code> (sans casse), <code>quantite</code>, <code>pmp</code>, <code>valeur</code> ; filtres texte
+<code>code</code>, <code>libelle</code> et numériques <code>quantite</code>, <code>pmp</code>, <code>valeur</code> (<code>[op]nombre</code>, <code>op</code> parmi <code>= &gt; &gt;= &lt; &lt;=</code>, virgule ou
+point). La liste complète <code>GET /stock-valorise</code> (triée par libellé) est inchangée. <em>Source :</em>
+<code>EtatDuStockPageControleur</code>, <code>ConsulterLEtatDuStock</code>, <code>EtatDuStockPagineJdbc</code> (contexte <code>stock</code>).</p>
+</div></div>
+<div class="rule" id="RG-STK-093"><div class="rid">RG-STK-093</div><div class="rtxt"><p><strong>Explication du PMP paginée</strong> (<code>GET /stock/dashboard/pmp-explain/{articleId}/page</code>) : les étapes du
+rejeu sont paginées <strong>en mémoire</strong> (le rejeu est calculé : chaque étape dépend de la précédente, il est rejoué en entier
+puis découpé), dans l&#39;ordre chronologique, <strong>sans tri ni filtre</strong> (tout <code>sort</code> est refusé : <code>TRI_INVALIDE</code>) ; le résumé
+(<code>articleId</code>, <code>code</code>, <code>libelle</code>, <code>methode</code>, <code>quantiteFinale</code>, <code>valeurFinale</code>, <code>pmpFinal</code>) accompagne chaque page à côté
+de <code>{items, total, page, size}</code>. Article inconnu du centre : même refus que <code>GET /pmp-explain/{articleId}</code> (inchangée).
+<em>Source :</em> <code>ExplicationDuPmpPageControleur</code>, <code>ConsulterLExplicationDuPmp</code> (contexte <code>stock</code>).</p>
 </div></div>
 <h2>8.6 Inventaire</h2>
 <div class="rule" id="RG-STK-050"><div class="rid">RG-STK-050</div><div class="rtxt"><p>Un seul inventaire peut être <strong>en cours</strong> par centre (<code>INVENTORY_ALREADY_IN_PROGRESS</code>). La date est
@@ -3092,6 +3134,16 @@ feuille (<code>INVENTAIRE_FEUILLE_TELECHARGEMENT</code>) sont journalisés (la r
 métiers avant le 2026-12-15 : KB-PL7-3 (caractères hors police), lot « sans lot » = référence d&#39;inventaire après clôture, lots
 négatifs ou arrondis à 0 absents, quantité théorique de la feuille arrondie à 2 décimales.
 <em>Source :</em> <code>InventairesControleur</code>, <code>ProcesVerbalRenduParDocuments</code>, <code>FeuilleDeComptageExcel</code>.</p>
+</div></div>
+<div class="rule" id="RG-STK-092"><div class="rid">RG-STK-092</div><div class="rtxt"><p><strong>Feuille de comptage paginée côté serveur</strong> (<code>GET /stock/inventaires/{id}/lignes/page</code>, convention
+RG-STK-087) : lignes de l&#39;inventaire du centre, dans l&#39;ordre de la feuille par défaut ; tri <code>article</code> (code), <code>lot</code>,
+<code>peremption</code>, <code>theorique</code>, <code>comptee</code>, <code>ecart</code> (compté − théorique), <code>valeurEcart</code>, les lignes non comptées en dernier ;
+filtre <code>etat</code> (une seule valeur : <code>TOUTES</code>, <code>A_COMPTER</code> = non comptées, <code>ECARTS</code> = comptées avec un écart non nul,
+<code>COMPTEES</code>) et recherche <code>q</code> sur le code, le libellé ou le n° de lot. Éléments de même forme que <code>details[]</code> de
+<code>GET /{id}</code>, qui reste la source de l&#39;en-tête (compteurs, progression, statut). Inventaire inconnu du centre : 422
+<code>INVENTORY_NOT_FOUND</code> comme sa consultation. Après un comptage, un ajout ou un retrait de ligne, l&#39;écran relit la page
+courante. <em>Source :</em> <code>LignesDInventairePageControleur</code>, <code>ConsulterLesLignesDInventaire</code>, <code>LignesDInventairePagineesJdbc</code>
+(contexte <code>stock</code>).</p>
 </div></div>
 <h2>8.7 Alertes et traçabilité</h2>
 <div class="rule" id="RG-STK-060"><div class="rid">RG-STK-060</div><div class="rtxt"><p>Alertes de stock du centre : <strong>péremption</strong> (lot encore en stock dont la date de péremption est dans
@@ -3170,6 +3222,16 @@ centre (date d&#39;une réception ou d&#39;une sortie sans date, fenêtre de ten
 d&#39;enregistrement d&#39;une sortie pour séances) est le jour du fuseau de son centre (centers.fuseau_horaire, identifiant
 IANA, par exemple Africa/Algiers) ; sans fuseau, ou fuseau illisible, c&#39;est UTC. Les mouvements restent datés à minuit
 UTC du jour métier.</p>
+</div></div>
+<div class="rule" id="RG-STK-091"><div class="rid">RG-STK-091</div><div class="rtxt"><p><strong>Sorties pour séances paginées côté serveur</strong> (convention RG-STK-087). Pièces
+(<code>GET /stock/sorties-pour-seances/page</code>) : sans leurs lignes, avec <code>nombreDeLignes</code> ; tri <code>reference</code>, <code>jour</code>, <code>statut</code>,
+<code>lignes</code>, <code>enregistreeLe</code> (défaut : enregistrée le plus récemment, puis référence décroissante) ; filtres <code>reference</code>
+(texte) et <code>statut</code> (<code>ENREGISTREE</code>, <code>RAPPROCHEE</code>). Lignes de la pièce sélectionnée
+(<code>GET /stock/sorties-pour-seances/{id}/lignes/page</code>) : avec <code>articleCode</code> et <code>articleLibelle</code> ; tri <code>article</code> (libellé,
+défaut), <code>sortie</code>, <code>consomme</code>, <code>ecart</code> (lignes non rapprochées en dernier) ; filtre <code>article</code> (code ou libellé) ; pièce
+inconnue du centre : 422 <code>PIECE_INTROUVABLE</code> comme <code>GET /{id}</code>, qui reste la lecture de la pièce sélectionnée. Les listes
+complètes sont inchangées. <em>Source :</em> <code>SortiesPourSeancesPagesControleur</code>, <code>ConsulterLesSortiesPourSeances</code>,
+<code>SortiesPourSeancesPagineesJdbc</code> (contexte <code>stock</code>).</p>
 </div></div>
 </section>
 <section class="part" id="p09"><h1><span class="n">Partie 9</span>GMAO : parc d'équipements, interventions, plans de maintenance, coûts et aide à la décision</h1>
@@ -4640,6 +4702,20 @@ pour les deux écrans (l&#39;infirmier seul et le médecin seul en restent écar
 trésorerie (RG-CPT-002) par l&#39;événement <code>FactureReglementRecordedEvent</code> (langage publié du contexte <code>facturation</code>,
 porteur de l&#39;identifiant du règlement, du montant signé et du mode) → <code>ComptabilisationDuReglementApresEncaissement</code> (contexte <code>facturation</code>, ex-écouteur de la plateforme, LST ADR 0183). Un mois
 comptable clos n&#39;empêche pas le règlement : l&#39;écriture est alors à régénérer (<code>POST /comptabilite/rebuild</code>).</p>
+</div></div>
+<div class="rule" id="RG-REG-009"><div class="rid">RG-REG-009</div><div class="rtxt"><p><strong>Saisie des règlements paginée côté serveur</strong> (<code>GET /api/v1/reglements/page</code>, mêmes critères et mêmes
+droits que la recherche, <code>GET /reglements</code> inchangée) : <code>page</code> (base 0, défaut 0), <code>size</code> (1 à <strong>100</strong>, défaut 20),
+<code>sort=champ[,asc|desc]</code> parmi numéro de facture, n° d&#39;assurance, nom, prénom, caisse, agence, centre payeur, montant
+facturé, montant réglé, état (ordre non réglée &lt; partiellement réglée &lt; réglée), dernier code de règlement et date de
+facturation — défaut : date de facturation puis numéro décroissants ; valeurs absentes en dernier, départage stable par
+identifiant. Filtres de colonne cumulés (ET) : texte « contient » insensible à la casse (numéro, assurance, nom, prénom,
+caisse, agence, centre payeur, code de règlement), montants <code>[= &gt; &gt;= &lt; &lt;=]nombre</code>, état et nature du solde (reste, soldée,
+trop-perçu) par valeur d&#39;énumération (plusieurs = OU). Réponse <code>{items, total, page, size}</code> (total filtré). Refus 400
+<code>PAGE_INVALIDE</code>, <code>TAILLE_INVALIDE</code>, <code>TRI_INVALIDE</code>, <code>FILTRE_INVALIDE</code>, <code>PARAMETRE_INVALIDE</code> ; 403 hors rôle ou autre centre.
+Pagination <strong>en mémoire</strong> après lecture de la période : la fiche patient et la chaîne des payeurs viennent des langages
+publiés et l&#39;état/solde sont calculés (RG-REG-002). À l&#39;écran, le tri et les filtres de la liste à régler s&#39;appliquent à
+toutes les factures de la période (plus seulement à la page chargée) ; un filtre ramène en page 1 ; après une saisie, la
+page courante est relue.</p>
 </div></div>
 <h2>12.6 Comptabilité (plan SCF)</h2>
 <div class="rule" id="RG-CPT-001"><div class="rid">RG-CPT-001</div><div class="rtxt"><p><strong>Écriture de ventes</strong> par facture, dans le journal que le centre a choisi pour les ventes (<code>VE</code> par
@@ -6396,10 +6472,22 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td>RG-STK-001 à 008</td>
 </tr>
 <tr>
+<td><code>FournisseursParPageControleur</code> (contexte <code>stock</code>)</td>
+<td><code>GET /api/v1/stock/referentiel/fournisseurs/page</code> — liste paginée (SQL), tri et filtres de colonne</td>
+<td><code>ADMIN</code>, <code>PHARMACIEN</code>, <code>INFIRMIER</code>, <code>DIRECTEUR_ADMINISTRATIF</code> (lecture) ; garde de centre</td>
+<td>RG-STK-087</td>
+</tr>
+<tr>
 <td><code>BonsDeCommandeControleur</code> (contexte <code>stock</code>)</td>
 <td><code>/api/v1/stock/bons-commande</code></td>
 <td><code>ADMIN</code>, <code>PHARMACIEN</code> (ecriture), <code>INFIRMIER</code> (lecture)</td>
 <td>RG-STK-010 - 012</td>
+</tr>
+<tr>
+<td><code>BonsDeCommandeParPageControleur</code> (contexte <code>stock</code>)</td>
+<td><code>GET /api/v1/stock/bons-commande/page</code> — liste paginée (SQL), tri et filtres de colonne</td>
+<td><code>ADMIN</code>, <code>PHARMACIEN</code>, <code>INFIRMIER</code>, <code>DIRECTEUR_ADMINISTRATIF</code> (lecture) ; garde de centre</td>
+<td>RG-STK-087, 088</td>
 </tr>
 <tr>
 <td><code>ReceptionsControleur</code> (contexte <code>stock</code>)</td>
@@ -6408,16 +6496,34 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td>RG-STK-020 - 025</td>
 </tr>
 <tr>
+<td><code>BonsDeReceptionParPageControleur</code> (contexte <code>stock</code>)</td>
+<td><code>GET /api/v1/stock/bons-reception/page</code> — liste paginée (SQL), tri et filtres de colonne</td>
+<td><code>ADMIN</code>, <code>PHARMACIEN</code>, <code>INFIRMIER</code>, <code>DIRECTEUR_ADMINISTRATIF</code> (lecture) ; garde de centre</td>
+<td>RG-STK-087, 089</td>
+</tr>
+<tr>
 <td><code>SortiesControleur</code> (contexte <code>stock</code>)</td>
 <td><code>/api/v1/stock/bons-sortie</code></td>
 <td><code>ADMIN</code>, <code>PHARMACIEN</code>, <code>INFIRMIER</code></td>
 <td>RG-STK-030 - 033</td>
 </tr>
 <tr>
+<td><code>BonsDeSortieParPageControleur</code> (contexte <code>stock</code>)</td>
+<td><code>GET /api/v1/stock/bons-sortie/page</code> — liste paginée (SQL), tri et filtre de référence</td>
+<td><code>ADMIN</code>, <code>PHARMACIEN</code>, <code>INFIRMIER</code>, <code>DIRECTEUR_ADMINISTRATIF</code> (lecture) ; garde de centre</td>
+<td>RG-STK-087, 089</td>
+</tr>
+<tr>
 <td><code>SortiesPourSeancesControleur</code> (contexte <code>stock</code>)</td>
 <td><code>/api/v1/stock/sorties-pour-seances</code></td>
 <td><code>ADMIN</code>, <code>PHARMACIEN</code> (enregistrement), <code>DIRECTEUR_ADMINISTRATIF</code> (rapprochement, lecture)</td>
 <td>RG-STK (sortie pour seances, ADR 0045)</td>
+</tr>
+<tr>
+<td><code>SortiesPourSeancesPagesControleur</code> (contexte <code>stock</code>)</td>
+<td><code>GET /api/v1/stock/sorties-pour-seances/page</code> et <code>GET /{id}/lignes/page</code> — pièces (sans lignes) et lignes d&#39;une pièce paginées (SQL), tri et filtres</td>
+<td><code>ADMIN</code>, <code>PHARMACIEN</code>, <code>INFIRMIER</code>, <code>DIRECTEUR_ADMINISTRATIF</code> (lecture) ; garde de centre</td>
+<td>RG-STK-087, 091</td>
 </tr>
 <tr>
 <td><code>ConsommationsControleur</code> (contexte <code>stock</code>)</td>
@@ -6432,10 +6538,28 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 <td>RG-STK-050 à 057, 086 (PV et feuille, PL7)</td>
 </tr>
 <tr>
+<td><code>LignesDInventairePageControleur</code> (contexte <code>stock</code>)</td>
+<td><code>GET /api/v1/stock/inventaires/{id}/lignes/page</code> — feuille de comptage paginée (SQL), tri, filtre d&#39;état et recherche</td>
+<td><code>ADMIN</code>, <code>PHARMACIEN</code>, <code>INFIRMIER</code>, <code>DIRECTEUR_ADMINISTRATIF</code> (lecture) ; garde de centre</td>
+<td>RG-STK-087, 092</td>
+</tr>
+<tr>
 <td><code>LecturesDuStockControleur</code> (contexte <code>stock</code>)</td>
 <td><code>/api/v1/stock/dashboard</code></td>
 <td><code>ADMIN</code>, <code>PHARMACIEN</code>, <code>INFIRMIER</code></td>
 <td>RG-STK-040 - 044, 060, 062</td>
+</tr>
+<tr>
+<td><code>EtatDuStockPageControleur</code> (contexte <code>stock</code>)</td>
+<td><code>GET /api/v1/stock/dashboard/stock-valorise/page</code> — état du stock paginé (SQL), tri et filtres de colonne</td>
+<td><code>ADMIN</code>, <code>PHARMACIEN</code>, <code>INFIRMIER</code>, <code>DIRECTEUR_ADMINISTRATIF</code> (lecture) ; garde de centre</td>
+<td>RG-STK-087, 090</td>
+</tr>
+<tr>
+<td><code>ExplicationDuPmpPageControleur</code> (contexte <code>stock</code>)</td>
+<td><code>GET /api/v1/stock/dashboard/pmp-explain/{articleId}/page</code> — étapes du rejeu du PMP paginées en mémoire (calculées), sans tri ni filtre</td>
+<td><code>ADMIN</code>, <code>PHARMACIEN</code>, <code>INFIRMIER</code>, <code>DIRECTEUR_ADMINISTRATIF</code> (lecture) ; garde de centre</td>
+<td>RG-STK-093</td>
 </tr>
 <tr>
 <td><code>RecalculDuPmpControleur</code> (contexte <code>stock</code>)</td>
@@ -6529,9 +6653,9 @@ y être ajoutée <strong>dans la même modification</strong>.</p>
 </tr>
 <tr>
 <td><code>ReglementControleur</code></td>
-<td><code>/api/v1/reglements</code></td>
+<td><code>/api/v1/reglements</code> (+ <code>GET /page</code> paginée côté serveur)</td>
 <td><code>ADMIN</code>, <code>SECRETAIRE</code></td>
-<td>RG-REG-001 à 004</td>
+<td>RG-REG-001 à 004, RG-REG-009</td>
 </tr>
 <tr>
 <td><code>EcrituresControleur</code></td>
