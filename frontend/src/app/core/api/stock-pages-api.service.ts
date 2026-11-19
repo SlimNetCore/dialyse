@@ -9,6 +9,7 @@ import {
   DemiJournee,
   LigneSortiePourSeances,
   PmpExplanationStep,
+  SortiePourSeances,
   StatutSortiePourSeances,
   StockValoriseItem,
 } from './stock-api.service';
@@ -76,6 +77,11 @@ export class StockPagesApiService {
     Observable<PageServeur<LigneSortiePourSeancesDetaillee>> {
     return this.http.get<PageServeur<LigneSortiePourSeancesDetaillee>>(
       `${this.base}/sorties-pour-seances/${pieceId}/lignes/page`, {params: {...parametres, centerId}});
+  }
+
+  /** Pièce complète (avec toutes ses lignes) : `GET /sorties-pour-seances/{id}` existant (contrat E2). */
+  pieceDeSortie(centerId: string, pieceId: string): Observable<SortiePourSeances> {
+    return this.http.get<SortiePourSeances>(`${this.base}/sorties-pour-seances/${pieceId}`, {params: {centerId}});
   }
 
   /** E5 — aucun tri ni filtre (ordre chronologique du rejeu). */
@@ -152,8 +158,13 @@ export class ListeDistante<T, P extends PageServeur<T> = PageServeur<T>> {
     this.demandes.next();
   }
 
-  /** Revient en première page et recharge (changement de contexte : autre pièce, autre inventaire). */
+  /**
+   * Changement de contexte (autre pièce, autre inventaire : la table est recréée) : page reçue vidée, tri et filtres
+   * oubliés, première page rechargée.
+   */
   reinitialiser(): void {
+    this.page.set(null);
+    this.colonnes.set({});
     this.pageIndex.set(0);
     this.recharger();
   }

@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, computed, inject, LOCALE_ID, signal, TemplateRef, viewChild} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, inject, LOCALE_ID, TemplateRef, viewChild} from '@angular/core';
 import {CommonModule, formatDate, formatNumber} from '@angular/common';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from '@angular/material/dialog';
@@ -6,9 +6,10 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
-import {NgTableColumn, NgTableComponent, NgTableTone} from '@sbourahla/ng-table';
+import {NgTableColumn, NgTableComponent, NgTableRemoteQuery, NgTableTone} from '@sbourahla/ng-table';
 import {map, merge} from 'rxjs';
-import {PmpExplanation, PmpExplanationStep, StockApiService} from '../../core/api/stock-api.service';
+import {PmpExplanationStep} from '../../core/api/stock-api.service';
+import {ListeDistante, PageDExplicationDuPmp, StockPagesApiService} from '../../core/api/stock-pages-api.service';
 import {NgTableTranslatedLabels} from '../../shared/ng-table-labels';
 
 export interface PmpExplainData {
@@ -24,7 +25,7 @@ export const PMP_STEP_TONES: Record<PmpExplanationStep['type'], NgTableTone> = {
   AJUSTEMENT: 'info',
 };
 
-/** Pagination locale des étapes du calcul (toutes chargées en une fois). */
+/** Pagination serveur des étapes du calcul (`GET /dashboard/pmp-explain/{articleId}/page`). */
 export const PMP_STEPS_PAGE_SIZE = 20;
 export const PMP_STEPS_PAGE_SIZES: readonly number[] = [10, 20, 50, 100];
 
@@ -32,7 +33,7 @@ type CellTemplate = NgTableColumn<PmpExplanationStep>['cellTemplate'];
 
 /**
  * Explication du PMP d'un article : méthode, synthèse, puis les étapes du calcul en `<ng-table>` compacte (mode
- * local, paginée) ; type de mouvement en pastille, quantités et prix alignés à droite, formule en police fixe.
+ * distant, paginée par le serveur, sans tri ni filtre) ; type de mouvement en pastille, quantités et prix alignés à droite, formule en police fixe.
  */
 @Component({
   selector: 'app-pmp-explain-dialog',
@@ -48,12 +49,9 @@ type CellTemplate = NgTableColumn<PmpExplanationStep>['cellTemplate'];
 export class PmpExplainDialogComponent {
   protected readonly data = inject<PmpExplainData>(MAT_DIALOG_DATA);
   protected readonly ref = inject(MatDialogRef<PmpExplainDialogComponent>);
-  protected readonly loading = signal(true);
-  protected readonly explanation = signal<PmpExplanation | null>(null);
   protected readonly ngTableLabels = inject(NgTableTranslatedLabels).labels;
-  protected readonly pageSize = PMP_STEPS_PAGE_SIZE;
   protected readonly pageSizes = PMP_STEPS_PAGE_SIZES;
-  private readonly api = inject(StockApiService);
+  private readonly api = inject(StockPagesApiService);
   private readonly translate = inject(TranslateService);
   private readonly locale = inject(LOCALE_ID);
   private readonly lang = toSignal(
@@ -62,11 +60,12 @@ export class PmpExplainDialogComponent {
   private readonly numTemplate = viewChild<TemplateRef<unknown>>('numCell');
   private readonly formuleTemplate = viewChild<TemplateRef<unknown>>('formuleCell');
 
+  /** Colonnes ni triables ni filtrables : le serveur ne pagine que l'ordre chronologique du rejeu (contrat E5). */
   protected readonly columns = computed<NgTableColumn<PmpExplanationStep>[]>(() => {
     this.lang();
     const t = (key: string): string => this.translate.instant(`STOCK.PMP_EXPLAIN.${key}`);
     const num = this.numTemplate() as CellTemplate;
-    return [
+    const colonnes: NgTableColumn<PmpExplanationStep>[] = [
       {id: 'piece', header: t('COL_PIECE'), valueAccessor: (s) => s.piece || '—'},
       {
         id: 'datePiece', header: t('COL_DATE_PIECE'),
@@ -84,14 +83,23 @@ export class PmpExplainDialogComponent {
         cellTemplate: this.formuleTemplate() as CellTemplate,
       },
     ];
+    return colonnes.map((c) => ({...c, sortable: false}));
   });
 
+  /** Étapes du rejeu paginées par le serveur (RG-STK-093) ; le résumé accompagne chaque page. */
+  protected readonly liste = new ListeDistante<PmpExplanationStep, PageDExplicationDuPmp>({}, (p) =>
+    this.api.explicationDuPmp(this.data.centerId, this.data.articleId, Number(p['page']), Number(p['size'])),
+  PMP_STEPS_PAGE_SIZE);
+  protected readonly loading = this.liste.loading;
+  protected readonly explanation = this.liste.page;
+
   constructor() {
-    this.api.pmpExplain(this.data.articleId, this.data.centerId).subscribe({
-      next: (ex) => this.explanation.set(ex),
-      complete: () => this.loading.set(false),
-      error: () => this.loading.set(false),
-    });
+    this.liste.recharger();
+  }
+
+  /** Changement de page ou de taille demandé par la table (mode remote). */
+  protected onRemoteQueryChange(requete: NgTableRemoteQuery): void {
+    this.liste.surRequete(requete);
   }
 
   private number(value: number | null | undefined, digits: string): string {

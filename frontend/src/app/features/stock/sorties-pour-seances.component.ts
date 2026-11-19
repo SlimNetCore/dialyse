@@ -10,7 +10,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
-import {NgTableColumn, NgTableComponent, NgTableTone} from '@sbourahla/ng-table';
+import {NgTableColumn, NgTableComponent, NgTableRemoteQuery, NgTableTone} from '@sbourahla/ng-table';
 import {AuthStore} from '../../core/state/auth.store';
 import {
   DemiJournee,
@@ -19,11 +19,29 @@ import {
   StatutSortiePourSeances,
   StockApiService
 } from '../../core/api/stock-api.service';
+import {
+  LigneSortiePourSeancesDetaillee,
+  ListeDistante,
+  PieceSortiePourSeancesResume,
+  STATUTS_SORTIE_POUR_SEANCES,
+  StockPagesApiService
+} from '../../core/api/stock-pages-api.service';
+import {CorrespondanceDePage} from '../../core/api/page-serveur';
 import {ReferentialApiService, RefItem} from '../../core/api/referential-api.service';
 import {NgTableTranslatedLabels} from '../../shared/ng-table-labels';
 import {langueCourante, STOCK_DEFAULT_PAGE_SIZE, STOCK_PAGE_SIZES} from './stock-ng-table';
 
-const STATUTS_SORTIE: readonly StatutSortiePourSeances[] = ['ENREGISTREE', 'RAPPROCHEE'];
+/** Pièces ⇒ `GET /sorties-pour-seances/page` (contrat E2) ; le périmètre n'est ni triable ni filtrable. */
+export const CORRESPONDANCE_PIECES_POUR_SEANCES: CorrespondanceDePage = {
+  tris: {reference: 'reference', jour: 'jour', statut: 'statut', lignes: 'lignes'},
+  filtres: {reference: 'reference', statut: 'statut'},
+};
+
+/** Lignes de la pièce ⇒ `GET /sorties-pour-seances/{id}/lignes/page` (contrat E3) ; le motif n'est ni triable ni filtrable. */
+export const CORRESPONDANCE_LIGNES_POUR_SEANCES: CorrespondanceDePage = {
+  tris: {article: 'article', sortie: 'sortie', consomme: 'consomme', ecart: 'ecart'},
+  filtres: {article: 'article'},
+};
 
 /** Pièce enregistrée (à rapprocher) en bleu, rapprochée en vert. */
 export const TONS_STATUT_SORTIE: Record<StatutSortiePourSeances, NgTableTone> = {
@@ -68,26 +86,30 @@ export class SortiesPourSeancesComponent {
   protected readonly pageSizes = STOCK_PAGE_SIZES;
   protected readonly defaultPageSize = STOCK_DEFAULT_PAGE_SIZE;
   protected readonly labels = inject(NgTableTranslatedLabels).labels;
-  protected readonly clePiece = (p: SortiePourSeances): unknown => p.id;
+  protected readonly clePiece = (p: PieceSortiePourSeancesResume): unknown => p.id;
   protected readonly cleLigne = (l: LigneSortiePourSeances): unknown => l.id;
   /** Pièce dont le détail est déroulé : surlignée (fonction recréée à chaque sélection pour que ng-table la relise). */
   protected readonly classeDePiece = computed(() => {
     const selectionnee = this.selectionId();
-    return (p: SortiePourSeances): Record<string, boolean> => ({'piece-selectionnee': p.id === selectionnee});
+    return (p: PieceSortiePourSeancesResume): Record<string, boolean> => ({'piece-selectionnee': p.id === selectionnee});
   });
   private readonly actionsPieceCell = viewChild<TemplateRef<unknown>>('actionsPieceCell');
   private readonly quantiteCell = viewChild<TemplateRef<unknown>>('quantiteCell');
   private readonly ecartCell = viewChild<TemplateRef<unknown>>('ecartCell');
   private readonly motifCell = viewChild<TemplateRef<unknown>>('motifCell');
 
-  protected readonly pieces = signal<SortiePourSeances[]>([]);
   protected readonly articles = signal<RefItem[]>([]);
   protected readonly selectionId = signal<string | null>(null);
   protected readonly saving = signal(false);
   protected readonly working = signal(false);
   protected readonly submitAttempted = signal(false);
   protected readonly form = signal<PieceForm>(this.formulaireInitial());
-  protected readonly selection = computed(() => this.pieces().find(p => p.id === this.selectionId()) ?? null);
+  /** Pièce sélectionnée, complète (toutes ses lignes, pour la règle de validation) : lue par `GET /{id}`. */
+  protected readonly piece = signal<SortiePourSeances | null>(null);
+  protected readonly selection = computed(() => {
+    const piece = this.piece();
+    return piece && piece.id === this.selectionId() ? piece : null;
+  });
   protected readonly peutValider = computed(() => {
     const piece = this.selection();
     return !!piece && piece.statut === 'ENREGISTREE' && piece.lignes.every(l => !this.ecartSansMotif(l));
@@ -98,8 +120,20 @@ export class SortiesPourSeancesComponent {
       && f.lignes.every(l => !!l.articleId && Number(l.quantite ?? 0) > 0);
   });
   private readonly api = inject(StockApiService);
+  private readonly pagesApi = inject(StockPagesApiService);
   private readonly refApi = inject(ReferentialApiService);
   private readonly auth = inject(AuthStore);
+  /** Page courante des pièces du centre, triée et filtrée par le serveur (RG-STK-091). */
+  protected readonly pieces = new ListeDistante<PieceSortiePourSeancesResume>(CORRESPONDANCE_PIECES_POUR_SEANCES, (p) => {
+    const centerId = this.auth.centerId();
+    return centerId ? this.pagesApi.piecesPourSeances(centerId, p) : null;
+  }, STOCK_DEFAULT_PAGE_SIZE);
+  /** Page courante des lignes de la pièce sélectionnée (code et libellé de l'article fournis par le serveur). */
+  protected readonly lignes = new ListeDistante<LigneSortiePourSeancesDetaillee>(CORRESPONDANCE_LIGNES_POUR_SEANCES, (p) => {
+    const centerId = this.auth.centerId();
+    const pieceId = this.selectionId();
+    return centerId && pieceId ? this.pagesApi.lignesDeLaPiece(centerId, pieceId, p) : null;
+  }, STOCK_DEFAULT_PAGE_SIZE);
   /** Enregistrement d'une pièce : gestionnaire de stock et administrateur. */
   protected readonly peutEnregistrer = computed(() => this.auth.hasRole('ADMIN') || this.auth.hasRole('PHARMACIEN'));
   /** Préparation et validation du rapprochement : aussi le directeur administratif. */
@@ -114,8 +148,8 @@ export class SortiesPourSeancesComponent {
     this.langue();
     return this.translate.instant('STOCK.SORTIES_SEANCES.EMPTY') as string;
   });
-  /** Pièces du centre : ng-table locale paginée, statut en pastille, bouton qui déroule le détail. */
-  protected readonly colonnesPieces = computed<NgTableColumn<SortiePourSeances>[]>(() => {
+  /** Pièces du centre : ng-table distante paginée, statut en pastille, bouton qui déroule le détail. */
+  protected readonly colonnesPieces = computed<NgTableColumn<PieceSortiePourSeancesResume>[]>(() => {
     this.langue();
     const t = (cle: string): string => this.translate.instant(cle);
     const statut = (valeur: unknown): string => t('STOCK.SORTIES_SEANCES.STATUT.' + String(valeur));
@@ -128,32 +162,36 @@ export class SortiesPourSeancesComponent {
         id: 'jour', header: t('STOCK.SORTIES_SEANCES.DAY_LABEL'), valueAccessor: p => jourCourt(p.jour),
         sortValueAccessor: p => p.jour, sortable: true,
       },
-      {id: 'perimetre', header: t('STOCK.SORTIES_SEANCES.PERIMETER_LABEL'), valueAccessor: p => this.perimetre(p)},
+      {
+        id: 'perimetre', header: t('STOCK.SORTIES_SEANCES.PERIMETER_LABEL'), valueAccessor: p => this.perimetre(p),
+        sortable: false,
+      },
       {
         id: 'statut', header: t('STOCK.SORTIES_SEANCES.STATUS_LABEL'), valueAccessor: p => p.statut, sortable: true,
         cell: {type: 'badge', tone: TONS_STATUT_SORTIE, label: statut},
         filter: {
           type: 'enum', label: t('STOCK.SORTIES_SEANCES.STATUS_LABEL'),
-          options: STATUTS_SORTIE.map(s => ({value: s, label: statut(s)})),
+          options: STATUTS_SORTIE_POUR_SEANCES.map(s => ({value: s, label: statut(s)})),
         },
       },
-      {id: 'lignes', header: t('STOCK.LINES_LABEL'), valueAccessor: p => p.lignes.length, sortable: true},
+      {id: 'lignes', header: t('STOCK.LINES_LABEL'), valueAccessor: p => p.nombreDeLignes, sortable: true},
       {
-        id: 'actions', header: t('COMMON.COL_ACTIONS'), valueAccessor: () => '', exportable: false,
-        mobileRowActions: true, widthPx: 96, cellTemplate: this.actionsPieceCell() as NgTableColumn<SortiePourSeances>['cellTemplate'],
+        id: 'actions', header: t('COMMON.COL_ACTIONS'), valueAccessor: () => '', exportable: false, sortable: false,
+        mobileRowActions: true, widthPx: 96,
+        cellTemplate: this.actionsPieceCell() as NgTableColumn<PieceSortiePourSeancesResume>['cellTemplate'],
       },
     ];
   });
   /** Lignes de la pièce sélectionnée : quantités alignées à droite, écart coloré, motif saisi en ligne. */
-  protected readonly colonnesLignes = computed<NgTableColumn<LigneSortiePourSeances>[]>(() => {
+  protected readonly colonnesLignes = computed<NgTableColumn<LigneSortiePourSeancesDetaillee>[]>(() => {
     this.langue();
     this.articles();
     const t = (cle: string): string => this.translate.instant(cle);
-    type Gabarit = NgTableColumn<LigneSortiePourSeances>['cellTemplate'];
+    type Gabarit = NgTableColumn<LigneSortiePourSeancesDetaillee>['cellTemplate'];
     const quantite = this.quantiteCell() as Gabarit;
     return [
       {
-        id: 'article', header: t('CAHIER.CONSOMMABLES_ARTICLE'), valueAccessor: l => this.libelleArticle(l.articleId),
+        id: 'article', header: t('CAHIER.CONSOMMABLES_ARTICLE'), valueAccessor: l => this.libelleDeLaLigne(l),
         sortable: true, filter: {type: 'text', label: t('CAHIER.CONSOMMABLES_ARTICLE')},
       },
       {
@@ -170,7 +208,7 @@ export class SortiesPourSeancesComponent {
       },
       {
         id: 'motif', header: t('STOCK.SORTIES_SEANCES.REASON_LABEL'), valueAccessor: l => l.motif ?? '',
-        minWidthPx: 240, textOverflow: 'wrap', cellTemplate: this.motifCell() as Gabarit,
+        sortable: false, minWidthPx: 240, textOverflow: 'wrap', cellTemplate: this.motifCell() as Gabarit,
       },
     ];
   });
@@ -228,8 +266,8 @@ export class SortiesPourSeancesComponent {
         this.submitAttempted.set(false);
         this.form.set(this.formulaireInitial());
         this.notifier('STOCK.SORTIES_SEANCES.SAVED_OK');
-        this.pieces.update(liste => [piece, ...liste]);
-        this.selectionId.set(piece.id);
+        this.pieces.recharger();
+        this.ouvrir(piece);
       },
       error: e => {
         this.saving.set(false);
@@ -238,8 +276,37 @@ export class SortiesPourSeancesComponent {
     });
   }
 
-  protected selectionner(piece: SortiePourSeances): void {
-    this.selectionId.set(this.selectionId() === piece.id ? null : piece.id);
+  /** Déroule (ou replie) le détail d'une pièce : la pièce complète est lue par `GET /{id}`, ses lignes page par page. */
+  protected selectionner(piece: PieceSortiePourSeancesResume): void {
+    if (this.selectionId() === piece.id) {
+      this.selectionId.set(null);
+      this.piece.set(null);
+      return;
+    }
+    const centerId = this.auth.centerId();
+    if (!centerId) {
+      return;
+    }
+    this.selectionId.set(piece.id);
+    this.lignes.reinitialiser();
+    this.pagesApi.pieceDeSortie(centerId, piece.id).subscribe({
+      next: complete => {
+        if (this.selectionId() === complete.id) {
+          this.piece.set(complete);
+        }
+      },
+      error: e => this.notifierErreur(e, 'STOCK.SORTIES_SEANCES.LOAD_ERROR'),
+    });
+  }
+
+  /** Requête de la table des pièces (mode remote) : page, taille, tri et filtres partent au serveur. */
+  protected surRequeteDesPieces(requete: NgTableRemoteQuery): void {
+    this.pieces.surRequete(requete);
+  }
+
+  /** Requête de la table des lignes de la pièce sélectionnée (mode remote). */
+  protected surRequeteDesLignes(requete: NgTableRemoteQuery): void {
+    this.lignes.surRequete(requete);
   }
 
   protected preparer(piece: SortiePourSeances): void {
@@ -252,7 +319,6 @@ export class SortiesPourSeancesComponent {
       next: maj => {
         this.working.set(false);
         this.remplacer(maj);
-        this.selectionId.set(maj.id);
         this.notifier('STOCK.SORTIES_SEANCES.PREPARED_OK');
       },
       error: e => {
@@ -293,6 +359,16 @@ export class SortiesPourSeancesComponent {
     });
   }
 
+  /** Libellé d'une ligne paginée : code et libellé renvoyés par le serveur, sinon le référentiel chargé. */
+  protected libelleDeLaLigne(ligne: LigneSortiePourSeancesDetaillee): string {
+    const code = (ligne.articleCode ?? '').trim();
+    const libelle = (ligne.articleLibelle ?? '').trim();
+    if (!code && !libelle) {
+      return this.libelleArticle(ligne.articleId);
+    }
+    return code && libelle ? `${code} - ${libelle}` : code || libelle;
+  }
+
   protected libelleArticle(articleId: string): string {
     const a = this.articles().find(x => x.id === articleId);
     if (!a) {
@@ -303,7 +379,7 @@ export class SortiesPourSeancesComponent {
     return code ? `${code} - ${libelle}` : libelle;
   }
 
-  protected perimetre(piece: SortiePourSeances): string {
+  protected perimetre(piece: Pick<SortiePourSeances, 'salle' | 'demiJournee'>): string {
     const parties: string[] = [];
     if (piece.salle) {
       parties.push(piece.salle);
@@ -332,12 +408,24 @@ export class SortiesPourSeancesComponent {
     if (!centerId) {
       return;
     }
-    this.api.listSortiesPourSeances(centerId).subscribe({next: liste => this.pieces.set(liste)});
+    this.pieces.recharger();
     this.refApi.getArticles(centerId).subscribe({next: liste => this.articles.set(liste)});
   }
 
+  /** Pièce qui vient d'être enregistrée : déroulée directement (déjà complète). */
+  private ouvrir(piece: SortiePourSeances): void {
+    this.selectionId.set(piece.id);
+    this.piece.set(piece);
+    this.lignes.reinitialiser();
+  }
+
+  /** Pièce modifiée par une écriture : détail remplacé, pages courantes des pièces et des lignes relues. */
   private remplacer(piece: SortiePourSeances): void {
-    this.pieces.update(liste => liste.map(p => (p.id === piece.id ? piece : p)));
+    if (this.selectionId() === piece.id) {
+      this.piece.set(piece);
+      this.lignes.recharger();
+    }
+    this.pieces.recharger();
   }
 
   private notifier(cle: string): void {

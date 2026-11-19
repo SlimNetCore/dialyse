@@ -26,20 +26,25 @@
       </div>
     </div>
 
-    @if (ex.etapes.length === 0) {
+    @if (ex.total === 0) {
       <p class="app-muted-note">{{ 'STOCK.PMP_EXPLAIN.EMPTY_MOVEMENTS' | translate }}</p>
     } @else {
       <div class="pmp-table-wrap" data-testid="pmp-steps">
         <ng-table
           [ariaLabel]="'STOCK.PMP_EXPLAIN.TITLE' | translate:{article: data.libelle}"
           [columns]="columns()"
-          [rows]="ex.etapes"
+          [rows]="liste.items()"
+          [dataMode]="'remote'"
           [paginator]="true"
-          [pageSize]="pageSize"
+          [totalCount]="liste.total()"
+          [pageIndex]="liste.pageIndex()"
+          [pageSize]="liste.pageSize()"
           [pageSizeOptions]="pageSizes"
+          [loading]="loading()"
           [labels]="ngTableLabels()"
           [columnsMenuEnabled]="false"
           [showResetFilters]="false"
+          (remoteQueryChange)="onRemoteQueryChange($event)"
           density="compact"
         />
       </div>

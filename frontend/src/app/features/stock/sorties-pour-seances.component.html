@@ -92,14 +92,19 @@
       <div class="table-wrap" data-testid="sorties-seances-pieces">
         <ng-table
           [columns]="colonnesPieces()"
-          [rows]="pieces()"
+          [rows]="pieces.items()"
+          [dataMode]="'remote'"
           [paginator]="true"
-          [pageSize]="defaultPageSize"
+          [totalCount]="pieces.total()"
+          [pageIndex]="pieces.pageIndex()"
+          [pageSize]="pieces.pageSize()"
           [pageSizeOptions]="pageSizes"
+          [loading]="pieces.loading()"
           [rowKeyAccessor]="clePiece"
           [rowClassFn]="classeDePiece()"
           [labels]="labels()"
           [emptyLabel]="libelleVide()"
+          (remoteQueryChange)="surRequeteDesPieces($event)"
         />
       </div>
     </mat-card-content>
@@ -153,12 +158,17 @@
           @for (p of [piece]; track p.id) {
             <ng-table
               [columns]="colonnesLignes()"
-              [rows]="p.lignes"
+              [rows]="lignes.items()"
+              [dataMode]="'remote'"
               [paginator]="true"
-              [pageSize]="defaultPageSize"
+              [totalCount]="lignes.total()"
+              [pageIndex]="lignes.pageIndex()"
+              [pageSize]="lignes.pageSize()"
               [pageSizeOptions]="pageSizes"
+              [loading]="lignes.loading()"
               [rowKeyAccessor]="cleLigne"
               [labels]="labels()"
+              (remoteQueryChange)="surRequeteDesLignes($event)"
             />
           }
         </div>
