@@ -10,7 +10,7 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
-import {formatCurrency, getCurrencySymbol} from '@angular/common';
+import {formatCurrency, getCurrencySymbol, LowerCasePipe} from '@angular/common';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
@@ -37,6 +37,22 @@ export const TONS_ETAT_FACTURE: Record<FactureEtat, NgTableTone> = {
   REGLEE: 'success',
 };
 const ETATS: FactureEtat[] = ['NON_REGLEE', 'PARTIELLEMENT_REGLEE', 'REGLEE'];
+
+/** Teinte de la pastille de statut d'une séance facturée (statut inconnu : neutre). */
+export const TONS_STATUT_SEANCE: Readonly<Record<string, NgTableTone>> = {
+  FACTUREE: 'success',
+  SIGNEE: 'info',
+  VALIDEE: 'info',
+};
+
+/**
+ * Teinte de la pastille « Reste » : soldé (≤ 0) en succès, rien de réglé en danger, réglé en partie en alerte —
+ * la couleur double toujours un libellé texte.
+ */
+export function tonDuReste(reste: number | null | undefined, regle: number | null | undefined): NgTableTone {
+  if (reste == null || reste <= 0) return 'success';
+  return (regle ?? 0) > 0 ? 'warning' : 'danger';
+}
 
 /**
  * Montant en dinars (symbole DZD) à la locale de l'application, deux décimales, comme les écrans de la direction ;
@@ -67,7 +83,7 @@ export function statutDeSeance(statut: string): string {
 @Component({
   selector: 'app-factures-list',
   standalone: true,
-  imports: [MatCardModule, MatButtonModule, MatIconModule, TranslateModule, NgTableComponent],
+  imports: [MatCardModule, MatButtonModule, MatIconModule, TranslateModule, NgTableComponent, LowerCasePipe],
   providers: [FacturesListStore],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './factures-list.component.html',
@@ -85,6 +101,9 @@ export class FacturesListComponent {
   protected readonly montant = (valeur: number | null | undefined): string => montant(valeur, this.locale);
   protected readonly dateCourte = dateCourte;
   protected readonly statutDeSeance = statutDeSeance;
+  protected readonly tonDuReste = tonDuReste;
+  protected readonly tonDeLEtat = (etat: FactureEtat): NgTableTone => TONS_ETAT_FACTURE[etat] ?? 'neutral';
+  protected readonly tonDuStatut = (statut: string): NgTableTone => TONS_STATUT_SEANCE[statut] ?? 'neutral';
   protected readonly cleDeFacture = (row: FactureListee): unknown => row.factureId;
 
   /** Bornes saisies dans la barre de période (appliquées quand elles forment une période valide). */

@@ -1197,7 +1197,8 @@
       "EMPTY": "No invoice in this period.",
       "REESSAYER": "Retry",
       "TOTAUX": {
-        "NOMBRE": "Invoices"
+        "NOMBRE": "Invoices",
+        "LIBELLE": "Totals of the period's invoices"
       },
       "COL": {
         "NUMERO": "Invoice no.",
@@ -1229,7 +1230,8 @@
         "NON_ATTRIBUABLE": "not attributable",
         "NON_ATTRIBUABLE_AIDE": "This session's package cannot be inferred from the invoice lines; the line amounts are authoritative.",
         "AUCUNE_SEANCE": "No session attached to this invoice.",
-        "CHARGEMENT": "Loading details…"
+        "CHARGEMENT": "Loading details…",
+        "RESUME": "Invoice amounts"
       },
       "ERREURS": {
         "GENERALE": "Unable to load invoices.",
@@ -3395,7 +3397,12 @@
     "ADMIN_PARAMETRAGE_FACTURATION": "Billing settings",
     "ADMIN_TVA": "VAT types",
     "ADMIN_REFERENTIELS": "Reference data",
-    "ADMIN_REPRISE": "Data import"
+    "ADMIN_REPRISE": "Data import",
+    "ADMIN_CLOTURES": "Monthly closures",
+    "ADMIN_CLOTURES_DESCRIPTION": "Monthly closing and reopening of billing and sessions (absence months). Recommended order: close absences, then the month's billing.",
+    "ADMIN_CLOTURES_FACTURATION": "Billing",
+    "ADMIN_CLOTURES_SEANCES": "Sessions (absences)",
+    "ADMIN_CLOTURES_LIEN": "Monthly closure: Settings › Monthly closures"
   },
   "COMPTABILITE": {
     "EYEBROW": "Accounting module",

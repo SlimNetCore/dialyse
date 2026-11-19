@@ -37,28 +37,80 @@
   font-size: 0.85rem;
 }
 
-.totaux {
+/* Teintes partagées par les pastilles, les puces et le liseré du détail (mêmes couleurs que les badges ng-table). */
+.pastille,
+.puce,
+[data-tone] {
+  --ton: var(--app-muted);
+}
+
+[data-tone='info'] {
+  --ton: var(--ngt-primary, var(--app-primary, #2f6fa8));
+}
+
+[data-tone='success'] {
+  --ton: var(--ngt-success, #1f8a4c);
+}
+
+[data-tone='warning'] {
+  --ton: var(--ngt-warning, #b26a00);
+}
+
+[data-tone='danger'] {
+  --ton: var(--ngt-danger, #c0392b);
+}
+
+/* Pastilles : libellé + valeur, la teinte ne fait que doubler le texte. */
+.pastilles {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 20px;
+  gap: 8px;
   margin: 0;
-  font-size: 0.85rem;
+  padding: 0;
 }
 
-.totaux > div {
-  display: flex;
-  gap: 6px;
+.pastille {
+  display: inline-flex;
   align-items: baseline;
+  gap: 8px;
+  padding: 5px 14px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--ton) 35%, var(--app-border));
+  background: color-mix(in srgb, var(--ton) 10%, var(--app-surface, transparent));
+  font-size: 0.85rem;
+  line-height: 1.4;
+  white-space: nowrap;
 }
 
-.totaux dt {
-  color: var(--app-muted);
-}
-
-.totaux dd {
+.pastille dt {
   margin: 0;
+  color: color-mix(in srgb, var(--ton) 55%, var(--app-muted));
+  font-size: 0.72rem;
   font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.pastille dd {
+  margin: 0;
+  color: color-mix(in srgb, var(--ton) 45%, var(--app-text));
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
+}
+
+.pastille--fort {
+  --ton: var(--app-primary, #2f6fa8);
+  border-color: color-mix(in srgb, var(--ton) 55%, transparent);
+}
+
+.pastille--fort dd {
+  font-size: 0.95rem;
+}
+
+.pastille--etat {
+  align-items: center;
+  font-weight: 700;
+  color: color-mix(in srgb, var(--ton) 70%, var(--app-text));
 }
 
 .erreur {
@@ -73,41 +125,218 @@
   overflow-x: auto;
 }
 
+/* Détail : occupe toute la cellule (colspan de toutes les colonnes), liseré teinté par l'état de règlement. */
 .detail {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  display: grid;
+  gap: 14px;
+  padding: 14px 16px 16px;
+  border-inline-start: 4px solid color-mix(in srgb, var(--ton, var(--app-primary)) 70%, transparent);
+  background: var(--app-surface-soft, var(--app-bg-alt, transparent));
+}
+
+.detail__entete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+}
+
+.detail__corps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+.detail__bloc {
   display: grid;
   gap: 8px;
-  padding: 8px 12px 12px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--app-border);
+  border-radius: 14px;
+  background: var(--app-surface, transparent);
 }
 
 .detail h4 {
-  margin: 4px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
   font-size: 0.9rem;
+}
+
+.compteur {
+  min-width: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: var(--app-primary-soft, color-mix(in srgb, var(--app-primary) 14%, transparent));
+  color: var(--app-primary);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.detail__defilement {
+  min-width: 0;
+  max-height: 360px;
+  overflow: auto;
 }
 
 .detail__table {
   width: 100%;
-  max-width: 900px;
   border-collapse: collapse;
   font-size: 0.85rem;
 }
 
 .detail__table th,
 .detail__table td {
-  padding: 4px 8px;
+  padding: 5px 8px;
   border-bottom: 1px solid var(--app-border);
   text-align: start;
+  vertical-align: middle;
 }
 
-.detail__table th {
+.detail__table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--app-surface-solid, var(--app-surface));
   color: var(--app-muted);
+  font-size: 0.75rem;
   font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
+.detail__table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.num,
 .detail__table .num {
   text-align: end;
   font-variant-numeric: tabular-nums;
 }
 
+/* Puces : version compacte des pastilles, dans les cellules. */
+.puce {
+  display: inline-block;
+  max-width: 100%;
+  padding: 1px 10px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--ton) 40%, transparent);
+  background: color-mix(in srgb, var(--ton) 12%, transparent);
+  color: color-mix(in srgb, var(--ton) 65%, var(--app-text));
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.puce--date {
+  font-variant-numeric: tabular-nums;
+  color: var(--app-text);
+}
+
+.puce.muet {
+  border-style: dashed;
+  background: transparent;
+  color: var(--app-muted);
+}
+
+.forfaits {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.forfait {
+  display: grid;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+  background: var(--app-frost, transparent);
+}
+
+.forfait__titre {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.forfait__libelle {
+  font-weight: 700;
+}
+
+.forfait__montants {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.forfait__montants > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.forfait__montants dt {
+  color: var(--app-muted);
+}
+
+.forfait__montants dd {
+  margin: 0;
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.forfait__total {
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px dashed var(--app-border);
+  font-weight: 700;
+}
+
+.forfait__total dt {
+  color: var(--app-text);
+}
+
 .muet {
   color: var(--app-muted);
+}
+
+.note {
+  margin: 0;
+  font-size: 0.8rem;
+}
+
+@media (max-width: 600px) {
+  .detail {
+    padding: 10px;
+  }
+
+  .pastilles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+
+  .pastille {
+    justify-content: space-between;
+  }
+
+  .detail__bloc {
+    padding: 8px;
+  }
 }

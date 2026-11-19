@@ -1197,7 +1197,8 @@
       "EMPTY": "Ulac tafaturt deg tallit-a.",
       "REESSAYER": "Ɛreḍ tikkelt nniḍen",
       "TOTAUX": {
-        "NOMBRE": "Tifaturin"
+        "NOMBRE": "Tifaturin",
+        "LIBELLE": "Amatu n tfaturin n tallit"
       },
       "COL": {
         "NUMERO": "Uṭṭun n tfaturt",
@@ -1229,7 +1230,8 @@
         "NON_ATTRIBUABLE": "ur yettwamuddu ara",
         "NON_ATTRIBUABLE_AIDE": "Afurfi n temsirt-a ur yezmir ara ad d-yettwassefhem seg yizirigen n tfaturt; azalen n yizirigen d nutni i d-yettwaḥesben.",
         "AUCUNE_SEANCE": "Ulac tamsirt yeqqnen ɣer tfaturt-a.",
-        "CHARGEMENT": "Asali n telqayt…"
+        "CHARGEMENT": "Asali n telqayt…",
+        "RESUME": "Iqedrrayen n tfaturt"
       },
       "ERREURS": {
         "GENERALE": "Ur d-ttalin ara tfaturin.",
@@ -3035,7 +3037,12 @@
     "ADMIN_PARAMETRAGE_FACTURATION": "Iɣewwaren n usefru",
     "ADMIN_TVA": "Anawen n TVA",
     "ADMIN_REFERENTIELS": "Isefka n tewsit",
-    "ADMIN_REPRISE": "Aɛawed n yisefka"
+    "ADMIN_REPRISE": "Aɛawed n yisefka",
+    "ADMIN_CLOTURES": "Igdal n wayyur",
+    "ADMIN_CLOTURES_DESCRIPTION": "Agdal d ulday n wayyur i ufakturi d tsimlitin (ayyuren n tmettanin). Amizzwer i yelhan: gdel timettanin, syin afakturi n wayyur.",
+    "ADMIN_CLOTURES_FACTURATION": "Afakturi",
+    "ADMIN_CLOTURES_SEANCES": "Tisimlitin (tmettanin)",
+    "ADMIN_CLOTURES_LIEN": "Agdal n wayyur: Aswel › Igdal n wayyur"
   },
   "COMPTABILITE": {
     "EYEBROW": "Azegrir n tselɣut",

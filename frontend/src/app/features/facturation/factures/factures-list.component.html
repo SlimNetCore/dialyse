@@ -28,13 +28,27 @@
     </div>
 
     @if (store.totaux(); as totaux) {
-      <dl class="totaux" data-testid="factures-totaux" aria-live="polite">
-        <div><dt>{{ 'FACTURATION.FACTURES.TOTAUX.NOMBRE' | translate }}</dt><dd>{{ totaux.nombreDeFactures }}</dd></div>
-        <div><dt>{{ 'FACTURATION.FACTURES.COL.HT' | translate }}</dt><dd>{{ montant(totaux.montantHt) }}</dd></div>
-        <div><dt>{{ 'FACTURATION.FACTURES.COL.TVA' | translate }}</dt><dd>{{ montant(totaux.montantTva) }}</dd></div>
-        <div><dt>{{ 'FACTURATION.FACTURES.COL.TTC' | translate }}</dt><dd>{{ montant(totaux.montantTtc) }}</dd></div>
-        <div><dt>{{ 'FACTURATION.FACTURES.COL.REGLE' | translate }}</dt><dd>{{ montant(totaux.montantRegle) }}</dd></div>
-        <div><dt>{{ 'FACTURATION.FACTURES.COL.RESTE' | translate }}</dt><dd>{{ montant(totaux.reste) }}</dd></div>
+      <dl class="pastilles" data-testid="factures-totaux" aria-live="polite"
+          [attr.aria-label]="'FACTURATION.FACTURES.TOTAUX.LIBELLE' | translate">
+        <div class="pastille" data-tone="info">
+          <dt>{{ 'FACTURATION.FACTURES.TOTAUX.NOMBRE' | translate }}</dt><dd>{{ totaux.nombreDeFactures }}</dd>
+        </div>
+        <div class="pastille">
+          <dt>{{ 'FACTURATION.FACTURES.COL.HT' | translate }}</dt><dd>{{ montant(totaux.montantHt) }}</dd>
+        </div>
+        <div class="pastille">
+          <dt>{{ 'FACTURATION.FACTURES.COL.TVA' | translate }}</dt><dd>{{ montant(totaux.montantTva) }}</dd>
+        </div>
+        <div class="pastille pastille--fort">
+          <dt>{{ 'FACTURATION.FACTURES.COL.TTC' | translate }}</dt><dd>{{ montant(totaux.montantTtc) }}</dd>
+        </div>
+        <div class="pastille" data-tone="success">
+          <dt>{{ 'FACTURATION.FACTURES.COL.REGLE' | translate }}</dt><dd>{{ montant(totaux.montantRegle) }}</dd>
+        </div>
+        <div class="pastille" data-testid="factures-totaux-reste"
+             [attr.data-tone]="tonDuReste(totaux.reste, totaux.montantRegle)">
+          <dt>{{ 'FACTURATION.FACTURES.COL.RESTE' | translate }}</dt><dd>{{ montant(totaux.reste) }}</dd>
+        </div>
       </dl>
     }
 
@@ -79,80 +93,113 @@
 </mat-card>
 
 <ng-template #detailFacture let-row>
-  <div class="detail" data-testid="facture-detail">
+  <div class="detail" data-testid="facture-detail" [attr.data-tone]="tonDeLEtat(row.etat)">
     @if (detailDe(row.factureId); as detail) {
-      <h4>{{ 'FACTURATION.FACTURES.DETAIL.SEANCES' | translate }} ({{ detail.seances.length }})</h4>
-      @if (detail.seances.length) {
-        <table class="detail__table" data-testid="facture-detail-seances">
-          <thead>
-          <tr>
-            <th scope="col">{{ 'FACTURATION.FACTURES.DETAIL.DATE' | translate }}</th>
-            <th scope="col">{{ 'FACTURATION.FACTURES.DETAIL.STATUT' | translate }}</th>
-            <th scope="col">{{ 'FACTURATION.FACTURES.DETAIL.FORFAIT' | translate }}</th>
-            <th scope="col" class="num">{{ 'FACTURATION.FACTURES.DETAIL.PU_HT' | translate }}</th>
-          </tr>
-          </thead>
-          <tbody>
-            @for (s of detail.seances; track s.seanceId) {
-              <tr>
-                <td>{{ dateCourte(s.dateSeance) }}</td>
-                <td>{{ statutDeSeance(s.statut) | translate }}</td>
-                <td>
-                  @if (s.forfaitLibelle) {
-                    {{ s.forfaitLibelle }}
-                  } @else {
-                    <span class="muet" [attr.aria-describedby]="'non-attribuable-' + row.factureId">
-                      — {{ 'FACTURATION.FACTURES.DETAIL.NON_ATTRIBUABLE' | translate }}
-                    </span>
+      <div class="detail__entete">
+        <span class="pastille pastille--etat" data-testid="facture-detail-etat" [attr.data-tone]="tonDeLEtat(row.etat)">
+          {{ 'FACTURATION.FACTURES.ETAT.' + row.etat | translate }}
+        </span>
+        <dl class="pastilles" data-testid="facture-detail-totaux"
+            [attr.aria-label]="'FACTURATION.FACTURES.DETAIL.RESUME' | translate">
+          <div class="pastille">
+            <dt>{{ 'FACTURATION.FACTURES.COL.HT' | translate }}</dt><dd>{{ montant(detail.totaux.montantHt) }}</dd>
+          </div>
+          <div class="pastille">
+            <dt>{{ 'FACTURATION.FACTURES.COL.TVA' | translate }} ({{ detail.tauxTva }} %)</dt>
+            <dd>{{ montant(detail.totaux.montantTva) }}</dd>
+          </div>
+          <div class="pastille pastille--fort">
+            <dt>{{ 'FACTURATION.FACTURES.COL.TTC' | translate }}</dt><dd>{{ montant(detail.totaux.montantTtc) }}</dd>
+          </div>
+          <div class="pastille" data-tone="success">
+            <dt>{{ 'FACTURATION.FACTURES.COL.REGLE' | translate }}</dt><dd>{{ montant(detail.totaux.montantRegle) }}</dd>
+          </div>
+          <div class="pastille" data-testid="facture-detail-reste"
+               [attr.data-tone]="tonDuReste(detail.totaux.reste, detail.totaux.montantRegle)">
+            <dt>{{ 'FACTURATION.FACTURES.COL.RESTE' | translate }}</dt><dd>{{ montant(detail.totaux.reste) }}</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="detail__corps">
+        <section class="detail__bloc" [attr.aria-labelledby]="'seances-' + row.factureId">
+          <h4 [id]="'seances-' + row.factureId">
+            {{ 'FACTURATION.FACTURES.DETAIL.SEANCES' | translate }}
+            <span class="compteur">{{ detail.seances.length }}</span>
+          </h4>
+          @if (detail.seances.length) {
+            <div class="detail__defilement">
+              <table class="detail__table" data-testid="facture-detail-seances">
+                <thead>
+                <tr>
+                  <th scope="col">{{ 'FACTURATION.FACTURES.DETAIL.DATE' | translate }}</th>
+                  <th scope="col">{{ 'FACTURATION.FACTURES.DETAIL.STATUT' | translate }}</th>
+                  <th scope="col">{{ 'FACTURATION.FACTURES.DETAIL.FORFAIT' | translate }}</th>
+                  <th scope="col" class="num">{{ 'FACTURATION.FACTURES.DETAIL.PU_HT' | translate }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                  @for (s of detail.seances; track s.seanceId) {
+                    <tr>
+                      <td><span class="puce puce--date">{{ dateCourte(s.dateSeance) }}</span></td>
+                      <td>
+                        <span class="puce" data-testid="facture-detail-statut" [attr.data-tone]="tonDuStatut(s.statut)">
+                          {{ statutDeSeance(s.statut) | translate }}
+                        </span>
+                      </td>
+                      <td>
+                        @if (s.forfaitLibelle) {
+                          <span class="puce" data-tone="info">{{ s.forfaitLibelle }}</span>
+                        } @else {
+                          <span class="puce muet" [attr.aria-describedby]="'non-attribuable-' + row.factureId">
+                            — {{ 'FACTURATION.FACTURES.DETAIL.NON_ATTRIBUABLE' | translate }}
+                          </span>
+                        }
+                      </td>
+                      <td class="num">{{ montant(s.prixUnitaireHt) }}</td>
+                    </tr>
                   }
-                </td>
-                <td class="num">{{ montant(s.prixUnitaireHt) }}</td>
-              </tr>
+                </tbody>
+              </table>
+            </div>
+            @if (aDesSeancesNonAttribuables(detail)) {
+              <p class="muet note" [id]="'non-attribuable-' + row.factureId"
+                 data-testid="facture-detail-non-attribuable">
+                {{ 'FACTURATION.FACTURES.DETAIL.NON_ATTRIBUABLE_AIDE' | translate }}
+              </p>
             }
-          </tbody>
-        </table>
-        @if (aDesSeancesNonAttribuables(detail)) {
-          <p class="muet" [id]="'non-attribuable-' + row.factureId" data-testid="facture-detail-non-attribuable">
-            {{ 'FACTURATION.FACTURES.DETAIL.NON_ATTRIBUABLE_AIDE' | translate }}
-          </p>
-        }
-      } @else {
-        <p class="muet">{{ 'FACTURATION.FACTURES.DETAIL.AUCUNE_SEANCE' | translate }}</p>
-      }
-
-      <h4>{{ 'FACTURATION.FACTURES.DETAIL.LIGNES' | translate }}</h4>
-      <table class="detail__table" data-testid="facture-detail-lignes">
-        <thead>
-        <tr>
-          <th scope="col">{{ 'FACTURATION.FACTURES.DETAIL.FORFAIT' | translate }}</th>
-          <th scope="col" class="num">{{ 'FACTURATION.FACTURES.DETAIL.QUANTITE' | translate }}</th>
-          <th scope="col" class="num">{{ 'FACTURATION.FACTURES.DETAIL.PU_HT' | translate }}</th>
-          <th scope="col" class="num">{{ 'FACTURATION.FACTURES.COL.HT' | translate }}</th>
-          <th scope="col" class="num">{{ 'FACTURATION.FACTURES.COL.TVA' | translate }} ({{ detail.tauxTva }} %)</th>
-          <th scope="col" class="num">{{ 'FACTURATION.FACTURES.COL.TTC' | translate }}</th>
-        </tr>
-        </thead>
-        <tbody>
-          @for (l of detail.lignes; track $index) {
-            <tr>
-              <td>{{ l.forfaitLibelle }}</td>
-              <td class="num">{{ l.nombreDeSeances }}</td>
-              <td class="num">{{ montant(l.prixUnitaireHt) }}</td>
-              <td class="num">{{ montant(l.montantHt) }}</td>
-              <td class="num">{{ montant(l.montantTva) }}</td>
-              <td class="num">{{ montant(l.montantTtc) }}</td>
-            </tr>
+          } @else {
+            <p class="muet">{{ 'FACTURATION.FACTURES.DETAIL.AUCUNE_SEANCE' | translate }}</p>
           }
-        </tbody>
-      </table>
+        </section>
 
-      <dl class="totaux totaux--detail" data-testid="facture-detail-totaux">
-        <div><dt>{{ 'FACTURATION.FACTURES.COL.HT' | translate }}</dt><dd>{{ montant(detail.totaux.montantHt) }}</dd></div>
-        <div><dt>{{ 'FACTURATION.FACTURES.COL.TVA' | translate }}</dt><dd>{{ montant(detail.totaux.montantTva) }}</dd></div>
-        <div><dt>{{ 'FACTURATION.FACTURES.COL.TTC' | translate }}</dt><dd>{{ montant(detail.totaux.montantTtc) }}</dd></div>
-        <div><dt>{{ 'FACTURATION.FACTURES.COL.REGLE' | translate }}</dt><dd>{{ montant(detail.totaux.montantRegle) }}</dd></div>
-        <div><dt>{{ 'FACTURATION.FACTURES.COL.RESTE' | translate }}</dt><dd>{{ montant(detail.totaux.reste) }}</dd></div>
-      </dl>
+        <section class="detail__bloc" [attr.aria-labelledby]="'lignes-' + row.factureId">
+          <h4 [id]="'lignes-' + row.factureId">{{ 'FACTURATION.FACTURES.DETAIL.LIGNES' | translate }}</h4>
+          <ul class="forfaits" data-testid="facture-detail-lignes">
+            @for (l of detail.lignes; track $index) {
+              <li class="forfait">
+                <div class="forfait__titre">
+                  <span class="forfait__libelle">{{ l.forfaitLibelle }}</span>
+                  <span class="puce" data-tone="info">
+                    {{ l.nombreDeSeances }} {{ 'FACTURATION.FACTURES.DETAIL.QUANTITE' | translate | lowercase }}
+                  </span>
+                </div>
+                <dl class="forfait__montants">
+                  <div><dt>{{ 'FACTURATION.FACTURES.DETAIL.PU_HT' | translate }}</dt><dd>{{ montant(l.prixUnitaireHt) }}</dd></div>
+                  <div><dt>{{ 'FACTURATION.FACTURES.COL.HT' | translate }}</dt><dd>{{ montant(l.montantHt) }}</dd></div>
+                  <div>
+                    <dt>{{ 'FACTURATION.FACTURES.COL.TVA' | translate }} ({{ detail.tauxTva }} %)</dt>
+                    <dd>{{ montant(l.montantTva) }}</dd>
+                  </div>
+                  <div class="forfait__total">
+                    <dt>{{ 'FACTURATION.FACTURES.COL.TTC' | translate }}</dt><dd>{{ montant(l.montantTtc) }}</dd>
+                  </div>
+                </dl>
+              </li>
+            }
+          </ul>
+        </section>
+      </div>
     } @else if (erreurDuDetail(row.factureId); as message) {
       <div class="erreur" role="alert" data-testid="facture-detail-erreur">
         <span>{{ message | translate }}</span>

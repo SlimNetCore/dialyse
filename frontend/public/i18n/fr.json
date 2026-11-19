@@ -1197,7 +1197,8 @@
       "EMPTY": "Aucune facture sur cette période.",
       "REESSAYER": "Réessayer",
       "TOTAUX": {
-        "NOMBRE": "Factures"
+        "NOMBRE": "Factures",
+        "LIBELLE": "Totaux des factures de la période"
       },
       "COL": {
         "NUMERO": "N° facture",
@@ -1229,7 +1230,8 @@
         "NON_ATTRIBUABLE": "non attribuable",
         "NON_ATTRIBUABLE_AIDE": "Le forfait de cette séance ne peut pas être déduit des lignes de la facture ; les montants des lignes font foi.",
         "AUCUNE_SEANCE": "Aucune séance rattachée à cette facture.",
-        "CHARGEMENT": "Chargement du détail…"
+        "CHARGEMENT": "Chargement du détail…",
+        "RESUME": "Montants de la facture"
       },
       "ERREURS": {
         "GENERALE": "Impossible de charger les factures.",
@@ -3395,7 +3397,12 @@
     "ADMIN_PARAMETRAGE_FACTURATION": "Paramétrage facturation",
     "ADMIN_TVA": "Types de TVA",
     "ADMIN_REFERENTIELS": "Référentiels",
-    "ADMIN_REPRISE": "Reprise de données"
+    "ADMIN_REPRISE": "Reprise de données",
+    "ADMIN_CLOTURES": "Clôtures mensuelles",
+    "ADMIN_CLOTURES_DESCRIPTION": "Clôture et réouverture mensuelles de la facturation et des séances (mois d'absences). Ordre recommandé : clôturer les absences, puis la facturation du mois.",
+    "ADMIN_CLOTURES_FACTURATION": "Facturation",
+    "ADMIN_CLOTURES_SEANCES": "Séances (absences)",
+    "ADMIN_CLOTURES_LIEN": "Clôture mensuelle : Paramétrage › Clôtures mensuelles"
   },
   "COMPTABILITE": {
     "EYEBROW": "Module comptabilité",

@@ -9,7 +9,7 @@ import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {BackendApiService, DetailDeFacture, FactureListee, PageDeFactures} from '../../../core/api/backend-api.service';
 import {OrganisationApiService} from '../../../core/api/organisation-api.service';
 import {AppShellStore} from '../../../core/state/app-shell.store';
-import {dateCourte, FacturesListComponent, montant, statutDeSeance, TONS_ETAT_FACTURE} from './factures-list.component';
+import {dateCourte, FacturesListComponent, montant, statutDeSeance, tonDuReste, TONS_ETAT_FACTURE} from './factures-list.component';
 
 const facture = (id: string, etat: FactureListee['etat']): FactureListee => ({
   factureId: id, numeroFacture: `FAC-${id}`, dateFacturation: '2026-11-05', periodeDebut: '2026-10-01',
@@ -103,6 +103,41 @@ describe('FacturesListComponent', () => {
       expect(detailDom!.querySelector('[data-testid="facture-detail-lignes"]')?.textContent).toContain(montant(104000));
       expect(detailDom!.querySelector('[data-testid="facture-detail-totaux"]')?.textContent).toContain(montant(63360));
     });
+
+  it('le détail occupe toute la largeur de la table et résume la facture en pastilles teintées et libellées',
+    async () => {
+      await cliquer(PAGE.items[0]);
+      const detailDom = host().querySelector('[data-testid="facture-detail"]') as HTMLElement;
+      const cellule = detailDom.closest('td')!;
+      expect(cellule.classList).toContain('detail-row');
+      expect(Number(cellule.getAttribute('colspan'))).toBeGreaterThanOrEqual(table().columns().length);
+      expect(getComputedStyle(detailDom).maxWidth).toBe('none');
+      detailDom.querySelectorAll('table').forEach((t) => expect(getComputedStyle(t).maxWidth).not.toMatch(/\d/));
+
+      const etat = detailDom.querySelector('[data-testid="facture-detail-etat"]')!;
+      expect(etat.getAttribute('data-tone')).toBe('warning');
+      expect(etat.textContent).toContain('FACTURATION.FACTURES.ETAT.PARTIELLEMENT_REGLEE');
+      const pastilles = detailDom.querySelectorAll('[data-testid="facture-detail-totaux"] .pastille');
+      expect(pastilles).toHaveLength(5);
+      pastilles.forEach((p) => expect(p.querySelector('dt')?.textContent?.trim()).toBeTruthy());
+      expect(pastilles[1].textContent).toContain('(9 %)');
+      const reste = detailDom.querySelector('[data-testid="facture-detail-reste"]')!;
+      expect(reste.getAttribute('data-tone')).toBe('warning');
+      expect(reste.textContent).toContain('FACTURATION.FACTURES.COL.RESTE');
+      expect(detailDom.querySelector('[data-testid="facture-detail-statut"]')?.getAttribute('data-tone'))
+        .toBe('success');
+      expect(detailDom.querySelectorAll('[data-testid="facture-detail-lignes"] li.forfait')).toHaveLength(1);
+    });
+
+  it('les totaux de la période sont des pastilles ; la teinte du reste suit le règlement', () => {
+    const totaux = host().querySelector('[data-testid="factures-totaux"]')!;
+    expect(totaux.querySelectorAll('.pastille')).toHaveLength(6);
+    expect(totaux.querySelector('[data-testid="factures-totaux-reste"]')?.getAttribute('data-tone')).toBe('warning');
+    expect(tonDuReste(0, 100)).toBe('success');
+    expect(tonDuReste(-5, 100)).toBe('success');
+    expect(tonDuReste(100, 0)).toBe('danger');
+    expect(tonDuReste(100, 50)).toBe('warning');
+  });
 
   it('replier puis redéplier sert le détail du cache ; une seule facture dépliée à la fois', async () => {
     await cliquer(PAGE.items[0]);
