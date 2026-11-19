@@ -10,18 +10,27 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
-import {NgTableColumn, NgTableComponent} from '@sbourahla/ng-table';
+import {NgTableColumn, NgTableComponent, NgTableRemoteQuery} from '@sbourahla/ng-table';
 import {map, merge} from 'rxjs';
 import {AuthStore} from '../../core/state/auth.store';
 import {Fournisseur, StockApiService} from '../../core/api/stock-api.service';
+import {CorrespondanceDePage} from '../../core/api/page-serveur';
+import {ListeServeur} from '../../core/api/liste-serveur';
 import {NgTableTranslatedLabels} from '../../shared/ng-table-labels';
 
-/** Pagination locale de la liste des fournisseurs (toute la liste du centre est déjà en mémoire). */
+/** Taille de page par défaut de la liste des fournisseurs (paginée côté serveur, B1). */
 export const FOURNISSEUR_PAGE_SIZE = 20;
 export const FOURNISSEUR_PAGE_SIZES: readonly number[] = [10, 20, 50, 100];
 
+/** Colonnes ⇒ paramètres de `GET /referentiel/fournisseurs/page` (RG-STK-087) ; recherche globale ⇒ `q`. */
+export const CORRESPONDANCE_FOURNISSEURS: CorrespondanceDePage = {
+  tris: {code: 'code', raisonSociale: 'raisonSociale', contact: 'contact'},
+  filtres: {code: 'code', raisonSociale: 'raisonSociale', contact: 'contact'},
+  recherche: 'q',
+};
+
 /**
- * Fournisseurs du centre : saisie d'un fournisseur et liste en `<ng-table>` (mode local, paginée et triable).
+ * Fournisseurs du centre : saisie d'un fournisseur et liste en `<ng-table>` paginée, triée et filtrée côté serveur.
  */
 @Component({
   selector: 'app-fournisseurs',
@@ -48,25 +57,40 @@ export class FournisseursComponent {
     this.lang();
     const t = (key: string): string => this.translate.instant(key);
     return [
-      {id: 'code', header: t('COMMON.CODE_LABEL'), valueAccessor: (f) => f.code ?? '', sortable: true},
-      {id: 'raisonSociale', header: t('STOCK.COMPANY_NAME_LABEL'), valueAccessor: (f) => f.raisonSociale, sortable: true},
-      {id: 'contact', header: t('STOCK.CONTACT_LABEL'), valueAccessor: (f) => f.contact ?? '', sortable: true},
-      {id: 'telephone', header: t('STOCK.PHONE_LABEL'), valueAccessor: (f) => f.telephone ?? ''},
+      {
+        id: 'code', header: t('COMMON.CODE_LABEL'), valueAccessor: (f) => f.code ?? '', sortable: true,
+        filter: {type: 'text', label: t('COMMON.CODE_LABEL')},
+      },
+      {
+        id: 'raisonSociale', header: t('STOCK.COMPANY_NAME_LABEL'), valueAccessor: (f) => f.raisonSociale,
+        sortable: true, filter: {type: 'text', label: t('STOCK.COMPANY_NAME_LABEL')},
+      },
+      {
+        id: 'contact', header: t('STOCK.CONTACT_LABEL'), valueAccessor: (f) => f.contact ?? '', sortable: true,
+        filter: {type: 'text', label: t('STOCK.CONTACT_LABEL')},
+      },
+      {id: 'telephone', header: t('STOCK.PHONE_LABEL'), valueAccessor: (f) => f.telephone ?? '', sortable: false},
     ];
   });
-  protected readonly items = signal<Fournisseur[]>([]);
+  private readonly api = inject(StockApiService);
+  private readonly auth = inject(AuthStore);
+  protected readonly liste = new ListeServeur<Fournisseur>(
+    (parametres) => this.api.listFournisseursPage(this.auth.centerId() ?? '', parametres),
+    CORRESPONDANCE_FOURNISSEURS, FOURNISSEUR_PAGE_SIZE);
   protected readonly saving = signal(false);
   protected readonly formModel = signal(this.createInitialForm());
   protected readonly supplierForm = compatForm(this.formModel, (form) => {
     required(form.raisonSociale);
   });
   protected readonly canSave = computed(() => !!this.formModel().raisonSociale.trim() && !this.saving());
-  private readonly api = inject(StockApiService);
-  private readonly auth = inject(AuthStore);
   private readonly snack = inject(MatSnackBar);
 
   constructor() {
-    this.reload();
+    if (this.auth.centerId()) this.liste.charger();
+  }
+
+  protected onRemoteQueryChange(requete: NgTableRemoteQuery): void {
+    if (this.auth.centerId()) this.liste.onRemoteQueryChange(requete);
   }
 
   protected save(): void {
@@ -107,11 +131,7 @@ export class FournisseursComponent {
   }
 
   private reload(): void {
-    const centerId = this.auth.centerId();
-    if (!centerId) {
-      return;
-    }
-    this.api.listFournisseurs(centerId).subscribe({next: (f) => this.items.set(f)});
+    if (this.auth.centerId()) this.liste.recharger();
   }
 
   private createInitialForm() {

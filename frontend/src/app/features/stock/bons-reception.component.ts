@@ -12,7 +12,7 @@ import {
 import {CommonModule} from '@angular/common';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {map, merge} from 'rxjs';
-import {NgTableColumn, NgTableComponent, NgTableTone} from '@sbourahla/ng-table';
+import {NgTableColumn, NgTableComponent, NgTableRemoteQuery, NgTableTone} from '@sbourahla/ng-table';
 import {NgTableTranslatedLabels} from '../../shared/ng-table-labels';
 import {compatForm} from '@angular/forms/signals/compat';
 import {FormField, FormRoot, required} from '@angular/forms/signals';
@@ -33,21 +33,25 @@ import {TranslateService} from '@ngx-translate/core';
 import {AuthStore} from '../../core/state/auth.store';
 import {WebSocketService} from '../../core/ws/websocket.service';
 import {
-  BonReception, Emplacement, Fournisseur, RELECTURE_DES_VERROUS_MS, StockApiService,
+  BonReception, Emplacement, Fournisseur, RELECTURE_DES_VERROUS_MS, StatutBonReception, StockApiService,
 } from '../../core/api/stock-api.service';
+import {CorrespondanceDePage} from '../../core/api/page-serveur';
+import {ListeServeur} from '../../core/api/liste-serveur';
 import {ReferentialApiService, RefItem} from '../../core/api/referential-api.service';
 import {PmpRecalcDialogComponent} from './pmp-recalc-dialog.component';
 
-type StatutBonReception = BonReception['statut'];
-
-/** Statuts d'un bon de réception, dans l'ordre du cycle de vie. */
-export const STATUTS_BON_RECEPTION: readonly StatutBonReception[] = ['BROUILLON', 'VALIDE', 'RECU', 'ANNULE'];
+/** Statuts d'un bon de réception (`BonDeReception.Statut` du serveur), dans l'ordre du cycle de vie. */
+export const STATUTS_BON_RECEPTION: readonly StatutBonReception[] = ['BROUILLON', 'VALIDE'];
 /** Teinte de la pastille de statut. */
 export const TONS_STATUT_BON_RECEPTION: Record<StatutBonReception, NgTableTone> = {
   BROUILLON: 'warning',
-  VALIDE: 'info',
-  RECU: 'success',
-  ANNULE: 'danger',
+  VALIDE: 'success',
+};
+
+/** Colonnes ⇒ paramètres de `GET /bons-reception/page` (B3, RG-STK-088). */
+export const CORRESPONDANCE_BONS_RECEPTION: CorrespondanceDePage = {
+  tris: {reference: 'reference', date: 'dateReception', statut: 'statut', lignes: 'lignes'},
+  filtres: {reference: 'reference', statut: 'statut'},
 };
 
 @Component({
@@ -66,14 +70,17 @@ export const TONS_STATUT_BON_RECEPTION: Record<StatutBonReception, NgTableTone> 
   styleUrl: './bons-reception.component.css',
 })
 export class BonsReceptionComponent implements OnDestroy {
-  /** Liste entièrement en mémoire (l'API ne pagine pas) : pagination locale de ng-table. */
+  /** Liste paginée, triée et filtrée côté serveur (`GET /bons-reception/page`, B3). */
   protected readonly taillesDePage: readonly number[] = [10, 20, 50, 100];
-  protected readonly tailleDePage = 20;
   protected readonly ngTableLabels = inject(NgTableTranslatedLabels).labels;
   protected readonly cleDeBon = (b: BonReception): unknown => b.id;
   protected readonly actionsTemplate = viewChild<TemplateRef<{ $implicit: BonReception; row: BonReception }>>(
     'actionsBon');
-  protected readonly bons = signal<BonReception[]>([]);
+  private readonly api = inject(StockApiService);
+  private readonly auth = inject(AuthStore);
+  protected readonly liste = new ListeServeur<BonReception>(
+    (parametres) => this.api.listBonsReceptionPage(this.auth.centerId() ?? '', parametres),
+    CORRESPONDANCE_BONS_RECEPTION, 20);
   protected readonly fournisseurs = signal<Fournisseur[]>([]);
   protected readonly emplacements = signal<Emplacement[]>([]);
   protected readonly articles = signal<RefItem[]>([]);
@@ -82,7 +89,7 @@ export class BonsReceptionComponent implements OnDestroy {
   protected readonly saving = signal(false);
   protected readonly submitAttempted = signal(false);
   protected readonly editingId = signal<string | null>(null);
-  protected readonly editingStatus = signal<'BROUILLON' | 'VALIDE' | 'RECU' | 'ANNULE' | null>(null);
+  protected readonly editingStatus = signal<StatutBonReception | null>(null);
   protected readonly formModel = signal<ReceptionFormModel>(this.createInitialForm());
   protected readonly receptionForm = compatForm(this.formModel, (form) => {
     required(form.dateReception);
@@ -104,9 +111,7 @@ export class BonsReceptionComponent implements OnDestroy {
       return !!ligne.numeroLot.trim() && !!ligne.datePeremption;
     });
   });
-  private readonly api = inject(StockApiService);
   private readonly refApi = inject(ReferentialApiService);
-  private readonly auth = inject(AuthStore);
   private readonly ws = inject(WebSocketService);
   private readonly snack = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
@@ -154,6 +159,7 @@ export class BonsReceptionComponent implements OnDestroy {
     // Verrous lus au chargement puis sur l'évènement STOCK_RECALC_LOCKS_CHANGED ; relecture périodique seulement
     // pendant un recalcul (filet si un évènement est perdu), jamais en continu.
     this.reload();
+    if (this.auth.centerId()) this.liste.charger();
     effect(() => {
       const evt = this.ws.lastEvent();
       const centerId = this.auth.centerId();
@@ -197,6 +203,10 @@ export class BonsReceptionComponent implements OnDestroy {
     if (this.lockTimer) {
       clearTimeout(this.lockTimer);
     }
+  }
+
+  protected onRemoteQueryChange(requete: NgTableRemoteQuery): void {
+    if (this.auth.centerId()) this.liste.onRemoteQueryChange(requete);
   }
 
   protected addLigne(): void {
@@ -425,7 +435,7 @@ export class BonsReceptionComponent implements OnDestroy {
     if (!centerId) {
       return;
     }
-    this.api.listBonsReception(centerId).subscribe({next: (b) => this.bons.set(b)});
+    if (this.liste.parametresCourants()) this.liste.recharger();
     this.api.listFournisseurs(centerId).subscribe({next: (f) => this.fournisseurs.set(f)});
     this.api.listEmplacements(centerId).subscribe({next: (e) => this.emplacements.set(e)});
     this.refreshArticles();

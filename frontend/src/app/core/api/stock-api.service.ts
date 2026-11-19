@@ -2,6 +2,7 @@ import {inject, Injectable} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {environment} from '../../../environments/environment';
+import {PageServeur} from './page-serveur';
 
 /** Délai de relecture des verrous de recalcul du PMP, uniquement pendant un recalcul (filet si un évènement est perdu). */
 export const RELECTURE_DES_VERROUS_MS = 10_000;
@@ -102,12 +103,17 @@ export interface LigneBonCommande {
   prixUnitaire: number;
 }
 
+/** `StatutDuBon` du serveur (pas d'annulation, ADR 0045). */
+export type StatutBonCommande = 'BROUILLON' | 'VALIDE' | 'RECU';
+/** `BonDeReception.Statut` du serveur (le statut historique `RECU` est lu `VALIDE`, KB-STK-58). */
+export type StatutBonReception = 'BROUILLON' | 'VALIDE';
+
 export interface BonCommande {
   id: string;
   centerId: string;
   reference: string;
   fournisseurId?: string;
-  statut: 'BROUILLON' | 'VALIDE' | 'RECU' | 'ANNULE';
+  statut: StatutBonCommande;
   lignes: LigneBonCommande[];
   createdBy?: string;
   createdAt?: string;
@@ -131,7 +137,7 @@ export interface BonReception {
   bonCommandeId?: string;
   fournisseurId?: string;
   dateReception?: string;
-  statut: 'BROUILLON' | 'VALIDE' | 'RECU' | 'ANNULE';
+  statut: StatutBonReception;
   lignes: LigneReception[];
   createdAt?: string;
 }
@@ -322,6 +328,15 @@ export interface StockDashboardAnalytics {
   topArticles: StockTopArticlePoint[];
 }
 
+/** `centerId` + paramètres de page (valeurs vides ignorées). */
+export function paramsDePage(centerId: string, parametres: Readonly<Record<string, string>>): HttpParams {
+  let params = new HttpParams().set('centerId', centerId);
+  for (const [nom, valeur] of Object.entries(parametres)) {
+    if (valeur != null && valeur !== '') params = params.set(nom, valeur);
+  }
+  return params;
+}
+
 @Injectable({providedIn: 'root'})
 export class StockApiService {
   private readonly http = inject(HttpClient);
@@ -334,6 +349,34 @@ export class StockApiService {
       params = params.set('q', q);
     }
     return this.http.get<Fournisseur[]>(`${this.base}/referentiel/fournisseurs`, {params});
+  }
+
+  /** B1 : `GET /referentiel/fournisseurs/page` (tri `code|raisonSociale|contact`, filtres texte, `q`). */
+  listFournisseursPage(centerId: string, parametres: Readonly<Record<string, string>>):
+    Observable<PageServeur<Fournisseur>> {
+    return this.http.get<PageServeur<Fournisseur>>(`${this.base}/referentiel/fournisseurs/page`,
+      {params: paramsDePage(centerId, parametres)});
+  }
+
+  /** B2 : `GET /bons-commande/page` (tri `reference|statut|lignes|createdAt`, filtres `reference`, `statut`). */
+  listBonsCommandePage(centerId: string, parametres: Readonly<Record<string, string>>):
+    Observable<PageServeur<BonCommande>> {
+    return this.http.get<PageServeur<BonCommande>>(`${this.base}/bons-commande/page`,
+      {params: paramsDePage(centerId, parametres)});
+  }
+
+  /** B3 : `GET /bons-reception/page` (tri `reference|dateReception|statut|lignes|createdAt`, filtres `reference`, `statut`). */
+  listBonsReceptionPage(centerId: string, parametres: Readonly<Record<string, string>>):
+    Observable<PageServeur<BonReception>> {
+    return this.http.get<PageServeur<BonReception>>(`${this.base}/bons-reception/page`,
+      {params: paramsDePage(centerId, parametres)});
+  }
+
+  /** B4 : `GET /bons-sortie/page` (tri `reference|dateSortie|lignes|createdAt`, filtre `reference`). */
+  listBonsSortiePage(centerId: string, parametres: Readonly<Record<string, string>>):
+    Observable<PageServeur<BonSortie>> {
+    return this.http.get<PageServeur<BonSortie>>(`${this.base}/bons-sortie/page`,
+      {params: paramsDePage(centerId, parametres)});
   }
 
   createFournisseur(payload: Partial<Fournisseur> & {

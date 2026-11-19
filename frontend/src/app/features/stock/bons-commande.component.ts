@@ -2,7 +2,7 @@ import {ChangeDetectionStrategy, Component, computed, effect, inject, signal, Te
 import {CommonModule} from '@angular/common';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {merge, map} from 'rxjs';
-import {NgTableColumn, NgTableComponent, NgTableTone} from '@sbourahla/ng-table';
+import {NgTableColumn, NgTableComponent, NgTableRemoteQuery, NgTableTone} from '@sbourahla/ng-table';
 import {NgTableTranslatedLabels} from '../../shared/ng-table-labels';
 import {compatForm} from '@angular/forms/signals/compat';
 import {applyEach, FormField, FormRoot, min, required} from '@angular/forms/signals';
@@ -17,19 +17,24 @@ import {TranslateModule} from '@ngx-translate/core';
 import {TranslateService} from '@ngx-translate/core';
 import {AuthStore} from '../../core/state/auth.store';
 import {WebSocketService} from '../../core/ws/websocket.service';
-import {BonCommande, Fournisseur, StockApiService} from '../../core/api/stock-api.service';
+import {BonCommande, Fournisseur, StatutBonCommande, StockApiService} from '../../core/api/stock-api.service';
+import {CorrespondanceDePage} from '../../core/api/page-serveur';
+import {ListeServeur} from '../../core/api/liste-serveur';
 import {ReferentialApiService, RefItem} from '../../core/api/referential-api.service';
 
-type StatutBonCommande = BonCommande['statut'];
-
-/** Statuts d'un bon de commande, dans l'ordre du cycle de vie. */
-export const STATUTS_BON_COMMANDE: readonly StatutBonCommande[] = ['BROUILLON', 'VALIDE', 'RECU', 'ANNULE'];
+/** Statuts d'un bon de commande (`StatutDuBon` du serveur), dans l'ordre du cycle de vie ; pas d'annulation (ADR 0045). */
+export const STATUTS_BON_COMMANDE: readonly StatutBonCommande[] = ['BROUILLON', 'VALIDE', 'RECU'];
 /** Teinte de la pastille de statut. */
 export const TONS_STATUT_BON_COMMANDE: Record<StatutBonCommande, NgTableTone> = {
   BROUILLON: 'warning',
   VALIDE: 'info',
   RECU: 'success',
-  ANNULE: 'danger',
+};
+
+/** Colonnes ⇒ paramètres de `GET /bons-commande/page` (RG-STK-088). */
+export const CORRESPONDANCE_BONS_COMMANDE: CorrespondanceDePage = {
+  tris: {reference: 'reference', statut: 'statut', lignes: 'lignes'},
+  filtres: {reference: 'reference', statut: 'statut'},
 };
 
 @Component({
@@ -45,13 +50,16 @@ export const TONS_STATUT_BON_COMMANDE: Record<StatutBonCommande, NgTableTone> = 
   styleUrl: './bons-commande.component.css',
 })
 export class BonsCommandeComponent {
-  /** Liste entièrement en mémoire (l'API ne pagine pas) : pagination locale de ng-table. */
+  /** Liste paginée, triée et filtrée côté serveur (`GET /bons-commande/page`, B2). */
   protected readonly taillesDePage: readonly number[] = [10, 20, 50, 100];
-  protected readonly tailleDePage = 20;
   protected readonly ngTableLabels = inject(NgTableTranslatedLabels).labels;
   protected readonly cleDeBon = (b: BonCommande): unknown => b.id;
   protected readonly actionsTemplate = viewChild<TemplateRef<{ $implicit: BonCommande; row: BonCommande }>>('actionsBon');
-  protected readonly bons = signal<BonCommande[]>([]);
+  private readonly api = inject(StockApiService);
+  private readonly auth = inject(AuthStore);
+  protected readonly liste = new ListeServeur<BonCommande>(
+    (parametres) => this.api.listBonsCommandePage(this.auth.centerId() ?? '', parametres),
+    CORRESPONDANCE_BONS_COMMANDE, 20);
   protected readonly fournisseurs = signal<Fournisseur[]>([]);
   protected readonly articles = signal<RefItem[]>([]);
   protected readonly saving = signal(false);
@@ -75,9 +83,7 @@ export class BonsCommandeComponent {
     if (!model.lignes.length) return false;
     return model.lignes.every((l) => !!l.articleId && Number(l.quantite) > 0 && Number(l.prixUnitaire) >= 0);
   });
-  private readonly api = inject(StockApiService);
   private readonly refApi = inject(ReferentialApiService);
-  private readonly auth = inject(AuthStore);
   private readonly ws = inject(WebSocketService);
   private readonly snack = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
@@ -117,6 +123,7 @@ export class BonsCommandeComponent {
 
   constructor() {
     this.reload();
+    if (this.auth.centerId()) this.liste.charger();
     effect(() => {
       const evt = this.ws.lastEvent();
       const centerId = this.auth.centerId();
@@ -150,6 +157,10 @@ export class BonsCommandeComponent {
         );
       }
     });
+  }
+
+  protected onRemoteQueryChange(requete: NgTableRemoteQuery): void {
+    if (this.auth.centerId()) this.liste.onRemoteQueryChange(requete);
   }
 
   protected addLigne(): void {
@@ -269,7 +280,7 @@ export class BonsCommandeComponent {
     if (!centerId) {
       return;
     }
-    this.api.listBonsCommande(centerId).subscribe({next: (b) => this.bons.set(b)});
+    if (this.liste.parametresCourants()) this.liste.recharger();
     this.api.listFournisseurs(centerId).subscribe({next: (f) => this.fournisseurs.set(f)});
     this.refreshArticles();
   }

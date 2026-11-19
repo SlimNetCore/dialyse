@@ -49,14 +49,19 @@
         <ng-table
           [ariaLabel]="'STOCK.SUPPLIERS_LIST_TITLE' | translate"
           [columns]="columns()"
-          [rows]="items()"
+          [rows]="liste.lignes()"
+          [dataMode]="'remote'"
           [paginator]="true"
-          [pageSize]="pageSize"
+          [totalCount]="liste.total()"
+          [pageIndex]="liste.pageIndex()"
+          [pageSize]="liste.pageSize()"
           [pageSizeOptions]="pageSizes"
+          [loading]="liste.chargement()"
           [labels]="ngTableLabels()"
           [rowKeyAccessor]="supplierKey"
           [columnsMenuEnabled]="false"
           [showResetFilters]="false"
+          (remoteQueryChange)="onRemoteQueryChange($event)"
         />
       </div>
     </mat-card-content>

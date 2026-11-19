@@ -19,8 +19,9 @@ describe('BonsCommandeComponent', () => {
   const valide = {...brouillon, id: 'bc-2', reference: 'BC-002', statut: 'VALIDE'};
   const recu = {...brouillon, id: 'bc-3', reference: 'BC-003', statut: 'RECU'};
 
+  const page = (items: any[], index = 0) => of({items, total: items.length, page: index, size: 20});
   const stockApiMock = {
-    listBonsCommande: vi.fn(() => of([] as any[])),
+    listBonsCommandePage: vi.fn((_c: string, _p: Record<string, string>) => page([])),
     listFournisseurs: vi.fn(() => of([])),
     createBonCommande: vi.fn(() => of({id: 'bc-new'})),
     validerBonCommande: vi.fn(() => of({id: 'bc-1'})),
@@ -33,6 +34,7 @@ describe('BonsCommandeComponent', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
+    stockApiMock.listBonsCommandePage.mockImplementation(() => page([]));
     await TestBed.configureTestingModule({
       imports: [BonsCommandeComponent, TranslateModule.forRoot()],
       providers: [
@@ -49,7 +51,7 @@ describe('BonsCommandeComponent', () => {
     const fixture = TestBed.createComponent(BonsCommandeComponent);
     fixture.detectChanges();
 
-    expect(stockApiMock.listBonsCommande).toHaveBeenCalledWith('center-1');
+    expect(stockApiMock.listBonsCommandePage).toHaveBeenCalledWith('center-1', {page: '0', size: '20'});
     expect(stockApiMock.listFournisseurs).toHaveBeenCalledWith('center-1');
     expect(refApiMock.getArticles).toHaveBeenCalledWith('center-1');
   });
@@ -71,19 +73,43 @@ describe('BonsCommandeComponent', () => {
     expect(colonnes[3].cellTemplate).toBeTruthy();
   });
 
-  it('pagine localement par 20 avec choix 10/20/50/100', () => {
+  it('pagine côté serveur par 20 avec choix 10/20/50/100', () => {
     const fixture = TestBed.createComponent(BonsCommandeComponent);
     fixture.detectChanges();
 
     const table = fixture.debugElement.query(By.directive(NgTableComponent)).componentInstance as NgTableComponent<unknown>;
     expect(table.paginator()).toBe(true);
-    expect(table.dataMode()).toBe('local');
+    expect(table.dataMode()).toBe('remote');
     expect(table.pageSize()).toBe(20);
     expect(table.pageSizeOptions()).toEqual([10, 20, 50, 100]);
   });
 
+  it('le filtre statut ne propose que les statuts du serveur (pas d\'ANNULE) et part au serveur', () => {
+    const fixture = TestBed.createComponent(BonsCommandeComponent);
+    const component = fixture.componentInstance as any;
+    fixture.detectChanges();
+    const statut = component.colonnes().find((c: any) => c.id === 'statut');
+    expect(statut.filter.options.map((o: any) => o.value)).toEqual(['BROUILLON', 'VALIDE', 'RECU']);
+
+    component.onRemoteQueryChange({
+      sort: {columnId: 'reference', direction: 'asc'}, filters: {statut: 'VALIDE,RECU'}, page: {index: 0, size: 20},
+    });
+    expect(stockApiMock.listBonsCommandePage).toHaveBeenLastCalledWith('center-1',
+      {page: '0', size: '20', sort: 'reference,asc', statut: 'VALIDE,RECU'});
+  });
+
+  it('recharge la page courante après une validation', () => {
+    stockApiMock.listBonsCommandePage.mockReturnValue(page([brouillon]));
+    const fixture = TestBed.createComponent(BonsCommandeComponent);
+    const component = fixture.componentInstance as any;
+    fixture.detectChanges();
+    component.onRemoteQueryChange({sort: {columnId: '', direction: ''}, filters: {}, page: {index: 2, size: 20}});
+    component.valider(brouillon);
+    expect(stockApiMock.listBonsCommandePage).toHaveBeenLastCalledWith('center-1', {page: '2', size: '20'});
+  });
+
   it('les actions de ligne restent branchees selon le statut', async () => {
-    stockApiMock.listBonsCommande.mockReturnValueOnce(of([brouillon, valide, recu]));
+    stockApiMock.listBonsCommandePage.mockReturnValue(page([brouillon, valide, recu]));
     const fixture = TestBed.createComponent(BonsCommandeComponent);
     fixture.detectChanges();
     await fixture.whenStable();

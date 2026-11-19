@@ -76,12 +76,17 @@
         <ng-table
           [ariaLabel]="'STOCK.PURCHASE_ORDERS_LIST_TITLE' | translate"
           [columns]="colonnes()"
-          [rows]="bons()"
+          [rows]="liste.lignes()"
+          [dataMode]="'remote'"
           [paginator]="true"
-          [pageSize]="tailleDePage"
+          [totalCount]="liste.total()"
+          [pageIndex]="liste.pageIndex()"
+          [pageSize]="liste.pageSize()"
           [pageSizeOptions]="taillesDePage"
+          [loading]="liste.chargement()"
           [labels]="ngTableLabels()"
           [rowKeyAccessor]="cleDeBon"
+          (remoteQueryChange)="onRemoteQueryChange($event)"
         />
       </div>
     </mat-card-content>

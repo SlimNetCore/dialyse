@@ -23,7 +23,11 @@ describe('FournisseursComponent (liste en ng-table)', () => {
 
   beforeEach(async () => {
     api = {
-      listFournisseurs: vi.fn().mockReturnValue(of(fournisseurs)),
+      listFournisseursPage: vi.fn((_c: string, p: Record<string, string>) => {
+        const page = Number(p['page']);
+        const size = Number(p['size']);
+        return of({items: fournisseurs.slice(page * size, page * size + size), total: fournisseurs.length, page, size});
+      }),
       createFournisseur: vi.fn().mockReturnValue(of(fournisseurs[0])),
     };
     await TestBed.configureTestingModule({
@@ -45,27 +49,41 @@ describe('FournisseursComponent (liste en ng-table)', () => {
     return fixture;
   }
 
-  it('affiche les fournisseurs du centre en mode local, paginés par 20', async () => {
+  it('pagine les fournisseurs du centre côté serveur (GET /referentiel/fournisseurs/page), 20 par page', async () => {
     const fixture = await render();
 
-    expect(api['listFournisseurs']).toHaveBeenCalledWith('c1');
+    expect(api['listFournisseursPage']).toHaveBeenCalledWith('c1', expect.objectContaining({page: '0', size: '20'}));
     const ngTable: NgTableComponent<Fournisseur> =
       fixture.debugElement.query(By.directive(NgTableComponent)).componentInstance;
-    expect(ngTable.dataMode()).toBe('local');
+    expect(ngTable.dataMode()).toBe('remote');
     expect(ngTable.paginator()).toBe(true);
     expect(ngTable.pageSizeOptions()).toEqual([10, 20, 50, 100]);
     expect(ngTable.columns().map((c) => c.id)).toEqual(['code', 'raisonSociale', 'contact', 'telephone']);
+    expect(ngTable.columns().find((c) => c.id === 'telephone')!.sortable).toBe(false);
 
     const harness = await TestbedHarnessEnvironment.loader(fixture).getHarness(NgTableHarness);
     expect(await harness.getRowCount()).toBe(20);
     const paginator = (await harness.getPaginator())!;
     await paginator.goToNextPage();
+    expect(api['listFournisseursPage']).toHaveBeenLastCalledWith('c1', expect.objectContaining({page: '1', size: '20'}));
     expect(await harness.getRowCount()).toBe(5);
-    expect(api['listFournisseurs']).toHaveBeenCalledTimes(1);
   });
 
-  it('crée un fournisseur puis recharge la liste', async () => {
+  it('envoie tri, filtres de colonne et recherche (q) au serveur et repart de la page 0', async () => {
     const fixture = await render();
+    const component = fixture.componentInstance as any;
+    component.onRemoteQueryChange({
+      sort: {columnId: 'raisonSociale', direction: 'desc'}, filters: {contact: 'mme', telephone: '05'},
+      page: {index: 1, size: 20}, search: 'pharma',
+    });
+    expect(api['listFournisseursPage']).toHaveBeenLastCalledWith('c1', {
+      page: '0', size: '20', sort: 'raisonSociale,desc', contact: 'mme', q: 'pharma',
+    });
+  });
+
+  it('crée un fournisseur puis recharge la page courante', async () => {
+    const fixture = await render();
+    const appels = api['listFournisseursPage'].mock.calls.length;
     const input = (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLInputElement>('input')[1];
     input.value = 'Pharma Plus';
     input.dispatchEvent(new Event('input', {bubbles: true}));
@@ -74,6 +92,6 @@ describe('FournisseursComponent (liste en ng-table)', () => {
     (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('button[type="submit"]')!.click();
 
     expect(api['createFournisseur']).toHaveBeenCalledWith(expect.objectContaining({centerId: 'c1', raisonSociale: 'Pharma Plus'}));
-    expect(api['listFournisseurs']).toHaveBeenCalledTimes(2);
+    expect(api['listFournisseursPage']).toHaveBeenCalledTimes(appels + 1);
   });
 });
