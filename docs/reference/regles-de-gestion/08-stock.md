@@ -73,7 +73,10 @@
 - **RG-STK-087** — **Listes paginées côté serveur** (convention commune du Stock, slice `pagination-serveur`) :
   `GET <liste>/page` avec `page` (base 0), `size` (1 à 100, défaut 20), `sort=champ[,asc|desc]` pris dans une liste
   blanche par liste (départage stable ajouté) et un paramètre par filtre de colonne (texte « contient » sans casse,
-  énumération à valeurs séparées par des virgules) ; réponse `{items, total, page, size}` ; refus 400 avec un code
+  énumération à valeurs séparées par des virgules, numérique `[op]nombre` avec `op` parmi `= != > >= < <=` (défaut `=`)
+  ou plage `a..b` bornes incluses, `a..`, `..b`, virgule ou point décimal, espaces ignorés — une plage inversée ou toute
+  autre saisie est refusée en `FILTRE_INVALIDE` ; l'écran envoie la saisie de la table telle quelle et n'affiche un
+  message sans appel que pour une saisie illisible) ; réponse `{items, total, page, size}` ; refus 400 avec un code
   stable `PAGE_INVALIDE`, `TAILLE_INVALIDE`, `TRI_INVALIDE`, `FILTRE_INVALIDE`, `PARAMETRE_INVALIDE`. Mêmes rôles et même
   centre que la liste complète, qui reste inchangée. Pagination en SQL (`COUNT` + `LIMIT/OFFSET`).
   **Fournisseurs** (`GET /stock/referentiel/fournisseurs/page`) : fournisseurs actifs du centre, tri `code`,
@@ -181,8 +184,8 @@
 - **RG-STK-090** — **État du stock paginé côté serveur** (`GET /stock/dashboard/stock-valorise/page`, convention
   RG-STK-087) : articles actifs du centre avec quantité, PMP courant et valeur (quantité × PMP, calculée en SQL pour le
   tri et le filtre) ; tri `code` (défaut, croissant), `libelle` (sans casse), `quantite`, `pmp`, `valeur` ; filtres texte
-  `code`, `libelle` et numériques `quantite`, `pmp`, `valeur` (`[op]nombre`, `op` parmi `= > >= < <=`, virgule ou
-  point). La liste complète `GET /stock-valorise` (triée par libellé) est inchangée. *Source :*
+  `code`, `libelle` et numériques `quantite`, `pmp`, `valeur` (syntaxe RG-STK-087 : `[op]nombre` avec `op` parmi
+  `= != > >= < <=`, plage `10..50` bornes incluses, `10..`, `..50`, virgule ou point ; ex. `valeur=!=0`). La liste complète `GET /stock-valorise` (triée par libellé) est inchangée. *Source :*
   `EtatDuStockPageControleur`, `ConsulterLEtatDuStock`, `EtatDuStockPagineJdbc` (contexte `stock`).
 - **RG-STK-093** — **Explication du PMP paginée** (`GET /stock/dashboard/pmp-explain/{articleId}/page`) : les étapes du
   rejeu sont paginées **en mémoire** (le rejeu est calculé : chaque étape dépend de la précédente, il est rejoué en entier

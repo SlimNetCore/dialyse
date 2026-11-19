@@ -314,7 +314,8 @@ Clôtures mensuelles**, réservé à l'`ADMIN` du centre (RG-FAC-050) ; l'écran
   facturé, montant réglé, état (ordre non réglée < partiellement réglée < réglée), dernier code de règlement et date de
   facturation — défaut : date de facturation puis numéro décroissants ; valeurs absentes en dernier, départage stable par
   identifiant. Filtres de colonne cumulés (ET) : texte « contient » insensible à la casse (numéro, assurance, nom, prénom,
-  caisse, agence, centre payeur, code de règlement), montants `[= > >= < <=]nombre`, état et nature du solde (reste, soldée,
+  caisse, agence, centre payeur, code de règlement), montants `[= != > >= < <=]nombre` ou plage `a..b` (bornes incluses), `a..`, `..b` (virgule ou point
+  décimal ; plage inversée ou saisie illisible = `FILTRE_INVALIDE`), état et nature du solde (reste, soldée,
   trop-perçu) par valeur d'énumération (plusieurs = OU). Réponse `{items, total, page, size}` (total filtré). Refus 400
   `PAGE_INVALIDE`, `TAILLE_INVALIDE`, `TRI_INVALIDE`, `FILTRE_INVALIDE`, `PARAMETRE_INVALIDE` ; 403 hors rôle ou autre centre.
   Pagination **en mémoire** après lecture de la période : la fiche patient et la chaîne des payeurs viennent des langages
