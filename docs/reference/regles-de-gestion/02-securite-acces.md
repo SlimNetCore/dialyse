@@ -143,6 +143,12 @@
 - **RG-SEC-024** — Les écrans interdits à un profil restreint le redirigent vers son accueil (`/infirmiers/moi`,
   `/medecin`,
   `/direction`, `/admin/societes`). *Source :* `homeRouteFor`, `roleScopeGuard`.
+- **RG-SEC-068** — Secrétaire « seule » (rôle `SECRETAIRE` sans `ADMIN`, `PHARMACIEN`, `INFIRMIER`, `MEDECIN`,
+  `SUPERADMIN` ni `DIRECTION`) : les modules **Stock** et **GMAO** sont retirés de son menu et leurs tuiles de son
+  Accueil, aucune de leurs API n'est appelée (le serveur lui refuse leur lecture, 403). Un cumul de rôles garde ces
+  modules ; si le serveur refuse malgré tout la lecture d'une tuile, elle est masquée (RG-TRV-072). Les URL ne sont pas
+  bloquées côté écran : le serveur reste seul juge. *Source :* `isSecretaryOnly`, `MODULES_FERMES_A_LA_SECRETAIRE`,
+  `ShellComponent`, `tuilesVisibles`.
 
 ## 2.6 Direction : périmètre dérivé de la session
 

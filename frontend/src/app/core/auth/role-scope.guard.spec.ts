@@ -4,8 +4,23 @@ import {describe, expect, it} from 'vitest';
 import {AuthStore} from '../state/auth.store';
 import {
   directionGuard, homeRouteFor, isDirectionArea, isDoctorArea, isDoctorOnly, isNurseArea, isNurseOnly, isOwnerArea,
-  roleScopeGuard,
+  isSecretaryOnly, roleScopeGuard,
 } from './role-scope.guard';
+
+describe('isSecretaryOnly', () => {
+  it('reconnaît la secrétaire sans autre rôle de centre, avec ou sans préfixe ROLE_', () => {
+    expect(isSecretaryOnly(['SECRETAIRE'])).toBe(true);
+    expect(isSecretaryOnly(['ROLE_SECRETAIRE'])).toBe(true);
+  });
+
+  it('sort du profil dès qu\'un autre rôle de centre est cumulé', () => {
+    for (const autre of ['ADMIN', 'PHARMACIEN', 'INFIRMIER', 'MEDECIN', 'SUPERADMIN', 'DIRECTION']) {
+      expect(isSecretaryOnly(['SECRETAIRE', autre]), autre).toBe(false);
+    }
+    expect(isSecretaryOnly(['ADMIN'])).toBe(false);
+    expect(isSecretaryOnly([])).toBe(false);
+  });
+});
 
 function setup(roles: string[]): void {
   TestBed.resetTestingModule();

@@ -42,6 +42,19 @@ const has = (roles: readonly string[], role: string): boolean => roles.includes(
 export const isNurseOnly = (roles: readonly string[]): boolean =>
   has(roles, 'INFIRMIER') && !OTHER_CENTRE_ROLES.some((role) => has(roles, role));
 
+/** Rôles qui, cumulés à SECRETAIRE, sortent du profil « secrétaire seule ». */
+const SECRETARY_EXCLUDING_ROLES = ['ADMIN', 'PHARMACIEN', 'INFIRMIER', 'MEDECIN', 'SUPERADMIN', 'DIRECTION'];
+
+/**
+ * Secrétaire « seule » : rôle SECRETAIRE sans aucun autre rôle de centre. Le serveur lui refuse le stock et la GMAO
+ * (403) : leurs modules sont retirés de son menu et de son Accueil.
+ */
+export const isSecretaryOnly = (roles: readonly string[]): boolean =>
+  has(roles, 'SECRETAIRE') && !SECRETARY_EXCLUDING_ROLES.some((role) => has(roles, role));
+
+/** Modules retirés du menu et de l'Accueil de la secrétaire seule : le serveur lui refuse leur lecture (403). */
+export const MODULES_FERMES_A_LA_SECRETAIRE: readonly string[] = ['stock', 'gmao'];
+
 /** Suivi des absences de patients : ouvert à l'infirmier seul et au médecin seul. */
 const ABSENCES_PATIENTS = '/seances/absences-patients';
 

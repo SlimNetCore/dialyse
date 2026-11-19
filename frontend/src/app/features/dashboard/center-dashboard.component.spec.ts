@@ -165,8 +165,19 @@ describe('CenterDashboardComponent — Accueil', () => {
     expect(texte(root, 'accueil-chiffre-patients-0')).toBe('42');
   });
 
-  it('masque les tuiles Stock et GMAO que le serveur refuse (403) à la secrétaire, sans tiret', async () => {
+  it('retire les tuiles Stock et GMAO de l\'Accueil de la secrétaire seule et n\'appelle jamais leur API', async () => {
     roles = ['SECRETAIRE'];
+    const {root} = await render();
+
+    expect(root.querySelector('[data-testid="accueil-tuile-stock"]')).toBeNull();
+    expect(root.querySelector('[data-testid="accueil-tuile-gmao"]')).toBeNull();
+    expect(stock.alertes).not.toHaveBeenCalled();
+    expect(gmao.getStats).not.toHaveBeenCalled();
+    expect(texte(root, 'accueil-chiffre-patients-0')).toBe('42');
+  });
+
+  it('masque les tuiles Stock et GMAO que le serveur refuse (403) à un cumul de profils, sans tiret', async () => {
+    roles = ['SECRETAIRE', 'MEDECIN'];
     stock.alertes.mockReturnValue(throwError(() => new HttpErrorResponse({status: 403})));
     gmao.getStats.mockReturnValue(throwError(() => new HttpErrorResponse({status: 403})));
     const {fixture, root} = await render();
@@ -378,6 +389,6 @@ describe('Accueil — mêmes règles que le menu des modules', () => {
 
       const tableauxDuMenu = shell.modules.flatMap((m) => m.items)
         .filter((i) => i.kind === 'tableau-de-bord').map((i) => i.route);
-      expect(tuilesVisibles((r) => roles.includes(r)).map((t) => t.route)).toEqual(tableauxDuMenu);
+      expect(tuilesVisibles((r) => roles.includes(r), roles).map((t) => t.route)).toEqual(tableauxDuMenu);
     });
 });

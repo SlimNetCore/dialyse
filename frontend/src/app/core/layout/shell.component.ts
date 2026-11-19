@@ -20,7 +20,7 @@ import {MatMenuModule} from '@angular/material/menu';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {TranslateModule} from '@ngx-translate/core';
 import {AuthStore} from '../state/auth.store';
-import {isDoctorOnly, isNurseOnly} from '../auth/role-scope.guard';
+import {isDoctorOnly, isNurseOnly, isSecretaryOnly, MODULES_FERMES_A_LA_SECRETAIRE} from '../auth/role-scope.guard';
 import {LangStore} from '../state/lang.store';
 import {ThemeStore} from '../state/theme.store';
 import {WebSocketService} from '../ws/websocket.service';
@@ -205,6 +205,8 @@ export class ShellComponent implements OnInit, AfterViewInit {
   readonly infirmierMode = isNurseOnly(this.roleAuth.roles());
   /** Le médecin seul ne voit que son tableau de bord et la consultation des patients. */
   readonly medecinMode = isDoctorOnly(this.roleAuth.roles());
+  /** La secrétaire seule ne voit ni le stock ni la GMAO, que le serveur lui refuse. */
+  readonly secretaireMode = isSecretaryOnly(this.roleAuth.roles());
   /** Sessions sans centre : ni cloche de notifications ni WebSocket de centre. */
   readonly centreless = this.ownerMode || this.directionMode;
 
@@ -411,6 +413,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
   readonly modules = this.allModules
     .filter((m) => (this.directionMode ? m.key === 'direction' : m.key !== 'direction'))
     .filter((m) => !this.ownerMode || m.key === 'admin')
+    .filter((m) => !this.secretaireMode || !MODULES_FERMES_A_LA_SECRETAIRE.includes(m.key))
     .map((m) => ({
       ...m,
       items: toModuleBarItems((m.items as ReadonlyArray<NavItem>)

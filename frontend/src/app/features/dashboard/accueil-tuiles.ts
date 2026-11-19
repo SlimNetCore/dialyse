@@ -1,3 +1,5 @@
+import {isSecretaryOnly, MODULES_FERMES_A_LA_SECRETAIRE} from '../../core/auth/role-scope.guard';
+
 /** Modules présentés sur l'Accueil : ceux qui ont un tableau de bord (ni Comptabilité, ni Administration, ni Planning). */
 export type AccueilModule = 'patients' | 'seances' | 'infirmiers' | 'stock' | 'gmao' | 'facturation' | 'reglement';
 
@@ -27,9 +29,9 @@ export const HORIZON_COUVERTURE_JOURS = 7;
 
 /**
  * Tuiles dans l'ordre du menu des modules. L'Accueil n'est ouvert qu'aux profils de centre non restreints (ADMIN,
- * SECRETAIRE, cumuls de rôles) : la seule règle du menu qui s'y applique est le rôle exigé ({@link AccueilTuile.role}).
- * Stock et GMAO n'exigent aucun rôle dans le menu alors que le serveur peut refuser leur lecture : leur tuile est alors
- * masquée par le magasin de l'Accueil (403).
+ * SECRETAIRE, cumuls de rôles) : les règles du menu qui s'y appliquent sont le rôle exigé ({@link AccueilTuile.role})
+ * et le retrait du stock et de la GMAO pour la secrétaire seule. Si le serveur refuse malgré tout une lecture (403),
+ * la tuile est masquée par le magasin de l'Accueil.
  */
 export const ACCUEIL_TUILES: ReadonlyArray<AccueilTuile> = [
   {
@@ -98,7 +100,13 @@ export function moduleRafraichiPar(type: string): AccueilModule | null {
   return null;
 }
 
-/** Tuiles visibles pour un profil: même règle que le menu (rôle exigé par l'entrée « Tableau de bord »). */
-export function tuilesVisibles(hasRole: (role: string) => boolean): AccueilTuile[] {
-  return ACCUEIL_TUILES.filter((tuile) => !tuile.role || hasRole(tuile.role));
+/**
+ * Tuiles visibles pour un profil : même règle que le menu (rôle exigé par l'entrée « Tableau de bord », modules
+ * retirés du menu de la secrétaire seule).
+ */
+export function tuilesVisibles(hasRole: (role: string) => boolean, roles: readonly string[] = []): AccueilTuile[] {
+  const secretaireSeule = isSecretaryOnly(roles);
+  return ACCUEIL_TUILES
+    .filter((tuile) => !tuile.role || hasRole(tuile.role))
+    .filter((tuile) => !secretaireSeule || !MODULES_FERMES_A_LA_SECRETAIRE.includes(tuile.module));
 }

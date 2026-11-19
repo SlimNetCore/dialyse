@@ -147,6 +147,24 @@ describe('ShellComponent — barre de module', () => {
       expect(component.activeModuleItems().slice(-2).map((i) => i.kind)).toEqual(['parametrage', 'parametrage']);
     });
 
+  it('la secrétaire seule ne voit ni le Stock ni la GMAO dans le menu des modules', async () => {
+    roles = ['SECRETAIRE'];
+    const {component} = await renderAt('/patients');
+
+    const modules = component.modules.map((m) => m.key);
+    expect(modules).not.toContain('stock');
+    expect(modules).not.toContain('gmao');
+    expect(modules).toContain('patients');
+    expect(modules).toContain('comptabilite');
+  });
+
+  it('un cumul SECRETAIRE + ADMIN garde le Stock et la GMAO', async () => {
+    roles = ['SECRETAIRE', 'ADMIN'];
+    const {component} = await renderAt('/patients');
+
+    expect(component.modules.map((m) => m.key)).toEqual(expect.arrayContaining(['stock', 'gmao']));
+  });
+
   it('module Facturation : le tableau de bord en tête, puis le calcul et la validation', async () => {
     const {component} = await renderAt('/facturation');
 

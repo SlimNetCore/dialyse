@@ -160,7 +160,7 @@
 | Administration | — (comptes, puis paramétrage, puis supervision) | utilisateurs | RG-DOC-006 |
 
 - **RG-TRV-072** — *Accueil du centre* (`/dashboard`, entrée « Accueil ») : une **tuile par module** accessible au
-  profil (même règle que le menu des modules), avec 1 ou 2 chiffres clés lus sur les API des tableaux de bord et un
+  profil (même règle que le menu des modules : ni Stock ni GMAO pour la secrétaire seule, RG-SEC-068), avec 1 ou 2 chiffres clés lus sur les API des tableaux de bord et un
   lien vers le tableau de bord du module (RG-PEC-010). Une tuile dont la lecture est refusée par le serveur (403) est
   **masquée** plutôt qu'affichée vide ; une nouvelle lecture annule la précédente (une réponse tardive d'un autre
   centre n'écrase jamais l'affichage) ; un évènement temps réel du centre ne recharge que la tuile concernée

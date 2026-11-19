@@ -39,7 +39,7 @@ export class CenterDashboardComponent {
   private readonly ws = inject(WebSocketService);
 
   /** Tuiles du profil (règle de rôle du menu) : un module absent du menu n'a pas de tuile et n'est jamais appelé. */
-  private readonly tuilesDuProfil = tuilesVisibles((role) => this.auth.hasRole(role));
+  private readonly tuilesDuProfil = tuilesVisibles((role) => this.auth.hasRole(role), this.auth.roles());
   /** Tuiles affichées : celles du profil, moins les modules dont le serveur a refusé la lecture (403). */
   readonly tuiles = computed(() => {
     const nonAccessibles = this.store.nonAccessibles();
