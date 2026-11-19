@@ -73,6 +73,8 @@ describe('ShellComponent — barre de module', () => {
     ['/patients/123', '/patients'],
     ['/patients/pec-list', '/patients/pec-list'],
     ['/gmao/equipements', '/gmao/equipements'],
+    ['/gmao/equipements/new', '/gmao/equipements'],
+    ['/gmao/tableau-de-bord', '/gmao/tableau-de-bord'],
     ['/seances/absences-patients', '/seances/absences-patients'],
     ['/infirmiers/referentiel', '/infirmiers/referentiel'],
   ])('sur %s, une seule entrée est active : %s', async (url, attendu) => {
@@ -153,7 +155,7 @@ describe('toModuleBarItems', () => {
 describe('breadcrumbLabels', () => {
   it('traduit les segments GMAO et stock par la règle commune', () => {
     expect(breadcrumbLabels('/gmao/equipements')).toEqual(['NAV.GMAO', 'NAV.GMAO_EQUIPEMENTS']);
-    expect(breadcrumbLabels('/gmao/dashboard')).toEqual(['NAV.GMAO', 'NAV.TABLEAU_DE_BORD']);
+    expect(breadcrumbLabels('/gmao/tableau-de-bord')).toEqual(['NAV.GMAO', 'NAV.TABLEAU_DE_BORD']);
     expect(breadcrumbLabels('/stock/tableau-de-bord')).toEqual(['NAV.STOCK', 'NAV.TABLEAU_DE_BORD']);
     expect(breadcrumbLabels('/stock/bons-commande')).toEqual(['NAV.STOCK', 'NAV.STOCK_BONS_COMMANDE']);
   });

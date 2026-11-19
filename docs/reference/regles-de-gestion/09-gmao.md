@@ -165,7 +165,10 @@
 - **RG-GMA-067** — **Statistiques GMAO du centre** (`GET /api/v1/gmao/stats`) : totaux d'équipements (tous statuts) et par statut
   (en service, en maintenance, hors service ; les autres statuts ne sont comptés que dans le total, KB-GMAO-77), d'interventions
   (total, en cours, terminées), plans actifs et en retard, interventions à relancer (RG-GMA-030) ; les éléments supprimés
-  logiquement ne sont jamais comptés. *Source :* `ConsulterLesStatistiques`.
+  logiquement ne sont jamais comptés. Elles sont affichées dans le **tableau de bord GMAO** (`/gmao/tableau-de-bord`,
+  première entrée de la barre du module ; l'ancienne adresse `/gmao/dashboard` y redirige) ; l'arrivée dans le module
+  (`/gmao`) mène à la liste des équipements. Chaque compteur par statut ouvre la liste filtrée sur ce statut ; les totaux
+  et les interventions à relancer ouvrent la liste sans filtre. *Source :* `ConsulterLesStatistiques`.
 - **RG-GMA-068** — **Impression du bon d'intervention** (`GET /api/v1/gmao/interventions/{id}/bon`, PL6, ADR 0145) : le bon est
   rendu par Documents (type `BON_INTERVENTION`, modèle actif du centre, papier en-tête) ; la GMAO fournit les données (RG-GMA-031).
   Écarts décidés le 2026-11-12 : **KB-PL6-1** un jeton sans centre est refusé (403) et un centre de session illisible rejeté (400,

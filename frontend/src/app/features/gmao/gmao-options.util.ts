@@ -182,6 +182,14 @@ export function piecesJointesModifiables(statut: StatutIntervention | undefined)
   return !!statut && statut !== 'TERMINEE' && statut !== 'ANNULEE';
 }
 
+/**
+ * Filtre de statut transmis par l'URL (`?statut=…`, indicateurs cliquables du tableau de bord) : seule une valeur
+ * connue est retenue ; toute autre valeur (y compris vide) signifie « tous les statuts ».
+ */
+export function statutDepuisUrl<T extends string>(valeur: string | null, autorises: readonly T[]): T | null {
+  return valeur && (autorises as readonly string[]).includes(valeur) ? valeur as T : null;
+}
+
 /** `detail` du backend pour un refus métier (400/422), sinon null : l'appelant garde alors son message générique. */
 export function detailRefus(err: unknown): string | null {
   const e = err as { status?: number; error?: { detail?: unknown } } | null;

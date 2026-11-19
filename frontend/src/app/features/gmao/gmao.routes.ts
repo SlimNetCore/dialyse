@@ -16,8 +16,14 @@ export const GMAO_ROUTES: Routes = [
     path: '',
     children: [
       {
-        path: 'dashboard',
+        path: 'tableau-de-bord',
         component: GmaoDashboardComponent
+      },
+      {
+        // ancienne URL conservée (favoris, liens externes)
+        path: 'dashboard',
+        redirectTo: 'tableau-de-bord',
+        pathMatch: 'full'
       },
       {
         path: 'equipements',
@@ -57,7 +63,8 @@ export const GMAO_ROUTES: Routes = [
       },
       {
         path: '',
-        redirectTo: 'dashboard',
+        // arrivée dans le module = écran de travail
+        redirectTo: 'equipements',
         pathMatch: 'full'
       }
     ]

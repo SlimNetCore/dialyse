@@ -12,10 +12,6 @@
         <mat-icon>build</mat-icon>
         {{ 'GMAO.DASHBOARD.VIEW_INTERVENTIONS' | translate }}
       </a>
-      <a mat-stroked-button routerLink="/gmao/equipements/new">
-        <mat-icon>add</mat-icon>
-        {{ 'GMAO.EQUIPEMENTS.NEW' | translate }}
-      </a>
     </div>
   </div>
 
@@ -31,40 +27,47 @@
     <div class="gmao-stat-section">
       <h2 class="gmao-stat-title">{{ 'GMAO.DASHBOARD.EQUIPMENT_SECTION' | translate }}</h2>
       <div class="app-data-strip">
-        <div class="app-data-pill">
+        <a [queryParams]="{statut: ''}" class="app-data-pill kpi-clickable" data-testid="kpi-equipements-total"
+           routerLink="/gmao/equipements">
           <span>{{ 'GMAO.DASHBOARD.TOTAL_EQUIPMENT' | translate }}</span>
           <strong>{{ s.totalEquipements }}</strong>
-        </div>
-        <div class="app-data-pill tone-success">
+        </a>
+        <a [queryParams]="{statut: 'EN_SERVICE'}" class="app-data-pill kpi-clickable tone-success"
+           data-testid="kpi-equipements-en-service" routerLink="/gmao/equipements">
           <span>{{ 'GMAO.STATUT_EQUIPEMENT.EN_SERVICE' | translate }}</span>
           <strong>{{ s.equipementsEnService }}</strong>
-        </div>
-        <div class="app-data-pill tone-warning">
+        </a>
+        <a [queryParams]="{statut: 'EN_MAINTENANCE'}" class="app-data-pill kpi-clickable tone-warning"
+           data-testid="kpi-equipements-en-maintenance" routerLink="/gmao/equipements">
           <span>{{ 'GMAO.STATUT_EQUIPEMENT.EN_MAINTENANCE' | translate }}</span>
           <strong>{{ s.equipementsEnMaintenance }}</strong>
-        </div>
-        <div class="app-data-pill tone-danger">
+        </a>
+        <a [queryParams]="{statut: 'HORS_SERVICE'}" class="app-data-pill kpi-clickable tone-danger"
+           data-testid="kpi-equipements-hors-service" routerLink="/gmao/equipements">
           <span>{{ 'GMAO.STATUT_EQUIPEMENT.HORS_SERVICE' | translate }}</span>
           <strong>{{ s.equipementsHorsService }}</strong>
-        </div>
+        </a>
       </div>
     </div>
 
     <div class="gmao-stat-section">
       <h2 class="gmao-stat-title">{{ 'GMAO.DASHBOARD.INTERVENTION_SECTION' | translate }}</h2>
       <div class="app-data-strip">
-        <div class="app-data-pill">
+        <a [queryParams]="{statut: ''}" class="app-data-pill kpi-clickable" data-testid="kpi-interventions-total"
+           routerLink="/gmao/interventions">
           <span>{{ 'GMAO.DASHBOARD.TOTAL_INTERVENTIONS' | translate }}</span>
           <strong>{{ s.totalInterventions }}</strong>
-        </div>
-        <div class="app-data-pill tone-warning">
+        </a>
+        <a [queryParams]="{statut: 'EN_COURS'}" class="app-data-pill kpi-clickable tone-warning"
+           data-testid="kpi-interventions-en-cours" routerLink="/gmao/interventions">
           <span>{{ 'GMAO.STATUT_INTERVENTION.EN_COURS' | translate }}</span>
           <strong>{{ s.interventionsEnCours }}</strong>
-        </div>
-        <div class="app-data-pill tone-success">
+        </a>
+        <a [queryParams]="{statut: 'TERMINEE'}" class="app-data-pill kpi-clickable tone-success"
+           data-testid="kpi-interventions-terminees" routerLink="/gmao/interventions">
           <span>{{ 'GMAO.STATUT_INTERVENTION.TERMINEE' | translate }}</span>
           <strong>{{ s.interventionsTerminees }}</strong>
-        </div>
+        </a>
       </div>
     </div>
 
@@ -79,10 +82,12 @@
           <span>{{ 'GMAO.DASHBOARD.OVERDUE_PLANS' | translate }}</span>
           <strong>{{ s.plansMaintenanceEnRetard }}</strong>
         </div>
-        <div [class.tone-danger]="s.interventionsARelancer > 0" class="app-data-pill" data-testid="kpi-relance">
+        <!-- pas de filtre « à relancer » dans la liste : lien vers toutes les interventions -->
+        <a [class.tone-danger]="s.interventionsARelancer > 0" [queryParams]="{statut: ''}"
+           class="app-data-pill kpi-clickable" data-testid="kpi-relance" routerLink="/gmao/interventions">
           <span>{{ 'GMAO.DASHBOARD.INTERVENTIONS_A_RELANCER' | translate }}</span>
           <strong>{{ s.interventionsARelancer }}</strong>
-        </div>
+        </a>
       </div>
       @if (s.plansMaintenanceEnRetard > 0) {
         <p class="gmao-overdue-note">

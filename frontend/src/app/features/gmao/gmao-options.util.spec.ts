@@ -17,6 +17,9 @@ import {
   peutRectifier,
   piecesJointesModifiables,
   statutEquipementTone,
+  statutDepuisUrl,
+  STATUTS_EQUIPEMENT,
+  STATUTS_INTERVENTION,
 } from './gmao-options.util';
 
 describe('états d\'équipement liés aux interventions', () => {
@@ -112,5 +115,13 @@ describe('habilitations et conditions d\'affichage GMAO', () => {
     expect(detailRefus({status: 500, error: {detail: 'boom'}})).toBeNull();
     expect(detailRefus({status: 422, error: {}})).toBeNull();
     expect(detailRefus(null)).toBeNull();
+  });
+
+  it('statutDepuisUrl : ne retient qu\'un statut connu, sinon tous les statuts', () => {
+    expect(statutDepuisUrl('HORS_SERVICE', STATUTS_EQUIPEMENT)).toBe('HORS_SERVICE');
+    expect(statutDepuisUrl('EN_COURS', STATUTS_INTERVENTION)).toBe('EN_COURS');
+    expect(statutDepuisUrl('EN_COURS', STATUTS_EQUIPEMENT)).toBeNull();
+    expect(statutDepuisUrl('', STATUTS_EQUIPEMENT)).toBeNull();
+    expect(statutDepuisUrl(null, STATUTS_EQUIPEMENT)).toBeNull();
   });
 });

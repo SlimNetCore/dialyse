@@ -318,7 +318,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
       icon: 'build_circle',
       label: 'NAV.GMAO',
       items: [
-        {route: '/gmao/dashboard', label: 'NAV.GMAO_DASHBOARD', icon: 'space_dashboard', kind: 'tableau-de-bord'},
+        {route: '/gmao/tableau-de-bord', label: 'NAV.TABLEAU_DE_BORD', icon: 'insights', kind: 'tableau-de-bord'},
         {route: '/gmao/equipements', label: 'NAV.GMAO_EQUIPEMENTS', icon: 'precision_manufacturing'},
         {route: '/gmao/interventions', label: 'NAV.GMAO_INTERVENTIONS', icon: 'build'},
         {route: '/gmao/intervenants', label: 'NAV.GMAO_INTERVENANTS', icon: 'engineering'},

@@ -1,6 +1,6 @@
 import {ChangeDetectionStrategy, Component, effect, inject, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {RouterLink} from '@angular/router';
+import {ActivatedRoute, RouterLink} from '@angular/router';
 import {MatTableModule} from '@angular/material/table';
 import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
 import {MatButtonModule} from '@angular/material/button';
@@ -21,6 +21,7 @@ import {
   dureeLabel,
   dureeMinutes,
   prioriteTone,
+  statutDepuisUrl,
   statutInterventionTone,
   STATUTS_INTERVENTION
 } from '../../gmao-options.util';
@@ -59,7 +60,14 @@ export class GmaoListInterventionComponent {
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
 
+  private readonly route = inject(ActivatedRoute);
+
   constructor() {
+    // `?statut=` (indicateurs du tableau de bord) prime sur le filtre mémorisé ; sans paramètre, le filtre est conservé.
+    const query = this.route.snapshot.queryParamMap;
+    if (query.has('statut')) {
+      this.store.setStatutFilter(statutDepuisUrl(query.get('statut'), STATUTS_INTERVENTION));
+    }
     this.store.loadPage({page: 0, size: this.store.pageSize()});
 
     effect(() => {

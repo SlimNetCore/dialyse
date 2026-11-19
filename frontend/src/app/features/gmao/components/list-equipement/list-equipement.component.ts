@@ -1,6 +1,6 @@
 import {ChangeDetectionStrategy, Component, computed, effect, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {RouterLink} from '@angular/router';
+import {ActivatedRoute, RouterLink} from '@angular/router';
 import {MatTableModule} from '@angular/material/table';
 import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
 import {MatButtonModule} from '@angular/material/button';
@@ -14,7 +14,7 @@ import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {Equipement} from '../../../../core/api/gmao-api.service';
 import {ConfirmDialogComponent} from '../../../../shared/confirm-dialog.component';
 import {GmaoEquipementsStore} from '../../state/gmao-equipements.store';
-import {peutReformer, statutEquipementTone, STATUTS_EQUIPEMENT} from '../../gmao-options.util';
+import {peutReformer, statutDepuisUrl, statutEquipementTone, STATUTS_EQUIPEMENT} from '../../gmao-options.util';
 import {AuthStore} from '../../../../core/state/auth.store';
 
 /**
@@ -42,7 +42,14 @@ export class GmaoListEquipementComponent {
   protected readonly canReform = computed(() => peutReformer((r) => this.auth.hasRole(r)));
   private readonly translate = inject(TranslateService);
 
+  private readonly route = inject(ActivatedRoute);
+
   constructor() {
+    // `?statut=` (indicateurs du tableau de bord) prime sur le filtre mémorisé ; sans paramètre, le filtre est conservé.
+    const query = this.route.snapshot.queryParamMap;
+    if (query.has('statut')) {
+      this.store.setStatutFilter(statutDepuisUrl(query.get('statut'), STATUTS_EQUIPEMENT));
+    }
     this.store.loadPage({page: 0, size: this.store.pageSize()});
 
     effect(() => {
