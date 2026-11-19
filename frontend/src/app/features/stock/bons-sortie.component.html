@@ -119,33 +119,28 @@
       <mat-card-title>{{ 'STOCK.OUTPUT_ORDERS_LIST_TITLE' | translate }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <div class="table-wrap">
-        <table [dataSource]="bons()" class="full-width" mat-table>
-          <ng-container matColumnDef="reference">
-            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.REFERENCE_LABEL' | translate }}</th>
-            <td *matCellDef="let b" mat-cell>{{ b.reference }}</td>
-          </ng-container>
-          <ng-container matColumnDef="date">
-            <th *matHeaderCellDef mat-header-cell>{{ 'COMMON.DATE' | translate }}</th>
-            <td *matCellDef="let b" mat-cell>{{ b.dateSortie }}</td>
-          </ng-container>
-          <ng-container matColumnDef="lignes">
-            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.LINES_LABEL' | translate }}</th>
-            <td *matCellDef="let b" mat-cell>{{ b.lignes.length }}</td>
-          </ng-container>
-          <ng-container matColumnDef="actions">
-            <th *matHeaderCellDef mat-header-cell>{{ 'COMMON.COL_ACTIONS' | translate }}</th>
-            <td *matCellDef="let b" mat-cell>
-              <button (click)="editBon(b)" mat-icon-button>
-                <mat-icon>edit</mat-icon>
-              </button>
-            </td>
-          </ng-container>
-          <tr *matHeaderRowDef="cols" mat-header-row></tr>
-          <tr *matRowDef="let row; columns: cols" [attr.data-row-id]="row?.id" mat-row></tr>
-        </table>
+      <div class="table-wrap" data-testid="bons-sortie-table">
+        <ng-table
+          [ariaLabel]="'STOCK.OUTPUT_ORDERS_LIST_TITLE' | translate"
+          [columns]="colonnes()"
+          [rows]="bons()"
+          [paginator]="true"
+          [pageSize]="tailleDePage"
+          [pageSizeOptions]="taillesDePage"
+          [labels]="ngTableLabels()"
+          [rowKeyAccessor]="cleDeBon"
+        />
       </div>
     </mat-card-content>
   </mat-card>
 </section>
+
+<ng-template #actionsBon let-b>
+  <div [attr.data-row-id]="b.id" class="action-buttons">
+    <button (click)="editBon(b); $event.stopPropagation()" [attr.aria-label]="'COMMON.EDIT_BTN' | translate"
+            mat-icon-button type="button">
+      <mat-icon>edit</mat-icon>
+    </button>
+  </div>
+</ng-template>
 

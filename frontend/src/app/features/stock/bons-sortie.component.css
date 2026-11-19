@@ -3,8 +3,11 @@
   gap: 16px;
 }
 
-.full-width {
-  width: 100%;
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
 }
 
 .head-row {
@@ -135,11 +138,5 @@ mat-card-content {
 
   mat-card-content {
     padding-inline: 12px;
-  }
-}
-
-@media (max-width: 640px) {
-  .table-wrap table {
-    min-width: 540px;
   }
 }

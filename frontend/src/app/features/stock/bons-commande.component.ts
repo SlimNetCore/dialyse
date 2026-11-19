@@ -1,6 +1,9 @@
-import {ChangeDetectionStrategy, Component, computed, effect, inject, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, effect, inject, signal, TemplateRef, viewChild} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {compatForm} from '@angular/forms/signals/compat';
+import {toSignal} from '@angular/core/rxjs-interop';
+import {merge, map} from 'rxjs';
+import {NgTableColumn, NgTableComponent, NgTableTone} from '@sbourahla/ng-table';
+import {NgTableTranslatedLabels} from '../../shared/ng-table-labels';import {compatForm} from '@angular/forms/signals/compat';
 import {applyEach, FormField, FormRoot, min, required} from '@angular/forms/signals';
 import {MatCardModule} from '@angular/material/card';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -8,8 +11,6 @@ import {MatInputModule} from '@angular/material/input';
 import {MatSelectModule} from '@angular/material/select';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
-import {MatTableModule} from '@angular/material/table';
-import {MatChipsModule} from '@angular/material/chips';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {TranslateModule} from '@ngx-translate/core';
 import {TranslateService} from '@ngx-translate/core';
@@ -18,20 +19,37 @@ import {WebSocketService} from '../../core/ws/websocket.service';
 import {BonCommande, Fournisseur, StockApiService} from '../../core/api/stock-api.service';
 import {ReferentialApiService, RefItem} from '../../core/api/referential-api.service';
 
+type StatutBonCommande = BonCommande['statut'];
+
+/** Statuts d'un bon de commande, dans l'ordre du cycle de vie. */
+export const STATUTS_BON_COMMANDE: readonly StatutBonCommande[] = ['BROUILLON', 'VALIDE', 'RECU', 'ANNULE'];
+/** Teinte de la pastille de statut. */
+export const TONS_STATUT_BON_COMMANDE: Record<StatutBonCommande, NgTableTone> = {
+  BROUILLON: 'warning',
+  VALIDE: 'info',
+  RECU: 'success',
+  ANNULE: 'danger',
+};
+
 @Component({
   selector: 'app-bons-commande',
   standalone: true,
   imports: [
     CommonModule, MatCardModule, MatFormFieldModule, MatInputModule,
-    MatSelectModule, MatButtonModule, MatIconModule, MatTableModule, MatChipsModule,
-    FormRoot, FormField, TranslateModule,
+    MatSelectModule, MatButtonModule, MatIconModule,
+    FormRoot, FormField, TranslateModule, NgTableComponent,
   ],
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './bons-commande.component.html',
   styleUrl: './bons-commande.component.css',
 })
 export class BonsCommandeComponent {
-  protected readonly cols = ['reference', 'statut', 'lignes', 'actions'];
+  /** Liste entièrement en mémoire (l'API ne pagine pas) : pagination locale de ng-table. */
+  protected readonly taillesDePage: readonly number[] = [10, 20, 50, 100];
+  protected readonly tailleDePage = 20;
+  protected readonly ngTableLabels = inject(NgTableTranslatedLabels).labels;
+  protected readonly cleDeBon = (b: BonCommande): unknown => b.id;
+  protected readonly actionsTemplate = viewChild<TemplateRef<{ $implicit: BonCommande; row: BonCommande }>>('actionsBon');
   protected readonly bons = signal<BonCommande[]>([]);
   protected readonly fournisseurs = signal<Fournisseur[]>([]);
   protected readonly articles = signal<RefItem[]>([]);
@@ -62,6 +80,39 @@ export class BonsCommandeComponent {
   private readonly ws = inject(WebSocketService);
   private readonly snack = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
+  private readonly langue = toSignal(
+    merge(this.translate.onLangChange, this.translate.onTranslationChange).pipe(map(() => Date.now())),
+    {initialValue: 0});
+
+  /** Colonnes de la liste : référence, statut en pastille, nombre de lignes, actions (hors export). */
+  protected readonly colonnes = computed<NgTableColumn<BonCommande>[]>(() => {
+    this.langue();
+    const t = (cle: string): string => this.translate.instant(cle);
+    const statut = (valeur: unknown): string => t(`STOCK.BON_STATUT.${String(valeur)}`);
+    const actions = this.actionsTemplate() as NgTableColumn<BonCommande>['cellTemplate'];
+    return [
+      {
+        id: 'reference', header: t('STOCK.REFERENCE_LABEL'), valueAccessor: (b) => b.reference, sortable: true,
+        filter: {type: 'text', label: t('STOCK.REFERENCE_LABEL')},
+      },
+      {
+        id: 'statut', header: t('COMMON.STATUS_LABEL'), valueAccessor: (b) => b.statut, sortable: true,
+        cell: {type: 'badge', tone: TONS_STATUT_BON_COMMANDE, label: statut},
+        searchable: (b) => statut(b.statut), exportValueAccessor: (b) => statut(b.statut),
+        filter: {
+          type: 'enum', label: t('COMMON.STATUS_LABEL'),
+          options: STATUTS_BON_COMMANDE.map((s) => ({value: s, label: statut(s)})),
+        },
+      },
+      {
+        id: 'lignes', header: t('STOCK.LINES_LABEL'), valueAccessor: (b) => b.lignes?.length ?? 0, sortable: true,
+      },
+      {
+        id: 'actions', header: t('COMMON.COL_ACTIONS'), valueAccessor: () => '', sortable: false,
+        exportable: false, searchable: false, cellTemplate: actions, textOverflow: 'wrap',
+      },
+    ];
+  });
 
   constructor() {
     this.reload();

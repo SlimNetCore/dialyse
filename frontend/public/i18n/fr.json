@@ -923,6 +923,12 @@
       "RECALC_COMPLETED_REFRESHED": "Recalcul terminé : les prix et quantités affichés ont été actualisés.",
       "RECALC_FAILED_INFO": "Le recalcul stock a échoué. Les dernières valeurs connues restent affichées."
     },
+    "BON_STATUT": {
+      "BROUILLON": "Brouillon",
+      "VALIDE": "Validé",
+      "RECU": "Reçu",
+      "ANNULE": "Annulé"
+    },
     "EYEBROW_SUPPLY": "Stock · Approvisionnement",
     "PURCHASE_ORDERS_TITLE": "Bons de commande",
     "NEW_PURCHASE_ORDER_TITLE": "Nouveau bon de commande",

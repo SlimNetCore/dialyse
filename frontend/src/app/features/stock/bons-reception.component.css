@@ -3,10 +3,6 @@
   gap: 16px;
 }
 
-.full-width {
-  width: 100%;
-}
-
 .head-row {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(220px, 1fr);
@@ -154,11 +150,5 @@ mat-card-content {
 
   mat-card-content {
     padding-inline: 12px;
-  }
-}
-
-@media (max-width: 640px) {
-  .table-wrap table {
-    min-width: 640px;
   }
 }

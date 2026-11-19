@@ -1,10 +1,12 @@
 import {TestBed} from '@angular/core/testing';
+import {By} from '@angular/platform-browser';
 import {of} from 'rxjs';
 import {vi} from 'vitest';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatDialog} from '@angular/material/dialog';
 import {TranslateModule} from '@ngx-translate/core';
-import {BonsReceptionComponent} from './bons-reception.component';
+import {NgTableComponent} from '@sbourahla/ng-table';
+import {BonsReceptionComponent, TONS_STATUT_BON_RECEPTION} from './bons-reception.component';
 import {StockApiService} from '../../core/api/stock-api.service';
 import {ReferentialApiService} from '../../core/api/referential-api.service';
 import {AuthStore} from '../../core/state/auth.store';
@@ -135,6 +137,62 @@ describe('BonsReceptionComponent', () => {
     });
 
     expect(component.hasLockedLines()).toBe(true);
+  });
+
+  describe('liste ng-table', () => {
+    const brouillon = {
+      id: 'br-9', centerId: 'center-1', reference: 'BR-009', dateReception: '2026-09-01', statut: 'BROUILLON',
+      lignes: [{articleId: 'a-nolot', quantite: 2, prixUnitaire: 5}],
+    };
+    const valide = {...brouillon, id: 'br-10', reference: 'BR-010', statut: 'VALIDE'};
+
+    it('declare les colonnes avec le statut en pastille teintee et les actions hors export', () => {
+      const fixture = TestBed.createComponent(BonsReceptionComponent);
+      const component = fixture.componentInstance as any;
+      fixture.detectChanges();
+
+      const colonnes = component.colonnes();
+      expect(colonnes.map((c: any) => c.id)).toEqual(['reference', 'date', 'statut', 'lignes', 'actions']);
+      const statut = colonnes[2];
+      expect(statut.cell.type).toBe('badge');
+      expect(statut.cell.tone).toEqual(TONS_STATUT_BON_RECEPTION);
+      expect(statut.cell.label('BROUILLON')).toBe('STOCK.BON_STATUT.BROUILLON');
+      expect(statut.filter.options.map((o: any) => o.value)).toEqual(['BROUILLON', 'VALIDE', 'RECU', 'ANNULE']);
+      expect(colonnes[3].valueAccessor(brouillon)).toBe(1);
+      expect(colonnes[4].exportable).toBe(false);
+    });
+
+    it('pagine localement par 20 avec choix 10/20/50/100', () => {
+      const fixture = TestBed.createComponent(BonsReceptionComponent);
+      fixture.detectChanges();
+
+      const table = fixture.debugElement.query(By.directive(NgTableComponent)).componentInstance as NgTableComponent<unknown>;
+      expect(table.paginator()).toBe(true);
+      expect(table.dataMode()).toBe('local');
+      expect(table.pageSize()).toBe(20);
+      expect(table.pageSizeOptions()).toEqual([10, 20, 50, 100]);
+    });
+
+    it('les actions de ligne restent branchees : modifier et valider le brouillon seulement', async () => {
+      stockApiMock.listBonsReception.mockReturnValueOnce(of([brouillon, valide] as any));
+      const fixture = TestBed.createComponent(BonsReceptionComponent);
+      const component = fixture.componentInstance as any;
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const actionsBrouillon = fixture.nativeElement.querySelectorAll('[data-row-id="br-9"] button');
+      const actionsValide = fixture.nativeElement.querySelectorAll('[data-row-id="br-10"] button');
+      expect(actionsBrouillon.length).toBe(2);
+      expect(actionsValide.length).toBe(1);
+
+      (actionsBrouillon[1] as HTMLButtonElement).click();
+      expect(stockApiMock.validerBonReception).toHaveBeenCalledWith('br-9', 'center-1', 'user-1');
+
+      (actionsValide[0] as HTMLButtonElement).click();
+      expect(component.editingId()).toBe('br-10');
+      expect(component.editingStatus()).toBe('VALIDE');
+    });
   });
 });
 

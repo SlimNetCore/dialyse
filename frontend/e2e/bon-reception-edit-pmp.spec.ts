@@ -3,6 +3,10 @@ import {expect, Page, test} from '@playwright/test';
 
 const BASE_URL = 'http://localhost:4200';
 const API_URL = 'http://localhost:8090/api/v1';
+/** Liste des bons de réception (ng-table paginée, statuts en pastilles traduites). */
+const LISTE = '[data-testid="bons-reception-table"]';
+const LIGNES = `${LISTE} tbody tr`;
+const BOUTON_MODIFIER = `${LISTE} button[aria-label="Modifier"]`;
 
 test.describe('Bon de Réception - Édition & PMP', () => {
   let page: Page;
@@ -47,8 +51,8 @@ test.describe('Bon de Réception - Édition & PMP', () => {
     await expect(toast).toContainText('Bon de réception créé');
 
     // Vérifier BR dans la table
-    const table = page.locator('table');
-    await expect(table).toContainText('BROUILLON');
+    const table = page.locator(LISTE);
+    await expect(table).toContainText('Brouillon');
   });
 
   // ═════════════════════════════════════════════════════════════════════════
@@ -58,10 +62,10 @@ test.describe('Bon de Réception - Édition & PMP', () => {
     await page.goto(`${BASE_URL}/stock/bons-reception`);
 
     // Attendre table chargée
-    await page.waitForSelector('table');
+    await page.waitForSelector(LISTE);
 
     // Cliquer bouton éditer (icône pencil)
-    const editButton = page.locator('button[aria-label="Éditer"]').first();
+    const editButton = page.locator(BOUTON_MODIFIER).first();
     await editButton.click();
 
     // Vérifier titre changé
@@ -84,7 +88,7 @@ test.describe('Bon de Réception - Édition & PMP', () => {
 
     // Vérifier table mise à jour
     await page.waitForTimeout(500);
-    const table = page.locator('table');
+    const table = page.locator(LISTE);
     await expect(table).toContainText('15'); // Nouvelle quantité
   });
 
@@ -93,10 +97,10 @@ test.describe('Bon de Réception - Édition & PMP', () => {
   // ═════════════════════════════════════════════════════════════════════════
   test('Annuler l\'édition d\'un bon de réception', async () => {
     await page.goto(`${BASE_URL}/stock/bons-reception`);
-    await page.waitForSelector('table');
+    await page.waitForSelector(LISTE);
 
     // Cliquer éditer
-    await page.locator('button[aria-label="Éditer"]').first().click();
+    await page.locator(BOUTON_MODIFIER).first().click();
 
     // Modifier sans sauvegarder
     await page.locator('input[formcontrolname="quantite"]').first().fill('999');
@@ -118,7 +122,7 @@ test.describe('Bon de Réception - Édition & PMP', () => {
   // ═════════════════════════════════════════════════════════════════════════
   test('Afficher dialogue explication du PMP', async () => {
     await page.goto(`${BASE_URL}/stock/bons-reception`);
-    await page.waitForSelector('table');
+    await page.waitForSelector(LISTE);
 
     // Cliquer "Voir PMP"
     const pmpButton = page.locator('button:has-text("Voir PMP")').first();
@@ -153,10 +157,10 @@ test.describe('Bon de Réception - Édition & PMP', () => {
   // ═════════════════════════════════════════════════════════════════════════
   test('Valider un bon de réception et recalculer le PMP', async () => {
     await page.goto(`${BASE_URL}/stock/bons-reception`);
-    await page.waitForSelector('table');
+    await page.waitForSelector(LISTE);
 
     // Cliquer "Valider"
-    const validateButton = page.locator('button:has-text("Valider")').first();
+    const validateButton = page.locator(`${LISTE} button:has-text("Valider")`).first();
     await validateButton.click();
 
     // Toast confirmation
@@ -166,12 +170,12 @@ test.describe('Bon de Réception - Édition & PMP', () => {
     // Attendre table rafraîchie
     await page.waitForTimeout(1000);
 
-    // Vérifier statut changé à "VALIDÉ"
-    const table = page.locator('table');
-    await expect(table).toContainText('VALIDÉ');
+    // Vérifier statut changé à "Validé"
+    const table = page.locator(LISTE);
+    await expect(table).toContainText('Validé');
 
     // Bouton "Valider" doit disparaître (pas BROUILLON)
-    const br = page.locator('table tbody tr').first();
+    const br = page.locator(LIGNES).first();
     const buttons = br.locator('button:has-text("Valider")');
     await expect(buttons).not.toBeVisible();
   });
@@ -181,13 +185,13 @@ test.describe('Bon de Réception - Édition & PMP', () => {
   // ═════════════════════════════════════════════════════════════════════════
   test('Empêcher édition d\'un BR validé', async () => {
     await page.goto(`${BASE_URL}/stock/bons-reception`);
-    await page.waitForSelector('table');
+    await page.waitForSelector(LISTE);
 
-    // Chercher BR VALIDÉ
-    const validatedRow = page.locator('table tbody tr:has-text("VALIDÉ")').first();
+    // Chercher BR validé
+    const validatedRow = page.locator(`${LIGNES}:has-text("Validé")`).first();
 
     // Bouton éditer ne doit pas exister
-    const editBtn = validatedRow.locator('button[aria-label="Éditer"]');
+    const editBtn = validatedRow.locator('button[aria-label="Modifier"]');
     await expect(editBtn).not.toBeVisible();
 
     // Seul "Voir PMP" doit rester
@@ -266,7 +270,7 @@ test.describe('Bon de Réception - Édition & PMP', () => {
 
     // Page 1 : View
     await page.goto(`${BASE_URL}/stock/bons-reception`);
-    const countBefore = await page.locator('table tbody tr').count();
+    const countBefore = await page.locator(LIGNES).count();
 
     // Page 2 : Create
     await page2.goto(`${BASE_URL}/stock/bons-reception`);
@@ -279,7 +283,7 @@ test.describe('Bon de Réception - Édition & PMP', () => {
 
     // Page 1 : Vérifier reload
     await page.waitForTimeout(2000);
-    const countAfter = await page.locator('table tbody tr').count();
+    const countAfter = await page.locator(LIGNES).count();
 
     expect(countAfter).toBeGreaterThan(countBefore);
 

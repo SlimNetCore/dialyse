@@ -923,6 +923,12 @@
       "RECALC_COMPLETED_REFRESHED": "Asasifeḍ yekfa: wazalen d tnektin i d-yettwaskanen leqqmen.",
       "RECALC_FAILED_INFO": "Asasifeḍ n ugdez ur yeddi ara. Azalen ineggura ttwasnen qqimen d-yettwaskanen."
     },
+    "BON_STATUT": {
+      "BROUILLON": "Arewway",
+      "VALIDE": "Yettwasentem",
+      "RECU": "Yettwarmes",
+      "ANNULE": "Yettwasefsex"
+    },
     "EYEBROW_SUPPLY": "Agdez · Taẓuri",
     "PURCHASE_ORDERS_TITLE": "Igelsan n tuttra",
     "NEW_PURCHASE_ORDER_TITLE": "Agelsu n tuttra amaynut",

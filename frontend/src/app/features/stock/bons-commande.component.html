@@ -72,39 +72,34 @@
       <mat-card-title>{{ 'STOCK.PURCHASE_ORDERS_LIST_TITLE' | translate }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <div class="table-wrap">
-        <table [dataSource]="bons()" class="full-width" mat-table>
-          <ng-container matColumnDef="reference">
-            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.REFERENCE_LABEL' | translate }}</th>
-            <td *matCellDef="let b" mat-cell>{{ b.reference }}</td>
-          </ng-container>
-          <ng-container matColumnDef="statut">
-            <th *matHeaderCellDef mat-header-cell>{{ 'COMMON.STATUS_LABEL' | translate }}</th>
-            <td *matCellDef="let b" mat-cell>
-              <mat-chip>{{ b.statut }}</mat-chip>
-            </td>
-          </ng-container>
-          <ng-container matColumnDef="lignes">
-            <th *matHeaderCellDef mat-header-cell>{{ 'STOCK.LINES_LABEL' | translate }}</th>
-            <td *matCellDef="let b" mat-cell>{{ b.lignes.length }}</td>
-          </ng-container>
-          <ng-container matColumnDef="actions">
-            <th *matHeaderCellDef mat-header-cell>{{ 'COMMON.COL_ACTIONS' | translate }}</th>
-            <td *matCellDef="let b" mat-cell>
-              @if (b.statut === 'BROUILLON') {
-                <button (click)="valider(b)" mat-stroked-button>{{ 'PEC_ADMIN.VALIDATE' | translate }}</button>
-              }
-              @if (b.statut === 'VALIDE') {
-                <button (click)="transformer(b)" mat-stroked-button>{{ 'STOCK.TO_RECEPTION_BUTTON' | translate }}
-                </button>
-              }
-            </td>
-          </ng-container>
-          <tr *matHeaderRowDef="cols" mat-header-row></tr>
-          <tr *matRowDef="let _; columns: cols" mat-row></tr>
-        </table>
+      <div class="table-wrap" data-testid="bons-commande-table">
+        <ng-table
+          [ariaLabel]="'STOCK.PURCHASE_ORDERS_LIST_TITLE' | translate"
+          [columns]="colonnes()"
+          [rows]="bons()"
+          [paginator]="true"
+          [pageSize]="tailleDePage"
+          [pageSizeOptions]="taillesDePage"
+          [labels]="ngTableLabels()"
+          [rowKeyAccessor]="cleDeBon"
+        />
       </div>
     </mat-card-content>
   </mat-card>
 </section>
+
+<ng-template #actionsBon let-b>
+  <div class="action-buttons">
+    @if (b.statut === 'BROUILLON') {
+      <button (click)="valider(b); $event.stopPropagation()" mat-stroked-button type="button">
+        {{ 'PEC_ADMIN.VALIDATE' | translate }}
+      </button>
+    }
+    @if (b.statut === 'VALIDE') {
+      <button (click)="transformer(b); $event.stopPropagation()" mat-stroked-button type="button">
+        {{ 'STOCK.TO_RECEPTION_BUTTON' | translate }}
+      </button>
+    }
+  </div>
+</ng-template>
 

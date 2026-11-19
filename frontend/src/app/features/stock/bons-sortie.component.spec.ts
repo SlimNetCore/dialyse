@@ -1,4 +1,6 @@
 import {TestBed} from '@angular/core/testing';
+import {By} from '@angular/platform-browser';
+import {NgTableComponent} from '@sbourahla/ng-table';
 import {of} from 'rxjs';
 import {vi} from 'vitest';
 import {MatSnackBar} from '@angular/material/snack-bar';
@@ -200,6 +202,53 @@ describe('BonsSortieComponent', () => {
     });
 
     expect(component.hasLockedItems()).toBe(true);
+  });
+
+  describe('liste ng-table', () => {
+    const bon = {
+      id: 'bs-9', centerId: 'center-1', reference: 'BS-009', seanceId: 'seance-9',
+      dateSortie: '2026-09-01', lignes: [{articleId: 'a1', lotId: 'l1', quantite: 1}, {articleId: 'a1', quantite: 2}],
+    };
+
+    it('declare les colonnes reference, date, lignes et actions (hors export)', () => {
+      const fixture = TestBed.createComponent(BonsSortieComponent);
+      const component = fixture.componentInstance as any;
+      fixture.detectChanges();
+
+      const colonnes = component.colonnes();
+      expect(colonnes.map((c: any) => c.id)).toEqual(['reference', 'date', 'lignes', 'actions']);
+      expect(colonnes[0].valueAccessor(bon)).toBe('BS-009');
+      expect(colonnes[1].valueAccessor(bon)).toBe('2026-09-01');
+      expect(colonnes[2].valueAccessor(bon)).toBe(2);
+      expect(colonnes[3].exportable).toBe(false);
+      expect(colonnes[3].cellTemplate).toBeTruthy();
+    });
+
+    it('pagine localement par 20 avec choix 10/20/50/100', () => {
+      const fixture = TestBed.createComponent(BonsSortieComponent);
+      fixture.detectChanges();
+
+      const table = fixture.debugElement.query(By.directive(NgTableComponent)).componentInstance as NgTableComponent<unknown>;
+      expect(table.paginator()).toBe(true);
+      expect(table.dataMode()).toBe('local');
+      expect(table.pageSize()).toBe(20);
+      expect(table.pageSizeOptions()).toEqual([10, 20, 50, 100]);
+    });
+
+    it('le bouton modifier de la ligne ouvre le bon en edition', async () => {
+      stockApiMock.listBonsSortie.mockReturnValueOnce(of([bon] as any));
+      const fixture = TestBed.createComponent(BonsSortieComponent);
+      const component = fixture.componentInstance as any;
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const bouton = fixture.nativeElement.querySelector('[data-row-id="bs-9"] button') as HTMLButtonElement;
+      expect(bouton).toBeTruthy();
+      bouton.click();
+
+      expect(component.editingBonId()).toBe('bs-9');
+    });
   });
 });
 

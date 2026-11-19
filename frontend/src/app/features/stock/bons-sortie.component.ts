@@ -1,5 +1,19 @@
-import {ChangeDetectionStrategy, Component, computed, effect, inject, OnDestroy, signal} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  OnDestroy,
+  signal,
+  TemplateRef,
+  viewChild,
+} from '@angular/core';
 import {CommonModule} from '@angular/common';
+import {toSignal} from '@angular/core/rxjs-interop';
+import {map, merge} from 'rxjs';
+import {NgTableColumn, NgTableComponent} from '@sbourahla/ng-table';
+import {NgTableTranslatedLabels} from '../../shared/ng-table-labels';
 import {compatForm} from '@angular/forms/signals/compat';
 import {FormField, FormRoot, required} from '@angular/forms/signals';
 import {MatCardModule} from '@angular/material/card';
@@ -10,7 +24,6 @@ import {MatDatepickerModule} from '@angular/material/datepicker';
 import {MatNativeDateModule} from '@angular/material/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
-import {MatTableModule} from '@angular/material/table';
 import {MatChipsModule} from '@angular/material/chips';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {TranslateModule} from '@ngx-translate/core';
@@ -26,8 +39,8 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
   standalone: true,
   imports: [
     CommonModule, MatCardModule, MatFormFieldModule, MatInputModule,
-    MatSelectModule, MatDatepickerModule, MatNativeDateModule, MatButtonModule, MatIconModule, MatTableModule,
-    MatChipsModule, FormRoot, FormField, TranslateModule,
+    MatSelectModule, MatDatepickerModule, MatNativeDateModule, MatButtonModule, MatIconModule,
+    MatChipsModule, FormRoot, FormField, TranslateModule, NgTableComponent,
   ],
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './bons-sortie.component.html',
@@ -36,7 +49,12 @@ import {ReferentialApiService, RefItem} from '../../core/api/referential-api.ser
 export class BonsSortieComponent implements OnDestroy {
   private static readonly DEFAULT_SEANCE_ID = '00000000-0000-0000-0000-000000000000';
 
-  protected readonly cols = ['reference', 'date', 'lignes', 'actions'];
+  /** Liste entièrement en mémoire (l'API ne pagine pas) : pagination locale de ng-table. */
+  protected readonly taillesDePage: readonly number[] = [10, 20, 50, 100];
+  protected readonly tailleDePage = 20;
+  protected readonly ngTableLabels = inject(NgTableTranslatedLabels).labels;
+  protected readonly cleDeBon = (b: BonSortie): unknown => b.id;
+  protected readonly actionsTemplate = viewChild<TemplateRef<{ $implicit: BonSortie; row: BonSortie }>>('actionsBon');
   protected readonly bons = signal<BonSortie[]>([]);
   protected readonly articles = signal<RefItem[]>([]);
   protected readonly lotsByRow = signal<Record<number, LotDisponible[]>>({});
@@ -71,6 +89,32 @@ export class BonsSortieComponent implements OnDestroy {
   private readonly snack = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
   private lockTimer: ReturnType<typeof setInterval> | null = null;
+  private readonly langue = toSignal(
+    merge(this.translate.onLangChange, this.translate.onTranslationChange).pipe(map(() => Date.now())),
+    {initialValue: 0});
+
+  /** Colonnes de la liste : référence, date, nombre de lignes, action de modification (hors export). */
+  protected readonly colonnes = computed<NgTableColumn<BonSortie>[]>(() => {
+    this.langue();
+    const t = (cle: string): string => this.translate.instant(cle);
+    const actions = this.actionsTemplate() as NgTableColumn<BonSortie>['cellTemplate'];
+    return [
+      {
+        id: 'reference', header: t('STOCK.REFERENCE_LABEL'), valueAccessor: (b) => b.reference, sortable: true,
+        filter: {type: 'text', label: t('STOCK.REFERENCE_LABEL')},
+      },
+      {
+        id: 'date', header: t('COMMON.DATE'), valueAccessor: (b) => b.dateSortie ?? '', sortable: true,
+      },
+      {
+        id: 'lignes', header: t('STOCK.LINES_LABEL'), valueAccessor: (b) => b.lignes?.length ?? 0, sortable: true,
+      },
+      {
+        id: 'actions', header: t('COMMON.COL_ACTIONS'), valueAccessor: () => '', sortable: false,
+        exportable: false, searchable: false, cellTemplate: actions, textOverflow: 'wrap',
+      },
+    ];
+  });
 
   constructor() {
     this.reload();

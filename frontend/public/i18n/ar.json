@@ -923,6 +923,12 @@
       "RECALC_COMPLETED_REFRESHED": "انتهت إعادة الحساب: تم تحديث الأسعار والكميات المعروضة تلقائياً.",
       "RECALC_FAILED_INFO": "فشلت إعادة حساب المخزون. تم الإبقاء على آخر القيم المعروفة."
     },
+    "BON_STATUT": {
+      "BROUILLON": "مسودة",
+      "VALIDE": "مُصادَق عليه",
+      "RECU": "مُستلَم",
+      "ANNULE": "ملغى"
+    },
     "EYEBROW_SUPPLY": "المخزون · التموين",
     "PURCHASE_ORDERS_TITLE": "طلبات الشراء",
     "NEW_PURCHASE_ORDER_TITLE": "طلب شراء جديد",

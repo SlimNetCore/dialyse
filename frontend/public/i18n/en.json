@@ -923,6 +923,12 @@
       "RECALC_COMPLETED_REFRESHED": "Recalculation finished: displayed prices and quantities were refreshed.",
       "RECALC_FAILED_INFO": "Stock recalculation failed. Last known values remain displayed."
     },
+    "BON_STATUT": {
+      "BROUILLON": "Draft",
+      "VALIDE": "Validated",
+      "RECU": "Received",
+      "ANNULE": "Cancelled"
+    },
     "EYEBROW_SUPPLY": "Stock · Supply",
     "PURCHASE_ORDERS_TITLE": "Purchase orders",
     "NEW_PURCHASE_ORDER_TITLE": "New purchase order",

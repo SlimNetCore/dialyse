@@ -1,5 +1,19 @@
-import {ChangeDetectionStrategy, Component, computed, effect, inject, OnDestroy, signal} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  OnDestroy,
+  signal,
+  TemplateRef,
+  viewChild,
+} from '@angular/core';
 import {CommonModule} from '@angular/common';
+import {toSignal} from '@angular/core/rxjs-interop';
+import {map, merge} from 'rxjs';
+import {NgTableColumn, NgTableComponent, NgTableTone} from '@sbourahla/ng-table';
+import {NgTableTranslatedLabels} from '../../shared/ng-table-labels';
 import {compatForm} from '@angular/forms/signals/compat';
 import {FormField, FormRoot, required} from '@angular/forms/signals';
 import {MatCardModule} from '@angular/material/card';
@@ -10,7 +24,6 @@ import {MatDatepickerModule} from '@angular/material/datepicker';
 import {MatNativeDateModule} from '@angular/material/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
-import {MatTableModule} from '@angular/material/table';
 import {MatChipsModule} from '@angular/material/chips';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatDialog} from '@angular/material/dialog';
@@ -23,13 +36,25 @@ import {BonReception, Emplacement, Fournisseur, StockApiService} from '../../cor
 import {ReferentialApiService, RefItem} from '../../core/api/referential-api.service';
 import {PmpRecalcDialogComponent} from './pmp-recalc-dialog.component';
 
+type StatutBonReception = BonReception['statut'];
+
+/** Statuts d'un bon de réception, dans l'ordre du cycle de vie. */
+export const STATUTS_BON_RECEPTION: readonly StatutBonReception[] = ['BROUILLON', 'VALIDE', 'RECU', 'ANNULE'];
+/** Teinte de la pastille de statut. */
+export const TONS_STATUT_BON_RECEPTION: Record<StatutBonReception, NgTableTone> = {
+  BROUILLON: 'warning',
+  VALIDE: 'info',
+  RECU: 'success',
+  ANNULE: 'danger',
+};
+
 @Component({
   selector: 'app-bons-reception',
   standalone: true,
   imports: [
     CommonModule, MatCardModule, MatFormFieldModule, MatInputModule,
     MatSelectModule, MatDatepickerModule, MatNativeDateModule, MatButtonModule, MatIconModule,
-    MatTableModule, MatChipsModule, MatTooltipModule, FormRoot, FormField, TranslateModule,
+    MatChipsModule, MatTooltipModule, FormRoot, FormField, TranslateModule, NgTableComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
@@ -39,7 +64,13 @@ import {PmpRecalcDialogComponent} from './pmp-recalc-dialog.component';
   styleUrl: './bons-reception.component.css',
 })
 export class BonsReceptionComponent implements OnDestroy {
-  protected readonly cols = ['reference', 'date', 'statut', 'lignes', 'actions'];
+  /** Liste entièrement en mémoire (l'API ne pagine pas) : pagination locale de ng-table. */
+  protected readonly taillesDePage: readonly number[] = [10, 20, 50, 100];
+  protected readonly tailleDePage = 20;
+  protected readonly ngTableLabels = inject(NgTableTranslatedLabels).labels;
+  protected readonly cleDeBon = (b: BonReception): unknown => b.id;
+  protected readonly actionsTemplate = viewChild<TemplateRef<{ $implicit: BonReception; row: BonReception }>>(
+    'actionsBon');
   protected readonly bons = signal<BonReception[]>([]);
   protected readonly fournisseurs = signal<Fournisseur[]>([]);
   protected readonly emplacements = signal<Emplacement[]>([]);
@@ -79,6 +110,42 @@ export class BonsReceptionComponent implements OnDestroy {
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
   private lockTimer: ReturnType<typeof setInterval> | null = null;
+  private readonly langue = toSignal(
+    merge(this.translate.onLangChange, this.translate.onTranslationChange).pipe(map(() => Date.now())),
+    {initialValue: 0});
+
+  /** Colonnes de la liste : référence, date, statut en pastille, nombre de lots, actions (hors export). */
+  protected readonly colonnes = computed<NgTableColumn<BonReception>[]>(() => {
+    this.langue();
+    const t = (cle: string): string => this.translate.instant(cle);
+    const statut = (valeur: unknown): string => t(`STOCK.BON_STATUT.${String(valeur)}`);
+    const actions = this.actionsTemplate() as NgTableColumn<BonReception>['cellTemplate'];
+    return [
+      {
+        id: 'reference', header: t('STOCK.REFERENCE_LABEL'), valueAccessor: (b) => b.reference, sortable: true,
+        filter: {type: 'text', label: t('STOCK.REFERENCE_LABEL')},
+      },
+      {
+        id: 'date', header: t('COMMON.DATE'), valueAccessor: (b) => b.dateReception ?? '', sortable: true,
+      },
+      {
+        id: 'statut', header: t('COMMON.STATUS_LABEL'), valueAccessor: (b) => b.statut, sortable: true,
+        cell: {type: 'badge', tone: TONS_STATUT_BON_RECEPTION, label: statut},
+        searchable: (b) => statut(b.statut), exportValueAccessor: (b) => statut(b.statut),
+        filter: {
+          type: 'enum', label: t('COMMON.STATUS_LABEL'),
+          options: STATUTS_BON_RECEPTION.map((s) => ({value: s, label: statut(s)})),
+        },
+      },
+      {
+        id: 'lignes', header: t('STOCK.LOTS_LABEL'), valueAccessor: (b) => b.lignes?.length ?? 0, sortable: true,
+      },
+      {
+        id: 'actions', header: t('COMMON.COL_ACTIONS'), valueAccessor: () => '', sortable: false,
+        exportable: false, searchable: false, cellTemplate: actions, textOverflow: 'wrap',
+      },
+    ];
+  });
 
   constructor() {
     this.reload();
