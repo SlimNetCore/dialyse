@@ -281,6 +281,8 @@ export class ShellComponent implements OnInit, AfterViewInit {
       icon: 'medical_services',
       label: 'NAV.INFIRMIERS',
       items: [
+        // sans drapeau nurse : l'infirmier seul n'a pas accès au tableau de bord (roleScopeGuard)
+        {route: '/infirmiers/tableau-de-bord', label: 'NAV.TABLEAU_DE_BORD', icon: 'insights', kind: 'tableau-de-bord'},
         {route: '/infirmiers/moi', label: 'NAV.INFIRMIERS_MOI', icon: 'person_pin', nurse: true, role: 'INFIRMIER'},
         {route: '/infirmiers', label: 'NAV.INFIRMIERS_PRESENCE', icon: 'calendar_view_week'},
         {route: '/infirmiers/referentiel', label: 'NAV.INFIRMIERS_REFERENTIEL', icon: 'badge', kind: 'parametrage'},

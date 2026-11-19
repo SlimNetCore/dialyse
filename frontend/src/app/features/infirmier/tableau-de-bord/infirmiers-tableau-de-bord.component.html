@@ -1,0 +1,151 @@
+<section class="app-page">
+  <div class="app-hero-card">
+    <span class="app-eyebrow">{{ 'INFIRMIER.TABLEAU_DE_BORD.EYEBROW' | translate }}</span>
+    <h1 class="app-section-title">{{ 'INFIRMIER.TABLEAU_DE_BORD.TITLE' | translate }}</h1>
+    <p class="app-muted-note">{{ 'INFIRMIER.TABLEAU_DE_BORD.DESCRIPTION' | translate }}</p>
+  </div>
+
+  @if (store.loading()) {
+    <mat-progress-bar mode="indeterminate"/>
+  }
+  @if (store.error()) {
+    <p class="app-muted-note error" role="alert">{{ store.error()! | translate }}</p>
+  }
+
+  <div class="kpi-grid" data-testid="itdb-kpis">
+    <div [class.warning-pill]="store.alertes().length > 0" class="app-data-pill">
+      <span>{{ 'INFIRMIER.TABLEAU_DE_BORD.KPI.CRENEAUX_RISQUE' | translate: {jours: horizon} }}</span>
+      <strong data-testid="itdb-nb-alertes">{{ store.alertes().length }}</strong>
+    </div>
+    <div class="app-data-pill">
+      <span>{{ 'INFIRMIER.TABLEAU_DE_BORD.KPI.INFIRMIERS_MANQUANTS' | translate }}</span>
+      <strong>{{ store.infirmiersManquants() }}</strong>
+    </div>
+    <div class="app-data-pill">
+      <span>{{ 'INFIRMIER.TABLEAU_DE_BORD.KPI.ABSENTS_AUJOURDHUI' | translate }}</span>
+      <strong data-testid="itdb-nb-absents">{{ store.absencesEnCours().length }}</strong>
+    </div>
+    <div class="app-data-pill">
+      <span>{{ 'INFIRMIER.TABLEAU_DE_BORD.KPI.MOYENNE_MOIS' | translate }}</span>
+      <strong>{{ store.synthese().moyenne | number: '1.0-1' }}</strong>
+    </div>
+  </div>
+
+  <mat-card data-testid="itdb-couverture">
+    <mat-card-header>
+      <mat-card-title>{{ 'INFIRMIER.TABLEAU_DE_BORD.COUVERTURE_TITLE' | translate: {jours: horizon} }}</mat-card-title>
+      <mat-card-subtitle>{{ 'INFIRMIER.TABLEAU_DE_BORD.COUVERTURE_HINT' | translate }}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="alert-list">
+        @for (a of store.alertesTriees(); track a.date + a.salleId + a.creneauId) {
+          <a [queryParams]="{date: a.date}" class="alert-row danger" data-testid="itdb-alerte" routerLink="/infirmiers">
+            <mat-icon>warning_amber</mat-icon>
+            <span class="alert-label">
+              {{ a.date | date: 'dd/MM' }} {{ ('PATIENT_FORM.' + a.jour) | translate | slice: 0 : 3 }}
+            </span>
+            <span class="alert-meta">
+              {{ 'INFIRMIER.PRESENCE.MANQUE' | translate: {manque: a.manque, requis: a.requis, patients: a.patients} }}
+              @if (a.absents.length > 0) {
+                — {{ 'INFIRMIER.PRESENCE.ABSENTS' | translate }} : {{ a.absents.join(', ') }}
+              }
+            </span>
+          </a>
+        } @empty {
+          <p class="app-muted-note" data-testid="itdb-no-alerte">
+            {{ 'INFIRMIER.TABLEAU_DE_BORD.AUCUNE_ALERTE' | translate: {jours: horizon} }}
+          </p>
+        }
+      </div>
+    </mat-card-content>
+    <mat-card-actions>
+      <a mat-button routerLink="/infirmiers">
+        <mat-icon>calendar_view_week</mat-icon>
+        {{ 'INFIRMIER.TABLEAU_DE_BORD.VOIR_PRESENCE' | translate }}
+      </a>
+    </mat-card-actions>
+  </mat-card>
+
+  <mat-card data-testid="itdb-charge">
+    <mat-card-header>
+      <mat-card-title>{{ 'INFIRMIER.TABLEAU_DE_BORD.CHARGE_TITLE' | translate: {mois: store.mois()} }}</mat-card-title>
+      <mat-card-subtitle>
+        {{ 'INFIRMIER.CHARGE.MOYENNE' | translate: {valeur: (store.synthese().moyenne | number: '1.0-1')} }}
+      </mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      @if (store.synthese(); as s) {
+        <div class="kpi-grid">
+          <div class="app-data-pill">
+            <span>{{ 'INFIRMIER.TABLEAU_DE_BORD.KPI.INFIRMIERS' | translate }}</span>
+            <strong>{{ s.infirmiers }}</strong>
+          </div>
+          <div class="app-data-pill">
+            <span>{{ 'INFIRMIER.CHARGE.REMPLACEMENTS' | translate }}</span>
+            <strong>{{ s.remplacements }}</strong>
+          </div>
+          <div class="app-data-pill">
+            <span>{{ 'INFIRMIER.CHARGE.JOURS_ABSENCE' | translate }}</span>
+            <strong>{{ s.joursAbsence }}</strong>
+          </div>
+        </div>
+        @if (s.plusCharge; as p) {
+          <div class="alert-list extremes">
+            <div class="alert-row" data-testid="itdb-plus-charge">
+              <mat-icon>trending_up</mat-icon>
+              <span class="alert-label">{{ p.nom }}</span>
+              <span class="alert-meta">{{ 'INFIRMIER.TABLEAU_DE_BORD.PLUS_CHARGE' | translate: {total: p.total} }}</span>
+            </div>
+            @if (s.moinsCharge; as m) {
+              <div class="alert-row" data-testid="itdb-moins-charge">
+                <mat-icon>trending_down</mat-icon>
+                <span class="alert-label">{{ m.nom }}</span>
+                <span class="alert-meta">{{ 'INFIRMIER.TABLEAU_DE_BORD.MOINS_CHARGE' | translate: {total: m.total} }}</span>
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="app-muted-note">{{ 'INFIRMIER.TABLEAU_DE_BORD.AUCUNE_CHARGE' | translate }}</p>
+        }
+      }
+    </mat-card-content>
+    <mat-card-actions>
+      <a mat-button routerLink="/infirmiers/charge">
+        <mat-icon>balance</mat-icon>
+        {{ 'INFIRMIER.TABLEAU_DE_BORD.VOIR_CHARGE' | translate }}
+      </a>
+    </mat-card-actions>
+  </mat-card>
+
+  <mat-card data-testid="itdb-absences">
+    <mat-card-header>
+      <mat-card-title>
+        {{ 'INFIRMIER.TABLEAU_DE_BORD.ABSENCES_TITLE' | translate }} ({{ store.absencesEnCours().length }})
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="alert-list">
+        @for (a of store.absencesEnCours(); track a.id) {
+          <div class="alert-row" data-testid="itdb-absence">
+            <mat-icon>event_busy</mat-icon>
+            <span class="alert-label">{{ a.nom }}</span>
+            <span class="alert-meta">{{ ('INFIRMIER.ABSENCES.TYPES.' + a.type) | translate }}</span>
+            <span class="alert-meta">
+              {{ 'INFIRMIER.TABLEAU_DE_BORD.JUSQU_AU' | translate: {fin: (a.fin | date: 'dd/MM/yyyy')} }}
+            </span>
+          </div>
+        } @empty {
+          <p class="app-muted-note" data-testid="itdb-no-absence">
+            {{ 'INFIRMIER.TABLEAU_DE_BORD.AUCUNE_ABSENCE' | translate }}
+          </p>
+        }
+      </div>
+    </mat-card-content>
+    <mat-card-actions>
+      <a mat-button routerLink="/infirmiers/absences">
+        <mat-icon>event_busy</mat-icon>
+        {{ 'INFIRMIER.TABLEAU_DE_BORD.VOIR_ABSENCES' | translate }}
+      </a>
+    </mat-card-actions>
+  </mat-card>
+</section>

@@ -2667,6 +2667,31 @@
         "LOAD": "Ur izmir ara ad yettwasali umahil"
       }
     },
+    "TABLEAU_DE_BORD": {
+      "EYEBROW": "Imsujja",
+      "TITLE": "Tafelwit n usenqed n yimsujja",
+      "DESCRIPTION": "Asegher n ddurt, amahil n wayyur d tuffɣiwin yellan. I tigawt, ldi tilin, amahil neɣ tuffɣiwin.",
+      "KPI": {
+        "CRENEAUX_RISQUE": "Akud s uɣilif ({{jours}} wussan)",
+        "INFIRMIERS_MANQUANTS": "Imsujja ixuṣṣen",
+        "ABSENTS_AUJOURDHUI": "Wid ur nelli ass-a",
+        "MOYENNE_MOIS": "Tiɣimiyin i yal amsujji (alemmas n wayyur)",
+        "INFIRMIERS": "Imsujja"
+      },
+      "COUVERTURE_TITLE": "Asegher n {{jours}} wussan i d-iteddun",
+      "COUVERTURE_HINT": "Akud s ixuṣṣen : sit akken ad teldiḍ ddurt deg tfelwit n tilin.",
+      "AUCUNE_ALERTE": "Ulac akud s ixuṣṣen deg {{jours}} wussan i d-iteddun.",
+      "VOIR_PRESENCE": "Ldi tilin",
+      "CHARGE_TITLE": "Amahil n wayyur {{mois}}",
+      "PLUS_CHARGE": "Win yesεan aṭas n umahil : {{total}}",
+      "MOINS_CHARGE": "Win yesεan drus n umahil : {{total}}",
+      "AUCUNE_CHARGE": "Ulac amahil yettwaskelsen deg wayyur-a.",
+      "VOIR_CHARGE": "Ldi amahil s telqay",
+      "ABSENCES_TITLE": "Tuffɣiwin yellan",
+      "JUSQU_AU": "alamma {{fin}}",
+      "AUCUNE_ABSENCE": "Ulac amsujji ur nelli ass-a.",
+      "VOIR_ABSENCES": "Ldi tuffɣiwin"
+    },
     "ERR": {
       "LOAD": "Ur izmir ara ad ttwasalin yisefka",
       "SAVE": "Ur izmir ara ad yettwaklas",

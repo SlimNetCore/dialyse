@@ -71,9 +71,19 @@ describe('roleScopeGuard', () => {
     expect(run(['INFIRMIER'], '/seances?date=2026-10-05')).toBe(true);
     for (const url of ['/dashboard', '/patients', '/stock', '/stock/tableau-de-bord', '/admin/users', '/infirmiers',
       '/infirmiers/referentiel', '/infirmiers/absences', '/seances/planning', '/gmao', '/facturation',
-      '/facturation/tableau-de-bord', '/reglement', '/reglement/tableau-de-bord']) {
+      '/facturation/tableau-de-bord', '/reglement', '/reglement/tableau-de-bord', '/infirmiers/tableau-de-bord',
+      '/infirmiers/charge']) {
       expect(run(['INFIRMIER'], url), url).toEqual({redirect: '/infirmiers/moi'});
     }
+  });
+
+  it('ouvre le tableau de bord Infirmiers à la gestion du centre, ni à l\'infirmier seul, ni au médecin seul', () => {
+    expect(isNurseArea('/infirmiers/tableau-de-bord')).toBe(false);
+    for (const roles of [['ADMIN'], ['SECRETAIRE'], ['INFIRMIER', 'ADMIN'], ['MEDECIN', 'SECRETAIRE']]) {
+      expect(run(roles, '/infirmiers/tableau-de-bord'), roles.join('+')).toBe(true);
+    }
+    expect(run(['MEDECIN'], '/infirmiers/tableau-de-bord')).toEqual({redirect: '/medecin'});
+    expect(run(['DIRECTION'], '/infirmiers/tableau-de-bord')).toEqual({redirect: '/direction'});
   });
 
   it('laisse tout l\'accès à un infirmier qui cumule un autre rôle de centre', () => {

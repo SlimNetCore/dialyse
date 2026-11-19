@@ -6,6 +6,11 @@ export const infirmierRoutes: Routes = [
     loadComponent: () => import('./presence-semaine.component').then((m) => m.PresenceSemaineComponent),
   },
   {
+    path: 'tableau-de-bord',
+    loadComponent: () => import('./tableau-de-bord/infirmiers-tableau-de-bord.component')
+      .then((m) => m.InfirmiersTableauDeBordComponent),
+  },
+  {
     path: 'moi',
     loadComponent: () => import('./mon-planning.component').then((m) => m.MonPlanningComponent),
   },

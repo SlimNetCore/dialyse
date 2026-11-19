@@ -258,6 +258,16 @@ et les
   et remplaçants posés ce jour-là) et lit les noms de salle et libellés de créneau par organisation.v1 ; contenu imprimé inchangé. Le
   téléversement d'un modèle portant l'ancienne requête est refusé `QUERY_MODIFIED` (KB-DOC5E-1, RG-DOC-004) ; l'ordre des lignes est
   désormais trié par le serveur, par points de code (KB-DOC5E-2).
+- **RG-INF-062** — **Tableau de bord des infirmiers** (`/infirmiers/tableau-de-bord`, première entrée de la barre du
+  module, 19/11/2026), en **lecture seule** : couverture des **7 prochains jours** (créneaux en sous-effectif et
+  infirmiers manquants, chaque créneau ouvrant sa semaine dans la grille de présence `/infirmiers?date=…`), synthèse
+  de la **charge du mois** (effectif, moyenne, remplacements, jours d'absence, plus et moins chargés ; détail sur
+  `/infirmiers/charge`) et **absences en cours** ce jour (lien vers `/infirmiers/absences`, liste non filtrée). Il
+  agrège les API déjà servies (alertes de présence, charge, absences, référentiel ; une page de 100 au plus par source)
+  sans API dédiée ; une source en échec n'empêche pas l'affichage des autres. Les écrans de travail sont inchangés
+  (présence avec ses alertes sur 14 jours, absences, charge) ; l'arrivée dans le module reste la grille de présence.
+  Fermé à l'infirmier seul et au médecin seul (RG-SEC-022, RG-SEC-023). *Source :* `InfirmiersTableauDeBordComponent`,
+  `InfirmiersTableauDeBordStore`.
 
 ## 10.8 Roulement et remplacements issus de l'optimisation
 

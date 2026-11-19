@@ -3027,6 +3027,31 @@
         "LOAD": "Impossible de charger la charge de travail"
       }
     },
+    "TABLEAU_DE_BORD": {
+      "EYEBROW": "Infirmiers",
+      "TITLE": "Tableau de bord des infirmiers",
+      "DESCRIPTION": "Couverture de la semaine, charge du mois et absences en cours. Pour agir, ouvrez la présence, la charge ou les absences.",
+      "KPI": {
+        "CRENEAUX_RISQUE": "Créneaux à risque ({{jours}} jours)",
+        "INFIRMIERS_MANQUANTS": "Infirmiers manquants",
+        "ABSENTS_AUJOURDHUI": "Absents aujourd'hui",
+        "MOYENNE_MOIS": "Séances par infirmier (moyenne du mois)",
+        "INFIRMIERS": "Infirmiers"
+      },
+      "COUVERTURE_TITLE": "Couverture des {{jours}} prochains jours",
+      "COUVERTURE_HINT": "Créneaux en sous-effectif : cliquez pour ouvrir la semaine dans la grille de présence.",
+      "AUCUNE_ALERTE": "Aucun créneau en sous-effectif dans les {{jours}} prochains jours.",
+      "VOIR_PRESENCE": "Ouvrir la présence",
+      "CHARGE_TITLE": "Charge du mois {{mois}}",
+      "PLUS_CHARGE": "Le plus chargé : {{total}}",
+      "MOINS_CHARGE": "Le moins chargé : {{total}}",
+      "AUCUNE_CHARGE": "Aucune charge enregistrée ce mois-ci.",
+      "VOIR_CHARGE": "Ouvrir la charge détaillée",
+      "ABSENCES_TITLE": "Absences en cours",
+      "JUSQU_AU": "jusqu'au {{fin}}",
+      "AUCUNE_ABSENCE": "Aucun infirmier absent aujourd'hui.",
+      "VOIR_ABSENCES": "Ouvrir les absences"
+    },
     "ERR": {
       "LOAD": "Impossible de charger les données",
       "SAVE": "Enregistrement impossible",

@@ -126,7 +126,8 @@
   qu'à son
   planning du jour, au poste infirmier (`/seances`), à l'historique des séances (`/seances/historique`), au **tableau
   de bord des séances** (`/seances/tableau-de-bord`, les statistiques du mois qu'il voyait dans l'historique) et au
-  suivi des absences de patients. *Source :* `RoleScopeFilter`,
+  suivi des absences de patients ; le **tableau de bord des infirmiers** (`/infirmiers/tableau-de-bord`, RG-INF-062),
+  comme la présence et la charge, lui reste fermé. *Source :* `RoleScopeFilter`,
   `role-scope.guard`.
 - **RG-SEC-023** — Médecin « seul » (rôle `MEDECIN` sans `ADMIN`/`SECRETAIRE`/`INFIRMIER`) : routes `infirmiers`,
   `planning`,

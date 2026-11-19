@@ -3027,6 +3027,31 @@
         "LOAD": "Unable to load the workload"
       }
     },
+    "TABLEAU_DE_BORD": {
+      "EYEBROW": "Nurses",
+      "TITLE": "Nurses dashboard",
+      "DESCRIPTION": "Coverage for the week, workload for the month and current absences. To act, open attendance, workload or absences.",
+      "KPI": {
+        "CRENEAUX_RISQUE": "Slots at risk ({{jours}} days)",
+        "INFIRMIERS_MANQUANTS": "Missing nurses",
+        "ABSENTS_AUJOURDHUI": "Absent today",
+        "MOYENNE_MOIS": "Sessions per nurse (monthly average)",
+        "INFIRMIERS": "Nurses"
+      },
+      "COUVERTURE_TITLE": "Coverage for the next {{jours}} days",
+      "COUVERTURE_HINT": "Understaffed slots: click to open the week in the attendance grid.",
+      "AUCUNE_ALERTE": "No understaffed slot in the next {{jours}} days.",
+      "VOIR_PRESENCE": "Open attendance",
+      "CHARGE_TITLE": "Workload for {{mois}}",
+      "PLUS_CHARGE": "Highest workload: {{total}}",
+      "MOINS_CHARGE": "Lowest workload: {{total}}",
+      "AUCUNE_CHARGE": "No workload recorded this month.",
+      "VOIR_CHARGE": "Open detailed workload",
+      "ABSENCES_TITLE": "Current absences",
+      "JUSQU_AU": "until {{fin}}",
+      "AUCUNE_ABSENCE": "No nurse absent today.",
+      "VOIR_ABSENCES": "Open absences"
+    },
     "ERR": {
       "LOAD": "Unable to load the data",
       "SAVE": "Unable to save",

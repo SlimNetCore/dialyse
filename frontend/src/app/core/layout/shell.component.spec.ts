@@ -85,6 +85,8 @@ describe('ShellComponent — barre de module', () => {
     ['/stock/articles', '/stock/articles'],
     ['/stock/inventaires/inv-1', '/stock/inventaires'],
     ['/infirmiers/referentiel', '/infirmiers/referentiel'],
+    ['/infirmiers/tableau-de-bord', '/infirmiers/tableau-de-bord'],
+    ['/infirmiers', '/infirmiers'],
   ])('sur %s, une seule entrée est active : %s', async (url, attendu) => {
     const {actives, component} = await renderAt(url);
 
@@ -181,6 +183,22 @@ describe('ShellComponent — barre de module', () => {
 
     expect(component.activeModuleItems().map((i) => i.route)).toEqual(['/comptabilite', '/comptabilite/pieces']);
     expect(component.activeItemRoute()).toBe('/comptabilite/pieces');
+  });
+
+  it('module Infirmiers : le tableau de bord en tête, puis les écrans de travail, puis le référentiel', async () => {
+    const {component} = await renderAt('/infirmiers');
+
+    expect(component.activeModuleItems().map((i) => i.route)).toEqual(['/infirmiers/tableau-de-bord', '/infirmiers',
+      '/infirmiers/absences', '/infirmiers/charge', '/infirmiers/referentiel']);
+    expect(component.activeModuleItems()[0]).toMatchObject({label: 'NAV.TABLEAU_DE_BORD', icon: 'insights'});
+    expect(component.activeItemRoute()).toBe('/infirmiers');
+  });
+
+  it('module Infirmiers : l\'infirmier seul ne voit que son planning, pas le tableau de bord', async () => {
+    roles = ['INFIRMIER'];
+    const {component} = await renderAt('/infirmiers/moi');
+
+    expect(component.activeModuleItems().map((i) => i.route)).toEqual(['/infirmiers/moi']);
   });
 
   it('le référentiel des infirmiers, déclaré aussi dans la barre Administration, s\'active dans son module d\'origine',
