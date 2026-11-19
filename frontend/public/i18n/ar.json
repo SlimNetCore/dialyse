@@ -3594,6 +3594,23 @@
     "ATTESTATION_TOTAL": "الشهادات",
     "ATTESTATION_EXPIRING": "شهادات تنتهي خلال {{days}} يوم"
   },
+  "ACCUEIL": {
+    "DESC": "وحداتك في لمحة: الأرقام الرئيسية لكل وحدة والوصول إلى لوحة معلوماتها.",
+    "VOIR_TABLEAU_DE_BORD": "عرض لوحة المعلومات",
+    "INDISPONIBLE": "غير متوفر",
+    "AUCUN_MODULE": "لا توجد وحدة بلوحة معلومات لملفك الشخصي.",
+    "SEANCES_MOIS": "حصص الشهر",
+    "ABSENCES_MOIS": "غيابات الشهر",
+    "CRENEAUX_SOUS_EFFECTIF": "فترات بنقص في الطاقم ({{days}} يوم)",
+    "ALERTES_STOCK": "تنبيهات المخزون",
+    "LOTS_PEREMPTION": "دفعات قريبة من انتهاء الصلاحية",
+    "INTERVENTIONS_EN_COURS": "تدخلات جارية",
+    "INTERVENTIONS_A_RELANCER": "تدخلات تحتاج إلى متابعة",
+    "CA_TTC_MOIS": "رقم الأعمال شامل الرسوم للشهر",
+    "FACTURES_MOIS": "فواتير الشهر",
+    "FACTURES_NON_REGLEES": "فواتير غير مسددة",
+    "RESTE_A_ENCAISSER": "المبلغ المتبقي للتحصيل"
+  },
   "PATIENT_TABLEAU_DE_BORD": {
     "TITLE": "لوحة معلومات المرضى",
     "DESC": "الملخص الشهري للمرضى، التكفلات والشهادات الواجب متابعتها.",

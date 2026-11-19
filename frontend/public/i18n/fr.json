@@ -3703,6 +3703,23 @@
     "ATTESTATION_TOTAL": "Attestations",
     "ATTESTATION_EXPIRING": "Attestations expirant dans {{days}} jours"
   },
+  "ACCUEIL": {
+    "DESC": "Vos modules en un coup d'œil : les chiffres clés de chacun et l'accès à son tableau de bord.",
+    "VOIR_TABLEAU_DE_BORD": "Voir le tableau de bord",
+    "INDISPONIBLE": "Indisponible",
+    "AUCUN_MODULE": "Aucun module avec tableau de bord pour votre profil.",
+    "SEANCES_MOIS": "Séances du mois",
+    "ABSENCES_MOIS": "Absences du mois",
+    "CRENEAUX_SOUS_EFFECTIF": "Créneaux en sous-effectif ({{days}} jours)",
+    "ALERTES_STOCK": "Alertes de stock",
+    "LOTS_PEREMPTION": "Lots proches de la péremption",
+    "INTERVENTIONS_EN_COURS": "Interventions en cours",
+    "INTERVENTIONS_A_RELANCER": "Interventions à relancer",
+    "CA_TTC_MOIS": "CA TTC du mois",
+    "FACTURES_MOIS": "Factures du mois",
+    "FACTURES_NON_REGLEES": "Factures non réglées",
+    "RESTE_A_ENCAISSER": "Reste à encaisser"
+  },
   "PATIENT_TABLEAU_DE_BORD": {
     "TITLE": "Tableau de bord patients",
     "DESC": "Synthèse mensuelle des patients, prises en charge et attestations à suivre.",

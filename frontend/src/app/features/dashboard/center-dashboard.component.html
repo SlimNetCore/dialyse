@@ -1,95 +1,50 @@
 <div class="dashboard">
   <section class="app-hero-card dash-hero">
     <span class="app-eyebrow">
-      <mat-icon>dashboard</mat-icon>
-      {{ 'DASHBOARD.TITLE' | translate }}
+      <mat-icon>home</mat-icon>
+      {{ 'NAV.ACCUEIL' | translate }}
     </span>
     <h1 class="app-section-title">{{ 'WELCOME.TITLE' | translate: {username: displayName()} }}</h1>
-    <p class="app-section-copy">{{ 'WELCOME.DESC' | translate }}</p>
-
-    <div class="dash-hero-bottom">
-      <div class="app-data-strip">
-        <div class="app-data-pill">
-          <span>{{ 'WELCOME.STAT_PATIENT' | translate }}</span>
-          <strong>{{ stats().patientCount }}</strong>
-        </div>
-        <div class="app-data-pill">
-          <span>{{ 'WELCOME.STAT_PEC' | translate }}</span>
-          <strong>{{ stats().pecCree + stats().pecValidee }}</strong>
-        </div>
-      </div>
-
-      <form [formRoot]="dashboardForm" class="config-row">
-        <mat-form-field appearance="outline" class="days-field">
-          <mat-label>{{ 'DASHBOARD.EXPIRATION_DAYS' | translate }}</mat-label>
-          <input [formField]="dashboardForm.expirationDays" matInput type="number"/>
-        </mat-form-field>
-      </form>
-    </div>
+    <p class="app-section-copy">{{ 'ACCUEIL.DESC' | translate }}</p>
   </section>
 
-  @if (loading()) {
-    <mat-spinner diameter="40"/>
+  @if (tuiles.length === 0) {
+    <p class="app-section-copy" data-testid="accueil-aucun-module">{{ 'ACCUEIL.AUCUN_MODULE' | translate }}</p>
   } @else {
     <div class="stats-grid">
-      <!-- Patients -->
-      <mat-card class="stat-card patients">
-        <span class="stat-icon-chip"><mat-icon>people</mat-icon></span>
-        <div class="stat-body">
-          <div class="stat-value">{{ stats().patientCount }}</div>
-          <div class="stat-label">{{ 'DASHBOARD.PATIENTS' | translate }}</div>
-        </div>
-      </mat-card>
-
-      <!-- PEC Créées -->
-      <mat-card class="stat-card pec-cree">
-        <span class="stat-icon-chip"><mat-icon>pending_actions</mat-icon></span>
-        <div class="stat-body">
-          <div class="stat-value">{{ stats().pecCree }}</div>
-          <div class="stat-label">{{ 'DASHBOARD.PEC_CREE' | translate }}</div>
-        </div>
-      </mat-card>
-
-      <!-- PEC Validées -->
-      <mat-card class="stat-card pec-validee">
-        <span class="stat-icon-chip"><mat-icon>verified</mat-icon></span>
-        <div class="stat-body">
-          <div class="stat-value">{{ stats().pecValidee }}</div>
-          <div class="stat-label">{{ 'DASHBOARD.PEC_VALIDEE' | translate }}</div>
-        </div>
-      </mat-card>
-
-      <!-- PEC Expiring -->
-      <mat-card class="stat-card pec-expiring">
-        <span class="stat-icon-chip"><mat-icon>warning</mat-icon></span>
-        <div class="stat-body">
-          <div class="stat-value">{{ stats().pecExpiring }}</div>
-          <div class="stat-label">
-            {{ 'DASHBOARD.PEC_EXPIRING' | translate: {days: dashboardFormState().expirationDays} }}
+      @for (tuile of tuiles; track tuile.module) {
+        <mat-card [attr.data-testid]="'accueil-tuile-' + tuile.module" [class]="'stat-card tuile ' + tuile.module">
+          <div class="tuile-head">
+            <span class="stat-icon-chip"><mat-icon>{{ tuile.icon }}</mat-icon></span>
+            <span class="tuile-title">{{ tuile.label | translate }}</span>
           </div>
-        </div>
-      </mat-card>
-
-      <!-- Attestations -->
-      <mat-card class="stat-card attestation">
-        <span class="stat-icon-chip"><mat-icon>description</mat-icon></span>
-        <div class="stat-body">
-          <div class="stat-value">{{ stats().attestationTotal }}</div>
-          <div class="stat-label">{{ 'DASHBOARD.ATTESTATION_TOTAL' | translate }}</div>
-        </div>
-      </mat-card>
-
-      <!-- Attestations Expiring -->
-      <mat-card class="stat-card attestation-expiring">
-        <span class="stat-icon-chip"><mat-icon>schedule</mat-icon></span>
-        <div class="stat-body">
-          <div class="stat-value">{{ stats().attestationExpiring }}</div>
-          <div class="stat-label">
-            {{ 'DASHBOARD.ATTESTATION_EXPIRING' | translate: {days: dashboardFormState().expirationDays} }}
-          </div>
-        </div>
-      </mat-card>
+          @if (chargement()[tuile.module]) {
+            <mat-spinner diameter="28"/>
+          } @else {
+            <div class="tuile-chiffres">
+              @for (chiffre of tuile.chiffres; track chiffre.label; let i = $index) {
+                <div class="stat-body">
+                  @let valeur = valeurs()[tuile.module]?.[i] ?? null;
+                  <div [attr.data-testid]="'accueil-chiffre-' + tuile.module + '-' + i" class="stat-value">
+                    @if (valeur === null) {
+                      <span [attr.aria-label]="'ACCUEIL.INDISPONIBLE' | translate">—</span>
+                    } @else if (chiffre.format === 'montant') {
+                      {{ valeur | number: '1.2-2' }}
+                    } @else {
+                      {{ valeur | number: '1.0-0' }}
+                    }
+                  </div>
+                  <div class="stat-label">{{ chiffre.label | translate: chiffre.params }}</div>
+                </div>
+              }
+            </div>
+          }
+          <a [attr.data-testid]="'accueil-lien-' + tuile.module" [routerLink]="tuile.route" class="tuile-link">
+            {{ 'ACCUEIL.VOIR_TABLEAU_DE_BORD' | translate }}
+            <mat-icon>arrow_forward</mat-icon>
+          </a>
+        </mat-card>
+      }
     </div>
   }
 </div>
-

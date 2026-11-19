@@ -3703,6 +3703,23 @@
     "ATTESTATION_TOTAL": "Certificates",
     "ATTESTATION_EXPIRING": "Certificates expiring in {{days}} days"
   },
+  "ACCUEIL": {
+    "DESC": "Your modules at a glance: the key figures of each one and access to its dashboard.",
+    "VOIR_TABLEAU_DE_BORD": "View dashboard",
+    "INDISPONIBLE": "Unavailable",
+    "AUCUN_MODULE": "No module with a dashboard for your profile.",
+    "SEANCES_MOIS": "Sessions this month",
+    "ABSENCES_MOIS": "Absences this month",
+    "CRENEAUX_SOUS_EFFECTIF": "Understaffed slots ({{days}} days)",
+    "ALERTES_STOCK": "Stock alerts",
+    "LOTS_PEREMPTION": "Batches close to expiry",
+    "INTERVENTIONS_EN_COURS": "Interventions in progress",
+    "INTERVENTIONS_A_RELANCER": "Interventions to follow up",
+    "CA_TTC_MOIS": "Revenue incl. VAT this month",
+    "FACTURES_MOIS": "Invoices this month",
+    "FACTURES_NON_REGLEES": "Unpaid invoices",
+    "RESTE_A_ENCAISSER": "Outstanding amount"
+  },
   "PATIENT_TABLEAU_DE_BORD": {
     "TITLE": "Patients dashboard",
     "DESC": "Monthly patient summary, coverages and certificates to follow up.",

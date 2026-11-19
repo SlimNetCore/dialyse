@@ -63,6 +63,11 @@ export const adminRoutes: Routes = [
       import('./referentiels/referentiels-admin.component').then((m) => m.ReferentielsAdminComponent),
   },
   {
+    path: 'parametrage/modeles-document',
+    loadComponent: () =>
+      import('../reporting/modeles-document.component').then((m) => m.ModelesDocumentComponent),
+  },
+  {
     path: 'parametrage/reprise',
     loadComponent: () => import('./reprise/reprise-donnees.component').then((m) => m.RepriseDonneesComponent),
   },

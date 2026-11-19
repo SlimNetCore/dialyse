@@ -3343,6 +3343,23 @@
     "ATTESTATION_TOTAL": "Tiselkentin",
     "ATTESTATION_EXPIRING": "Tiselkentin ara d-yefaken deg {{days}} n wussan"
   },
+  "ACCUEIL": {
+    "DESC": "Imuduyen-ik s yiwet n tmuɣli: izwilen igejdanen n yal yiwen d unekcum ɣer tfelwit-is.",
+    "VOIR_TABLEAU_DE_BORD": "Wali tafelwit",
+    "INDISPONIBLE": "Ulac-it",
+    "AUCUN_MODULE": "Ulac amudil s tfelwit i umaɣnu-ik.",
+    "SEANCES_MOIS": "Tiɣimiyin n wayyur",
+    "ABSENCES_MOIS": "Tulsa n wayyur",
+    "CRENEAUX_SOUS_EFFECTIF": "Tizilwin s ixeddamen ur nekfi ({{days}} n wussan)",
+    "ALERTES_STOCK": "Ilɣa n usekkud",
+    "LOTS_PEREMPTION": "Tigrumma qerben ad fakken",
+    "INTERVENTIONS_EN_COURS": "Ttawilat ttwaxdamen",
+    "INTERVENTIONS_A_RELANCER": "Ttawilat ara d-yettwasmektin",
+    "CA_TTC_MOIS": "Azwil n tnezzut s TVA n wayyur",
+    "FACTURES_MOIS": "Tifaturin n wayyur",
+    "FACTURES_NON_REGLEES": "Tifaturin ur nettwaxelleṣ ara",
+    "RESTE_A_ENCAISSER": "Ayen yeqqimen ad yettwaxelleṣ"
+  },
   "PATIENT_TABLEAU_DE_BORD": {
     "TITLE": "Tafelwit n uselkim n yimdanen",
     "DESC": "Agzul n wayyur n yimdanen, tineḍrutin d tseddarin ara yettwaḍefren.",

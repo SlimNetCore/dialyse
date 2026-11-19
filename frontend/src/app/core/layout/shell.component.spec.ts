@@ -209,22 +209,50 @@ describe('ShellComponent — barre de module', () => {
       expect(component.activeModuleItems().map((i) => i.route)).not.toContain('/admin/users');
     });
 
-  it('sépare discrètement les groupes : le paramétrage de l\'administration suit ses écrans de travail', async () => {
+  it('administration du centre : Comptes | Paramétrage | Supervision, séparés discrètement', async () => {
     const {root, component} = await renderAt('/admin/users');
 
-    const kinds = component.activeModuleItems().map((i) => i.kind);
-    expect(kinds.indexOf('parametrage')).toBeGreaterThan(kinds.lastIndexOf('travail'));
-    expect(root.querySelectorAll('[data-testid="module-bar-separator"]')).toHaveLength(1);
+    expect(component.activeModuleItems().map((i) => [i.route, i.kind])).toEqual([
+      ['/admin/users', 'travail'],
+      ['/admin/roles', 'travail'],
+      ['/admin/parametrage/calendrier-clinique', 'parametrage'],
+      ['/admin/parametrage/facturation', 'parametrage'],
+      ['/admin/parametrage/tva', 'parametrage'],
+      ['/admin/parametrage/referentiels', 'parametrage'],
+      ['/admin/parametrage/groupes-articles', 'parametrage'],
+      ['/admin/parametrage/planning-centre', 'parametrage'],
+      ['/admin/parametrage/modeles-document', 'parametrage'],
+      ['/infirmiers/referentiel', 'parametrage'],
+      ['/admin/audit', 'supervision'],
+      ['/admin/parametrage/reprise', 'supervision'],
+    ]);
+    expect(root.querySelectorAll('[data-testid="module-bar-separator"]')).toHaveLength(2);
     // le journal d'audit n'est plus déclaré en double
     expect(component.activeModuleItems().filter((i) => i.route === '/admin/audit')).toHaveLength(1);
   });
 
-  it('le propriétaire garde le journal d\'audit parmi ses seules entrées', async () => {
+  it('les modèles de documents s\'activent dans la barre Administration, plus dans l\'Accueil', async () => {
+    const {component} = await renderAt('/admin/parametrage/modeles-document');
+
+    expect(component.activeItemRoute()).toBe('/admin/parametrage/modeles-document');
+    expect(component.activeModuleItems().map((i) => i.route)).toContain('/admin/users');
+  });
+
+  it('l\'Accueil (/dashboard) n\'a plus que sa propre entrée, libellée Accueil', async () => {
+    const {component} = await renderAt('/dashboard');
+
+    expect(component.activeModuleItems().map((i) => [i.route, i.label])).toEqual([['/dashboard', 'NAV.ACCUEIL']]);
+    expect(component.navItems.find((m) => m.route === '/dashboard')?.label).toBe('NAV.ACCUEIL');
+    expect(breadcrumbLabels('/dashboard')).toEqual(['NAV.ACCUEIL']);
+  });
+
+  it('le propriétaire garde le journal d\'audit parmi ses seules entrées, sans groupes', async () => {
     roles = ['SUPERADMIN'];
-    const {component} = await renderAt('/admin/societes');
+    const {root, component} = await renderAt('/admin/societes');
 
     expect(component.activeModuleItems().map((i) => i.route))
       .toEqual(['/admin/societes', '/admin/licenses', '/admin/performance', '/admin/audit']);
+    expect(root.querySelectorAll('[data-testid="module-bar-separator"]')).toHaveLength(0);
   });
 
   it('toutes les entrées de la barre de module sont des clés NAV.* traduites dans chaque langue', () => {
@@ -255,16 +283,17 @@ describe('activeModuleItemRoute', () => {
 });
 
 describe('toModuleBarItems', () => {
-  it('ordonne tableau de bord | travail | paramétrage et marque le début de chaque groupe', () => {
+  it('ordonne tableau de bord | travail | paramétrage | supervision et marque le début de chaque groupe', () => {
     const items = toModuleBarItems([
+      {route: '/s', label: 'S', icon: 's', kind: 'supervision'},
       {route: '/a', label: 'A', icon: 'a'},
       {route: '/p', label: 'P', icon: 'p', kind: 'parametrage'},
       {route: '/b', label: 'B', icon: 'b'},
       {route: '/t', label: 'T', icon: 't', kind: 'tableau-de-bord'},
     ]);
 
-    expect(items.map((i) => i.route)).toEqual(['/t', '/a', '/b', '/p']);
-    expect(items.map((i) => i.separatorBefore)).toEqual([false, true, false, true]);
+    expect(items.map((i) => i.route)).toEqual(['/t', '/a', '/b', '/p', '/s']);
+    expect(items.map((i) => i.separatorBefore)).toEqual([false, true, false, true, true]);
   });
 });
 

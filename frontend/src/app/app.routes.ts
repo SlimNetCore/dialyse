@@ -23,7 +23,8 @@ export const routes: Routes = [
     canActivateChild: [roleScopeGuard],
     children: [
       { path: 'dashboard', loadComponent: () => import('./features/dashboard/center-dashboard.component').then(m => m.CenterDashboardComponent) },
-      { path: 'modeles-document', loadComponent: () => import('./features/reporting/modeles-document.component').then(m => m.ModelesDocumentComponent) },
+      // ancienne URL des modèles de documents (favoris) : l'écran vit désormais dans le paramétrage de l'administration
+      {path: 'modeles-document', redirectTo: 'admin/parametrage/modeles-document', pathMatch: 'full'},
       { path: 'patients', loadChildren: () => import('./features/patient/patient.routes').then(m => m.patientRoutes) },
       {
         path: 'seances',

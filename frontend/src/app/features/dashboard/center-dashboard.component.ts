@@ -1,68 +1,52 @@
-import {ChangeDetectionStrategy, Component, effect, inject, OnInit, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, effect, inject, untracked} from '@angular/core';
+import {DecimalPipe} from '@angular/common';
+import {RouterLink} from '@angular/router';
 import {MatCardModule} from '@angular/material/card';
 import {MatIconModule} from '@angular/material/icon';
-import {MatFormFieldModule} from '@angular/material/form-field';
-import {MatInputModule} from '@angular/material/input';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {TranslateModule} from '@ngx-translate/core';
-import {compatForm} from '@angular/forms/signals/compat';
-import {FormField, FormRoot, required} from '@angular/forms/signals';
-import {WebSocketService} from '../../core/ws/websocket.service';
 import {AuthStore} from '../../core/state/auth.store';
-import {DashboardStore} from './state/dashboard.store';
+import {AppShellStore} from '../../core/state/app-shell.store';
+import {AccueilStore} from './state/accueil.store';
+import {tuilesVisibles} from './accueil-tuiles';
 
+/**
+ * Accueil du centre (URL /dashboard conservée) : une tuile par module accessible au profil, avec 1 ou 2 chiffres clés et
+ * le lien vers le tableau de bord du module. Les indicateurs détaillés (PEC, attestations…) vivent dans ces tableaux de
+ * bord ; l'Accueil n'en garde aucun en double.
+ */
 @Component({
   selector: 'app-center-dashboard',
   standalone: true,
   imports: [
+    DecimalPipe,
+    RouterLink,
     MatCardModule,
     MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
     MatProgressSpinnerModule,
     TranslateModule,
-    FormRoot,
-    FormField,
   ],
+  providers: [AccueilStore],
   templateUrl: './center-dashboard.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './center-dashboard.component.css',
 })
-export class CenterDashboardComponent implements OnInit {
-  private readonly dashboardStore = inject(DashboardStore);
-  private readonly ws = inject(WebSocketService);
+export class CenterDashboardComponent {
+  private readonly store = inject(AccueilStore);
   private readonly auth = inject(AuthStore);
+  private readonly appShell = inject(AppShellStore);
 
-  readonly loading = this.dashboardStore.loading;
-  readonly stats = this.dashboardStore.stats;
+  /** Tuiles du profil : un module absent du menu n'a pas de tuile. */
+  readonly tuiles = tuilesVisibles((role) => this.auth.hasRole(role));
+  readonly valeurs = this.store.valeurs;
+  readonly chargement = this.store.chargement;
   readonly displayName = () => this.auth.fullName() || this.auth.username() || '';
-  readonly dashboardFormState = signal({
-    expirationDays: this.dashboardStore.expirationDays(),
-    selectedMonth: this.dashboardStore.selectedMonth() as string | null
-  });
-  readonly dashboardForm = compatForm(this.dashboardFormState, (form) => {
-    required(form.expirationDays);
-  });
 
   constructor() {
-    // Auto-refresh dashboard metrics on relevant WebSocket events.
     effect(() => {
-      const evt = this.ws.lastEvent();
-      this.dashboardStore.applyWsEvent(evt);
+      const centerId = this.appShell.currentCenterId();
+      if (!centerId) return;
+      untracked(() => this.store.charger(centerId, this.tuiles.map((t) => t.module)));
     });
-
-    effect(() => {
-      this.dashboardStore.setExpirationDays(this.dashboardFormState().expirationDays);
-    });
-
-    // Propagate month filter changes to the store
-    effect(() => {
-      const month = this.dashboardFormState().selectedMonth ?? null;
-      this.dashboardStore.setSelectedMonth(month);
-    });
-  }
-
-  ngOnInit(): void {
-    this.dashboardStore.loadInitial();
   }
 }

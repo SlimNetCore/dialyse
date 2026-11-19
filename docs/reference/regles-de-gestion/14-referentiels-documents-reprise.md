@@ -115,7 +115,9 @@ chaque ligne** avant d'écrire, **n'enregistre rien tant qu'un fichier
   serveur) ; l'impression produit un PDF ou un HTML.
 - **RG-DOC-006** — La liste des modèles (types et modèles du centre) est paginée ; création, modification et suppression
   d'un modèle de document : `ADMIN`, `SUPERADMIN` ; l'impression est ouverte aux profils
-  de l'écran appelant. Voir RG-DOC-010 pour la gestion des modèles.
+  de l'écran appelant. Voir RG-DOC-010 pour la gestion des modèles. L'écran de gestion des modèles vit dans le
+  paramétrage de l'administration (`/admin/parametrage/modeles-document`, groupe Paramétrage de la barre du module
+  Administration et raccourci du menu utilisateur `ADMIN`) ; l'ancienne adresse `/modeles-document` y redirige.
 - **RG-DOC-010** — **Gestion des modèles de document (contexte Documents, DOC4a, ADR 0164)** : mêmes URL, rôles et codes qu'avant
   (liste `GET /modeles?centerId=` et recherche `POST /modeles/search` : toute session ; création, modification, suppression :
   `ADMIN`, `SUPERADMIN`). Le centre demandé doit être celui de la session (`403` sinon ; `SUPERADMIN` transverse). Un modèle ne peut

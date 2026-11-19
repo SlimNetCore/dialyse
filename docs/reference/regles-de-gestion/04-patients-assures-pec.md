@@ -287,10 +287,13 @@
   atteinte** et d' **attestations dont la fin est atteinte** dans l'horizon d'alerte (30 jours par défaut,
   paramétrable). **Point d'attention :** ces deux compteurs « à échéance » comptent aussi les documents **déjà expirés**
   de toute ancienneté (condition « date de fin ≤ horizon »), ce qui
-  surestime le besoin de renouvellement ; à borner en bas par la date du jour. Ces indicateurs sont aussi repris dans le
+  surestime le besoin de renouvellement ; à borner en bas par la date du jour. Ces indicateurs sont affichés dans le
   **tableau de bord Patients** (`/patients/tableau-de-bord`, masqués au médecin seul) : PEC créées et validées ouvrent
   la liste des PEC filtrée sur ce statut (`/patients/pec-list?statut=CREE|VALIDEE`) ; PEC à échéance et attestations
-  ouvrent la liste sans filtre (pas de filtre d'échéance dans ces listes).
+  ouvrent la liste sans filtre (pas de filtre d'échéance dans ces listes). L'**Accueil** du centre (`/dashboard`, URL
+  inchangée) ne les détaille plus : il présente une tuile par module accessible au profil (même règle que le menu des
+  modules), avec 1 ou 2 chiffres clés lus sur les API des tableaux de bord et un lien vers le tableau de bord du module ;
+  la tuile Patients reprend le nombre de patients et de PEC à échéance sous 30 jours.
 - **Point d'attention (RG-PEC-009)** — `GET /api/v1/pec` (PEC du centre) et `GET /api/v1/pec/patient/{id}` renvoient des
   listes non
   paginées (volume borné par patient pour la seconde ; non borné pour la première) — écart à RG-TRV-020 à résorber au

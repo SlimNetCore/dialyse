@@ -35,9 +35,10 @@ import {filter} from 'rxjs/operators';
 
 /**
  * Nature d'une entrée de la barre de module : la barre affiche toujours, dans cet ordre, le tableau de bord, les écrans
- * de travail puis le paramétrage, avec un séparateur discret entre deux groupes.
+ * de travail, le paramétrage puis la supervision (administration seulement : journal d'audit, reprise de données), avec
+ * un séparateur discret entre deux groupes.
  */
-export type NavItemKind = 'tableau-de-bord' | 'travail' | 'parametrage';
+export type NavItemKind = 'tableau-de-bord' | 'travail' | 'parametrage' | 'supervision';
 
 /**
  * Entrée du menu. {@code owner} : réservée au propriétaire ; {@code ownerAndCentre} : visible du propriétaire comme des
@@ -54,7 +55,7 @@ export type ModuleBarItem = {
   route: string; label: string; icon: string; kind: NavItemKind; separatorBefore: boolean;
 };
 
-const KIND_ORDER: Record<NavItemKind, number> = {'tableau-de-bord': 0, travail: 1, parametrage: 2};
+const KIND_ORDER: Record<NavItemKind, number> = {'tableau-de-bord': 0, travail: 1, parametrage: 2, supervision: 3};
 
 /**
  * Range les entrées visibles par groupe (tableau de bord | travail | paramétrage, ordre stable dans un groupe) et marque
@@ -93,7 +94,7 @@ export function activeModuleItemRoute(url: string, items: ReadonlyArray<{ route:
 /** Libellés i18n des segments d'URL du fil d'Ariane (règle commune à tous les modules). */
 const BREADCRUMB_LABELS: Record<string, string> = {
   // modules
-  dashboard: 'NAV.TABLEAU_DE_BORD',
+  dashboard: 'NAV.ACCUEIL',
   'tableau-de-bord': 'NAV.TABLEAU_DE_BORD',
   accueil: 'NAV.ACCUEIL',
   direction: 'NAV.DIRECTION',
@@ -229,11 +230,11 @@ export class ShellComponent implements OnInit, AfterViewInit {
     {
       key: 'dashboard',
       route: '/dashboard',
-      icon: 'dashboard',
-      label: 'NAV.DASHBOARD',
+      icon: 'home',
+      label: 'NAV.ACCUEIL',
       items: [
-        {route: '/dashboard', label: 'NAV.TABLEAU_DE_BORD', icon: 'space_dashboard', kind: 'tableau-de-bord'},
-        {route: '/modeles-document', label: 'NAV.MODELES_DOCUMENT', icon: 'description', kind: 'parametrage'},
+        // l'Accueil (URL /dashboard conservée) : une tuile par module, chacune menant à son tableau de bord
+        {route: '/dashboard', label: 'NAV.ACCUEIL', icon: 'home'},
       ],
     },
     {
@@ -362,13 +363,17 @@ export class ShellComponent implements OnInit, AfterViewInit {
       route: '/admin',
       icon: 'tune',
       label: 'NAV.ADMIN',
+      // Centre : Comptes | Paramétrage | Supervision. Propriétaire : ses quatre écrans, sans groupes (inchangé).
       items: [
         {route: '/admin/societes', label: 'NAV.ADMIN_SOCIETES', icon: 'apartment', owner: true},
         {route: '/admin/licenses', label: 'NAV.ADMIN_LICENCES', icon: 'verified_user', owner: true},
         {route: '/admin/performance', label: 'NAV.PERFORMANCE_BASE', icon: 'speed', owner: true},
         {route: '/admin/users', label: 'NAV.ADMIN_UTILISATEURS', icon: 'manage_accounts'},
         {route: '/admin/roles', label: 'NAV.ADMIN_ROLES', icon: 'admin_panel_settings'},
-        {route: '/admin/audit', label: 'NAV.ADMIN_AUDIT', icon: 'fact_check', ownerAndCentre: true},
+        {
+          route: '/admin/audit', label: 'NAV.ADMIN_AUDIT', icon: 'fact_check', ownerAndCentre: true,
+          kind: 'supervision'
+        },
         {
           route: '/admin/parametrage/calendrier-clinique', label: 'NAV.ADMIN_CALENDRIER_CLINIQUE',
           icon: 'calendar_month', kind: 'parametrage'
@@ -388,10 +393,14 @@ export class ShellComponent implements OnInit, AfterViewInit {
           kind: 'parametrage'
         },
         {
+          route: '/admin/parametrage/modeles-document', label: 'NAV.MODELES_DOCUMENT', icon: 'description',
+          kind: 'parametrage'
+        },
+        {
           route: '/infirmiers/referentiel', label: 'NAV.INFIRMIERS_REFERENTIEL', icon: 'medical_services',
           kind: 'parametrage'
         },
-        {route: '/admin/parametrage/reprise', label: 'NAV.ADMIN_REPRISE', icon: 'move_down', kind: 'parametrage'},
+        {route: '/admin/parametrage/reprise', label: 'NAV.ADMIN_REPRISE', icon: 'move_down', kind: 'supervision'},
       ],
     },
   ];
@@ -404,7 +413,9 @@ export class ShellComponent implements OnInit, AfterViewInit {
         .filter((item) => this.directionMode || !!item.ownerAndCentre || !!item.owner === this.ownerMode)
         .filter((item) => !this.infirmierMode || !!item.nurse)
         .filter((item) => !this.medecinMode || !!item.doctor)
-        .filter((item) => !item.role || this.roleAuth.hasRole(item.role))),
+        .filter((item) => !item.role || this.roleAuth.hasRole(item.role))
+        // le propriétaire garde une barre sans groupes : ses écrans dans l'ordre de déclaration
+        .map((item) => (this.ownerMode ? {...item, kind: undefined} : item))),
     }))
     // un module sans écran visible pour ce profil disparaît du menu (ex. l'infirmier seul : planning + séances)
     .filter((m) => m.items.length > 0);
@@ -510,10 +521,8 @@ export class ShellComponent implements OnInit, AfterViewInit {
 
   private syncActiveModule(url: string): void {
     const currentUrl = url.split('?')[0];
-    const moduleFound = this.modules.find(m =>
-      currentUrl === m.route
-      || currentUrl.startsWith(m.route + '/')
-      || (m.key === 'dashboard' && currentUrl === '/modeles-document'));
+    // Les modèles de documents vivent sous /admin/parametrage : plus de rattachement spécial (l'ancienne URL redirige).
+    const moduleFound = this.modules.find(m => currentUrl === m.route || currentUrl.startsWith(m.route + '/'));
 
     const active = moduleFound ?? this.modules[0];
     this.activeModuleItems.set(active?.items ?? []);
