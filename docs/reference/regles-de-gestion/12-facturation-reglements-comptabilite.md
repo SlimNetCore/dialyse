@@ -308,6 +308,19 @@ Clôtures mensuelles**, réservé à l'`ADMIN` du centre (RG-FAC-050) ; l'écran
   trésorerie (RG-CPT-002) par l'événement `FactureReglementRecordedEvent` (langage publié du contexte `facturation`,
   porteur de l'identifiant du règlement, du montant signé et du mode) → `ComptabilisationDuReglementApresEncaissement` (contexte `facturation`, ex-écouteur de la plateforme, LST ADR 0183). Un mois
   comptable clos n'empêche pas le règlement : l'écriture est alors à régénérer (`POST /comptabilite/rebuild`).
+- **RG-REG-009** — **Saisie des règlements paginée côté serveur** (`GET /api/v1/reglements/page`, mêmes critères et mêmes
+  droits que la recherche, `GET /reglements` inchangée) : `page` (base 0, défaut 0), `size` (1 à **100**, défaut 20),
+  `sort=champ[,asc|desc]` parmi numéro de facture, n° d'assurance, nom, prénom, caisse, agence, centre payeur, montant
+  facturé, montant réglé, état (ordre non réglée < partiellement réglée < réglée), dernier code de règlement et date de
+  facturation — défaut : date de facturation puis numéro décroissants ; valeurs absentes en dernier, départage stable par
+  identifiant. Filtres de colonne cumulés (ET) : texte « contient » insensible à la casse (numéro, assurance, nom, prénom,
+  caisse, agence, centre payeur, code de règlement), montants `[= > >= < <=]nombre`, état et nature du solde (reste, soldée,
+  trop-perçu) par valeur d'énumération (plusieurs = OU). Réponse `{items, total, page, size}` (total filtré). Refus 400
+  `PAGE_INVALIDE`, `TAILLE_INVALIDE`, `TRI_INVALIDE`, `FILTRE_INVALIDE`, `PARAMETRE_INVALIDE` ; 403 hors rôle ou autre centre.
+  Pagination **en mémoire** après lecture de la période : la fiche patient et la chaîne des payeurs viennent des langages
+  publiés et l'état/solde sont calculés (RG-REG-002). À l'écran, le tri et les filtres de la liste à régler s'appliquent à
+  toutes les factures de la période (plus seulement à la page chargée) ; un filtre ramène en page 1 ; après une saisie, la
+  page courante est relue.
 
 ## 12.6 Comptabilité (plan SCF)
 

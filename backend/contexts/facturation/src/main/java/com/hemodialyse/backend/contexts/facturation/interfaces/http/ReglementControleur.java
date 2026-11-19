@@ -4,6 +4,10 @@ import com.hemodialyse.backend.contexts.facturation.application.SessionCourante;
 import com.hemodialyse.backend.contexts.facturation.application.reglement.ConsulterLesReglements;
 import com.hemodialyse.backend.contexts.facturation.application.reglement.CriteresDeSituation;
 import com.hemodialyse.backend.contexts.facturation.application.reglement.EnregistrerUnReglement;
+import com.hemodialyse.backend.contexts.facturation.application.reglement.FiltresDeSituation;
+import com.hemodialyse.backend.contexts.facturation.application.reglement.PageDeSituations;
+import com.hemodialyse.backend.contexts.facturation.application.reglement.TriDesSituations;
+import com.hemodialyse.backend.contexts.facturation.application.reglement.pagination.DemandeDePage;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import jakarta.validation.Valid;
 import org.springframework.http.ContentDisposition;
@@ -21,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -55,6 +60,23 @@ public class ReglementControleur {
         CriteresDeSituation criteres = new CriteresDeSituation(session.centre(centerId), year, month, caisseId, agenceId,
                 centrePayeurId);
         return ResponseEntity.ok(consulter.rechercher(criteres, page, size));
+    }
+
+    /**
+     * Saisie des règlements paginée côté serveur (RG-REG-009, contrat {@code pagination-serveur}) : mêmes critères que
+     * {@code GET /reglements} plus {@code page} (défaut 0), {@code size} (1 à 100, défaut 20), {@code sort=champ[,asc|desc]}
+     * (liste blanche) et les filtres de colonne ; 400 avec un code stable ({@code PAGE_INVALIDE}, {@code TAILLE_INVALIDE},
+     * {@code TRI_INVALIDE}, {@code FILTRE_INVALIDE}, {@code PARAMETRE_INVALIDE}). La route {@code GET /reglements} est inchangée.
+     */
+    @PreAuthorize("hasAnyRole('ADMIN','SECRETAIRE')")
+    @GetMapping("/page")
+    public ResponseEntity<PageDeSituations> paginer(@RequestParam Map<String, String> parametres) {
+        ReglementPageRequete requete = new ReglementPageRequete(parametres);
+        CentreId centre = session.centre(requete.uuidObligatoire("centerId"));
+        CriteresDeSituation criteres = new CriteresDeSituation(centre, requete.entierObligatoire("year", 2000, 3000),
+                requete.entier("month", 1, 12), requete.uuid("caisseId"), requete.uuid("agenceId"), requete.uuid("centrePayeurId"));
+        DemandeDePage demande = TriDesSituations.demande(requete.entier("page"), requete.entier("size"), requete.texte("sort"));
+        return ResponseEntity.ok(consulter.paginer(criteres, demande, FiltresDeSituation.lire(requete.parametres())));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','SECRETAIRE')")

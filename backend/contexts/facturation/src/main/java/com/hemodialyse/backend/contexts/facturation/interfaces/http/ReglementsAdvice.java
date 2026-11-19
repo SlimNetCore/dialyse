@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.contexts.facturation.interfaces.http;
 
+import com.hemodialyse.backend.contexts.facturation.application.reglement.pagination.PaginationInvalide;
 import com.hemodialyse.backend.contexts.facturation.domain.reglement.RemboursementSuperieurAuTotalRegle;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -23,6 +24,18 @@ class ReglementsAdvice {
         probleme.setTitle("Regle metier violee");
         probleme.setDetail(erreur.getMessage());
         probleme.setProperty("code", "REMBOURSEMENT_SUPERIEUR_AU_TOTAL_REGLE");
+        return probleme;
+    }
+
+    /**
+     * Refus de {@code GET /reglements/page} seulement (exception levée par cette route) : 400 {@code Requete invalide} avec un
+     * {@code code} stable du contrat {@code pagination-serveur}. Les autres routes gardent leurs refus historiques.
+     */
+    @ExceptionHandler(PaginationInvalide.class)
+    ProblemDetail paginationInvalide(PaginationInvalide erreur) {
+        ProblemDetail probleme = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, erreur.getMessage());
+        probleme.setTitle("Requete invalide");
+        probleme.setProperty("code", erreur.code());
         return probleme;
     }
 }

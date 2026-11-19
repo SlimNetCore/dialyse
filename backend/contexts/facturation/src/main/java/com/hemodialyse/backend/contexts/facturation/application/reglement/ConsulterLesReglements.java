@@ -1,5 +1,6 @@
 package com.hemodialyse.backend.contexts.facturation.application.reglement;
 
+import com.hemodialyse.backend.contexts.facturation.application.reglement.pagination.DemandeDePage;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.facturation.domain.reglement.Reglement;
 import com.hemodialyse.backend.contexts.facturation.domain.reglement.Reglements;
@@ -32,6 +33,21 @@ public final class ConsulterLesReglements {
             throw new IllegalArgumentException("La taille de page doit etre strictement positive");
         }
         return situations.rechercher(criteres, page, taille);
+    }
+
+    /**
+     * Saisie des règlements paginée côté serveur (RG-REG-009) : filtres de colonne, tri de la liste blanche et découpage de la
+     * page. <b>En mémoire</b> sur {@link SituationsDesFactures#toutes} : la fiche patient et la chaîne des payeurs viennent des
+     * langages publiés, l'état et le solde sont calculés (F13) ; aucune colonne SQL ne les porte.
+     */
+    public PageDeSituations paginer(CriteresDeSituation criteres, DemandeDePage demande, FiltresDeSituation filtres) {
+        List<LigneDeSituation> retenues = situations.toutes(criteres).stream()
+                .filter(filtres::accepte)
+                .sorted(TriDesSituations.ordre(demande))
+                .toList();
+        int debut = (int) Math.min(demande.decalage(), retenues.size());
+        int fin = Math.min(debut + demande.taille(), retenues.size());
+        return new PageDeSituations(retenues.subList(debut, fin), retenues.size(), demande.page(), demande.taille());
     }
 
     public TableauDeBord tableauDeBord(CriteresDeSituation criteres) {
