@@ -385,8 +385,11 @@ Clôtures mensuelles**, réservé à l'`ADMIN` du centre (RG-FAC-050) ; l'écran
   export, paramétrage (comptes, journaux, mapping), règles TVA, clôture, comptabilisation du stock : `ADMIN`. À l'écran,
   le module Comptabilité n'a **pas de tableau de bord** : l'arrivée (`/comptabilite`) est le journal comptable, avec ses
   deux totaux de contrôle (nombre d'écritures, total débit et équilibre) ; la barre du module propose ensuite « Saisir
-  une pièce » (`/comptabilite/pieces`, `ADMIN` et `SECRETAIRE`) puis, en dernier, « Paramétrage »
-  (`/comptabilite/parametrage`, visible et accessible au seul `ADMIN`). *Source :*
+  une pièce » (`/comptabilite/pieces`, `ADMIN` et `SECRETAIRE`). Le **paramétrage comptable** est dans
+  Administration › Paramétrage › « Paramétrage comptable » (`/admin/parametrage/comptabilite`, visible et accessible au
+  seul `ADMIN`) ; l'ancienne URL `/comptabilite/parametrage` y redirige, et ni le journal ni l'écran de facturation ne
+  portent plus de bouton vers le paramétrage (paramétrage facturation, clôtures, paramétrage comptable : menu
+  Administration). *Source :*
   `ComptabiliserLesVentesEtReglements.reconstruire` → `VentesEtReglementsControleur` (`/rebuild`) ;
   `ComptabiliteJournalComponent` → `ComptabiliteStore.refresh`.
 - **RG-CPT-008** — *(point d'attention levé)* Les créances ne sont plus toutes imputées au compte client « autre » :

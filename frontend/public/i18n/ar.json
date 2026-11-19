@@ -3309,6 +3309,7 @@
     "ADMIN_ROLES": "الأدوار",
     "ADMIN_CALENDRIER_CLINIQUE": "تقويم العيادة/المركز",
     "ADMIN_PARAMETRAGE_FACTURATION": "إعدادات الفوترة",
+    "ADMIN_PARAMETRAGE_COMPTABLE": "الإعدادات المحاسبية",
     "ADMIN_TVA": "أنواع الضريبة على القيمة المضافة",
     "ADMIN_REFERENTIELS": "المراجع",
     "ADMIN_REPRISE": "استرجاع البيانات",

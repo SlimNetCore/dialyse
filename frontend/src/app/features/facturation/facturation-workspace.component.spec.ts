@@ -180,13 +180,6 @@ describe('FacturationWorkspaceComponent', () => {
     facturationStoreMock.successMessage.mockReturnValue(null);
   });
 
-  it('le lien vers Paramétrage › Clôtures mensuelles n\'est proposé qu\'à l\'ADMIN', () => {
-    expect(TestBed.runInInjectionContext(() => new FacturationWorkspaceComponent())['estAdmin']()).toBe(false);
-
-    authMock.hasRole.mockImplementation((role: string) => role === 'ADMIN');
-    expect(TestBed.runInInjectionContext(() => new FacturationWorkspaceComponent())['estAdmin']()).toBe(true);
-    authMock.hasRole.mockImplementation((role: string) => role === 'SECRETAIRE');
-  });
 
   it('charge les mois des années visées par la période (blocage de la validation), pas l\'année de la clôture', () => {
     facturationStoreMock.anneesChargees.mockReturnValue([]);

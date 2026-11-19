@@ -182,6 +182,7 @@ export function breadcrumbLabels(url: string): string[] {
   const segs = url.split(/[?#]/)[0].split('/').filter(Boolean);
   return segs.map((s, index) => {
     if (s === 'facturation' && segs[index - 1] === 'parametrage') return 'NAV.ADMIN_PARAMETRAGE_FACTURATION';
+    if (s === 'comptabilite' && segs[index - 1] === 'parametrage') return 'NAV.ADMIN_PARAMETRAGE_COMPTABLE';
     if (ID_SEGMENT.test(s)) return 'NAV.FICHE';
     return BREADCRUMB_LABELS[s] ?? s;
   });
@@ -374,10 +375,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
         // pas de tableau de bord : le module s'ouvre sur le journal
         {route: '/comptabilite', label: 'NAV.COMPTABILITE_JOURNAL', icon: 'menu_book'},
         {route: '/comptabilite/pieces', label: 'NAV.COMPTABILITE_PIECES', icon: 'post_add'},
-        {
-          route: '/comptabilite/parametrage', label: 'NAV.PARAMETRAGE', icon: 'tune', role: 'ADMIN',
-          kind: 'parametrage'
-        },
+        // le paramétrage comptable est dans Administration › Paramétrage (/admin/parametrage/comptabilite)
       ],
     },
     {
@@ -402,6 +400,10 @@ export class ShellComponent implements OnInit, AfterViewInit {
         },
         {
           route: '/admin/parametrage/facturation', label: 'NAV.ADMIN_PARAMETRAGE_FACTURATION', icon: 'tune',
+          kind: 'parametrage'
+        },
+        {
+          route: '/admin/parametrage/comptabilite', label: 'NAV.ADMIN_PARAMETRAGE_COMPTABLE', icon: 'account_balance',
           kind: 'parametrage'
         },
         {route: '/admin/parametrage/tva', label: 'NAV.ADMIN_TVA', icon: 'percent', kind: 'parametrage'},

@@ -3,18 +3,6 @@
     <span class="app-eyebrow">{{ 'FACTURATION.EYEBROW' | translate }}</span>
     <h1 class="app-section-title">{{ 'FACTURATION.TITLE' | translate }}</h1>
     <p class="app-section-copy">{{ 'FACTURATION.DESCRIPTION' | translate }}</p>
-    <div class="app-button-cluster">
-      <a mat-stroked-button routerLink="/admin/parametrage/facturation">
-        <mat-icon>tune</mat-icon>
-        {{ 'FACTURATION.SETTINGS.GOTO_ADMIN' | translate }}
-      </a>
-      @if (estAdmin()) {
-        <a data-testid="lien-clotures-mensuelles" mat-button routerLink="/admin/parametrage/clotures">
-          <mat-icon>event_busy</mat-icon>
-          {{ 'NAV.ADMIN_CLOTURES_LIEN' | translate }}
-        </a>
-      }
-    </div>
     <app-facturation-etapes [etape]="etape()"/>
   </div>
 

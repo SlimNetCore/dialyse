@@ -3403,6 +3403,7 @@
     "ADMIN_ROLES": "Roles",
     "ADMIN_CALENDRIER_CLINIQUE": "Clinic/center calendar",
     "ADMIN_PARAMETRAGE_FACTURATION": "Billing settings",
+    "ADMIN_PARAMETRAGE_COMPTABLE": "Accounting settings",
     "ADMIN_TVA": "VAT types",
     "ADMIN_REFERENTIELS": "Reference data",
     "ADMIN_REPRISE": "Data import",

@@ -69,12 +69,6 @@
           <mat-icon>post_add</mat-icon>
           <span class="btn-label">{{ 'COMPTABILITE.PIECES.SAISIR' | translate }}</span>
         </a>
-        @if (peutParametrer()) {
-          <a mat-stroked-button routerLink="/comptabilite/parametrage">
-            <mat-icon>tune</mat-icon>
-            <span class="btn-label">{{ 'COMPTABILITE.PARAMETRAGE.LIEN' | translate }}</span>
-          </a>
-        }
       </div>
 
       @if (pieces.error()) {

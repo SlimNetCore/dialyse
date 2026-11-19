@@ -206,16 +206,25 @@ describe('ShellComponent — barre de module', () => {
     expect(component.activeItemRoute()).toBe('/reglement');
   });
 
-  it('module Comptabilité : pas de tableau de bord, le journal, la saisie d\'une pièce, puis le paramétrage',
+  it('module Comptabilité : pas de tableau de bord, le journal et la saisie d\'une pièce ; le paramétrage est en Administration',
     async () => {
       const {component} = await renderAt('/comptabilite');
 
-      expect(component.activeModuleItems().map((i) => i.route)).toEqual(['/comptabilite', '/comptabilite/pieces',
-        '/comptabilite/parametrage']);
+      expect(component.activeModuleItems().map((i) => i.route)).toEqual(['/comptabilite', '/comptabilite/pieces']);
       expect(component.activeModuleItems().map((i) => i.label)).not.toContain('NAV.TABLEAU_DE_BORD');
-      expect(component.activeModuleItems().map((i) => i.kind)).toEqual(['travail', 'travail', 'parametrage']);
+      expect(component.activeModuleItems().map((i) => i.kind)).toEqual(['travail', 'travail']);
       expect(component.activeItemRoute()).toBe('/comptabilite');
     });
+
+  it('le paramétrage comptable est une entrée Administration › Paramétrage, pour l\'ADMIN seul', async () => {
+    const {component} = await renderAt('/admin/parametrage/comptabilite');
+
+    expect(component.activeItemRoute()).toBe('/admin/parametrage/comptabilite');
+    expect(component.activeModuleItems().find((i) => i.route === '/admin/parametrage/comptabilite'))
+      .toMatchObject({label: 'NAV.ADMIN_PARAMETRAGE_COMPTABLE', kind: 'parametrage'});
+    expect(breadcrumbLabels('/admin/parametrage/comptabilite'))
+      .toEqual(['NAV.ADMIN', 'NAV.PARAMETRAGE', 'NAV.ADMIN_PARAMETRAGE_COMPTABLE']);
+  });
 
   it('module Comptabilité : la secrétaire saisit des pièces mais ne voit pas le paramétrage', async () => {
     roles = ['SECRETAIRE'];
@@ -257,6 +266,7 @@ describe('ShellComponent — barre de module', () => {
       ['/admin/roles', 'travail'],
       ['/admin/parametrage/calendrier-clinique', 'parametrage'],
       ['/admin/parametrage/facturation', 'parametrage'],
+      ['/admin/parametrage/comptabilite', 'parametrage'],
       ['/admin/parametrage/tva', 'parametrage'],
       ['/admin/parametrage/referentiels', 'parametrage'],
       ['/admin/parametrage/groupes-articles', 'parametrage'],

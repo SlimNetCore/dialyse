@@ -4722,8 +4722,11 @@ suivantes</strong> ; il est rapporté avec sa raison (RG-CPT-024). Consultation 
 export, paramétrage (comptes, journaux, mapping), règles TVA, clôture, comptabilisation du stock : <code>ADMIN</code>. À l&#39;écran,
 le module Comptabilité n&#39;a <strong>pas de tableau de bord</strong> : l&#39;arrivée (<code>/comptabilite</code>) est le journal comptable, avec ses
 deux totaux de contrôle (nombre d&#39;écritures, total débit et équilibre) ; la barre du module propose ensuite « Saisir
-une pièce » (<code>/comptabilite/pieces</code>, <code>ADMIN</code> et <code>SECRETAIRE</code>) puis, en dernier, « Paramétrage »
-(<code>/comptabilite/parametrage</code>, visible et accessible au seul <code>ADMIN</code>). <em>Source :</em>
+une pièce » (<code>/comptabilite/pieces</code>, <code>ADMIN</code> et <code>SECRETAIRE</code>). Le <strong>paramétrage comptable</strong> est dans
+Administration › Paramétrage › « Paramétrage comptable » (<code>/admin/parametrage/comptabilite</code>, visible et accessible au
+seul <code>ADMIN</code>) ; l&#39;ancienne URL <code>/comptabilite/parametrage</code> y redirige, et ni le journal ni l&#39;écran de facturation ne
+portent plus de bouton vers le paramétrage (paramétrage facturation, clôtures, paramétrage comptable : menu
+Administration). <em>Source :</em>
 <code>ComptabiliserLesVentesEtReglements.reconstruire</code> → <code>VentesEtReglementsControleur</code> (<code>/rebuild</code>) ;
 <code>ComptabiliteJournalComponent</code> → <code>ComptabiliteStore.refresh</code>.</p>
 </div></div>

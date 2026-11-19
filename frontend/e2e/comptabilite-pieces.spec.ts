@@ -20,7 +20,7 @@ test.describe('Plan comptable, modèles et saisie de pièces', () => {
   });
 
   test('ajoute un compte au plan comptable et le retrouve par la recherche', async ({page}) => {
-    await page.goto(`${baseUrl}/comptabilite/parametrage`);
+    await page.goto(`${baseUrl}/admin/parametrage/comptabilite`);
     await page.waitForLoadState('networkidle');
 
     await page.getByTestId('plan-numero').fill('6139');
@@ -33,7 +33,7 @@ test.describe('Plan comptable, modèles et saisie de pièces', () => {
   });
 
   test('crée un modèle, saisit une pièce équilibrée puis l\'extourne depuis le journal', async ({page}) => {
-    await page.goto(`${baseUrl}/comptabilite/parametrage`);
+    await page.goto(`${baseUrl}/admin/parametrage/comptabilite`);
     await page.waitForLoadState('networkidle');
 
     await page.getByTestId('modele-code').fill(code);

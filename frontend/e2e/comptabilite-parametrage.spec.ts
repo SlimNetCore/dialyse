@@ -18,7 +18,7 @@ test.describe('Paramétrage comptable', () => {
   });
 
   test('affiche les journaux paginés, les comptes et la comptabilisation du stock', async ({page}) => {
-    await page.goto(`${baseUrl}/comptabilite/parametrage`);
+    await page.goto(`${baseUrl}/admin/parametrage/comptabilite`);
     await page.waitForLoadState('networkidle');
 
     await expect(page.getByTestId('cpa-journaux')).toBeVisible();
@@ -34,7 +34,7 @@ test.describe('Paramétrage comptable', () => {
   });
 
   test('ajoute un journal puis comptabilise le stock de la période', async ({page}) => {
-    await page.goto(`${baseUrl}/comptabilite/parametrage`);
+    await page.goto(`${baseUrl}/admin/parametrage/comptabilite`);
     await page.waitForLoadState('networkidle');
 
     await page.getByTestId('cpa-journal-code').fill('e2e');

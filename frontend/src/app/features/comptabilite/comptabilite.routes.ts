@@ -1,5 +1,4 @@
 import {Routes} from '@angular/router';
-import {adminGuard} from '../../core/auth/admin.guard';
 
 export const comptabiliteRoutes: Routes = [
   {
@@ -9,10 +8,9 @@ export const comptabiliteRoutes: Routes = [
       import('./comptabilite-journal.component').then((m) => m.ComptabiliteJournalComponent),
   },
   {
+    // le paramétrage comptable vit dans Administration › Paramétrage : l'ancienne URL y redirige
     path: 'parametrage',
-    canActivate: [adminGuard],
-    loadComponent: () =>
-      import('./comptabilite-parametrage.component').then((m) => m.ComptabiliteParametrageComponent),
+    redirectTo: '/admin/parametrage/comptabilite',
   },
   {
     // saisie d'une pièce à partir d'un modèle : administrateur et secrétariat (le serveur applique la règle)

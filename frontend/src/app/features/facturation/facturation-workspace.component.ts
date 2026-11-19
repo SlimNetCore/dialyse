@@ -12,7 +12,6 @@ import {DecimalPipe} from '@angular/common';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {NgTableColumn, NgTableComponent, NgTableTone} from '@sbourahla/ng-table';
 import {map, merge} from 'rxjs';
-import {RouterLink} from '@angular/router';
 import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
@@ -58,7 +57,6 @@ export function tonDuStatutPatient(status: string | null | undefined): NgTableTo
   selector: 'app-facturation-workspace',
   standalone: true,
   imports: [
-    RouterLink,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
@@ -99,12 +97,6 @@ export class FacturationWorkspaceComponent {
   /** Étape courante de l'indicateur compact (RG-FAC-049). */
   protected readonly etape = computed(() =>
     etapeCourante({preview: this.store.preview(), successMessage: this.succesDuCalcul()}));
-
-  /**
-   * La clôture mensuelle vit dans Administration › Paramétrage › Clôtures mensuelles : le lien n'est montré qu'à l'ADMIN,
-   * seul profil autorisé à la lire et à l'exercer (le serveur refuse les autres).
-   */
-  protected readonly estAdmin = computed(() => this.auth.hasRole('ADMIN'));
 
   protected readonly motifs = MOTIFS_ABSENCE;
   protected readonly exclusionDraft = signal<ExclusionDraft | null>(null);

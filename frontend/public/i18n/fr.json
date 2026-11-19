@@ -3403,6 +3403,7 @@
     "ADMIN_ROLES": "Rôles",
     "ADMIN_CALENDRIER_CLINIQUE": "Calendrier clinique/centre",
     "ADMIN_PARAMETRAGE_FACTURATION": "Paramétrage facturation",
+    "ADMIN_PARAMETRAGE_COMPTABLE": "Paramétrage comptable",
     "ADMIN_TVA": "Types de TVA",
     "ADMIN_REFERENTIELS": "Référentiels",
     "ADMIN_REPRISE": "Reprise de données",

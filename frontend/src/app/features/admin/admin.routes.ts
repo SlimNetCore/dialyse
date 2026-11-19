@@ -1,6 +1,6 @@
 import {Routes} from '@angular/router';
 import {superadminGuard} from '../../core/auth/superadmin.guard';
-import {centreAdminGuard} from '../../core/auth/admin.guard';
+import {adminGuard, centreAdminGuard} from '../../core/auth/admin.guard';
 
 export const adminRoutes: Routes = [
   { path: 'users', loadComponent: () => import('./user-list.component').then(m => m.UserListComponent) },
@@ -43,6 +43,13 @@ export const adminRoutes: Routes = [
   {
     path: 'parametrage/facturation',
     loadComponent: () => import('./facturation-settings.component').then((m) => m.FacturationSettingsComponent),
+  },
+  {
+    // paramétrage comptable du centre (journaux, comptes, modèles de pièces), autrefois /comptabilite/parametrage
+    path: 'parametrage/comptabilite',
+    canActivate: [adminGuard],
+    loadComponent: () =>
+      import('../comptabilite/comptabilite-parametrage.component').then((m) => m.ComptabiliteParametrageComponent),
   },
   {
     path: 'parametrage/tva',
