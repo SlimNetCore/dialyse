@@ -562,7 +562,10 @@
   début ≤ fin), statut (un ou plusieurs), texte libre sur le nom, le prénom ou le code du patient (tous les mots
   doivent correspondre), tri sur la date, le patient, le code, le statut ou la création (liste blanche ; toute autre
   colonne retombe sur la date décroissante, avec un départage stable). Réponse `{items, total, page, size}` ; `size`
-  est borné à 500 et la liste est toujours limitée au centre demandé. L'écran est en consultation seule : la saisie se
+  est borné à 500 et la liste est toujours limitée au centre demandé. À l'écran, le critère de date a **une seule
+  source** : la période « du … au … » au-dessus de la table et la plage de la colonne Date sont le même filtre (saisir
+  l'une met l'autre à jour, la puce des filtres actifs montre ce qui est envoyé) ; à l'ouverture de l'écran le tri
+  revient à la date décroissante (filtres et page conservés). L'écran est en consultation seule : la saisie se
   fait au poste infirmier (RG-SEA-026). *Point d'attention :* l'ancien écran permettait à l'`ADMIN` de modifier la
   **date** et le **forfait** d'une séance (RG-SEA-014 et suivantes) ; ces actions n'ont plus d'écran depuis la refonte
   (les points d'accès subsistent). *Source :* `SeanceDomainService.search`, `SeanceRepositoryAdapter.search`,

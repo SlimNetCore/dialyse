@@ -2723,7 +2723,10 @@ le serveur</strong> sur toute la liste, jamais sur la seule page affichée : pé
 début ≤ fin), statut (un ou plusieurs), texte libre sur le nom, le prénom ou le code du patient (tous les mots
 doivent correspondre), tri sur la date, le patient, le code, le statut ou la création (liste blanche ; toute autre
 colonne retombe sur la date décroissante, avec un départage stable). Réponse <code>{items, total, page, size}</code> ; <code>size</code>
-est borné à 500 et la liste est toujours limitée au centre demandé. L&#39;écran est en consultation seule : la saisie se
+est borné à 500 et la liste est toujours limitée au centre demandé. À l&#39;écran, le critère de date a <strong>une seule
+source</strong> : la période « du … au … » au-dessus de la table et la plage de la colonne Date sont le même filtre (saisir
+l&#39;une met l&#39;autre à jour, la puce des filtres actifs montre ce qui est envoyé) ; à l&#39;ouverture de l&#39;écran le tri
+revient à la date décroissante (filtres et page conservés). L&#39;écran est en consultation seule : la saisie se
 fait au poste infirmier (RG-SEA-026). <em>Point d&#39;attention :</em> l&#39;ancien écran permettait à l&#39;<code>ADMIN</code> de modifier la
 <strong>date</strong> et le <strong>forfait</strong> d&#39;une séance (RG-SEA-014 et suivantes) ; ces actions n&#39;ont plus d&#39;écran depuis la refonte
 (les points d&#39;accès subsistent). <em>Source :</em> <code>SeanceDomainService.search</code>, <code>SeanceRepositoryAdapter.search</code>,
@@ -2936,7 +2939,10 @@ S-DDL2, ADR 0185) : le Stock les réserve par un port, dans la transaction de la
 <div class="rule" id="RG-STK-087"><div class="rid">RG-STK-087</div><div class="rtxt"><p><strong>Listes paginées côté serveur</strong> (convention commune du Stock, slice <code>pagination-serveur</code>) :
 <code>GET &lt;liste&gt;/page</code> avec <code>page</code> (base 0), <code>size</code> (1 à 100, défaut 20), <code>sort=champ[,asc|desc]</code> pris dans une liste
 blanche par liste (départage stable ajouté) et un paramètre par filtre de colonne (texte « contient » sans casse,
-énumération à valeurs séparées par des virgules) ; réponse <code>{items, total, page, size}</code> ; refus 400 avec un code
+énumération à valeurs séparées par des virgules, numérique <code>[op]nombre</code> avec <code>op</code> parmi <code>= != &gt; &gt;= &lt; &lt;=</code> (défaut <code>=</code>)
+ou plage <code>a..b</code> bornes incluses, <code>a..</code>, <code>..b</code>, virgule ou point décimal, espaces ignorés — une plage inversée ou toute
+autre saisie est refusée en <code>FILTRE_INVALIDE</code> ; l&#39;écran envoie la saisie de la table telle quelle et n&#39;affiche un
+message sans appel que pour une saisie illisible) ; réponse <code>{items, total, page, size}</code> ; refus 400 avec un code
 stable <code>PAGE_INVALIDE</code>, <code>TAILLE_INVALIDE</code>, <code>TRI_INVALIDE</code>, <code>FILTRE_INVALIDE</code>, <code>PARAMETRE_INVALIDE</code>. Mêmes rôles et même
 centre que la liste complète, qui reste inchangée. Pagination en SQL (<code>COUNT</code> + <code>LIMIT/OFFSET</code>).
 <strong>Fournisseurs</strong> (<code>GET /stock/referentiel/fournisseurs/page</code>) : fournisseurs actifs du centre, tri <code>code</code>,
@@ -3057,8 +3063,8 @@ fournisseurs) ; le bandeau d&#39;inventaire en cours reste affiché au-dessus de
 <div class="rule" id="RG-STK-090"><div class="rid">RG-STK-090</div><div class="rtxt"><p><strong>État du stock paginé côté serveur</strong> (<code>GET /stock/dashboard/stock-valorise/page</code>, convention
 RG-STK-087) : articles actifs du centre avec quantité, PMP courant et valeur (quantité × PMP, calculée en SQL pour le
 tri et le filtre) ; tri <code>code</code> (défaut, croissant), <code>libelle</code> (sans casse), <code>quantite</code>, <code>pmp</code>, <code>valeur</code> ; filtres texte
-<code>code</code>, <code>libelle</code> et numériques <code>quantite</code>, <code>pmp</code>, <code>valeur</code> (<code>[op]nombre</code>, <code>op</code> parmi <code>= &gt; &gt;= &lt; &lt;=</code>, virgule ou
-point). La liste complète <code>GET /stock-valorise</code> (triée par libellé) est inchangée. <em>Source :</em>
+<code>code</code>, <code>libelle</code> et numériques <code>quantite</code>, <code>pmp</code>, <code>valeur</code> (syntaxe RG-STK-087 : <code>[op]nombre</code> avec <code>op</code> parmi
+<code>= != &gt; &gt;= &lt; &lt;=</code>, plage <code>10..50</code> bornes incluses, <code>10..</code>, <code>..50</code>, virgule ou point ; ex. <code>valeur=!=0</code>). La liste complète <code>GET /stock-valorise</code> (triée par libellé) est inchangée. <em>Source :</em>
 <code>EtatDuStockPageControleur</code>, <code>ConsulterLEtatDuStock</code>, <code>EtatDuStockPagineJdbc</code> (contexte <code>stock</code>).</p>
 </div></div>
 <div class="rule" id="RG-STK-093"><div class="rid">RG-STK-093</div><div class="rtxt"><p><strong>Explication du PMP paginée</strong> (<code>GET /stock/dashboard/pmp-explain/{articleId}/page</code>) : les étapes du
@@ -4709,7 +4715,8 @@ droits que la recherche, <code>GET /reglements</code> inchangée) : <code>page</
 facturé, montant réglé, état (ordre non réglée &lt; partiellement réglée &lt; réglée), dernier code de règlement et date de
 facturation — défaut : date de facturation puis numéro décroissants ; valeurs absentes en dernier, départage stable par
 identifiant. Filtres de colonne cumulés (ET) : texte « contient » insensible à la casse (numéro, assurance, nom, prénom,
-caisse, agence, centre payeur, code de règlement), montants <code>[= &gt; &gt;= &lt; &lt;=]nombre</code>, état et nature du solde (reste, soldée,
+caisse, agence, centre payeur, code de règlement), montants <code>[= != &gt; &gt;= &lt; &lt;=]nombre</code> ou plage <code>a..b</code> (bornes incluses), <code>a..</code>, <code>..b</code> (virgule ou point
+décimal ; plage inversée ou saisie illisible = <code>FILTRE_INVALIDE</code>), état et nature du solde (reste, soldée,
 trop-perçu) par valeur d&#39;énumération (plusieurs = OU). Réponse <code>{items, total, page, size}</code> (total filtré). Refus 400
 <code>PAGE_INVALIDE</code>, <code>TAILLE_INVALIDE</code>, <code>TRI_INVALIDE</code>, <code>FILTRE_INVALIDE</code>, <code>PARAMETRE_INVALIDE</code> ; 403 hors rôle ou autre centre.
 Pagination <strong>en mémoire</strong> après lecture de la période : la fiche patient et la chaîne des payeurs viennent des langages
