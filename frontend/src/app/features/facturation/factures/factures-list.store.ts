@@ -65,42 +65,109 @@ export function moisDe(reference: Date, decalage = 0): PeriodeDeFactures {
   return {du: jour(debut), au: jour(fin)};
 }
 
-/** Une période est valide si ses deux bornes sont des jours et `du` ≤ `au` (le serveur borne en plus à 366 jours). */
+/** Durée maximale d'une période, bornes incluses (RG-FAC-046, `PERIODE_INVALIDE` au-delà). */
+export const PERIODE_MAX_JOURS = 366;
+
+const JOUR_EN_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Une période est valide si ses deux bornes sont des jours, `du` ≤ `au` et qu'elle couvre au plus 366 jours bornes
+ * incluses, comme le serveur.
+ */
 export function periodeValide(periode: PeriodeDeFactures): boolean {
   const format = /^\d{4}-\d{2}-\d{2}$/;
-  return format.test(periode.du) && format.test(periode.au) && periode.du <= periode.au;
+  if (!format.test(periode.du) || !format.test(periode.au) || periode.du > periode.au) return false;
+  const du = Date.parse(`${periode.du}T00:00:00Z`);
+  const au = Date.parse(`${periode.au}T00:00:00Z`);
+  if (!Number.isFinite(du) || !Number.isFinite(au)) return false;
+  return Math.round((au - du) / JOUR_EN_MS) + 1 <= PERIODE_MAX_JOURS;
 }
 
-function nombre(texte: string | undefined): number | null {
-  const brut = (texte ?? '').trim().replace(',', '.');
+/**
+ * Montant saisi ⇒ nombre : espaces (y compris insécables) retirés ; le dernier `.` ou `,` est le séparateur décimal
+ * quand les deux sont présents, un séparateur répété est un séparateur de milliers. `undefined` si la saisie n'est pas
+ * un nombre, `null` si elle est vide.
+ */
+export function lireMontant(saisie: string | undefined): number | null | undefined {
+  let brut = (saisie ?? '').replace(/[\s  ]/g, '');
   if (!brut) return null;
+  const virgules = brut.split(',').length - 1;
+  const points = brut.split('.').length - 1;
+  if (virgules && points) {
+    const decimal = brut.lastIndexOf(',') > brut.lastIndexOf('.') ? ',' : '.';
+    const milliers = decimal === ',' ? '.' : ',';
+    brut = brut.split(milliers).join('').replace(decimal, '.');
+  } else if (virgules > 1 || points > 1) {
+    brut = brut.split(virgules ? ',' : '.').join('');
+  } else {
+    brut = brut.replace(',', '.');
+  }
+  if (!/^[-+]?(\d+\.?\d*|\.\d+)$/.test(brut)) return undefined;
   const valeur = Number(brut);
-  return Number.isFinite(valeur) ? valeur : null;
+  return Number.isFinite(valeur) ? valeur : undefined;
 }
 
-/** Filtre de plage `min..max` (une borne peut être vide) : bornes remises dans l'ordre si elles sont inversées. */
-export function bornesDeMontant(filtre: string | undefined): { montantMin: number | null; montantMax: number | null } {
-  if (!filtre || !filtre.includes('..')) return {montantMin: null, montantMax: null};
+/**
+ * Filtre de plage `min..max` (une borne peut être vide) : bornes remises dans l'ordre si elles sont inversées ; une
+ * borne illisible n'est pas envoyée et `invalide` le signale.
+ */
+export function bornesDeMontant(filtre: string | undefined):
+  { montantMin: number | null; montantMax: number | null; invalide: boolean } {
+  if (!filtre || !filtre.trim()) return {montantMin: null, montantMax: null, invalide: false};
+  if (!filtre.includes('..')) return {montantMin: null, montantMax: null, invalide: true};
   const [bas, haut] = filtre.split('..');
-  const min = nombre(bas);
-  const max = nombre(haut);
-  if (min !== null && max !== null && min > max) return {montantMin: max, montantMax: min};
-  return {montantMin: min, montantMax: max};
+  const lusMin = lireMontant(bas);
+  const lusMax = lireMontant(haut);
+  const invalide = lusMin === undefined || lusMax === undefined;
+  const min = lusMin ?? null;
+  const max = lusMax ?? null;
+  if (min !== null && max !== null && min > max) return {montantMin: max, montantMax: min, invalide};
+  return {montantMin: min, montantMax: max, invalide};
 }
 
 const texte = (valeur: string | undefined): string | null => (valeur ?? '').trim() || null;
 
+/** Colonnes à liste de valeurs que le serveur ne filtre que sur une valeur (`caisseId`, `etat`). */
+export const FILTRES_A_CHOIX_UNIQUE: readonly string[] = ['caisse', 'etat'];
+
+const valeursCsv = (valeur: string | undefined): string[] =>
+  (valeur ?? '').split(',').map((v) => v.trim()).filter((v) => !!v);
+
+/**
+ * La liste déroulante d'énuméré de la table est multiple (valeurs en CSV) alors que le serveur n'accepte qu'une
+ * valeur : on garde la dernière valeur ajoutée par rapport aux filtres précédents (sinon la dernière de la liste), ce
+ * qui fait de la liste un choix unique, et la table affiche ensuite ces filtres normalisés.
+ */
+export function filtresAChoixUnique(filtres: Record<string, string>, precedents: Record<string, string> | null):
+  Record<string, string> {
+  const suivants = {...filtres};
+  for (const colonne of FILTRES_A_CHOIX_UNIQUE) {
+    const valeurs = valeursCsv(filtres[colonne]);
+    if (valeurs.length <= 1) continue;
+    const avant = new Set(valeursCsv(precedents?.[colonne]));
+    const ajoutees = valeurs.filter((v) => !avant.has(v));
+    suivants[colonne] = (ajoutees.length ? ajoutees : valeurs).at(-1)!;
+  }
+  return suivants;
+}
+
 /**
  * Requête de la table (ids de colonnes) ⇒ critères de `GET /facturation/factures` : `numeroFacture`→`numero`,
  * `patient`, `caisse`→`caisseId`, `etat`, `montantTtc` (plage)→`montantMin`/`montantMax` ; un tri sur une colonne non
- * triable côté serveur est ignoré (tri par défaut du serveur).
+ * triable côté serveur est ignoré (tri par défaut du serveur). Les filtres doivent déjà être à choix unique
+ * (`filtresAChoixUnique`) ; une valeur multiple restante n'est pas envoyée.
  */
 export function versCriteres(requete: NgTableRemoteQuery, tailleCourante: number): CriteresDeTable {
   const filtres = requete.filters ?? {};
+  const unique = (valeur: string | undefined): string | null => {
+    const valeurs = valeursCsv(valeur);
+    return valeurs.length === 1 ? valeurs[0] : null;
+  };
+  const {montantMin, montantMax} = bornesDeMontant(filtres['montantTtc']);
   const sort = requete.sort?.direction && CHAMPS_TRIABLES.has(requete.sort.columnId)
     ? {champ: requete.sort.columnId as FactureChampDeTri, direction: requete.sort.direction}
     : null;
-  const etat = texte(filtres['etat']);
+  const etat = unique(filtres['etat']);
   const taille = requete.page?.size && requete.page.size > 0 ? requete.page.size : tailleCourante;
   return {
     page: Math.max(0, requete.page?.index ?? 0),
@@ -108,9 +175,10 @@ export function versCriteres(requete: NgTableRemoteQuery, tailleCourante: number
     sort,
     numero: texte(filtres['numeroFacture']),
     patient: texte(filtres['patient']),
-    caisseId: texte(filtres['caisse']),
+    caisseId: unique(filtres['caisse']),
     etat: etat && ETATS.has(etat) ? (etat as FactureEtat) : null,
-    ...bornesDeMontant(filtres['montantTtc']),
+    montantMin,
+    montantMax,
   };
 }
 
@@ -132,6 +200,10 @@ export class FacturesListStore {
   readonly chargement = signal(false);
   /** Clé de traduction de l'échec de la dernière lecture de la liste, `null` sinon. */
   readonly erreur = signal<string | null>(null);
+  /** Filtres de colonne pilotés (choix unique pour caisse et état) ; `null` tant que la table n'a rien émis. */
+  readonly filtres = signal<Record<string, string> | null>(null);
+  /** Une borne du filtre de montant TTC est illisible : elle n'est pas envoyée au serveur. */
+  readonly montantInvalide = signal(false);
   readonly factureDepliee = signal<string | null>(null);
   readonly details = signal<ReadonlyMap<string, EtatDuDetail>>(new Map());
 
@@ -176,7 +248,10 @@ export class FacturesListStore {
 
   /** Tri, filtres ou page changés dans la table. */
   appliquer(requete: NgTableRemoteQuery): void {
-    this.criteres.set(versCriteres(requete, this.criteres().size));
+    const filtres = filtresAChoixUnique(requete.filters ?? {}, this.filtres());
+    this.filtres.set(filtres);
+    this.montantInvalide.set(bornesDeMontant(filtres['montantTtc']).invalide);
+    this.criteres.set(versCriteres({...requete, filters: filtres}, this.criteres().size));
     this.charger();
   }
 

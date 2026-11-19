@@ -1192,7 +1192,8 @@
       "AU": "Ar",
       "MOIS_PRECEDENT": "Aggur yezrin",
       "MOIS_COURANT": "Aggur-a",
-      "PERIODE_INVALIDE": "Azemz n tazwara ilaq ad yili send azemz n taggara.",
+      "PERIODE_INVALIDE": "Azemz n tazwara ilaq ad yili send azemz n taggara, 366 n wussan ugar.",
+      "MONTANT_ILLISIBLE": "Azal TTC ur yettwaɣra ara: sekcem amḍan (amedya 10000 neɣ 1 000,50). Talast-a ur tettwasnas ara.",
       "EMPTY": "Ulac tafaturt deg tallit-a.",
       "REESSAYER": "Ɛreḍ tikkelt nniḍen",
       "TOTAUX": {

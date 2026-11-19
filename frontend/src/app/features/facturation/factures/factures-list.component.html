@@ -46,9 +46,16 @@
       </div>
     }
 
+    @if (store.montantInvalide()) {
+      <p class="periode__erreur" role="alert" data-testid="factures-montant-invalide">
+        {{ 'FACTURATION.FACTURES.MONTANT_ILLISIBLE' | translate }}
+      </p>
+    }
+
     <section class="table-container" aria-labelledby="factures-titre">
       <ng-table
         [columns]="colonnes()"
+        [filters]="store.filtres()"
         [rows]="store.lignes()"
         [dataMode]="'remote'"
         [paginator]="true"
@@ -94,7 +101,7 @@
                   @if (s.forfaitLibelle) {
                     {{ s.forfaitLibelle }}
                   } @else {
-                    <span class="muet" [attr.title]="'FACTURATION.FACTURES.DETAIL.NON_ATTRIBUABLE_AIDE' | translate">
+                    <span class="muet" [attr.aria-describedby]="'non-attribuable-' + row.factureId">
                       — {{ 'FACTURATION.FACTURES.DETAIL.NON_ATTRIBUABLE' | translate }}
                     </span>
                   }
@@ -104,6 +111,11 @@
             }
           </tbody>
         </table>
+        @if (aDesSeancesNonAttribuables(detail)) {
+          <p class="muet" [id]="'non-attribuable-' + row.factureId" data-testid="facture-detail-non-attribuable">
+            {{ 'FACTURATION.FACTURES.DETAIL.NON_ATTRIBUABLE_AIDE' | translate }}
+          </p>
+        }
       } @else {
         <p class="muet">{{ 'FACTURATION.FACTURES.DETAIL.AUCUNE_SEANCE' | translate }}</p>
       }

@@ -4,11 +4,13 @@ import {
   computed,
   effect,
   inject,
+  LOCALE_ID,
   signal,
   TemplateRef,
   untracked,
   viewChild,
 } from '@angular/core';
+import {formatCurrency, getCurrencySymbol} from '@angular/common';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
@@ -36,11 +38,13 @@ export const TONS_ETAT_FACTURE: Record<FactureEtat, NgTableTone> = {
 };
 const ETATS: FactureEtat[] = ['NON_REGLEE', 'PARTIELLEMENT_REGLEE', 'REGLEE'];
 
-const MONTANT = new Intl.NumberFormat('fr-DZ', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-
-/** Montant en dinars, deux décimales ; `—` si absent. */
-export function montant(valeur: number | null | undefined): string {
-  return valeur == null ? '—' : MONTANT.format(valeur);
+/**
+ * Montant en dinars (symbole DZD) à la locale de l'application, deux décimales, comme les écrans de la direction ;
+ * `—` si absent.
+ */
+export function montant(valeur: number | null | undefined, locale = 'en-US'): string {
+  if (valeur == null) return '—';
+  return formatCurrency(valeur, locale, getCurrencySymbol('DZD', 'narrow', locale), 'DZD', '1.2-2');
 }
 
 /** `yyyy-MM-dd` ⇒ `dd/MM/yyyy`. */
@@ -75,9 +79,10 @@ export class FacturesListComponent {
   private readonly organisation = inject(OrganisationApiService);
   private readonly translate = inject(TranslateService);
   protected readonly ngTableLabels = inject(NgTableTranslatedLabels).labels;
+  private readonly locale = inject(LOCALE_ID);
 
   protected readonly taillesDePage = TAILLES_DE_PAGE;
-  protected readonly montant = montant;
+  protected readonly montant = (valeur: number | null | undefined): string => montant(valeur, this.locale);
   protected readonly dateCourte = dateCourte;
   protected readonly statutDeSeance = statutDeSeance;
   protected readonly cleDeFacture = (row: FactureListee): unknown => row.factureId;
@@ -123,13 +128,13 @@ export class FacturesListComponent {
         filter: {type: 'enum', options: this.caisses(), label: t('CAISSE')},
       },
       {id: 'nombreDeSeances', header: t('SEANCES'), valueAccessor: (r) => r.nombreDeSeances, sortable: true},
-      {id: 'montantHt', header: t('HT'), valueAccessor: (r) => montant(r.montantHt)},
+      {id: 'montantHt', header: t('HT'), valueAccessor: (r) => this.montant(r.montantHt)},
       {
-        id: 'montantTtc', header: t('TTC'), valueAccessor: (r) => montant(r.montantTtc), sortable: true,
+        id: 'montantTtc', header: t('TTC'), valueAccessor: (r) => this.montant(r.montantTtc), sortable: true,
         filter: {type: 'numberRange', label: t('TTC')},
       },
-      {id: 'montantRegle', header: t('REGLE'), valueAccessor: (r) => montant(r.montantRegle), sortable: true},
-      {id: 'reste', header: t('RESTE'), valueAccessor: (r) => montant(r.reste), sortable: true},
+      {id: 'montantRegle', header: t('REGLE'), valueAccessor: (r) => this.montant(r.montantRegle), sortable: true},
+      {id: 'reste', header: t('RESTE'), valueAccessor: (r) => this.montant(r.reste), sortable: true},
       {
         id: 'etat', header: t('ETAT'), valueAccessor: (r) => r.etat, sortable: true,
         cell: {type: 'badge', tone: TONS_ETAT_FACTURE, label: etat},
@@ -152,6 +157,11 @@ export class FacturesListComponent {
   protected detailDe(factureId: string): DetailDeFacture | null {
     const etat = this.store.details().get(factureId);
     return etat?.etat === 'pret' ? etat.detail : null;
+  }
+
+  /** Au moins une séance du détail sans forfait attribuable (RG-FAC-048) : la note explicative est affichée. */
+  protected aDesSeancesNonAttribuables(detail: DetailDeFacture): boolean {
+    return detail.seances.some((s) => !s.forfaitLibelle);
   }
 
   /** Clé du message d'échec de lecture du détail, sinon `null`. */

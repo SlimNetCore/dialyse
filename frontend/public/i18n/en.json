@@ -1192,7 +1192,8 @@
       "AU": "To",
       "MOIS_PRECEDENT": "Previous month",
       "MOIS_COURANT": "Current month",
-      "PERIODE_INVALIDE": "The start date must be before the end date.",
+      "PERIODE_INVALIDE": "The start date must be before the end date, over 366 days at most.",
+      "MONTANT_ILLISIBLE": "Unreadable incl.-VAT amount: enter a number (e.g. 10000 or 1,000.50). This bound is not applied.",
       "EMPTY": "No invoice in this period.",
       "REESSAYER": "Retry",
       "TOTAUX": {

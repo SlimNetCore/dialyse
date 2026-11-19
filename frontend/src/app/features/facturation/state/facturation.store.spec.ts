@@ -265,6 +265,16 @@ describe('FacturationStore', () => {
       expect(store.moisDeLAnnee().length).toBe(12);
     });
 
+    it('changer la sélection efface le message de succès (étape Validation quittée)', () => {
+      mockApi.getFacturationPeriodes.mockReturnValue(of(annee2026(['2026-07'])));
+      const store = TestBed.inject(FacturationStore);
+      store.cloturerMois({centerId: CENTER_ID, mois: '2026-07'});
+      expect(store.successMessage()).not.toBeNull();
+
+      store.setMonth('2026-09');
+      expect(store.successMessage()).toBeNull();
+    });
+
     it('désactivation : tout mois couvert par la période personnalisée, ou le mois choisi, clos', () => {
       const store = TestBed.inject(FacturationStore);
       store.loadPeriodes({centerId: CENTER_ID, annee: 2026});

@@ -1192,7 +1192,8 @@
       "AU": "Au",
       "MOIS_PRECEDENT": "Mois précédent",
       "MOIS_COURANT": "Mois courant",
-      "PERIODE_INVALIDE": "La date de début doit précéder la date de fin.",
+      "PERIODE_INVALIDE": "La date de début doit précéder la date de fin, sur 366 jours au plus.",
+      "MONTANT_ILLISIBLE": "Montant TTC illisible : saisissez un nombre (ex. 10000 ou 1 000,50). Cette borne n'est pas appliquée.",
       "EMPTY": "Aucune facture sur cette période.",
       "REESSAYER": "Réessayer",
       "TOTAUX": {

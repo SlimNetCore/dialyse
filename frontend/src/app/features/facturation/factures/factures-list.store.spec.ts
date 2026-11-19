@@ -5,7 +5,16 @@ import {Subject} from 'rxjs';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import type {NgTableRemoteQuery} from '@sbourahla/ng-table';
 import {BackendApiService, DetailDeFacture, PageDeFactures} from '../../../core/api/backend-api.service';
-import {bornesDeMontant, FacturesListStore, messageDErreur, moisDe, periodeValide, versCriteres} from './factures-list.store';
+import {
+  bornesDeMontant,
+  FacturesListStore,
+  filtresAChoixUnique,
+  lireMontant,
+  messageDErreur,
+  moisDe,
+  periodeValide,
+  versCriteres,
+} from './factures-list.store';
 
 const CENTRE = 'c1';
 
@@ -40,16 +49,41 @@ describe('versCriteres / bornes / période', () => {
     expect(versCriteres(requete({page: {index: 0, size: 500}}), 20).size).toBe(100);
   });
 
-  it('lit une plage de montant à une borne, décimale à virgule', () => {
-    expect(bornesDeMontant('..1500,5')).toEqual({montantMin: null, montantMax: 1500.5});
-    expect(bornesDeMontant('abc')).toEqual({montantMin: null, montantMax: null});
+  it('lit une plage de montant à une borne, décimale à virgule ; une saisie illisible est signalée', () => {
+    expect(bornesDeMontant('..1500,5')).toEqual({montantMin: null, montantMax: 1500.5, invalide: false});
+    expect(bornesDeMontant('abc')).toEqual({montantMin: null, montantMax: null, invalide: true});
+    expect(bornesDeMontant('x..20')).toEqual({montantMin: null, montantMax: 20, invalide: true});
   });
 
-  it('mois courant / précédent et validité de la période', () => {
+  it('lit les montants avec séparateurs de milliers (espaces, insécables, points ou virgules)', () => {
+    expect(lireMontant('10 000')).toBe(10000);
+    expect(lireMontant('1 000,50')).toBe(1000.5);
+    expect(lireMontant('1 000,50')).toBe(1000.5);
+    expect(lireMontant('1.000,50')).toBe(1000.5);
+    expect(lireMontant('1,000.50')).toBe(1000.5);
+    expect(lireMontant('1.000.000')).toBe(1000000);
+    expect(lireMontant('  ')).toBeNull();
+    expect(lireMontant('12a')).toBeUndefined();
+    expect(bornesDeMontant('1 000..10 000,5')).toEqual({montantMin: 1000, montantMax: 10000.5, invalide: false});
+  });
+
+  it('mois courant / précédent et validité de la période (366 jours au plus, bornes incluses)', () => {
     expect(moisDe(new Date(2026, 0, 15), -1)).toEqual({du: '2025-12-01', au: '2025-12-31'});
     expect(moisDe(new Date(2026, 1, 3))).toEqual({du: '2026-02-01', au: '2026-02-28'});
     expect(periodeValide({du: '2026-11-30', au: '2026-11-01'})).toBe(false);
     expect(periodeValide({du: '', au: '2026-11-01'})).toBe(false);
+    expect(periodeValide({du: '2024-01-01', au: '2024-12-31'})).toBe(true);
+    expect(periodeValide({du: '2025-01-01', au: '2026-01-01'})).toBe(true);
+    expect(periodeValide({du: '2025-01-01', au: '2026-01-02'})).toBe(false);
+  });
+
+  it('caisse et état : la liste multiple de la table devient un choix unique (dernière valeur ajoutée)', () => {
+    expect(filtresAChoixUnique({caisse: 'k1,k2', etat: 'REGLEE,NON_REGLEE', patient: 'a,b'},
+      {caisse: 'k1', etat: 'NON_REGLEE'}))
+      .toEqual({caisse: 'k2', etat: 'REGLEE', patient: 'a,b'});
+    expect(filtresAChoixUnique({caisse: 'k1,k2'}, null)).toEqual({caisse: 'k2'});
+    expect(versCriteres(requete({filters: {caisse: 'k1,k2', etat: 'REGLEE,NON_REGLEE'}}), 20))
+      .toMatchObject({caisseId: null, etat: null});
   });
 
   it('traduit les refus du serveur : 403, 400 avec code, 400 sans code, 404, autre', () => {
@@ -103,6 +137,21 @@ describe('FacturesListStore', () => {
       page: {index: 2, size: 10}}));
     expect(api.listFactures).toHaveBeenLastCalledWith(CENTRE, expect.objectContaining({
       page: 2, size: 10, sort: {champ: 'patient', direction: 'asc'}, etat: 'NON_REGLEE'}));
+  });
+
+  it('deux caisses choisies : seule la dernière est envoyée et les filtres de la table sont ramenés à un choix', () => {
+    store.changerDeCentre(CENTRE);
+    store.appliquer(requete({filters: {caisse: 'k1'}}));
+    store.appliquer(requete({filters: {caisse: 'k1,k2', montantTtc: 'abc..'}}));
+    expect(api.listFactures).toHaveBeenLastCalledWith(CENTRE, expect.objectContaining({caisseId: 'k2', montantMin: null}));
+    expect(store.filtres()).toEqual({caisse: 'k2', montantTtc: 'abc..'});
+    expect(store.montantInvalide()).toBe(true);
+  });
+
+  it('une période de plus de 366 jours n\'est pas envoyée', () => {
+    store.changerDeCentre(CENTRE);
+    store.changerDePeriode({du: '2025-01-01', au: '2026-06-30'});
+    expect(api.listFactures).toHaveBeenCalledTimes(1);
   });
 
   it('ne relance pas une requête identique et annule la précédente quand une nouvelle part', () => {

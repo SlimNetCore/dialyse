@@ -122,16 +122,16 @@ export const FacturationStore = signalStore(
       patchState(store, {activeCenterId});
     },
     setPeriodMode(periodMode: FacturationPeriodMode): void {
-      patchState(store, {periodMode, preview: null, excludedSeances: []});
+      patchState(store, {periodMode, preview: null, excludedSeances: [], successMessage: null});
     },
     setMonth(month: string): void {
-      patchState(store, {month, preview: null, excludedSeances: []});
+      patchState(store, {month, preview: null, excludedSeances: [], successMessage: null});
     },
     setStartDate(startDate: string): void {
-      patchState(store, {startDate, preview: null, excludedSeances: []});
+      patchState(store, {startDate, preview: null, excludedSeances: [], successMessage: null});
     },
     setEndDate(endDate: string): void {
-      patchState(store, {endDate, preview: null, excludedSeances: []});
+      patchState(store, {endDate, preview: null, excludedSeances: [], successMessage: null});
     },
     resetPreviewActions(): void {
       patchState(store, {seanceActionLoadingId: null});

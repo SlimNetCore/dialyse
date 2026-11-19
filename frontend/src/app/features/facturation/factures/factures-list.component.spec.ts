@@ -97,6 +97,9 @@ describe('FacturesListComponent', () => {
       expect(seances[0].textContent).toContain(montant(8000));
       expect(seances[1].textContent).toContain('FACTURATION.FACTURES.DETAIL.NON_ATTRIBUABLE');
       expect(seances[1].textContent).toContain('—');
+      const aide = detailDom!.querySelector('[data-testid="facture-detail-non-attribuable"]');
+      expect(aide?.textContent).toContain('FACTURATION.FACTURES.DETAIL.NON_ATTRIBUABLE_AIDE');
+      expect(seances[1].querySelector('[aria-describedby]')?.getAttribute('aria-describedby')).toBe(aide?.id);
       expect(detailDom!.querySelector('[data-testid="facture-detail-lignes"]')?.textContent).toContain(montant(104000));
       expect(detailDom!.querySelector('[data-testid="facture-detail-totaux"]')?.textContent).toContain(montant(63360));
     });
@@ -130,10 +133,20 @@ describe('FacturesListComponent', () => {
     expect(derniere.du < PAGE.du || derniere.du.endsWith('-01')).toBe(true);
   });
 
+  it('pilote les filtres de la table : deux états choisis reviennent à un seul', async () => {
+    (fixture.componentInstance as unknown as { onRemoteQueryChange(q: unknown): void }).onRemoteQueryChange(
+      {sort: {columnId: '', direction: ''}, filters: {etat: 'REGLEE,NON_REGLEE'}, page: {index: 0, size: 20}});
+    await fixture.whenStable();
+    expect(table().filters()).toEqual({etat: 'NON_REGLEE'});
+    expect(api.listFactures).toHaveBeenLastCalledWith('c1', expect.objectContaining({etat: 'NON_REGLEE'}));
+  });
+
   it('formate dates, montants et statuts', () => {
     expect(dateCourte('2026-10-02')).toBe('02/10/2026');
     expect(dateCourte(null)).toBe('—');
     expect(montant(null)).toBe('—');
+    expect(montant(1500)).toContain('1,500.00');
+    expect(montant(1500)).toMatch(/DZD|DA|د/);
     expect(statutDeSeance('FACTUREE')).toBe('SEANCES.SEANCE_STATUTS.FACTUREE');
     expect(statutDeSeance('ANNULEE')).toBe('ANNULEE');
   });
