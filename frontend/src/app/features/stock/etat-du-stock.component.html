@@ -16,6 +16,9 @@
       <mat-card-title id="etat-du-stock-titre">{{ 'STOCK.DASHBOARD.STOCK_TABLE.TITLE' | translate }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
+      @if (liste.erreur(); as erreur) {
+        <p class="field-error" role="alert" data-testid="liste-erreur">{{ erreur | translate }}</p>
+      }
       <section class="table-container" aria-labelledby="etat-du-stock-titre" data-testid="stock-table">
         <ng-table
           [columns]="stockColumns()"

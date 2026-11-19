@@ -45,8 +45,13 @@
       <mat-card-title>{{ 'STOCK.SUPPLIERS_LIST_TITLE' | translate }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
+      @if (liste.erreur(); as erreur) {
+        <p class="field-error" role="alert" data-testid="liste-erreur">{{ erreur | translate }}</p>
+      }
       <div class="table-wrap" data-testid="fournisseurs-table">
         <ng-table
+          [globalSearchEnabled]="true"
+          [emptyLabel]="liste.erreur() ? (liste.erreur()! | translate) : null"
           [ariaLabel]="'STOCK.SUPPLIERS_LIST_TITLE' | translate"
           [columns]="columns()"
           [rows]="liste.lignes()"

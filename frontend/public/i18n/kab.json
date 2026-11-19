@@ -3808,6 +3808,16 @@
     "PAGINATOR_RANGE_EMPTY": "0 seg {{total}}"
   },
   "COMMON": {
+    "LISTE_SERVEUR": {
+      "ERREUR": "Tabdart ur d-tuli ara. Ɛreḍ tikkelt-nniḍen.",
+      "RESEAU": "Aqeddac ulac-it : tabdart ur d-tuli ara.",
+      "FILTRE_NUMERIQUE_INVALIDE": "Imsizdeg amḍan ur yettwasefrak ara : sekcem amḍan s =, >, >=, < neɣ <= (neɣ talast yeldin 10.. / ..50).",
+      "PAGE_INVALIDE": "Uṭṭun n usebter d arameɣtu.",
+      "TAILLE_INVALIDE": "Teɣzi n usebter d tarameɣtut.",
+      "TRI_INVALIDE": "Asmizzwer-a ulac-it i tgejdit-a.",
+      "FILTRE_INVALIDE": "Imsizdeg d arameɣtu : senqed azal i teskecmeḍ.",
+      "PARAMETRE_INVALIDE": "Aɣewwar n unadi d arameɣtu."
+    },
     "FILTER_BY": "Sizdeg s {{field}}",
     "COLUMNS_BUTTON": "Tiggura",
     "VIEWS_BUTTON": "Tamuɣliwin",

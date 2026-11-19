@@ -81,7 +81,7 @@ describe('SortiesPourSeancesComponent', () => {
     expect(pagesApi.piecesPourSeances).toHaveBeenCalledWith('center-1', {page: '0', size: '20'});
     expect(api.listSortiesPourSeances).not.toHaveBeenCalled();
     expect(refApi.getArticles).toHaveBeenCalledWith('center-1');
-    expect(c.pieces.items().length).toBe(1);
+    expect(c.pieces.lignes().length).toBe(1);
     expect(c.pieces.total()).toBe(1);
   });
 
@@ -150,7 +150,7 @@ describe('SortiesPourSeancesComponent', () => {
 
   it('bloque la validation tant qu un ecart de la piece complete n a pas de motif (T40)', () => {
     const {c} = creer();
-    c.selectionner(c.pieces.items()[0]);
+    c.selectionner(c.pieces.lignes()[0]);
     expect(pagesApi.pieceDeSortie).toHaveBeenCalledWith('center-1', 'p1');
     expect(c.peutValider()).toBe(false);
     expect(c.ecartSansMotif(piece().lignes[0])).toBe(true);
@@ -162,7 +162,7 @@ describe('SortiesPourSeancesComponent', () => {
 
   it('enregistre le motif saisi, relit la page courante des lignes, puis valide le rapprochement', () => {
     const {c} = creer();
-    c.selectionner(c.pieces.items()[0]);
+    c.selectionner(c.pieces.lignes()[0]);
     c.surRequeteDesLignes({sort: {columnId: 'ecart', direction: 'desc'}, filters: {article: 'A1'}, page: {index: 0, size: 20}});
     const p = c.selection();
     c.justifier(p, p.lignes[0], {target: {value: '  Casse  '}} as unknown as Event);

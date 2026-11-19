@@ -9,7 +9,8 @@ import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {NgTableColumn, NgTableComponent, NgTableRemoteQuery, NgTableTone} from '@sbourahla/ng-table';
 import {map, merge} from 'rxjs';
 import {PmpExplanationStep} from '../../core/api/stock-api.service';
-import {ListeDistante, PageDExplicationDuPmp, StockPagesApiService} from '../../core/api/stock-pages-api.service';
+import {PageDExplicationDuPmp, StockPagesApiService} from '../../core/api/stock-pages-api.service';
+import {ListeServeur} from '../../core/api/liste-serveur';
 import {NgTableTranslatedLabels} from '../../shared/ng-table-labels';
 
 export interface PmpExplainData {
@@ -87,11 +88,11 @@ export class PmpExplainDialogComponent {
   });
 
   /** Étapes du rejeu paginées par le serveur (RG-STK-093) ; le résumé accompagne chaque page. */
-  protected readonly liste = new ListeDistante<PmpExplanationStep, PageDExplicationDuPmp>({}, (p) =>
+  protected readonly liste = new ListeServeur<PmpExplanationStep, PageDExplicationDuPmp>((p) =>
     this.api.explicationDuPmp(this.data.centerId, this.data.articleId, Number(p['page']), Number(p['size'])),
-  PMP_STEPS_PAGE_SIZE);
-  protected readonly loading = this.liste.loading;
-  protected readonly explanation = this.liste.page;
+  {}, PMP_STEPS_PAGE_SIZE);
+  protected readonly loading = this.liste.chargement;
+  protected readonly explanation = this.liste.derniere;
 
   constructor() {
     this.liste.recharger();
@@ -99,7 +100,7 @@ export class PmpExplainDialogComponent {
 
   /** Changement de page ou de taille demandé par la table (mode remote). */
   protected onRemoteQueryChange(requete: NgTableRemoteQuery): void {
-    this.liste.surRequete(requete);
+    this.liste.onRemoteQueryChange(requete);
   }
 
   private number(value: number | null | undefined, digits: string): string {

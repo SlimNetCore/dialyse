@@ -15,6 +15,7 @@ import {AppShellStore} from '../../../core/state/app-shell.store';
 import {AuthStore} from '../../../core/state/auth.store';
 import {ReferentialApiService, RefItem} from '../../../core/api/referential-api.service';
 import {buildPaymentPayload, reglementErrorMessage} from './reglement-payment.util';
+import {memesCriteres, messageDErreurDePagination, pageAtteignable} from '../../../core/api/liste-serveur';
 
 export type ReglementPreviewRow = ReglementInvoiceRow & {
   hasDraft: boolean;
@@ -184,6 +185,10 @@ export const ReglementStore = signalStore(
       if (memesColonnes(colonnes, store.colonnes())) return;
       patchState(store, {colonnes: {...colonnes}, pageIndex: 0});
     },
+    /** Filtre non envoyable au serveur (ex. `!=0` sur un montant) : page vidée et message affiché (clé i18n). */
+    signalerFiltreInvalide(message: string): void {
+      patchState(store, {rows: [], total: 0, pageIndex: 0, loading: false, error: message});
+    },
     clearFilters(): void {
       patchState(store, {
         month: currentDate.getMonth() + 1,
@@ -253,19 +258,28 @@ export const ReglementStore = signalStore(
             page,
             size,
           }, store.colonnes()).pipe(
-            tap((response) => patchState(store, {
-              rows: response.items ?? [],
-              total: response.total ?? 0,
-              pageIndex: response.page ?? page,
-              pageSize: response.size ?? size,
-              loading: false,
-            })),
+            tap((response) => {
+              const index = response.page ?? page;
+              const taille = response.size ?? size;
+              const items = response.items ?? [];
+              // Page devenue vide après une écriture : retour à la dernière page existante (l'effet recharge).
+              const atteignable = pageAtteignable(index, taille, response.total ?? 0, items.length);
+              patchState(store, {
+                rows: items,
+                total: response.total ?? 0,
+                pageIndex: atteignable ?? index,
+                pageSize: taille,
+                loading: false,
+                // Relecture de la dernière page traitée comme un rechargement : le message de succès est conservé.
+                ...(atteignable !== null ? {rechargement: store.rechargement() + 1} : {}),
+              });
+            }),
             catchError((err: unknown) => {
               patchState(store, {
                 rows: [],
                 total: 0,
                 loading: false,
-                error: errorMessage(err),
+                error: messageDErreurDePagination(err) ?? errorMessage(err),
               });
               return of(null);
             })
@@ -475,12 +489,8 @@ export const ReglementStore = signalStore(
 
 const errorMessage = reglementErrorMessage;
 
-/** Mêmes paramètres de tri/filtre (mêmes clés, mêmes valeurs), quel que soit l'ordre des clés. */
-export function memesColonnes(a: Readonly<Record<string, string>>, b: Readonly<Record<string, string>>): boolean {
-  const clesA = Object.keys(a);
-  if (clesA.length !== Object.keys(b).length) return false;
-  return clesA.every((cle) => Object.prototype.hasOwnProperty.call(b, cle) && a[cle] === b[cle]);
-}
+/** Mêmes paramètres de tri/filtre, quel que soit l'ordre des clés (comparaison commune de `core/api/liste-serveur`). */
+export const memesColonnes = memesCriteres;
 
 
 

@@ -22,7 +22,7 @@ import {toSignal} from '@angular/core/rxjs-interop';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import {NgTableColumn, NgTableComponent, NgTableRemoteQuery} from '@sbourahla/ng-table';
 import {map, merge} from 'rxjs';
-import {memesColonnes, ReglementPreviewRow, ReglementStore} from './state/reglement.store';
+import {ReglementPreviewRow, ReglementStore} from './state/reglement.store';
 import {MODES_DE_REGLEMENT} from './state/reglement-payment.util';
 import {
   CORRESPONDANCE_REGLEMENT,
@@ -32,7 +32,8 @@ import {
   TONS_SOLDE_REGLEMENT,
   TYPES_DE_SOLDE,
 } from './state/reglement-table.util';
-import {parametresDePage} from '../../core/api/page-serveur';
+import {FiltreDePageInvalide, parametresDePage} from '../../core/api/page-serveur';
+import {memesCriteres} from '../../core/api/liste-serveur';
 import {AppShellStore} from '../../core/state/app-shell.store';
 import {AuthStore} from '../../core/state/auth.store';
 import {ReglementInvoiceRow} from '../../core/api/backend-api.service';
@@ -202,10 +203,18 @@ export class ReglementWorkspaceComponent {
    * (`GET /reglements/page`). Un nouveau tri ou filtre ramène en première page (store.setColonnes).
    */
   protected onRemoteQueryChange(requete: NgTableRemoteQuery): void {
-    const {page, size, ...colonnes} = parametresDePage(requete, CORRESPONDANCE_REGLEMENT);
+    let parametres: Record<string, string>;
+    try {
+      parametres = parametresDePage(requete, CORRESPONDANCE_REGLEMENT);
+    } catch (err) {
+      if (!(err instanceof FiltreDePageInvalide)) throw err;
+      this.store.signalerFiltreInvalide(err.message);
+      return;
+    }
+    const {page, size, ...colonnes} = parametres;
     const taille = Number(size);
     const index = Number(page);
-    const colonnesChangees = !memesColonnes(colonnes, this.store.colonnes());
+    const colonnesChangees = !memesCriteres(colonnes, this.store.colonnes());
     if (colonnesChangees) this.store.setColonnes(colonnes);
     if (taille !== this.store.pageSize()) {
       this.store.setPagination(0, taille);

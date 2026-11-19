@@ -4050,6 +4050,16 @@
     "PAGINATOR_RANGE_EMPTY": "0 من {{total}}"
   },
   "COMMON": {
+    "LISTE_SERVEUR": {
+      "ERREUR": "تعذر تحميل القائمة. أعد المحاولة.",
+      "RESEAU": "تعذر الوصول إلى الخادم: لم يتم تحميل القائمة.",
+      "FILTRE_NUMERIQUE_INVALIDE": "مرشح رقمي غير مدعوم: أدخل رقمًا مسبوقًا بـ = أو > أو >= أو < أو <= (أو حدًا مفتوحًا ..10 / 50..).",
+      "PAGE_INVALIDE": "رقم الصفحة غير صالح.",
+      "TAILLE_INVALIDE": "حجم الصفحة غير صالح.",
+      "TRI_INVALIDE": "هذا الترتيب غير متاح لهذا العمود.",
+      "FILTRE_INVALIDE": "مرشح غير صالح: تحقق من القيمة المدخلة.",
+      "PARAMETRE_INVALIDE": "معامل البحث غير صالح."
+    },
     "FILTER_BY": "تصفية حسب {{field}}",
     "COLUMNS_BUTTON": "الأعمدة",
     "VIEWS_BUTTON": "طرق العرض",

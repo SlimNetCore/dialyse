@@ -72,8 +72,12 @@
       <mat-card-title>{{ 'STOCK.PURCHASE_ORDERS_LIST_TITLE' | translate }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
+      @if (liste.erreur(); as erreur) {
+        <p class="field-error" role="alert" data-testid="liste-erreur">{{ erreur | translate }}</p>
+      }
       <div class="table-wrap" data-testid="bons-commande-table">
         <ng-table
+          [emptyLabel]="liste.erreur() ? (liste.erreur()! | translate) : null"
           [ariaLabel]="'STOCK.PURCHASE_ORDERS_LIST_TITLE' | translate"
           [columns]="colonnes()"
           [rows]="liste.lignes()"

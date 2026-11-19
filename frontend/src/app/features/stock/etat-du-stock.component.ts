@@ -15,7 +15,8 @@ import {
 } from '@sbourahla/ng-table';
 import {AuthStore} from '../../core/state/auth.store';
 import {StockValoriseItem} from '../../core/api/stock-api.service';
-import {ListeDistante, StockPagesApiService} from '../../core/api/stock-pages-api.service';
+import {StockPagesApiService} from '../../core/api/stock-pages-api.service';
+import {ListeServeur} from '../../core/api/liste-serveur';
 import {CorrespondanceDePage} from '../../core/api/page-serveur';
 import {WebSocketService} from '../../core/ws/websocket.service';
 import {NgTableTranslatedLabels} from '../../shared/ng-table-labels';
@@ -36,6 +37,7 @@ export function tonDeLaQuantite(quantite: number | null | undefined): NgTableTon
 export const CORRESPONDANCE_ETAT_DU_STOCK: CorrespondanceDePage = {
   tris: {code: 'code', libelle: 'libelle', quantite: 'quantite', pmp: 'pmp', valeur: 'valeur'},
   filtres: {code: 'code', libelle: 'libelle', quantite: 'quantite', pmp: 'pmp', valeur: 'valeur'},
+  numeriques: ['quantite', 'pmp', 'valeur'],
 };
 
 /**
@@ -69,7 +71,8 @@ export class EtatDuStockComponent {
   private readonly langue = langueCourante();
   protected readonly emptyLabel = computed(() => {
     this.langue();
-    return this.translate.instant('STOCK.DASHBOARD.EMPTY.NO_STOCK') as string;
+    const erreur = this.liste.erreur();
+    return this.translate.instant(erreur ?? 'STOCK.DASHBOARD.EMPTY.NO_STOCK') as string;
   });
   protected readonly stockColumns = computed<NgTableColumn<StockValoriseItem>[]>(() => {
     this.langue();
@@ -110,12 +113,12 @@ export class EtatDuStockComponent {
   private readonly dialog = inject(MatDialog);
   private readonly ws = inject(WebSocketService);
   /** Page courante du stock, triée et filtrée par le serveur (RG-STK-090). */
-  protected readonly liste = new ListeDistante<StockValoriseItem>(CORRESPONDANCE_ETAT_DU_STOCK, (parametres) => {
+  protected readonly liste = new ListeServeur<StockValoriseItem>((parametres) => {
     const centerId = this.auth.centerId();
     return centerId ? this.api.etatDuStock(centerId, parametres) : null;
-  }, STOCK_DEFAULT_PAGE_SIZE);
-  protected readonly loading = this.liste.loading;
-  protected readonly stock = this.liste.items;
+  }, CORRESPONDANCE_ETAT_DU_STOCK, STOCK_DEFAULT_PAGE_SIZE);
+  protected readonly loading = this.liste.chargement;
+  protected readonly stock = this.liste.lignes;
 
   constructor() {
     this.reloadStock();
@@ -150,7 +153,7 @@ export class EtatDuStockComponent {
 
   /** Requête de la table (mode remote) : page, taille, tri et filtres partent au serveur. */
   protected onRemoteQueryChange(requete: NgTableRemoteQuery): void {
-    this.liste.surRequete(requete);
+    this.liste.onRemoteQueryChange(requete);
   }
 
   /** Relit la page courante (mouvement de stock reçu par WebSocket). */

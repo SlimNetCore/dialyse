@@ -8,6 +8,10 @@
     <mat-progress-bar mode="indeterminate"></mat-progress-bar>
   }
 
+  @if (liste.erreur(); as erreur) {
+    <p class="field-error" role="alert" data-testid="liste-erreur">{{ erreur | translate }}</p>
+  }
+
   <div class="methode">
     <mat-icon>info</mat-icon>
     <p>{{ explanation()?.methode }}</p>
@@ -33,7 +37,7 @@
         <ng-table
           [ariaLabel]="'STOCK.PMP_EXPLAIN.TITLE' | translate:{article: data.libelle}"
           [columns]="columns()"
-          [rows]="liste.items()"
+          [rows]="liste.lignes()"
           [dataMode]="'remote'"
           [paginator]="true"
           [totalCount]="liste.total()"

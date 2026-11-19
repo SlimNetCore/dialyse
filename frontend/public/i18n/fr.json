@@ -4173,6 +4173,16 @@
     "PAGINATOR_RANGE_EMPTY": "0 sur {{total}}"
   },
   "COMMON": {
+    "LISTE_SERVEUR": {
+      "ERREUR": "La liste n'a pas pu être chargée. Réessayez.",
+      "RESEAU": "Serveur injoignable : la liste n'a pas pu être chargée.",
+      "FILTRE_NUMERIQUE_INVALIDE": "Filtre numérique non pris en charge : saisissez un nombre précédé de =, >, >=, < ou <= (ou une borne ouverte 10.. / ..50).",
+      "PAGE_INVALIDE": "Numéro de page invalide.",
+      "TAILLE_INVALIDE": "Taille de page invalide.",
+      "TRI_INVALIDE": "Ce tri n'est pas disponible pour cette colonne.",
+      "FILTRE_INVALIDE": "Filtre invalide : vérifiez la valeur saisie.",
+      "PARAMETRE_INVALIDE": "Paramètre de recherche invalide."
+    },
     "FILTER_BY": "Filtrer par {{field}}",
     "COLUMNS_BUTTON": "Colonnes",
     "VIEWS_BUTTON": "Vues",

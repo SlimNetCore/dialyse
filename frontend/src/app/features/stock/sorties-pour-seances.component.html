@@ -89,17 +89,20 @@
       <mat-card-title>{{ 'STOCK.SORTIES_SEANCES.LIST_TITLE' | translate }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
+      @if (pieces.erreur(); as erreur) {
+        <p class="field-error" role="alert" data-testid="liste-erreur">{{ erreur | translate }}</p>
+      }
       <div class="table-wrap" data-testid="sorties-seances-pieces">
         <ng-table
           [columns]="colonnesPieces()"
-          [rows]="pieces.items()"
+          [rows]="pieces.lignes()"
           [dataMode]="'remote'"
           [paginator]="true"
           [totalCount]="pieces.total()"
           [pageIndex]="pieces.pageIndex()"
           [pageSize]="pieces.pageSize()"
           [pageSizeOptions]="pageSizes"
-          [loading]="pieces.loading()"
+          [loading]="pieces.chargement()"
           [rowKeyAccessor]="clePiece"
           [rowClassFn]="classeDePiece()"
           [labels]="labels()"
@@ -153,19 +156,22 @@
         </mat-card-title>
       </mat-card-header>
       <mat-card-content>
+        @if (lignes.erreur(); as erreur) {
+          <p class="field-error" role="alert" data-testid="lignes-erreur">{{ erreur | translate }}</p>
+        }
         <div class="table-wrap" data-testid="sorties-seances-lignes">
           <!-- Une table par pièce : changer de pièce repart de la page 1. -->
           @for (p of [piece]; track p.id) {
             <ng-table
               [columns]="colonnesLignes()"
-              [rows]="lignes.items()"
+              [rows]="lignes.lignes()"
               [dataMode]="'remote'"
               [paginator]="true"
               [totalCount]="lignes.total()"
               [pageIndex]="lignes.pageIndex()"
               [pageSize]="lignes.pageSize()"
               [pageSizeOptions]="pageSizes"
-              [loading]="lignes.loading()"
+              [loading]="lignes.chargement()"
               [rowKeyAccessor]="cleLigne"
               [labels]="labels()"
               (remoteQueryChange)="surRequeteDesLignes($event)"

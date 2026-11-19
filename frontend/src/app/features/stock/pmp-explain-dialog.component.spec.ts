@@ -73,6 +73,6 @@ describe('PmpExplainDialogComponent (étapes en ng-table)', () => {
     (fixture.componentInstance as any).onRemoteQueryChange(
       {sort: {columnId: '', direction: ''}, filters: {}, page: {index: 1, size: 20}});
     expect(explicationDuPmp).toHaveBeenLastCalledWith('c1', 'a1', 1, 20);
-    expect((fixture.componentInstance as any).liste.items().length).toBe(3);
+    expect((fixture.componentInstance as any).liste.lignes().length).toBe(3);
   });
 });

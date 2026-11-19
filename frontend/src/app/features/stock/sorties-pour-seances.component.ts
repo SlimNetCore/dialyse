@@ -21,11 +21,11 @@ import {
 } from '../../core/api/stock-api.service';
 import {
   LigneSortiePourSeancesDetaillee,
-  ListeDistante,
   PieceSortiePourSeancesResume,
   STATUTS_SORTIE_POUR_SEANCES,
   StockPagesApiService
 } from '../../core/api/stock-pages-api.service';
+import {ListeServeur} from '../../core/api/liste-serveur';
 import {CorrespondanceDePage} from '../../core/api/page-serveur';
 import {ReferentialApiService, RefItem} from '../../core/api/referential-api.service';
 import {NgTableTranslatedLabels} from '../../shared/ng-table-labels';
@@ -124,16 +124,16 @@ export class SortiesPourSeancesComponent {
   private readonly refApi = inject(ReferentialApiService);
   private readonly auth = inject(AuthStore);
   /** Page courante des pièces du centre, triée et filtrée par le serveur (RG-STK-091). */
-  protected readonly pieces = new ListeDistante<PieceSortiePourSeancesResume>(CORRESPONDANCE_PIECES_POUR_SEANCES, (p) => {
+  protected readonly pieces = new ListeServeur<PieceSortiePourSeancesResume>((p) => {
     const centerId = this.auth.centerId();
     return centerId ? this.pagesApi.piecesPourSeances(centerId, p) : null;
-  }, STOCK_DEFAULT_PAGE_SIZE);
+  }, CORRESPONDANCE_PIECES_POUR_SEANCES, STOCK_DEFAULT_PAGE_SIZE);
   /** Page courante des lignes de la pièce sélectionnée (code et libellé de l'article fournis par le serveur). */
-  protected readonly lignes = new ListeDistante<LigneSortiePourSeancesDetaillee>(CORRESPONDANCE_LIGNES_POUR_SEANCES, (p) => {
+  protected readonly lignes = new ListeServeur<LigneSortiePourSeancesDetaillee>((p) => {
     const centerId = this.auth.centerId();
     const pieceId = this.selectionId();
     return centerId && pieceId ? this.pagesApi.lignesDeLaPiece(centerId, pieceId, p) : null;
-  }, STOCK_DEFAULT_PAGE_SIZE);
+  }, CORRESPONDANCE_LIGNES_POUR_SEANCES, STOCK_DEFAULT_PAGE_SIZE);
   /** Enregistrement d'une pièce : gestionnaire de stock et administrateur. */
   protected readonly peutEnregistrer = computed(() => this.auth.hasRole('ADMIN') || this.auth.hasRole('PHARMACIEN'));
   /** Préparation et validation du rapprochement : aussi le directeur administratif. */
@@ -146,7 +146,7 @@ export class SortiesPourSeancesComponent {
   private readonly langue = langueCourante();
   protected readonly libelleVide = computed(() => {
     this.langue();
-    return this.translate.instant('STOCK.SORTIES_SEANCES.EMPTY') as string;
+    return this.translate.instant(this.pieces.erreur() ?? 'STOCK.SORTIES_SEANCES.EMPTY') as string;
   });
   /** Pièces du centre : ng-table distante paginée, statut en pastille, bouton qui déroule le détail. */
   protected readonly colonnesPieces = computed<NgTableColumn<PieceSortiePourSeancesResume>[]>(() => {
@@ -301,12 +301,12 @@ export class SortiesPourSeancesComponent {
 
   /** Requête de la table des pièces (mode remote) : page, taille, tri et filtres partent au serveur. */
   protected surRequeteDesPieces(requete: NgTableRemoteQuery): void {
-    this.pieces.surRequete(requete);
+    this.pieces.onRemoteQueryChange(requete);
   }
 
   /** Requête de la table des lignes de la pièce sélectionnée (mode remote). */
   protected surRequeteDesLignes(requete: NgTableRemoteQuery): void {
-    this.lignes.surRequete(requete);
+    this.lignes.onRemoteQueryChange(requete);
   }
 
   protected preparer(piece: SortiePourSeances): void {
