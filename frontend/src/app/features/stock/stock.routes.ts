@@ -6,8 +6,13 @@ export const stockRoutes: Routes = [
     loadComponent: () => import('./stock-layout.component').then(m => m.StockLayoutComponent),
     children: [
       {
+        // arrivée dans le module = écran de travail (stock valorisé + explication du PMP)
         path: '',
-        loadComponent: () => import('./stock-dashboard.component').then(m => m.StockDashboardComponent),
+        loadComponent: () => import('./etat-du-stock.component').then(m => m.EtatDuStockComponent),
+      },
+      {
+        path: 'tableau-de-bord',
+        loadComponent: () => import('./stock-tableau-de-bord.component').then(m => m.StockTableauDeBordComponent),
       },
       {
         path: 'fournisseurs',

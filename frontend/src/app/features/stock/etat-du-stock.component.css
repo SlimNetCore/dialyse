@@ -1,0 +1,14 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.app-page,
+mat-card,
+mat-card-content {
+  min-width: 0;
+}
+
+mat-card {
+  margin-top: 16px;
+}

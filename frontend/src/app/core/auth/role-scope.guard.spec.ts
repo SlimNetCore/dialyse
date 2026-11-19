@@ -55,7 +55,7 @@ describe('roleScopeGuard', () => {
 
   it('cantonne la direction à son tableau de bord', () => {
     expect(run(['DIRECTION'], '/direction')).toBe(true);
-    for (const url of ['/dashboard', '/patients', '/admin/societes', '/admin/users', '/stock']) {
+    for (const url of ['/dashboard', '/patients', '/admin/societes', '/admin/users', '/stock', '/stock/tableau-de-bord']) {
       expect(run(['DIRECTION'], url), url).toEqual({redirect: '/direction'});
     }
   });
@@ -69,8 +69,8 @@ describe('roleScopeGuard', () => {
     expect(run(['INFIRMIER'], '/infirmiers/moi')).toBe(true);
     expect(run(['INFIRMIER'], '/seances')).toBe(true);
     expect(run(['INFIRMIER'], '/seances?date=2026-10-05')).toBe(true);
-    for (const url of ['/dashboard', '/patients', '/stock', '/admin/users', '/infirmiers', '/infirmiers/referentiel',
-      '/infirmiers/absences', '/seances/planning', '/gmao', '/facturation']) {
+    for (const url of ['/dashboard', '/patients', '/stock', '/stock/tableau-de-bord', '/admin/users', '/infirmiers',
+      '/infirmiers/referentiel', '/infirmiers/absences', '/seances/planning', '/gmao', '/facturation']) {
       expect(run(['INFIRMIER'], url), url).toEqual({redirect: '/infirmiers/moi'});
     }
   });
@@ -92,7 +92,7 @@ describe('roleScopeGuard', () => {
       expect(run(['MEDECIN'], url), url).toBe(true);
     }
     for (const url of ['/dashboard', '/patients/new', '/patients/pec-admin', '/patients/pec-list',
-      '/patients/attestations-list', '/seances', '/stock', '/admin/users', '/infirmiers', '/infirmiers/moi',
+      '/patients/attestations-list', '/seances', '/stock', '/stock/tableau-de-bord', '/admin/users', '/infirmiers', '/infirmiers/moi',
       '/patients/abc/autre', '/gmao', '/facturation']) {
       expect(run(['MEDECIN'], url), url).toEqual({redirect: '/medecin'});
     }

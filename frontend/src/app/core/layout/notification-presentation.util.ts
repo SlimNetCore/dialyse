@@ -299,10 +299,13 @@ function ficheDe(evt: WsEvent, profil: Profil, ctx: ContexteNotification): Fiche
         {parametres: {count: p['nbSeances'] ?? '', date: dateLisible(p['plusAncienne'])}});
 
     case 'LOTS_PROCHES_PEREMPTION':
-      // contrôle quotidien du Stock (RG-STK-061) : pharmacien et administrateur du centre ; le détail des lots est au stock
-      return alerte('hourglass_bottom', profil === 'GESTION' ? action('STOCK', ['/stock']) : accueil(profil),
+      // contrôle quotidien du Stock (RG-STK-061) : pharmacien et administrateur du centre ; le détail des lots est au
+      // tableau de bord du stock (lots en péremption, centre d'alertes)
+      return alerte('hourglass_bottom',
+        profil === 'GESTION' ? action('STOCK_ALERTES', ['/stock/tableau-de-bord']) : accueil(profil),
         {parametres: {count: p['nbLots'] ?? '0', perimes: p['nbPerimes'] ?? '0', date: dateLisible(p['plusProche'])}});
     case 'STOCK_MOVEMENT_CHANGED':
+      // un mouvement change les quantités et la valorisation : il mène à l'état du stock (écran de travail)
       return info('inventory', profil === 'GESTION' ? action('STOCK', ['/stock']) : accueil(profil),
         {parametres: {reference: p['reference'] ?? '', count: p['articles'] ?? '0'}});
     case 'STOCK_INVENTORY_CHANGED': {

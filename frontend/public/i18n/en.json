@@ -934,15 +934,8 @@
     "TO_RECEPTION_BUTTON": "→ Reception",
     "DASHBOARD": {
       "EYEBROW": "Stock module",
-      "TITLE": "Stock management",
-      "DESCRIPTION": "Real-time valued stock (WAP), lot → patient → session traceability, and a consolidated alert center.",
-      "NAV": {
-        "PURCHASE_ORDERS": "Purchase orders",
-        "RECEPTIONS": "Receipts",
-        "OUTPUTS": "Issues",
-        "SUPPLIERS": "Suppliers",
-        "ARTICLES": "Items"
-      },
+      "TITLE": "Stock dashboard",
+      "DESCRIPTION": "Real-time valued stock (WAP) per item; the WAP calculation detail opens from each row.",
       "FILTERS": {
         "TITLE": "Analytics filters",
         "PERIOD": "Period",
@@ -3854,6 +3847,7 @@
       "SEROLOGIES": "See the serologies",
       "ACCUEIL": "Open the dashboard",
       "STOCK": "Open the stock",
+      "STOCK_ALERTES": "See the stock alerts",
       "INVENTAIRES": "See the inventories",
       "PLANNING": "See the planning",
       "MON_PLANNING": "See my planning"

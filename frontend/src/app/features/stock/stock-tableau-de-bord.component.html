@@ -2,35 +2,6 @@
   <div class="app-hero-card">
     <span class="app-eyebrow">{{ 'STOCK.DASHBOARD.EYEBROW' | translate }}</span>
     <h1 class="app-section-title">{{ 'STOCK.DASHBOARD.TITLE' | translate }}</h1>
-    <p class="app-section-copy">
-      {{ 'STOCK.DASHBOARD.DESCRIPTION' | translate }}
-    </p>
-    <div class="app-button-cluster">
-      <a color="primary" mat-flat-button routerLink="/stock/bons-commande">
-        <mat-icon>request_quote</mat-icon>
-        {{ 'STOCK.DASHBOARD.NAV.PURCHASE_ORDERS' | translate }}
-      </a>
-      <a mat-stroked-button routerLink="/stock/bons-reception">
-        <mat-icon>inventory</mat-icon>
-        {{ 'STOCK.DASHBOARD.NAV.RECEPTIONS' | translate }}
-      </a>
-      <a mat-stroked-button routerLink="/stock/bons-sortie">
-        <mat-icon>logout</mat-icon>
-        {{ 'STOCK.DASHBOARD.NAV.OUTPUTS' | translate }}
-      </a>
-      <a mat-stroked-button routerLink="/stock/fournisseurs">
-        <mat-icon>local_shipping</mat-icon>
-        {{ 'STOCK.DASHBOARD.NAV.SUPPLIERS' | translate }}
-      </a>
-      <a mat-stroked-button routerLink="/stock/articles">
-        <mat-icon>inventory_2</mat-icon>
-        {{ 'STOCK.DASHBOARD.NAV.ARTICLES' | translate }}
-      </a>
-      <a mat-stroked-button routerLink="/stock/inventaires">
-        <mat-icon>fact_check</mat-icon>
-        {{ 'STOCK.INVENTORY.TITLE' | translate }}
-      </a>
-    </div>
   </div>
 
   @if (loading()) {
@@ -179,37 +150,6 @@
           }
         </div>
       }
-    </mat-card-content>
-  </mat-card>
-
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>{{ 'STOCK.DASHBOARD.STOCK_TABLE.TITLE' | translate }}</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <app-configurable-list
-        [columns]="stockColumns()"
-        [emptyLabelKey]="'STOCK.DASHBOARD.EMPTY.NO_STOCK'"
-        [rows]="stock()"
-      />
-
-      <ng-template #quantiteCell let-row>
-        {{ row.quantite | number:'1.0-2' }} {{ row.unite }}
-      </ng-template>
-
-      <ng-template #pmpCell let-row>
-        {{ row.pmpCourant | number:'1.0-4' }}
-      </ng-template>
-
-      <ng-template #valeurCell let-row>
-        {{ row.valeur | number:'1.0-2' }}
-      </ng-template>
-
-      <ng-template #actionsCell let-row>
-        <button (click)="openPmpExplain(row)" color="primary" mat-stroked-button>
-          {{ 'STOCK.DASHBOARD.STOCK_TABLE.EXPLAIN_PMP' | translate }}
-        </button>
-      </ng-template>
     </mat-card-content>
   </mat-card>
 

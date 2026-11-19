@@ -83,7 +83,8 @@
   | Nouveau patient, fiche modifiée | fiche du patient | fiche du patient (lecture) | — |
   | Prise en charge validée / clôturée / supprimée | liste des prises en charge | fiche du patient | — |
   | Attestation créée / supprimée | liste des attestations | fiche du patient | — |
-  | Mouvement de stock, inventaire ouvert / clôturé / annulé | stock, inventaires | — | — |
+  | Mouvement de stock, inventaire ouvert / clôturé / annulé | état du stock (`/stock`), inventaires | — | — |
+  | Lots proches de la péremption | Voir les alertes de stock (tableau de bord du stock, `/stock/tableau-de-bord`) | — | — |
 
   « — » : la notification n'est pas destinée à ce profil ; si elle lui parvenait, l'action ouvrirait son écran
   d'accueil. Les évènements purement techniques (`PRESCRIPTION_CHANGED`, `STOCK_RECALC_LOCKS_CHANGED`) rafraîchissent

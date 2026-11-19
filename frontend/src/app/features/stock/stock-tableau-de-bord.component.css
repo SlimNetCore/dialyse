@@ -68,22 +68,6 @@ mat-card-content {
   height: 100% !important;
 }
 
-.full-width {
-  width: 100%;
-}
-
-.stock-table-wrap {
-  max-width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  border: 1px solid var(--app-border);
-  border-radius: 14px;
-}
-
-.stock-table-wrap .full-width {
-  min-width: 760px;
-}
-
 .alert-list {
   display: grid;
   gap: 8px;
@@ -141,16 +125,6 @@ mat-card {
 }
 
 @media (max-width: 600px) {
-  .app-hero-card .app-button-cluster {
-    display: grid;
-    grid-template-columns: 1fr;
-  }
-
-  .app-hero-card .app-button-cluster > a {
-    width: 100%;
-    justify-content: center;
-  }
-
   .filters-grid,
   .kpi-grid {
     grid-template-columns: minmax(0, 1fr);

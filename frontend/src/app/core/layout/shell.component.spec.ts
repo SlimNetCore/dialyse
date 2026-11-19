@@ -80,6 +80,10 @@ describe('ShellComponent — barre de module', () => {
     ['/seances/absences-patients', '/seances/absences-patients'],
     ['/seances/tableau-de-bord', '/seances/tableau-de-bord'],
     ['/seances', '/seances'],
+    ['/stock', '/stock'],
+    ['/stock/tableau-de-bord', '/stock/tableau-de-bord'],
+    ['/stock/articles', '/stock/articles'],
+    ['/stock/inventaires/inv-1', '/stock/inventaires'],
     ['/infirmiers/referentiel', '/infirmiers/referentiel'],
   ])('sur %s, une seule entrée est active : %s', async (url, attendu) => {
     const {actives, component} = await renderAt(url);
@@ -129,6 +133,17 @@ describe('ShellComponent — barre de module', () => {
     expect(component.activeModuleItems().map((i) => i.route)).toEqual(['/seances/tableau-de-bord', '/seances',
       '/seances/historique', '/seances/absences-patients']);
   });
+
+  it('module Stock : le tableau de bord en tête, puis les écrans de travail, puis articles et fournisseurs',
+    async () => {
+      const {component} = await renderAt('/stock');
+
+      expect(component.activeModuleItems().map((i) => i.route)).toEqual(['/stock/tableau-de-bord', '/stock',
+        '/stock/bons-commande', '/stock/bons-reception', '/stock/bons-sortie', '/stock/sorties-pour-seances',
+        '/stock/inventaires', '/stock/articles', '/stock/fournisseurs']);
+      expect(component.activeModuleItems()[0]).toMatchObject({label: 'NAV.TABLEAU_DE_BORD', icon: 'insights'});
+      expect(component.activeModuleItems().slice(-2).map((i) => i.kind)).toEqual(['parametrage', 'parametrage']);
+    });
 
   it('le référentiel des infirmiers, déclaré aussi dans la barre Administration, s\'active dans son module d\'origine',
     async () => {

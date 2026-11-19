@@ -1,21 +1,9 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  inject,
-  signal,
-  TemplateRef,
-  viewChild
-} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, effect, inject, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {RouterLink} from '@angular/router';
 import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';
-import {MatIconModule} from '@angular/material/icon';
 import {MatChipsModule} from '@angular/material/chips';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
-import {MatDialog} from '@angular/material/dialog';
 import {AuthStore} from '../../core/state/auth.store';
 import {
   AlerteStock,
@@ -24,102 +12,35 @@ import {
   StockTopSort,
   StockValoriseItem,
 } from '../../core/api/stock-api.service';
-import {PmpExplainDialogComponent} from './pmp-explain-dialog.component';
 import {WebSocketService} from '../../core/ws/websocket.service';
 import {BaseChartDirective} from 'ng2-charts';
 import {Chart, ChartData, ChartOptions, registerables} from 'chart.js';
 import {forkJoin} from 'rxjs';
 import {finalize} from 'rxjs/operators';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
-import {ConfigurableListComponent, SharedListColumn} from '../../shared/configurable-list.component';
 
 const DAYS_OPTIONS = [7, 30, 90] as const;
 const TOP_N_OPTIONS = [5, 10, 20, 50] as const;
 
 Chart.register(...registerables);
 
+/**
+ * Tableau de bord du stock (`/stock/tableau-de-bord`) : filtres analytiques, indicateurs, tendance, top articles, lots
+ * proches de la péremption et centre d'alertes. Le tableau valorisé et l'explication du PMP sont sur l'état du stock
+ * (`/stock`, écran de travail).
+ */
 @Component({
-  selector: 'app-stock-dashboard',
+  selector: 'app-stock-tableau-de-bord',
   standalone: true,
   imports: [
-    CommonModule, RouterLink, MatCardModule, MatButtonModule, MatIconModule,
-    MatChipsModule, MatProgressBarModule, BaseChartDirective, TranslateModule,
-    ConfigurableListComponent,
+    CommonModule, MatCardModule, MatButtonModule, MatChipsModule, MatProgressBarModule, BaseChartDirective,
+    TranslateModule,
   ],
   changeDetection: ChangeDetectionStrategy.Eager,
-  templateUrl: './stock-dashboard.component.html',
-  styleUrl: './stock-dashboard.component.css',
+  templateUrl: './stock-tableau-de-bord.component.html',
+  styleUrl: './stock-tableau-de-bord.component.css',
 })
-export class StockDashboardComponent {
-  protected readonly quantiteCellTemplate = viewChild<TemplateRef<any>>('quantiteCell');
-  protected readonly pmpCellTemplate = viewChild<TemplateRef<any>>('pmpCell');
-  protected readonly valeurCellTemplate = viewChild<TemplateRef<any>>('valeurCell');
-  protected readonly actionsCellTemplate = viewChild<TemplateRef<any>>('actionsCell');
-  protected readonly stockColumns = computed<SharedListColumn<StockValoriseItem>[]>(() => [
-    {
-      id: 'code',
-      headerKey: 'STOCK.DASHBOARD.STOCK_TABLE.COL_CODE',
-      valueAccessor: (row) => row.code ?? '',
-      sortable: true,
-      resizable: true,
-      minWidthPx: 120,
-      filter: {type: 'text', labelKey: 'STOCK.DASHBOARD.STOCK_TABLE.COL_CODE'},
-    },
-    {
-      id: 'libelle',
-      headerKey: 'STOCK.DASHBOARD.STOCK_TABLE.COL_ARTICLE',
-      valueAccessor: (row) => row.libelle ?? '',
-      sortable: true,
-      resizable: true,
-      minWidthPx: 220,
-      filter: {type: 'text', labelKey: 'STOCK.DASHBOARD.STOCK_TABLE.COL_ARTICLE'},
-    },
-    {
-      id: 'quantite',
-      headerKey: 'STOCK.DASHBOARD.STOCK_TABLE.COL_QUANTITY',
-      valueAccessor: (row) => Number(row.quantite ?? 0),
-      sortValueAccessor: (row) => Number(row.quantite ?? 0),
-      sortable: true,
-      resizable: true,
-      minWidthPx: 150,
-      filter: {type: 'text', labelKey: 'STOCK.DASHBOARD.STOCK_TABLE.COL_QUANTITY'},
-      cellTemplate: this.quantiteCellTemplate() ?? undefined,
-    },
-    {
-      id: 'pmp',
-      headerKey: 'STOCK.DASHBOARD.STOCK_TABLE.COL_PMP',
-      valueAccessor: (row) => Number(row.pmpCourant ?? 0),
-      sortValueAccessor: (row) => Number(row.pmpCourant ?? 0),
-      sortable: true,
-      resizable: true,
-      minWidthPx: 140,
-      filter: {type: 'text', labelKey: 'STOCK.DASHBOARD.STOCK_TABLE.COL_PMP'},
-      cellTemplate: this.pmpCellTemplate() ?? undefined,
-    },
-    {
-      id: 'valeur',
-      headerKey: 'STOCK.DASHBOARD.STOCK_TABLE.COL_VALUE',
-      valueAccessor: (row) => Number(row.valeur ?? 0),
-      sortValueAccessor: (row) => Number(row.valeur ?? 0),
-      sortable: true,
-      resizable: true,
-      minWidthPx: 150,
-      filter: {type: 'text', labelKey: 'STOCK.DASHBOARD.STOCK_TABLE.COL_VALUE'},
-      cellTemplate: this.valeurCellTemplate() ?? undefined,
-    },
-    {
-      id: 'actions',
-      headerKey: 'STOCK.DASHBOARD.STOCK_TABLE.COL_ACTIONS',
-      valueAccessor: () => '',
-      sortable: false,
-      resizable: false,
-      mobileRowActions: true,
-      minWidthPx: 200,
-      widthPx: 220,
-      maxWidthPx: 280,
-      cellTemplate: this.actionsCellTemplate() ?? undefined,
-    },
-  ]);
+export class StockTableauDeBordComponent {
   protected readonly daysOptions = DAYS_OPTIONS;
   protected readonly topNOptions = TOP_N_OPTIONS;
   protected readonly loading = signal(false);
@@ -209,7 +130,6 @@ export class StockDashboardComponent {
   }
   private readonly api = inject(StockApiService);
   private readonly auth = inject(AuthStore);
-  private readonly dialog = inject(MatDialog);
   private readonly ws = inject(WebSocketService);
 
   protected topChartOptions(): ChartOptions<'bar'> {
@@ -314,23 +234,6 @@ export class StockDashboardComponent {
       });
   }
 
-  protected openPmpExplain(article: StockValoriseItem): void {
-    const centerId = this.auth.centerId();
-    if (!centerId) {
-      return;
-    }
-    this.dialog.open(PmpExplainDialogComponent, {
-      width: 'min(1200px, calc(100vw - 24px))',
-      maxWidth: 'calc(100vw - 24px)',
-      maxHeight: 'calc(100dvh - 24px)',
-      data: {
-        articleId: article.articleId,
-        centerId,
-        libelle: article.libelle,
-      },
-    });
-  }
-
   private shortDate(raw: string): string {
     if (!raw) {
       return '';
@@ -342,4 +245,3 @@ export class StockDashboardComponent {
     return date.toLocaleDateString('fr-FR', {day: '2-digit', month: '2-digit'});
   }
 }
-

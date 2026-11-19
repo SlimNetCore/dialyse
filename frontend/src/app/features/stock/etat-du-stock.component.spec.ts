@@ -2,15 +2,14 @@ import {TestBed} from '@angular/core/testing';
 import {of} from 'rxjs';
 import {vi} from 'vitest';
 import {MatDialog} from '@angular/material/dialog';
-import {TranslateService} from '@ngx-translate/core';
-import {StockDashboardComponent} from './stock-dashboard.component';
+import {EtatDuStockComponent} from './etat-du-stock.component';
 import {StockApiService} from '../../core/api/stock-api.service';
 import {AuthStore} from '../../core/state/auth.store';
 import {WebSocketService} from '../../core/ws/websocket.service';
 
-describe('StockDashboardComponent', () => {
+describe('EtatDuStockComponent', () => {
   const stockApiMock = {
-    stockValorise: vi.fn(() => of([])),
+    stockValorise: vi.fn(() => of([{articleId: 'a-1', libelle: 'Dialyseur', quantite: 3, valeur: 30}])),
     alertes: vi.fn(() => of([])),
     dashboardAnalytics: vi.fn(() => of({trend: [], topArticles: []})),
   };
@@ -36,25 +35,24 @@ describe('StockDashboardComponent', () => {
         {provide: AuthStore, useValue: authMock},
         {provide: WebSocketService, useValue: wsMock},
         {provide: MatDialog, useValue: dialogMock},
-        {provide: TranslateService, useValue: {instant: (key: string) => key}},
       ],
     });
   });
 
-  it('charge les donnees du centre courant au demarrage', () => {
-    TestBed.runInInjectionContext(() => new StockDashboardComponent());
+  it('charge le stock valorise du centre courant sans les statistiques ni les alertes du tableau de bord', () => {
+    const component = TestBed.runInInjectionContext(() => new EtatDuStockComponent());
 
     expect(stockApiMock.stockValorise).toHaveBeenCalledWith('center-1');
-    expect(stockApiMock.alertes).toHaveBeenCalledWith('center-1');
-    expect(stockApiMock.dashboardAnalytics).toHaveBeenCalledWith('center-1', 30, 10, 'VALUE');
+    expect(component['stock']().map(a => a.articleId)).toEqual(['a-1']);
+    expect(stockApiMock.alertes).not.toHaveBeenCalled();
+    expect(stockApiMock.dashboardAnalytics).not.toHaveBeenCalled();
   });
 
   it('ouvre le dialogue PMP avec le centerId courant', () => {
-    const component = TestBed.runInInjectionContext(() => new StockDashboardComponent());
+    const component = TestBed.runInInjectionContext(() => new EtatDuStockComponent());
 
     component['openPmpExplain']({articleId: 'a-1', libelle: 'Dialyseur'} as any);
 
-    expect(dialogMock.open).toHaveBeenCalled();
     expect(dialogMock.open).toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({
@@ -70,7 +68,3 @@ describe('StockDashboardComponent', () => {
     );
   });
 });
-
-
-
-

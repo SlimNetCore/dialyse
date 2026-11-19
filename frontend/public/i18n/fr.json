@@ -934,15 +934,8 @@
     "TO_RECEPTION_BUTTON": "→ Réception",
     "DASHBOARD": {
       "EYEBROW": "Module stock",
-      "TITLE": "Gestion des stocks",
-      "DESCRIPTION": "Stock valorisé en temps réel (PMP), traçabilité lot → patient → séance et centre d'alertes consolidé.",
-      "NAV": {
-        "PURCHASE_ORDERS": "Bons de commande",
-        "RECEPTIONS": "Réceptions",
-        "OUTPUTS": "Sorties",
-        "SUPPLIERS": "Fournisseurs",
-        "ARTICLES": "Articles"
-      },
+      "TITLE": "Tableau de bord du stock",
+      "DESCRIPTION": "Stock valorisé en temps réel (PMP) par article ; le détail du calcul du PMP s'ouvre depuis chaque ligne.",
       "FILTERS": {
         "TITLE": "Filtres analytiques",
         "PERIOD": "Période",
@@ -3854,6 +3847,7 @@
       "SEROLOGIES": "Voir les sérologies",
       "ACCUEIL": "Ouvrir le tableau de bord",
       "STOCK": "Ouvrir le stock",
+      "STOCK_ALERTES": "Voir les alertes de stock",
       "INVENTAIRES": "Voir les inventaires",
       "PLANNING": "Voir le planning",
       "MON_PLANNING": "Voir mon planning"

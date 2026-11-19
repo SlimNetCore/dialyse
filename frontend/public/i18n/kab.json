@@ -934,15 +934,8 @@
     "TO_RECEPTION_BUTTON": "→ Asalis",
     "DASHBOARD": {
       "EYEBROW": "Aɣirim n ugdez",
-      "TITLE": "Asefrek n ugdez",
-      "DESCRIPTION": "Agdez iezzan s usrid (PMP), iḍfar n uzerbut → umdan → tamsirt d ummas n ylɣa imunen.",
-      "NAV": {
-        "PURCHASE_ORDERS": "Igelsan n tuttra",
-        "RECEPTIONS": "Isalisen",
-        "OUTPUTS": "Tuffɣiwin",
-        "SUPPLIERS": "Imeddal",
-        "ARTICLES": "Iḥricen"
-      },
+      "TITLE": "Tafelwit n uselkim n ugdez",
+      "DESCRIPTION": "Agdez iezzan s usrid (PMP) i yal aḥric ; talqayt n usiḍen n PMP teldi-d seg yal izirig.",
       "FILTERS": {
         "TITLE": "Isizdagen n usefti",
         "PERIOD": "Tallit",
@@ -3494,6 +3487,7 @@
       "SEROLOGIES": "Wali tiseruluǧiyin",
       "ACCUEIL": "Ldi tafelwit n usenqed",
       "STOCK": "Ldi sselɛa",
+      "STOCK_ALERTES": "Wali ilɣa n ugdez",
       "INVENTAIRES": "Wali iḥettmen",
       "PLANNING": "Wali aɣawas",
       "MON_PLANNING": "See my planning"

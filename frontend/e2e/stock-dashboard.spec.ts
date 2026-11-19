@@ -1,10 +1,10 @@
 import {expect, Page, test} from '@playwright/test';
 
 /**
- * Tests E2E — Dashboard stock
+ * Tests E2E — Stock : tableau de bord (/stock/tableau-de-bord) et état du stock (/stock, écran de travail)
  * Couvre : affichage initial et stabilité responsive sur mobile.
  */
-test.describe('Dashboard stock', () => {
+test.describe('Tableau de bord et état du stock', () => {
   const env = (globalThis as unknown as { process?: { env?: Record<string, string | undefined> } }).process?.env ?? {};
   const baseUrl = env['E2E_BASE_URL'] || 'http://127.0.0.1:4200';
   const username = env['E2E_USERNAME'] || 'admin@hemodialyse.fr';
@@ -18,29 +18,35 @@ test.describe('Dashboard stock', () => {
     await page.waitForURL(`${baseUrl}/dashboard`, {timeout: 10000});
   }
 
-  test('should display the stock dashboard shell', async ({page}) => {
+  test('should display the stock dashboard with its filters and no stock table', async ({page}) => {
+    await login(page);
+    await page.goto(`${baseUrl}/stock/tableau-de-bord`);
+    await page.waitForLoadState('networkidle');
+
+    await expect(page.locator('h1, .app-section-title').first()).toContainText(/stock/i);
+    await expect(page.locator('.filters-grid')).toBeVisible();
+    await expect(page.locator('.kpi-grid')).toBeVisible();
+    await expect(page.locator('app-configurable-list')).toHaveCount(0);
+  });
+
+  test('should land on the stock status with the valued stock table', async ({page}) => {
     await login(page);
     await page.goto(`${baseUrl}/stock`);
     await page.waitForLoadState('networkidle');
 
-    await expect(page.locator('h1, .app-section-title')).toContainText(/stock/i);
-    await expect(page.locator('.filters-grid')).toBeVisible();
-    await expect(page.locator('.stock-table-wrap')).toBeVisible();
+    await expect(page.locator('app-configurable-list')).toBeVisible();
+    await expect(page.locator('.filters-grid')).toHaveCount(0);
   });
 
   test('should stay within the viewport on mobile', async ({page}) => {
     await page.setViewportSize({width: 320, height: 844});
     await login(page);
-    await page.goto(`${baseUrl}/stock`);
-    await page.waitForLoadState('networkidle');
+    for (const url of ['/stock/tableau-de-bord', '/stock']) {
+      await page.goto(`${baseUrl}${url}`);
+      await page.waitForLoadState('networkidle');
 
-    const overflow = await page.evaluate(() => {
-      return document.documentElement.scrollWidth - window.innerWidth;
-    });
-
-    expect(overflow).toBeLessThanOrEqual(1);
-    await expect(page.locator('.stock-table-wrap')).toBeVisible();
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+      expect(overflow, url).toBeLessThanOrEqual(1);
+    }
   });
 });
-
-

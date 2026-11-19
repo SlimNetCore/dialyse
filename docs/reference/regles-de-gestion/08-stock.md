@@ -139,14 +139,20 @@
   `INFIRMIER`). *Source :* `RejeuDuPmp`, `CalculDuPmp`, `RecalculMassifDuPmp` (contexte `stock`), `MouvementDeStock.CHRONOLOGIE`
   (colonne `saisi_le`, migration V38).
 - **RG-STK-042** — L'écran « explication du PMP » détaille, mouvement par mouvement, l'état avant/après et la formule
-  appliquée.
+  appliquée. Il s'ouvre depuis chaque ligne de l'**état du stock** (`/stock`, stock valorisé au PMP par article), qui
+  est l'écran d'arrivée du module Stock.
 - **RG-STK-043** — **Valorisation historique** d'une période : valeur de début, entrées (valorisées au prix), sorties
   (valorisées au PMP qui précède), « autres variations » (inventaires, ajustements sans prix, arrondis = fin − début −
   entrées + sorties) et valeur de fin ; elle est mise en cache par centre, période et ensemble d'articles (TTL
   `CACHE_TTL_STOCK_VALORISATION`, vidée à chaque écriture de mouvement).
 - **RG-STK-044** — Les statistiques du tableau de bord stock portent sur 7, 30 ou 90 jours (30 par défaut) : quantité et
   valeur totales, tendance journalière des mouvements (jours sans mouvement comblés) et « top articles » (10 par défaut,
-  50 maximum) triés par valeur ou volume.
+  50 maximum) triés par valeur ou volume. Elles sont affichées dans le **tableau de bord du stock**
+  (`/stock/tableau-de-bord`, première entrée de la barre du module), avec les indicateurs (valeur et quantité totales,
+  articles en stock, alertes actives, lots en péremption, flux de la période), les lots proches de la péremption et le
+  centre d'alertes (rupture, seuil, péremption). La barre du module propose ensuite les écrans de travail (état du
+  stock, bons de commande, réceptions, sorties, sorties pour séances, inventaires) puis le paramétrage (articles,
+  fournisseurs) ; le bandeau d'inventaire en cours reste affiché au-dessus de chaque écran du module.
 
 ## 8.6 Inventaire
 
@@ -218,7 +224,7 @@
   chaque centre) : pour chaque centre **actif**, les lots contenant du stock (> 0) d'articles **actifs** et expirant dans les 30 jours
   (borne J+30 incluse) sont signalés ; un lot **déjà périmé** est signalé le lendemain de sa péremption puis rappelé chaque semaine
   (J+1, J+8, J+15…, sans état conservé) ; un lot **reçu déjà périmé** est signalé au premier contrôle qui suit sa réception ; si le contrôle de J+1 est manqué, le rappel suivant est J+8. Le signalement est une **alerte durable unique par centre et par jour** (identifiant
-  déterministe, sûre en multi-instance) destinée à `ADMIN` et `PHARMACIEN` (comptes des lots et des périmés, date la plus proche ; le détail est au tableau de bord), et un événement
+  déterministe, sûre en multi-instance) destinée à `ADMIN` et `PHARMACIEN` (comptes des lots et des périmés, date la plus proche ; le détail est au tableau de bord du stock, `/stock/tableau-de-bord`, vers lequel mène la notification), et un événement
   d'intégration `LotProcheExpiration` v1 par lot (registre Spring Modulith, consommateurs idempotents sur son identifiant). Un centre en
   échec est journalisé sans arrêter les autres ; les centres inactifs ne sont plus parcourus. **« Centre actif » a le même sens
   pour le Stock que pour tous les contextes (KB-ORG-09 CORRIGÉ le 2026-11-09, lot L7, ADR 0115, à confirmer par les métiers Stock avant le

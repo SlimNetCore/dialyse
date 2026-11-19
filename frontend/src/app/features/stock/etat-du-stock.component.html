@@ -1,0 +1,44 @@
+<section class="app-page">
+  <div class="app-hero-card">
+    <span class="app-eyebrow">{{ 'STOCK.DASHBOARD.EYEBROW' | translate }}</span>
+    <h1 class="app-section-title">{{ 'NAV.STOCK_ETAT' | translate }}</h1>
+    <p class="app-section-copy">
+      {{ 'STOCK.DASHBOARD.DESCRIPTION' | translate }}
+    </p>
+  </div>
+
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  }
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ 'STOCK.DASHBOARD.STOCK_TABLE.TITLE' | translate }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <app-configurable-list
+        [columns]="stockColumns()"
+        [emptyLabelKey]="'STOCK.DASHBOARD.EMPTY.NO_STOCK'"
+        [rows]="stock()"
+      />
+
+      <ng-template #quantiteCell let-row>
+        {{ row.quantite | number:'1.0-2' }} {{ row.unite }}
+      </ng-template>
+
+      <ng-template #pmpCell let-row>
+        {{ row.pmpCourant | number:'1.0-4' }}
+      </ng-template>
+
+      <ng-template #valeurCell let-row>
+        {{ row.valeur | number:'1.0-2' }}
+      </ng-template>
+
+      <ng-template #actionsCell let-row>
+        <button (click)="openPmpExplain(row)" color="primary" mat-stroked-button>
+          {{ 'STOCK.DASHBOARD.STOCK_TABLE.EXPLAIN_PMP' | translate }}
+        </button>
+      </ng-template>
+    </mat-card-content>
+  </mat-card>
+</section>

@@ -255,10 +255,11 @@ describe('présentation des notifications', () => {
       {label: 'NOTIFICATION.ACTION.ABSENCES_PATIENTS', commands: ['/seances/absences-patients']});
   });
 
-  it('mène au stock pour les lots proches de la péremption (alerte du contrôle quotidien)', () => {
+  it('mène au tableau de bord du stock pour les lots proches de la péremption (alerte du contrôle quotidien)', () => {
     expect(vue(event('LOTS_PROCHES_PEREMPTION', {nbLots: '7', nbPerimes: '2', plusProche: '2026-10-16'}), 'ADMIN')).toMatchObject({
       message: 'NOTIFICATION.LOTS_PROCHES_PEREMPTION {"count":"7","perimes":"2","date":"16/10/2026"}', icone: 'hourglass_bottom',
-      actionRequise: true, action: {label: 'NOTIFICATION.ACTION.STOCK', commands: ['/stock']},
+      actionRequise: true,
+      action: {label: 'NOTIFICATION.ACTION.STOCK_ALERTES', commands: ['/stock/tableau-de-bord']},
     });
   });
 
