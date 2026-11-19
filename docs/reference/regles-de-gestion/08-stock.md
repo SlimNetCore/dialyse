@@ -70,6 +70,16 @@
 - **RG-STK-005** — Les références de pièces sont générées par séquence de centre : `BC` (bon de commande), `BR`
   (réception), `BS` (sortie), `INV` (inventaire). Les compteurs appartiennent à la Comptabilité (numérotation des documents,
   S-DDL2, ADR 0185) : le Stock les réserve par un port, dans la transaction de la pièce ; comportement inchangé.
+- **RG-STK-087** — **Listes paginées côté serveur** (convention commune du Stock, slice `pagination-serveur`) :
+  `GET <liste>/page` avec `page` (base 0), `size` (1 à 100, défaut 20), `sort=champ[,asc|desc]` pris dans une liste
+  blanche par liste (départage stable ajouté) et un paramètre par filtre de colonne (texte « contient » sans casse,
+  énumération à valeurs séparées par des virgules) ; réponse `{items, total, page, size}` ; refus 400 avec un code
+  stable `PAGE_INVALIDE`, `TAILLE_INVALIDE`, `TRI_INVALIDE`, `FILTRE_INVALIDE`, `PARAMETRE_INVALIDE`. Mêmes rôles et même
+  centre que la liste complète, qui reste inchangée. Pagination en SQL (`COUNT` + `LIMIT/OFFSET`).
+  **Fournisseurs** (`GET /stock/referentiel/fournisseurs/page`) : fournisseurs actifs du centre, tri `code`,
+  `raisonSociale` (défaut), `contact` ; recherche `q` sur le code, la raison sociale ou le contact ; filtres `code`,
+  `raisonSociale`, `contact`. *Source :* `FournisseursParPageControleur`, `ConsulterLesFournisseursParPage`,
+  `FournisseursParPageJdbc` (contexte `stock`).
 
 ## 8.2 Bons de commande
 
@@ -81,6 +91,11 @@
   `VALIDE`. Il passe à `RECU` quand un bon de réception issu de lui est validé.
 - **RG-STK-012** — Accès : écriture `ADMIN`, `PHARMACIEN` ; lecture + `INFIRMIER`. Un bon inconnu du centre est
   introuvable.
+- **RG-STK-088** — **Liste paginée des bons de commande** (`GET /stock/bons-commande/page`, convention RG-STK-087) :
+  tri `reference`, `statut` (ordre du cycle `BROUILLON` < `VALIDE` < `RECU`), `lignes` (nombre de lignes), `createdAt`
+  (défaut : création la plus récente d'abord, puis référence décroissante) ; filtres `reference` et `statut`
+  (`BROUILLON`, `VALIDE`, `RECU` ; pas d'état annulé, ADR 0045). Chaque bon porte ses lignes. *Source :*
+  `BonsDeCommandeParPageControleur`, `ConsulterLesBonsParPage`, `BonsParPageJdbc` (contexte `stock`).
 
 ## 8.3 Bons de réception, lots, entrées
 
@@ -102,6 +117,16 @@
 - **RG-STK-024** — Un article dont le PMP est en cours de recalcul est **verrouillé** : toute saisie le concernant est
   refusée (« Recalcul en cours … Saisie temporairement bloquee »).
 - **RG-STK-025** — Accès : écriture `ADMIN`, `PHARMACIEN` ; lecture + `INFIRMIER`.
+- **RG-STK-089** — **Listes paginées des bons de réception et de sortie** (convention RG-STK-087). Réception
+  (`GET /stock/bons-reception/page`) : tri `reference`, `dateReception`, `statut`, `lignes`, `createdAt` (défaut :
+  création la plus récente d'abord) ; filtres `reference` et `statut` (`BROUILLON`, `VALIDE` seulement). Sortie
+  (`GET /stock/bons-sortie/page`) : tri `reference`, `dateSortie`, `lignes`, `createdAt` (même défaut) ; filtre
+  `reference` (le bon de sortie n'a pas de statut). **Statut historique `RECU` d'un bon de réception** (vocabulaire des bons
+  de commande, présent dans le jeu d'amorçage H2) : il se lit, se filtre et se trie comme `VALIDE` (le bon est entré en
+  stock ; aucune transition n'existe depuis `VALIDE`, la donnée n'est pas réécrite) ; tout autre statut inconnu est une
+  erreur explicite. Avant cette règle, la liste des bons de réception du centre tombait en 400 (KB-STK-58). *Source :*
+  `BonsDeReceptionParPageControleur`, `BonsDeSortieParPageControleur`, `BonsParPageJdbc`, `BonsDeReceptionJdbc`
+  (contexte `stock`).
 
 ## 8.4 Bons de sortie, FEFO, consommation en séance
 
@@ -117,7 +142,7 @@
   Corriger un bon de sortie restitue d'abord les quantités aux lots d'origine puis recrée les sorties ; les sorties
   recréées gardent la **date du bon** et l' **heure de création du bon** comme heure de saisie (RG-STK-041).
 - **RG-STK-033** — Accès : `ADMIN`, `PHARMACIEN`, `INFIRMIER`. La liste des lots disponibles d'un article est triée
-  FEFO.
+  FEFO. La liste des bons de sortie est paginée côté serveur (RG-STK-089).
 
 ## 8.5 PMP (prix moyen pondéré) et valorisation
 
@@ -153,6 +178,18 @@
   centre d'alertes (rupture, seuil, péremption). La barre du module propose ensuite les écrans de travail (état du
   stock, bons de commande, réceptions, sorties, sorties pour séances, inventaires) puis le paramétrage (articles,
   fournisseurs) ; le bandeau d'inventaire en cours reste affiché au-dessus de chaque écran du module.
+- **RG-STK-090** — **État du stock paginé côté serveur** (`GET /stock/dashboard/stock-valorise/page`, convention
+  RG-STK-087) : articles actifs du centre avec quantité, PMP courant et valeur (quantité × PMP, calculée en SQL pour le
+  tri et le filtre) ; tri `code` (défaut, croissant), `libelle` (sans casse), `quantite`, `pmp`, `valeur` ; filtres texte
+  `code`, `libelle` et numériques `quantite`, `pmp`, `valeur` (`[op]nombre`, `op` parmi `= > >= < <=`, virgule ou
+  point). La liste complète `GET /stock-valorise` (triée par libellé) est inchangée. *Source :*
+  `EtatDuStockPageControleur`, `ConsulterLEtatDuStock`, `EtatDuStockPagineJdbc` (contexte `stock`).
+- **RG-STK-093** — **Explication du PMP paginée** (`GET /stock/dashboard/pmp-explain/{articleId}/page`) : les étapes du
+  rejeu sont paginées **en mémoire** (le rejeu est calculé : chaque étape dépend de la précédente, il est rejoué en entier
+  puis découpé), dans l'ordre chronologique, **sans tri ni filtre** (tout `sort` est refusé : `TRI_INVALIDE`) ; le résumé
+  (`articleId`, `code`, `libelle`, `methode`, `quantiteFinale`, `valeurFinale`, `pmpFinal`) accompagne chaque page à côté
+  de `{items, total, page, size}`. Article inconnu du centre : même refus que `GET /pmp-explain/{articleId}` (inchangée).
+  *Source :* `ExplicationDuPmpPageControleur`, `ConsulterLExplicationDuPmp` (contexte `stock`).
 
 ## 8.6 Inventaire
 
@@ -213,6 +250,15 @@
   métiers avant le 2026-12-15 : KB-PL7-3 (caractères hors police), lot « sans lot » = référence d'inventaire après clôture, lots
   négatifs ou arrondis à 0 absents, quantité théorique de la feuille arrondie à 2 décimales.
   *Source :* `InventairesControleur`, `ProcesVerbalRenduParDocuments`, `FeuilleDeComptageExcel`.
+- **RG-STK-092** — **Feuille de comptage paginée côté serveur** (`GET /stock/inventaires/{id}/lignes/page`, convention
+  RG-STK-087) : lignes de l'inventaire du centre, dans l'ordre de la feuille par défaut ; tri `article` (code), `lot`,
+  `peremption`, `theorique`, `comptee`, `ecart` (compté − théorique), `valeurEcart`, les lignes non comptées en dernier ;
+  filtre `etat` (une seule valeur : `TOUTES`, `A_COMPTER` = non comptées, `ECARTS` = comptées avec un écart non nul,
+  `COMPTEES`) et recherche `q` sur le code, le libellé ou le n° de lot. Éléments de même forme que `details[]` de
+  `GET /{id}`, qui reste la source de l'en-tête (compteurs, progression, statut). Inventaire inconnu du centre : 422
+  `INVENTORY_NOT_FOUND` comme sa consultation. Après un comptage, un ajout ou un retrait de ligne, l'écran relit la page
+  courante. *Source :* `LignesDInventairePageControleur`, `ConsulterLesLignesDInventaire`, `LignesDInventairePagineesJdbc`
+  (contexte `stock`).
 
 ## 8.7 Alertes et traçabilité
 
@@ -285,3 +331,12 @@ mouvement de stock** (l'ancienne sortie immédiate FEFO par séance et sa bascul
   d'enregistrement d'une sortie pour séances) est le jour du fuseau de son centre (centers.fuseau_horaire, identifiant
   IANA, par exemple Africa/Algiers) ; sans fuseau, ou fuseau illisible, c'est UTC. Les mouvements restent datés à minuit
   UTC du jour métier.
+- **RG-STK-091** — **Sorties pour séances paginées côté serveur** (convention RG-STK-087). Pièces
+  (`GET /stock/sorties-pour-seances/page`) : sans leurs lignes, avec `nombreDeLignes` ; tri `reference`, `jour`, `statut`,
+  `lignes`, `enregistreeLe` (défaut : enregistrée le plus récemment, puis référence décroissante) ; filtres `reference`
+  (texte) et `statut` (`ENREGISTREE`, `RAPPROCHEE`). Lignes de la pièce sélectionnée
+  (`GET /stock/sorties-pour-seances/{id}/lignes/page`) : avec `articleCode` et `articleLibelle` ; tri `article` (libellé,
+  défaut), `sortie`, `consomme`, `ecart` (lignes non rapprochées en dernier) ; filtre `article` (code ou libellé) ; pièce
+  inconnue du centre : 422 `PIECE_INTROUVABLE` comme `GET /{id}`, qui reste la lecture de la pièce sélectionnée. Les listes
+  complètes sont inchangées. *Source :* `SortiesPourSeancesPagesControleur`, `ConsulterLesSortiesPourSeances`,
+  `SortiesPourSeancesPagineesJdbc` (contexte `stock`).
