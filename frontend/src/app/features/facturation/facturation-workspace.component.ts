@@ -9,6 +9,9 @@ import {
   viewChild
 } from '@angular/core';
 import {DecimalPipe} from '@angular/common';
+import {toSignal} from '@angular/core/rxjs-interop';
+import {NgTableColumn, NgTableComponent, NgTableTone} from '@sbourahla/ng-table';
+import {map, merge} from 'rxjs';
 import {RouterLink} from '@angular/router';
 import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';
@@ -24,7 +27,7 @@ import {FacturationStore} from './state/facturation.store';
 import {AppShellStore} from '../../core/state/app-shell.store';
 import {AuthStore} from '../../core/state/auth.store';
 import {BackendApiService, FacturationPreviewInvoice} from '../../core/api/backend-api.service';
-import {ConfigurableListComponent, SharedListColumn} from '../../shared/configurable-list.component';
+import {NgTableTranslatedLabels} from '../../shared/ng-table-labels';
 import {MOTIFS_ABSENCE, MotifAbsence} from '../../core/api/absence-patient-api.service';
 import {exclusionEstValide} from './state/facturation-exclusion';
 import {estSuccesDeCloture} from './state/facturation-periodes';
@@ -35,6 +38,21 @@ import {etapeCourante, FacturationEtapesComponent} from './etapes/facturation-et
 
 /** Exclusion en cours de saisie pour une séance de la simulation. */
 type ExclusionDraft = { seanceId: string; motif: MotifAbsence | null; commentaire: string };
+
+/** Pagination locale du tableau des résultats du calcul (aperçu tenu en mémoire). */
+export const TAILLE_DE_PAGE_RESULTATS = 20;
+export const TAILLES_DE_PAGE_RESULTATS: readonly number[] = [10, 20, 50, 100];
+
+/** Teinte de la pastille du statut patient figé sur la facture simulée. */
+export function tonDuStatutPatient(status: string | null | undefined): NgTableTone {
+  const s = (status ?? '').toUpperCase();
+  if (s === 'PERMANENT') return 'success';
+  if (s.includes('TRANSFER')) return 'info';
+  if (s === 'VACANCIER') return 'warning';
+  if (s === 'DÉCÉDÉ' || s === 'DECEDE') return 'danger';
+  if (s === 'GREFFÉ' || s === 'GREFFE') return 'info';
+  return 'neutral';
+}
 
 @Component({
   selector: 'app-facturation-workspace',
@@ -51,7 +69,7 @@ type ExclusionDraft = { seanceId: string; motif: MotifAbsence | null; commentair
     MatTooltipModule,
     TranslateModule,
     DecimalPipe,
-    ConfigurableListComponent,
+    NgTableComponent,
     FacturationEtapesComponent,
   ],
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -95,106 +113,91 @@ export class FacturationWorkspaceComponent {
     return !!draft && exclusionEstValide(draft.motif, draft.commentaire);
   });
 
-  protected readonly invoiceExpandCellTemplate = viewChild<TemplateRef<any>>('invoiceExpandCell');
-  protected readonly invoiceNumeroCellTemplate = viewChild<TemplateRef<any>>('invoiceNumeroCell');
+  protected readonly ngTableLabels = inject(NgTableTranslatedLabels).labels;
+  protected readonly pageSize = TAILLE_DE_PAGE_RESULTATS;
+  protected readonly pageSizeOptions = TAILLES_DE_PAGE_RESULTATS;
+
   protected readonly invoicePatientCellTemplate = viewChild<TemplateRef<any>>('invoicePatientCell');
-  protected readonly invoiceStatusCellTemplate = viewChild<TemplateRef<any>>('invoiceStatusCell');
-  protected readonly invoiceSeancesCellTemplate = viewChild<TemplateRef<any>>('invoiceSeancesCell');
   protected readonly invoiceAmountCellTemplate = viewChild<TemplateRef<any>>('invoiceAmountCell');
   protected readonly invoiceDetailTemplateRef = viewChild<TemplateRef<any>>('invoiceDetailRow');
 
-  protected readonly invoiceColumns = computed<SharedListColumn<FacturationPreviewInvoice>[]>(() => [
-    {
-      id: 'expand',
-      headerKey: '',
-      valueAccessor: () => '',
-      sortable: false,
-      resizable: false,
-      widthPx: 64,
-      minWidthPx: 56,
-      maxWidthPx: 76,
-      cellTemplate: this.invoiceExpandCellTemplate() ?? undefined,
-    },
-    {
-      id: 'numeroFacture',
-      headerKey: 'FACTURATION.PREVIEW.TABLE.NUMERO',
-      valueAccessor: (row) => row.numeroFacture ?? '',
+  /** Change à chaque changement de langue : en-têtes et libellés de ng-table sont du texte déjà traduit. */
+  private readonly langue = toSignal(
+    merge(this.translate.onLangChange, this.translate.onTranslationChange).pipe(map(() => Date.now())),
+    {initialValue: 0});
+
+  protected readonly emptyLabel = computed(() => {
+    this.langue();
+    return this.translate.instant('FACTURATION.PREVIEW.TABLE.EMPTY');
+  });
+
+  protected readonly invoiceColumns = computed<NgTableColumn<FacturationPreviewInvoice>[]>(() => {
+    this.langue();
+    const t = (key: string): string => this.translate.instant(key);
+    const montant = (id: 'totalHt' | 'totalTva' | 'totalTtc', key: string, minWidthPx: number):
+      NgTableColumn<FacturationPreviewInvoice> => ({
+      id,
+      header: t(key),
+      valueAccessor: (row) => Number(row[id] ?? 0),
       sortable: true,
       resizable: true,
-      minWidthPx: 170,
-      filter: {type: 'text'},
-      cellTemplate: this.invoiceNumeroCellTemplate() ?? undefined,
-      copy: true,
-    },
-    {
-      id: 'patient',
-      headerKey: 'FACTURATION.PREVIEW.TABLE.PATIENT',
-      valueAccessor: (row) => `${row.patientCode ?? ''} ${row.patientFullName ?? ''}`.trim(),
-      sortValueAccessor: (row) => row.patientFullName ?? '',
-      sortable: true,
-      resizable: true,
-      minWidthPx: 220,
-      filter: {type: 'text'},
-      cellTemplate: this.invoicePatientCellTemplate() ?? undefined,
-    },
-    {
-      id: 'patientStatusSnapshot',
-      headerKey: 'FACTURATION.PREVIEW.TABLE.PATIENT_STATUS',
-      valueAccessor: (row) => row.patientStatusSnapshot ?? '',
-      sortable: true,
-      resizable: true,
-      minWidthPx: 140,
-      filter: {type: 'text'},
-      cellTemplate: this.invoiceStatusCellTemplate() ?? undefined,
-    },
-    {
-      id: 'seancesCount',
-      headerKey: 'FACTURATION.PREVIEW.TABLE.SESSIONS',
-      valueAccessor: (row) => row.seances?.length ?? 0,
-      sortValueAccessor: (row) => row.seances?.length ?? 0,
-      sortable: true,
-      resizable: true,
-      minWidthPx: 110,
-      cellTemplate: this.invoiceSeancesCellTemplate() ?? undefined,
-    },
-    {
-      id: 'totalHt',
-      headerKey: 'FACTURATION.PREVIEW.INVOICE_HT',
-      valueAccessor: (row) => Number(row.totalHt ?? 0),
-      sortValueAccessor: (row) => Number(row.totalHt ?? 0),
-      sortable: true,
-      resizable: true,
-      minWidthPx: 120,
+      minWidthPx,
       cellTemplate: this.invoiceAmountCellTemplate() ?? undefined,
-    },
-    {
-      id: 'totalTva',
-      headerKey: 'FACTURATION.PREVIEW.INVOICE_TVA',
-      valueAccessor: (row) => Number(row.totalTva ?? 0),
-      sortValueAccessor: (row) => Number(row.totalTva ?? 0),
-      sortable: true,
-      resizable: true,
-      minWidthPx: 120,
-      cellTemplate: this.invoiceAmountCellTemplate() ?? undefined,
-    },
-    {
-      id: 'totalTtc',
-      headerKey: 'FACTURATION.PREVIEW.INVOICE_TTC',
-      valueAccessor: (row) => Number(row.totalTtc ?? 0),
-      sortValueAccessor: (row) => Number(row.totalTtc ?? 0),
-      sortable: true,
-      resizable: true,
-      minWidthPx: 130,
-      cellTemplate: this.invoiceAmountCellTemplate() ?? undefined,
-    },
-  ]);
+      excel: {numFmt: '#,##0.00', align: 'right'},
+    });
+    return [
+      {
+        id: 'numeroFacture',
+        header: t('FACTURATION.PREVIEW.TABLE.NUMERO'),
+        valueAccessor: (row) => row.numeroFacture ?? '',
+        sortable: true,
+        resizable: true,
+        minWidthPx: 170,
+        filter: {type: 'text', label: t('FACTURATION.PREVIEW.TABLE.NUMERO')},
+        copy: true,
+      },
+      {
+        id: 'patient',
+        header: t('FACTURATION.PREVIEW.TABLE.PATIENT'),
+        valueAccessor: (row) => `${row.patientCode ?? ''} ${row.patientFullName ?? ''}`.trim(),
+        sortValueAccessor: (row) => row.patientFullName ?? '',
+        searchable: (row) => `${row.patientCode ?? ''} ${row.patientFullName ?? ''}`.trim(),
+        sortable: true,
+        resizable: true,
+        minWidthPx: 220,
+        textOverflow: 'wrap',
+        filter: {type: 'text', label: t('FACTURATION.PREVIEW.TABLE.PATIENT')},
+        cellTemplate: this.invoicePatientCellTemplate() ?? undefined,
+      },
+      {
+        id: 'patientStatusSnapshot',
+        header: t('FACTURATION.PREVIEW.TABLE.PATIENT_STATUS'),
+        valueAccessor: (row) => row.patientStatusSnapshot ?? '',
+        sortable: true,
+        resizable: true,
+        minWidthPx: 140,
+        filter: {type: 'text', label: t('FACTURATION.PREVIEW.TABLE.PATIENT_STATUS')},
+        cell: {type: 'badge', tone: (value) => tonDuStatutPatient(value as string | null)},
+      },
+      {
+        id: 'seancesCount',
+        header: t('FACTURATION.PREVIEW.TABLE.SESSIONS'),
+        valueAccessor: (row) => row.seances?.length ?? 0,
+        sortable: true,
+        resizable: true,
+        minWidthPx: 110,
+        cell: {type: 'badge', tone: () => 'info'},
+      },
+      montant('totalHt', 'FACTURATION.PREVIEW.INVOICE_HT', 120),
+      montant('totalTva', 'FACTURATION.PREVIEW.INVOICE_TVA', 120),
+      montant('totalTtc', 'FACTURATION.PREVIEW.INVOICE_TTC', 130),
+    ];
+  });
 
   protected readonly invoiceRowKey = (row: FacturationPreviewInvoice): string => row.previewKey;
 
   protected readonly canExpandInvoice = (row: FacturationPreviewInvoice): boolean =>
     (row.seances?.length ?? 0) > 0;
-
-  protected readonly invoiceRowClassFn = () => ({'invoice-row': true});
 
   constructor() {
     effect(() => {
@@ -330,16 +333,6 @@ export class FacturationWorkspaceComponent {
       return 'status-in-progress';
     }
     return 'status-pending';
-  }
-
-  protected patientStatusClass(status: string | null | undefined): string {
-    const s = (status ?? '').toUpperCase();
-    if (s === 'PERMANENT') return 'pat-status-permanent';
-    if (s.includes('TRANSFER')) return 'pat-status-transferred';
-    if (s === 'VACANCIER') return 'pat-status-vacancier';
-    if (s === 'DÉCÉDÉ' || s === 'DECEDE') return 'pat-status-deceased';
-    if (s === 'GREFFÉ' || s === 'GREFFE') return 'pat-status-greffe';
-    return 'pat-status-default';
   }
 
   protected forfaitOptions(): Array<{ id: string; label: string; price: number | null }> {

@@ -96,94 +96,15 @@ mat-card-content {
   margin-bottom: 14px;
 }
 
-.invoice-list {
-  display: grid;
-  gap: 12px;
+/* Tableau des résultats du calcul (ng-table, pagination locale) : défilement horizontal sur mobile. */
+.table-container {
+  max-width: 100%;
+  overflow-x: auto;
 }
 
-.invoice-card {
-  border: 1px solid var(--app-border);
-  border-radius: 16px;
-  padding: 14px;
-  background: var(--app-surface-solid);
-  box-shadow: var(--app-shadow-soft);
-}
-
-.invoice-card footer {
-  margin-top: 10px;
-}
-
-.invoice-seances-panel {
-  margin-top: 10px;
-  border: 1px dashed var(--app-border);
-  border-radius: 14px;
-  overflow: hidden;
-}
-
-.invoice-seances-panel summary {
-  list-style: none;
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  background: var(--app-hover-surface);
-  color: var(--app-text);
-  font-weight: 700;
-}
-
-.invoice-seances-panel summary::-webkit-details-marker {
-  display: none;
-}
-
-.invoice-seances-summary {
-  min-height: 52px;
-}
-
-.invoice-seances-main {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-}
-
-.invoice-seances-side {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-.invoice-seances-count {
-  min-width: 44px;
-  height: 28px;
-  display: inline-grid;
-  grid-auto-flow: column;
-  align-items: center;
-  gap: 6px;
-  justify-content: center;
-  border-radius: 999px;
-  border: 1px solid var(--app-primary-outline);
-  background: var(--app-primary-soft);
-  color: var(--app-text);
-  font-size: 0.85rem;
-  padding: 0 10px;
-}
-
-.invoice-seances-count mat-icon {
-  width: 16px;
-  height: 16px;
-  font-size: 16px;
-}
-
-.toggle-icon {
-  transition: transform 0.2s ease;
-}
-
-.invoice-seances-panel[open] .toggle-icon {
-  transform: rotate(180deg);
+.amount-cell {
+  display: block;
+  text-align: right;
 }
 
 .code-chip {
@@ -198,13 +119,6 @@ mat-card-content {
   letter-spacing: 0.04em;
   white-space: nowrap;
   font-family: monospace;
-}
-
-.invoice-code-chip {
-  max-width: 130px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  cursor: default;
 }
 
 .patient-code-chip {
@@ -261,43 +175,6 @@ mat-card-content {
   color: #1b5e20;
   background: rgba(27, 94, 32, 0.10);
   border-color: rgba(27, 94, 32, 0.22);
-}
-
-/* ── Statuts patient ────────────────────────────────── */
-.pat-status-permanent {
-  color: #1b5e20;
-  background: rgba(27, 94, 32, 0.10);
-  border-color: rgba(27, 94, 32, 0.22);
-}
-
-.pat-status-transferred {
-  color: #01579b;
-  background: rgba(1, 87, 155, 0.10);
-  border-color: rgba(1, 87, 155, 0.22);
-}
-
-.pat-status-vacancier {
-  color: #e65100;
-  background: rgba(230, 81, 0, 0.10);
-  border-color: rgba(230, 81, 0, 0.22);
-}
-
-.pat-status-deceased {
-  color: #424242;
-  background: rgba(66, 66, 66, 0.10);
-  border-color: rgba(66, 66, 66, 0.22);
-}
-
-.pat-status-greffe {
-  color: #6a1b9a;
-  background: rgba(106, 27, 154, 0.10);
-  border-color: rgba(106, 27, 154, 0.22);
-}
-
-.pat-status-default {
-  color: var(--app-muted);
-  background: color-mix(in srgb, var(--app-surface) 80%, var(--app-border) 20%);
-  border-color: var(--app-border);
 }
 
 .amount-chip {
@@ -412,16 +289,6 @@ mat-card {
     flex: 1 1 140px;
   }
 
-  .invoice-seances-summary {
-    align-items: flex-start;
-    gap: 12px;
-  }
-
-  .invoice-seances-side {
-    width: 100%;
-    justify-content: space-between;
-  }
-
   .table-wrap th,
   .table-wrap td {
     padding: 8px;
@@ -435,10 +302,6 @@ mat-card {
     min-width: 760px;
   }
 
-  .invoice-code-chip {
-    max-width: 130px;
-  }
-
   .total-badge {
     flex: 1 1 120px;
   }
@@ -450,7 +313,7 @@ mat-card {
   }
 }
 
-/* --- Liste des factures (configurable-list + detail depliable) ----- */
+/* --- Résultats du calcul (ng-table + detail depliable) ----- */
 .detail-toolbar {
   display: flex;
   align-items: center;
@@ -475,34 +338,6 @@ mat-card {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--app-muted, #4f6573);
-}
-
-.expand-btn {
-  width: 44px;
-  height: 44px;
-  margin: 0;
-  border-radius: 14px;
-}
-
-.expand-btn:hover {
-  background: var(--app-primary-soft, rgba(0, 106, 106, 0.14));
-}
-
-.expand-icon {
-  transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
-  display: block;
-}
-
-.expand-icon.expanded {
-  transform: rotate(180deg);
-}
-
-.invoice-config-list tr.row-expanded {
-  background: var(--app-primary-soft, rgba(0, 106, 106, 0.1)) !important;
-}
-
-.invoice-config-list .data-row {
-  cursor: pointer;
 }
 
 .invoice-patient-cell {

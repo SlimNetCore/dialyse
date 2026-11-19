@@ -155,33 +155,25 @@
           </div>
         }
 
-        <app-configurable-list
-          #invoiceList
-          [columns]="invoiceColumns()"
-          [detailRowAccordion]="true"
-          [detailRowCanExpand]="canExpandInvoice"
-          [detailRowTemplate]="invoiceDetailTemplateRef() ?? null"
-          [emptyLabelKey]="'FACTURATION.PREVIEW.TABLE.EMPTY'"
-          [rowClassFn]="invoiceRowClassFn"
-          [rowKeyAccessor]="invoiceRowKey"
-          [rows]="preview.invoices"
-          class="data-table invoice-config-list"
-        />
-
-        <ng-template #invoiceExpandCell let-row>
-          @if ((row.seances?.length ?? 0) > 0) {
-            <button (click)="$event.stopPropagation(); invoiceList.toggleDetail(row)"
-                    [attr.aria-expanded]="invoiceList.isRowExpanded(row)"
-                    [attr.aria-label]="'FACTURATION.PREVIEW.SESSION_DETAILS' | translate"
-                    class="expand-btn" mat-icon-button>
-              <mat-icon [class.expanded]="invoiceList.isRowExpanded(row)" class="expand-icon">expand_more</mat-icon>
-            </button>
-          }
-        </ng-template>
-
-        <ng-template #invoiceNumeroCell let-row>
-          <span [matTooltip]="row.numeroFacture" class="code-chip invoice-code-chip">{{ row.numeroFacture }}</span>
-        </ng-template>
+        <section class="table-container" data-testid="facturation-resultats">
+          <ng-table
+            #invoiceList
+            [ariaLabel]="'FACTURATION.PREVIEW.TITLE' | translate"
+            [columns]="invoiceColumns()"
+            [dataMode]="'local'"
+            [detailRowAccordion]="true"
+            [detailRowCanExpand]="canExpandInvoice"
+            [detailRowTemplate]="invoiceDetailTemplateRef() ?? null"
+            [emptyLabel]="emptyLabel()"
+            [labels]="ngTableLabels()"
+            [pageSizeOptions]="pageSizeOptions"
+            [pageSize]="pageSize"
+            [paginator]="true"
+            [rowKeyAccessor]="invoiceRowKey"
+            [rows]="preview.invoices"
+            [showActiveFiltersBar]="true"
+          />
+        </section>
 
         <ng-template #invoicePatientCell let-row>
           <span class="invoice-patient-cell">
@@ -190,20 +182,8 @@
           </span>
         </ng-template>
 
-        <ng-template #invoiceStatusCell let-row>
-          <span
-            [class]="'seance-status-chip ' + patientStatusClass(row.patientStatusSnapshot)">{{ row.patientStatusSnapshot }}</span>
-        </ng-template>
-
-        <ng-template #invoiceSeancesCell let-row>
-          <span class="invoice-seances-count">
-            <mat-icon>event</mat-icon>
-            {{ row.seances.length }}
-          </span>
-        </ng-template>
-
         <ng-template #invoiceAmountCell let-value="value">
-          <span class="amount-chip">{{ value | number:'1.2-2' }}</span>
+          <span class="amount-cell"><span class="amount-chip">{{ value | number:'1.2-2' }}</span></span>
         </ng-template>
 
         <ng-template #invoiceDetailRow let-row>

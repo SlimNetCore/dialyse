@@ -1,11 +1,16 @@
-import {TestBed} from '@angular/core/testing';
+import {provideZonelessChangeDetection, signal} from '@angular/core';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {By} from '@angular/platform-browser';
+import {provideNoopAnimations} from '@angular/platform-browser/animations';
+import {provideRouter} from '@angular/router';
 import {vi} from 'vitest';
-import {FacturationWorkspaceComponent} from './facturation-workspace.component';
+import {NgTableColumn, NgTableComponent} from '@sbourahla/ng-table';
+import {FacturationWorkspaceComponent, tonDuStatutPatient} from './facturation-workspace.component';
 import {FACTURATION_VALIDEE, FacturationStore} from './state/facturation.store';
 import {AppShellStore} from '../../core/state/app-shell.store';
 import {AuthStore} from '../../core/state/auth.store';
-import {TranslateService} from '@ngx-translate/core';
-import {BackendApiService} from '../../core/api/backend-api.service';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {BackendApiService, FacturationPreviewInvoice} from '../../core/api/backend-api.service';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {of, throwError} from 'rxjs';
 import {HttpErrorResponse} from '@angular/common/http';
@@ -52,6 +57,9 @@ describe('FacturationWorkspaceComponent', () => {
 
   const translateMock = {
     instant: vi.fn((key: string) => key),
+    getCurrentLang: vi.fn(() => 'fr'),
+    onLangChange: of(),
+    onTranslationChange: of(),
   };
 
   const apiMock = {
@@ -238,5 +246,110 @@ describe('FacturationWorkspaceComponent', () => {
     await vi.waitFor(() => expect(snackBarMock.open).toHaveBeenCalled());
 
     expect(snackBarMock.open.mock.calls[0][0]).toBe('Centre différent de la session');
+  });
+
+  it('colonnes ng-table des résultats : en-têtes traduits, statut patient en pastille, montants triables', () => {
+    const component = TestBed.runInInjectionContext(() => new FacturationWorkspaceComponent());
+    const colonnes = component['invoiceColumns']() as NgTableColumn<FacturationPreviewInvoice>[];
+
+    expect(colonnes.map((c) => c.id)).toEqual(
+      ['numeroFacture', 'patient', 'patientStatusSnapshot', 'seancesCount', 'totalHt', 'totalTva', 'totalTtc']);
+    expect(colonnes[0].header).toBe('FACTURATION.PREVIEW.TABLE.NUMERO');
+    expect(colonnes.find((c) => c.id === 'patientStatusSnapshot')?.cell?.type).toBe('badge');
+    const ttc = colonnes.find((c) => c.id === 'totalTtc')!;
+    expect(ttc.sortable).toBe(true);
+    expect(ttc.valueAccessor(invoice(1))).toBe(1190);
+    expect(component['pageSize']).toBe(20);
+    expect(component['pageSizeOptions']).toEqual([10, 20, 50, 100]);
+  });
+
+  it('teinte du statut patient', () => {
+    expect(tonDuStatutPatient('PERMANENT')).toBe('success');
+    expect(tonDuStatutPatient('TRANSFERE')).toBe('info');
+    expect(tonDuStatutPatient('VACANCIER')).toBe('warning');
+    expect(tonDuStatutPatient('DECEDE')).toBe('danger');
+    expect(tonDuStatutPatient(null)).toBe('neutral');
+  });
+});
+
+const invoice = (n: number): FacturationPreviewInvoice => ({
+  previewKey: `k${n}`,
+  numeroFacture: `FAC-${String(n).padStart(2, '0')}`,
+  patientId: `p${n}`,
+  patientCode: `P${n}`,
+  patientFullName: `Patient ${n}`,
+  patientStatusSnapshot: 'PERMANENT',
+  totalHt: 1000,
+  totalTva: 190,
+  totalTtc: 1190,
+  lines: [],
+  seances: [{
+    seanceId: `s${n}`, seanceDate: '2026-07-02', seanceStatus: 'TERMINEE', forfaitId: 'f1', forfaitLabel: 'F1',
+    forfaitPrixHt: 1000,
+  }],
+});
+
+describe('FacturationWorkspaceComponent — tableau des résultats (rendu)', () => {
+  const invoices = Array.from({length: 25}, (_, i) => invoice(i + 1));
+  const store = {
+    periodMode: signal('month'), month: signal('2026-07'), startDate: signal(''), endDate: signal(''),
+    canCalculate: signal(true), previewLoading: signal(false), validating: signal(false),
+    moisClosVises: signal<string[]>([]), moisVises: signal(['2026-07']), anneesChargees: signal([2026]),
+    error: signal(null), errorParams: signal(null), successMessage: signal(null),
+    excludedSeances: signal([]), seanceActionLoadingId: signal(null), forfaits: signal([]),
+    preview: signal({
+      centerId: 'c1', generatedAt: '', periodStart: '2026-07-01', periodEnd: '2026-07-31',
+      totalFactures: 25, totalHt: 25000, totalTva: 4750, totalTtc: 29750, invoices,
+    }),
+    moisEstClos: () => false,
+    setActiveCenterId: vi.fn(), loadSettings: vi.fn(), loadForfaits: vi.fn(), loadPeriodes: vi.fn(),
+  };
+  let fixture: ComponentFixture<FacturationWorkspaceComponent>;
+
+  beforeEach(async () => {
+    TestBed.configureTestingModule({
+      imports: [FacturationWorkspaceComponent, TranslateModule.forRoot()],
+      providers: [
+        provideZonelessChangeDetection(),
+        provideNoopAnimations(),
+        provideRouter([]),
+        {provide: FacturationStore, useValue: store},
+        {provide: AppShellStore, useValue: {currentCenterId: signal('c1')}},
+        {provide: AuthStore, useValue: {username: signal('u'), hasRole: () => false}},
+        {provide: BackendApiService, useValue: {}},
+      ],
+    });
+    fixture = TestBed.createComponent(FacturationWorkspaceComponent);
+    await fixture.whenStable();
+  });
+
+  const table = (): NgTableComponent<FacturationPreviewInvoice> =>
+    fixture.debugElement.query(By.directive(NgTableComponent)).componentInstance;
+  const host = (): HTMLElement => fixture.nativeElement as HTMLElement;
+
+  it('ng-table en mode local paginé par 20 : la première page seulement, plus de configurable-list', () => {
+    expect(host().querySelector('app-configurable-list')).toBeNull();
+    expect(table().dataMode()).toBe('local');
+    expect(table().paginator()).toBe(true);
+    expect(table().pageSize()).toBe(20);
+    const texte = host().querySelector('[data-testid="facturation-resultats"]')?.textContent ?? '';
+    expect(texte).toContain('FAC-01');
+    expect(texte).toContain('FAC-20');
+    expect(texte).not.toContain('FAC-21');
+  });
+
+  it('le détail déplié garde le changement de forfait et l\'exclusion de séance', async () => {
+    table().toggleDetail(invoices[0]);
+    await fixture.whenStable();
+
+    expect(host().querySelector('.seances-table mat-select')).not.toBeNull();
+    const exclure = Array.from(host().querySelectorAll<HTMLButtonElement>('.seances-table .actions-cell button'));
+    expect(exclure).toHaveLength(1);
+    exclure[0].click();
+    await fixture.whenStable();
+
+    expect(fixture.componentInstance['exclusionDraft']()).toEqual({seanceId: 's1', motif: null, commentaire: ''});
+    expect(host().querySelector('.exclusion-row .exclusion-form')).not.toBeNull();
+    expect(host().querySelector('.detail-toolbar')).not.toBeNull();
   });
 });
