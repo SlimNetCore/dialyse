@@ -8,11 +8,11 @@
     <p class="app-section-copy">{{ 'ACCUEIL.DESC' | translate }}</p>
   </section>
 
-  @if (tuiles.length === 0) {
+  @if (tuiles().length === 0) {
     <p class="app-section-copy" data-testid="accueil-aucun-module">{{ 'ACCUEIL.AUCUN_MODULE' | translate }}</p>
   } @else {
     <div class="stats-grid">
-      @for (tuile of tuiles; track tuile.module) {
+      @for (tuile of tuiles(); track tuile.module) {
         <mat-card [attr.data-testid]="'accueil-tuile-' + tuile.module" [class]="'stat-card tuile ' + tuile.module">
           <div class="tuile-head">
             <span class="stat-icon-chip"><mat-icon>{{ tuile.icon }}</mat-icon></span>

@@ -1,11 +1,18 @@
-import {beforeEach, describe, expect, it, vi} from 'vitest';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {TestBed} from '@angular/core/testing';
-import {Component, CUSTOM_ELEMENTS_SCHEMA, provideZonelessChangeDetection, signal} from '@angular/core';
+import {HttpErrorResponse} from '@angular/common/http';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  provideZonelessChangeDetection,
+  signal,
+  WritableSignal
+} from '@angular/core';
 import {provideRouter, Router} from '@angular/router';
 import {TranslateModule} from '@ngx-translate/core';
 import {of, throwError} from 'rxjs';
 import {CenterDashboardComponent} from './center-dashboard.component';
-import {ACCUEIL_TUILES, tuilesVisibles} from './accueil-tuiles';
+import {ACCUEIL_TUILES, DELAI_RAFRAICHISSEMENT_MS, moduleRafraichiPar, tuilesVisibles} from './accueil-tuiles';
 import {AuthStore} from '../../core/state/auth.store';
 import {AppShellStore} from '../../core/state/app-shell.store';
 import {BackendApiService} from '../../core/api/backend-api.service';
@@ -15,7 +22,7 @@ import {GmaoApiService} from '../../core/api/gmao-api.service';
 import {ShellComponent} from '../../core/layout/shell.component';
 import {NotificationBellComponent} from '../../core/layout/notification-bell.component';
 import {DirectionNotificationBellComponent} from '../direction/direction-notification-bell.component';
-import {WebSocketService} from '../../core/ws/websocket.service';
+import {WebSocketService, WsEvent} from '../../core/ws/websocket.service';
 import {AuthApiService} from '../../core/api/auth-api.service';
 import fr from '../../../../public/i18n/fr.json';
 import en from '../../../../public/i18n/en.json';
@@ -32,9 +39,11 @@ describe('CenterDashboardComponent — Accueil', () => {
   let infirmiers: { alertes: ReturnType<typeof vi.fn> };
   let stock: { alertes: ReturnType<typeof vi.fn> };
   let gmao: { getStats: ReturnType<typeof vi.fn> };
+  let lastEvent: WritableSignal<WsEvent | null>;
 
   beforeEach(() => {
     roles = ['ADMIN'];
+    lastEvent = signal<WsEvent | null>(null);
     api = {
       getDashboardStats: vi.fn(() => of({patientCount: 42, pecExpiring: 3})),
       getSeanceMonthlyDashboard: vi.fn(() => of({totalSeances: 120, absenceCount: 4})),
@@ -67,9 +76,18 @@ describe('CenterDashboardComponent — Accueil', () => {
         {provide: InfirmierApiService, useValue: infirmiers},
         {provide: StockApiService, useValue: stock},
         {provide: GmaoApiService, useValue: gmao},
+        {provide: WebSocketService, useValue: {lastEvent}},
       ],
     });
   });
+
+  afterEach(() => vi.useRealTimers());
+
+  /** Diffuse un évènement temps réel et laisse l'effet du composant le traiter. */
+  function diffuser(fixture: { detectChanges: () => void }, type: string, centerId = 'c1'): void {
+    lastEvent.set({type, centerId, payload: {}, timestamp: ''});
+    fixture.detectChanges();
+  }
 
   async function render() {
     const fixture = TestBed.createComponent(CenterDashboardComponent);
@@ -126,6 +144,64 @@ describe('CenterDashboardComponent — Accueil', () => {
     expect(texte(root, 'accueil-chiffre-gmao-0')).toBe('—');
     expect(texte(root, 'accueil-chiffre-gmao-1')).toBe('—');
     expect(texte(root, 'accueil-chiffre-patients-0')).toBe('42');
+  });
+
+  it('masque les tuiles Stock et GMAO que le serveur refuse (403) à la secrétaire, sans tiret', async () => {
+    roles = ['SECRETAIRE'];
+    stock.alertes.mockReturnValue(throwError(() => new HttpErrorResponse({status: 403})));
+    gmao.getStats.mockReturnValue(throwError(() => new HttpErrorResponse({status: 403})));
+    const {fixture, root} = await render();
+
+    expect(root.querySelector('[data-testid="accueil-tuile-stock"]')).toBeNull();
+    expect(root.querySelector('[data-testid="accueil-tuile-gmao"]')).toBeNull();
+    expect(texte(root, 'accueil-chiffre-patients-0')).toBe('42');
+
+    // une tuile masquée n'est plus appelée par le rafraîchissement temps réel
+    vi.useFakeTimers({toFake: ['setTimeout', 'clearTimeout']});
+    diffuser(fixture, 'STOCK_MOVEMENT_CHANGED');
+    vi.advanceTimersByTime(DELAI_RAFRAICHISSEMENT_MS);
+    expect(stock.alertes).toHaveBeenCalledTimes(1);
+  });
+
+  it('recharge la seule tuile concernée par un évènement temps réel, une fois pour une rafale', async () => {
+    const {fixture, root} = await render();
+    vi.useFakeTimers({toFake: ['setTimeout', 'clearTimeout']});
+    stock.alertes.mockReturnValue(of([{type: 'PEREMPTION'}]));
+
+    diffuser(fixture, 'STOCK_MOVEMENT_CHANGED');
+    diffuser(fixture, 'STOCK_RECALC_LOCKS_CHANGED');
+    diffuser(fixture, 'LOTS_PROCHES_PEREMPTION');
+    expect(stock.alertes).toHaveBeenCalledTimes(1);
+
+    vi.advanceTimersByTime(DELAI_RAFRAICHISSEMENT_MS);
+    fixture.detectChanges();
+
+    expect(stock.alertes).toHaveBeenCalledTimes(2);
+    expect(texte(root, 'accueil-chiffre-stock-0')).toBe('0');
+    expect(texte(root, 'accueil-chiffre-stock-1')).toBe('1');
+    expect(api['getDashboardStats']).toHaveBeenCalledTimes(1);
+    expect(gmao.getStats).toHaveBeenCalledTimes(1);
+    expect(infirmiers.alertes).toHaveBeenCalledTimes(1);
+  });
+
+  it('ignore les évènements d\'un autre centre et ceux qui ne changent aucun chiffre', async () => {
+    const {fixture} = await render();
+    vi.useFakeTimers({toFake: ['setTimeout', 'clearTimeout']});
+
+    diffuser(fixture, 'PEC_VALIDATED', 'autre-centre');
+    diffuser(fixture, 'OPTIMISATION_PROPOSITION');
+    vi.advanceTimersByTime(DELAI_RAFRAICHISSEMENT_MS);
+
+    expect(api['getDashboardStats']).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([
+    ['PATIENT_CREATED', 'patients'], ['PEC_VALIDATED', 'patients'], ['PATIENT_SCANNED', 'seances'],
+    ['SEANCE_VALIDATED', 'seances'], ['STOCK_MOVEMENT_CHANGED', 'stock'], ['LOTS_PROCHES_PEREMPTION', 'stock'],
+    ['INFIRMIER_SOUS_EFFECTIF', 'infirmiers'], ['GENERATEUR_INDISPONIBLE', 'gmao'], ['REFORME_PROPOSEE', 'gmao'],
+    ['PATIENT_REPLACE_ISOLEMENT', null], ['ATTESTATION_CREATED', null],
+  ])('l\'évènement %s rafraîchit la tuile %s', (type, module) => {
+    expect(moduleRafraichiPar(type)).toBe(module);
   });
 
   it('n\'affiche plus les indicateurs PEC / attestations détaillés ni de filtre de mois', async () => {

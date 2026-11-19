@@ -1,6 +1,7 @@
-import {inject} from '@angular/core';
+import {DestroyRef, inject} from '@angular/core';
+import {HttpErrorResponse} from '@angular/common/http';
 import {patchState, signalStore, withMethods, withState} from '@ngrx/signals';
-import {Observable, of} from 'rxjs';
+import {Observable, of, Subscription} from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
 import {BackendApiService} from '../../../core/api/backend-api.service';
 import {InfirmierApiService} from '../../../core/api/infirmier-api.service';
@@ -14,16 +15,27 @@ export type ValeursTuile = ReadonlyArray<number | null>;
 type AccueilState = {
   valeurs: Partial<Record<AccueilModule, ValeursTuile>>;
   chargement: Partial<Record<AccueilModule, boolean>>;
+  /** Modules dont la lecture a été refusée par le serveur (403) : leur tuile est masquée, pas affichée avec des tirets. */
+  nonAccessibles: Partial<Record<AccueilModule, boolean>>;
 };
 
-const initialState: AccueilState = {valeurs: {}, chargement: {}};
+const initialState: AccueilState = {valeurs: {}, chargement: {}, nonAccessibles: {}};
+
+/** Résultat d'une lecture : les valeurs de la tuile, ou le refus d'accès du serveur. */
+type Lecture = { valeurs: ValeursTuile; refusee: boolean };
 
 const nombreDeChiffres = (module: AccueilModule): number =>
   ACCUEIL_TUILES.find((t) => t.module === module)?.chiffres.length ?? 0;
 
+const indisponible = (module: AccueilModule): ValeursTuile =>
+  Array.from({length: nombreDeChiffres(module)}, () => null);
+
+const estUnRefus = (erreur: unknown): boolean => erreur instanceof HttpErrorResponse && erreur.status === 403;
+
 /**
  * Chiffres clés de l'Accueil, lus sur les API déjà utilisées par les tableaux de bord des modules (aucun nouvel appel
- * serveur). Chaque tuile se charge indépendamment : l'échec d'une lecture n'affiche que ses chiffres comme indisponibles.
+ * serveur). Chaque tuile se charge indépendamment : l'échec d'une lecture n'affiche que ses chiffres comme
+ * indisponibles, et un refus d'accès (403) masque la tuile.
  */
 export const AccueilStore = signalStore(
   withState(initialState),
@@ -31,7 +43,8 @@ export const AccueilStore = signalStore(
                api = inject(BackendApiService),
                infirmiers = inject(InfirmierApiService),
                stock = inject(StockApiService),
-               gmao = inject(GmaoApiService)) => {
+               gmao = inject(GmaoApiService),
+               destroyRef = inject(DestroyRef)) => {
     const sources: Record<AccueilModule, (centerId: string, now: Date) => Observable<number[]>> = {
       patients: (centerId) => api.getDashboardStats(centerId, ECHEANCE_PEC_JOURS).pipe(
         map((s) => [s.patientCount, s.pecExpiring])),
@@ -52,18 +65,36 @@ export const AccueilStore = signalStore(
       gmao: () => gmao.getStats().pipe(map((s) => [s.interventionsEnCours, s.interventionsARelancer])),
     };
 
+    /** Lecture en cours de chaque module : une nouvelle lecture annule la précédente (centre changé, rafraîchissement). */
+    const lectures = new Map<AccueilModule, Subscription>();
+    destroyRef.onDestroy(() => lectures.forEach((lecture) => lecture.unsubscribe()));
+
     return {
-      /** Charge les chiffres des seuls modules visibles du profil (jamais d'appel vers un module interdit). */
-      charger(centerId: string, modules: ReadonlyArray<AccueilModule>, now: Date = new Date()): void {
+      /**
+       * Charge les chiffres des modules demandés (les tuiles visibles du profil : même règle de rôle que le menu). Le
+       * menu ne porte pas toutes les règles du serveur (Stock et GMAO n'y exigent aucun rôle) : un module que le serveur
+       * refuse (403) est marqué non accessible et sa tuile disparaît. Une lecture encore en cours pour le même module
+       * est annulée : la réponse tardive d'un centre précédent n'écrase jamais les chiffres du centre courant.
+       * {@code silencieux} : rafraîchissement en direct, sans indicateur de chargement.
+       */
+      charger(centerId: string, modules: ReadonlyArray<AccueilModule>, now: Date = new Date(),
+              options: { silencieux?: boolean } = {}): void {
         for (const module of modules) {
-          patchState(store, (s) => ({chargement: {...s.chargement, [module]: true}}));
-          sources[module](centerId, now).pipe(
-            map((valeurs): ValeursTuile => valeurs.map((v) => (Number.isFinite(v) ? v : null))),
-            catchError(() => of<ValeursTuile>(Array.from({length: nombreDeChiffres(module)}, () => null))),
-          ).subscribe((valeurs) => patchState(store, (s) => ({
+          lectures.get(module)?.unsubscribe();
+          if (!options.silencieux) {
+            patchState(store, (s) => ({chargement: {...s.chargement, [module]: true}}));
+          }
+          lectures.set(module, sources[module](centerId, now).pipe(
+            map((valeurs): Lecture => ({
+              valeurs: valeurs.map((v) => (Number.isFinite(v) ? v : null)),
+              refusee: false,
+            })),
+            catchError((erreur: unknown) => of<Lecture>({valeurs: indisponible(module), refusee: estUnRefus(erreur)})),
+          ).subscribe(({valeurs, refusee}) => patchState(store, (s) => ({
             valeurs: {...s.valeurs, [module]: valeurs},
             chargement: {...s.chargement, [module]: false},
-          })));
+            nonAccessibles: {...s.nonAccessibles, [module]: refusee},
+          }))));
         }
       },
     };

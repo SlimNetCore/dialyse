@@ -28,6 +28,8 @@ export const HORIZON_COUVERTURE_JOURS = 7;
 /**
  * Tuiles dans l'ordre du menu des modules. L'Accueil n'est ouvert qu'aux profils de centre non restreints (ADMIN,
  * SECRETAIRE, cumuls de rôles) : la seule règle du menu qui s'y applique est le rôle exigé ({@link AccueilTuile.role}).
+ * Stock et GMAO n'exigent aucun rôle dans le menu alors que le serveur peut refuser leur lecture : leur tuile est alors
+ * masquée par le magasin de l'Accueil (403).
  */
 export const ACCUEIL_TUILES: ReadonlyArray<AccueilTuile> = [
   {
@@ -79,7 +81,24 @@ export const ACCUEIL_TUILES: ReadonlyArray<AccueilTuile> = [
   },
 ];
 
-/** Tuiles visibles pour un profil : même règle que le menu (rôle exigé par l'entrée « Tableau de bord »). */
+/** Délai (ms) de regroupement des évènements temps réel avant de recharger les tuiles concernées. */
+export const DELAI_RAFRAICHISSEMENT_MS = 300;
+
+/**
+ * Tuile dont les chiffres changent avec un évènement temps réel du centre, ou null si aucune n'est concernée. Le scan
+ * d'un patient valide une séance ; un replacement en isolement ne change aucun chiffre de l'Accueil.
+ */
+export function moduleRafraichiPar(type: string): AccueilModule | null {
+  if (type.startsWith('SEANCE_') || type === 'PATIENT_SCANNED') return 'seances';
+  if (type === 'PATIENT_REPLACE_ISOLEMENT') return null;
+  if (type.startsWith('PATIENT_') || type.startsWith('PEC_')) return 'patients';
+  if (type.startsWith('STOCK_') || type === 'LOTS_PROCHES_PEREMPTION') return 'stock';
+  if (type.startsWith('INFIRMIER_')) return 'infirmiers';
+  if (type === 'GENERATEUR_INDISPONIBLE' || type === 'REFORME_PROPOSEE') return 'gmao';
+  return null;
+}
+
+/** Tuiles visibles pour un profil: même règle que le menu (rôle exigé par l'entrée « Tableau de bord »). */
 export function tuilesVisibles(hasRole: (role: string) => boolean): AccueilTuile[] {
   return ACCUEIL_TUILES.filter((tuile) => !tuile.role || hasRole(tuile.role));
 }
