@@ -24,23 +24,28 @@ describe('parametresDePage', () => {
     expect(parametresDePage(requete({search: ' acme '}), {recherche: 'q'})).toEqual({page: '0', size: '20', q: 'acme'});
   });
 
-  it('filtre numérique : syntaxe serveur gardée, bornes ouvertes traduites, le reste refusé', () => {
+  it('filtre numérique : plages et différence envoyées telles quelles au serveur, l illisible refusé', () => {
     const corr = {filtres: {quantite: 'quantite'}, numeriques: ['quantite']};
     const avec = (v: string) => parametresDePage(requete({filters: {quantite: v}}), corr)['quantite'];
     expect(avec('<= 0')).toBe('<=0');
     expect(avec('12,5')).toBe('12,5');
-    expect(avec('10..')).toBe('>=10');
-    expect(avec('..50')).toBe('<=50');
-    expect(avec('5..5')).toBe('=5');
-    expect(() => avec('10..50')).toThrow(FiltreDePageInvalide);
-    expect(() => avec('!=0')).toThrow(FiltreDePageInvalide);
+    expect(avec('10..')).toBe('10..');
+    expect(avec('..50')).toBe('..50');
+    expect(avec('5..5')).toBe('5..5');
+    expect(avec('10 .. 50')).toBe('10..50');
+    expect(avec('!= 0')).toBe('!=0');
+    expect(() => avec('50..10')).toThrow(FiltreDePageInvalide);
     expect(() => avec('abc')).toThrow(FiltreDePageInvalide);
   });
 
-  it('filtreNumerique : null pour ce que le serveur ne lit pas', () => {
+  it('filtreNumerique : null seulement pour ce que le serveur refuserait', () => {
     expect(filtreNumerique('>=100')).toBe('>=100');
     expect(filtreNumerique('-3.5')).toBe('-3.5');
-    expect(filtreNumerique('!=0')).toBeNull();
-    expect(filtreNumerique('1..2')).toBeNull();
+    expect(filtreNumerique('!=0')).toBe('!=0');
+    expect(filtreNumerique('1,5..2,5')).toBe('1,5..2,5');
+    expect(filtreNumerique('-5..-1')).toBe('-5..-1');
+    for (const illisible of ['..', '2..1', '1...5', '1..2..3', '!5', '>>5', '10-50', 'abc', '!=']) {
+      expect(filtreNumerique(illisible), illisible).toBeNull();
+    }
   });
 });

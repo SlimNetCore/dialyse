@@ -22,7 +22,7 @@ export interface CorrespondanceDePage {
   filtres?: Readonly<Record<string, string>>;
   /** Nom du paramètre recevant la recherche globale (`search`), s'il y en a un (ex. `q`). */
   recherche?: string;
-  /** ids de colonne dont le filtre est numérique (syntaxe serveur `[= > >= < <=]nombre`, voir {@link filtreNumerique}). */
+  /** ids de colonne dont le filtre est numérique (syntaxe serveur `[= != > >= < <=]nombre`, `a..b`, `a..`, `..b`, voir {@link filtreNumerique}). */
   numeriques?: readonly string[];
 }
 
@@ -38,36 +38,30 @@ export class FiltreDePageInvalide extends Error {
 }
 
 const NOMBRE = String.raw`[+-]?(?:\d+(?:[.,]\d*)?|[.,]\d+)`;
-const COMPARAISON = new RegExp(`^(>=|<=|>|<|=)?(${NOMBRE})$`);
-const BORNE_BASSE = new RegExp(`^(${NOMBRE})\\.\\.$`);
-const BORNE_HAUTE = new RegExp(`^\\.\\.(${NOMBRE})$`);
-const INTERVALLE = new RegExp(`^(${NOMBRE})\\.\\.(${NOMBRE})$`);
+const COMPARAISON = new RegExp(`^(?:!=|>=|<=|>|<|=)?${NOMBRE}$`);
+const PLAGE = new RegExp(`^(${NOMBRE})?\\.\\.(${NOMBRE})?$`);
+
+const enNombre = (texte: string): number => Number(texte.replace(',', '.'));
 
 /**
- * Saisie d'un filtre `type: 'number'` de ng-table ⇒ valeur acceptée par le serveur (`[= > >= < <=]nombre`, contrat
- * section 1). Les bornes ouvertes de ng-table sont traduites (`10..` ⇒ `>=10`, `..50` ⇒ `<=50`, `5..5` ⇒ `=5`) ;
- * `null` pour ce que le serveur ne sait pas exprimer en un seul paramètre (`!=0`, intervalle `10..50`, texte).
+ * Saisie d'un filtre `type: 'number'` de ng-table ⇒ valeur envoyée telle quelle au serveur, espaces retirés (contrat
+ * section 1 : `[= != > >= < <=]nombre`, plage `a..b` bornes incluses, `a..`, `..b`, virgule ou point décimal) ;
+ * `null` pour ce que le serveur refuserait (texte, `..` seul, plage inversée `50..10`).
  */
 export function filtreNumerique(saisie: string): string | null {
   const v = saisie.replace(/\s+/g, '');
-  const comparaison = COMPARAISON.exec(v);
-  if (comparaison) return `${comparaison[1] ?? ''}${comparaison[2]}`;
-  const basse = BORNE_BASSE.exec(v);
-  if (basse) return `>=${basse[1]}`;
-  const haute = BORNE_HAUTE.exec(v);
-  if (haute) return `<=${haute[1]}`;
-  const intervalle = INTERVALLE.exec(v);
-  if (intervalle && Number(intervalle[1].replace(',', '.')) === Number(intervalle[2].replace(',', '.'))) {
-    return `=${intervalle[1]}`;
-  }
-  return null;
+  if (COMPARAISON.test(v)) return v;
+  const plage = v.includes('...') ? null : PLAGE.exec(v);
+  if (!plage || (plage[1] == null && plage[2] == null)) return null;
+  if (plage[1] != null && plage[2] != null && enNombre(plage[1]) > enNombre(plage[2])) return null;
+  return v;
 }
 
 /**
  * Requête distante de ng-table ⇒ paramètres HTTP de `GET <liste>/page`. Seul le premier niveau de tri est envoyé ;
  * valeurs vides ignorées ; taille bornée à {@link TAILLE_MAXIMALE_DE_PAGE} ; filtres numériques normalisés
  * ({@link filtreNumerique}).
- * @throws FiltreDePageInvalide si un filtre numérique n'est pas exprimable côté serveur
+ * @throws FiltreDePageInvalide si un filtre numérique est illisible (le serveur le refuserait)
  */
 export function parametresDePage(requete: NgTableRemoteQuery, correspondance: CorrespondanceDePage):
   Record<string, string> {

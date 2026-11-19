@@ -4176,7 +4176,7 @@
     "LISTE_SERVEUR": {
       "ERREUR": "The list could not be loaded. Please try again.",
       "RESEAU": "Server unreachable: the list could not be loaded.",
-      "FILTRE_NUMERIQUE_INVALIDE": "Unsupported numeric filter: enter a number preceded by =, >, >=, < or <= (or an open bound 10.. / ..50).",
+      "FILTRE_NUMERIQUE_INVALIDE": "Unreadable numeric filter: enter a number, optionally preceded by =, !=, >, >=, < or <=, or a range 10..50 (bounds included, first ≤ second), 10.. or ..50.",
       "PAGE_INVALIDE": "Invalid page number.",
       "TAILLE_INVALIDE": "Invalid page size.",
       "TRI_INVALIDE": "This sort is not available for this column.",

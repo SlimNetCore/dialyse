@@ -4176,7 +4176,7 @@
     "LISTE_SERVEUR": {
       "ERREUR": "La liste n'a pas pu être chargée. Réessayez.",
       "RESEAU": "Serveur injoignable : la liste n'a pas pu être chargée.",
-      "FILTRE_NUMERIQUE_INVALIDE": "Filtre numérique non pris en charge : saisissez un nombre précédé de =, >, >=, < ou <= (ou une borne ouverte 10.. / ..50).",
+      "FILTRE_NUMERIQUE_INVALIDE": "Filtre numérique illisible : saisissez un nombre, éventuellement précédé de =, !=, >, >=, < ou <=, ou une plage 10..50 (bornes incluses, la première ≤ la seconde), 10.. ou ..50.",
       "PAGE_INVALIDE": "Numéro de page invalide.",
       "TAILLE_INVALIDE": "Taille de page invalide.",
       "TRI_INVALIDE": "Ce tri n'est pas disponible pour cette colonne.",

@@ -104,14 +104,16 @@ describe('ListeServeur (brique commune des listes paginées côté serveur)', ()
     }
   });
 
-  it('un filtre numérique non exprimable (!=0, 10..50) n est pas envoyé et s affiche en erreur', () => {
+  it('un filtre numérique illisible n est pas envoyé et s affiche en erreur ; plage et différence vont au serveur', () => {
     const {liste, charger} = creer();
-    liste.onRemoteQueryChange(requete(0, 20, {filters: {qte: '!=0'}}));
-    liste.onRemoteQueryChange(requete(0, 20, {filters: {qte: '10..50'}}));
+    liste.onRemoteQueryChange(requete(0, 20, {filters: {qte: 'abc'}}));
+    liste.onRemoteQueryChange(requete(0, 20, {filters: {qte: '50..10'}}));
     expect(charger).not.toHaveBeenCalled();
     expect(liste.erreur()).toBe(FILTRE_NUMERIQUE_INVALIDE);
-    liste.onRemoteQueryChange(requete(0, 20, {filters: {qte: '10..'}}));
-    expect(charger).toHaveBeenLastCalledWith({page: '0', size: '20', qte: '>=10'});
+    liste.onRemoteQueryChange(requete(0, 20, {filters: {qte: '10..50'}}));
+    expect(charger).toHaveBeenLastCalledWith({page: '0', size: '20', qte: '10..50'});
+    liste.onRemoteQueryChange(requete(0, 20, {filters: {qte: '!=0'}}));
+    expect(charger).toHaveBeenLastCalledWith({page: '0', size: '20', qte: '!=0'});
   });
 
   it('après une écriture qui réduit la liste, une page devenue vide ramène à la dernière page', () => {

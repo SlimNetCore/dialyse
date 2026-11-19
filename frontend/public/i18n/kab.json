@@ -3811,7 +3811,7 @@
     "LISTE_SERVEUR": {
       "ERREUR": "Tabdart ur d-tuli ara. Ɛreḍ tikkelt-nniḍen.",
       "RESEAU": "Aqeddac ulac-it : tabdart ur d-tuli ara.",
-      "FILTRE_NUMERIQUE_INVALIDE": "Imsizdeg amḍan ur yettwasefrak ara : sekcem amḍan s =, >, >=, < neɣ <= (neɣ talast yeldin 10.. / ..50).",
+      "FILTRE_NUMERIQUE_INVALIDE": "Imsizdeg amḍan ur yettwaɣra ara : sekcem amḍan, s =, !=, >, >=, < neɣ <= ma tebɣiḍ, neɣ azilal 10..50 (tilisa ttwasidfent, tamezwarut ≤ tis snat), 10.. neɣ ..50.",
       "PAGE_INVALIDE": "Uṭṭun n usebter d arameɣtu.",
       "TAILLE_INVALIDE": "Teɣzi n usebter d tarameɣtut.",
       "TRI_INVALIDE": "Asmizzwer-a ulac-it i tgejdit-a.",
