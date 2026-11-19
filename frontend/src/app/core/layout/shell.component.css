@@ -46,6 +46,15 @@
   overflow: visible;
 }
 
+.module-bar-separator {
+  align-self: center;
+  width: 1px;
+  height: 22px;
+  margin: 0 4px;
+  background: color-mix(in srgb, var(--app-border) 85%, var(--app-text));
+  opacity: .6;
+}
+
 .module-item-btn {
   display: inline-flex;
   align-items: center;

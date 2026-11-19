@@ -86,7 +86,7 @@
         </button>
         <button (click)="router.navigate(['/modeles-document'])" mat-menu-item>
           <mat-icon>description</mat-icon>
-          Modèles de documents
+          {{ 'NAV.MODELES_DOCUMENT' | translate }}
         </button>
         <button (click)="router.navigate(['/admin/users'])" mat-menu-item>
           <mat-icon>manage_accounts</mat-icon>
@@ -108,7 +108,12 @@
 <div class="module-bar">
   <div class="module-items">
     @for (item of activeModuleItems(); track item.route) {
+      @if (item.separatorBefore) {
+        <span aria-hidden="true" class="module-bar-separator" data-testid="module-bar-separator"></span>
+      }
       <button
+        [attr.aria-current]="isRouteActive(item.route) ? 'page' : null"
+        [attr.data-kind]="item.kind"
         (click)="openModule(item.route)"
         [class.active-module-item]="isRouteActive(item.route)"
         class="module-item-btn"
@@ -125,7 +130,7 @@
 <div class="shell-body">
   <!-- SIDEBAR -->
   <nav #sidebar [class.compact-nav]="compactNav()" class="sidebar">
-    <div class="sidebar-title">Modules</div>
+    <div class="sidebar-title">{{ 'NAV.MODULES' | translate }}</div>
     @for (item of visibleNavItems(); track item.route) {
       <a
         [matTooltip]="item.label | translate"
@@ -159,7 +164,7 @@
   <mat-menu #navMenu="matMenu">
     @for (item of overflowNavItems(); track item.route) {
       <a
-        [class.active-menu-item]="isRouteActive(item.route)"
+        [class.active-menu-item]="isUnderRoute(item.route)"
         [routerLink]="item.route"
         mat-menu-item
       >

@@ -2,6 +2,7 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   ElementRef,
   inject,
@@ -33,12 +34,139 @@ import {AuthApiService} from '../api/auth-api.service';
 import {filter} from 'rxjs/operators';
 
 /**
- * Entrée du menu. {@code owner} : réservée au propriétaire ; {@code nurse} / {@code doctor} : visible de l'infirmier /
- * du médecin seul ; {@code role} : visible des seuls utilisateurs ayant ce rôle.
+ * Nature d'une entrée de la barre de module : la barre affiche toujours, dans cet ordre, le tableau de bord, les écrans
+ * de travail puis le paramétrage, avec un séparateur discret entre deux groupes.
+ */
+export type NavItemKind = 'tableau-de-bord' | 'travail' | 'parametrage';
+
+/**
+ * Entrée du menu. {@code owner} : réservée au propriétaire ; {@code ownerAndCentre} : visible du propriétaire comme des
+ * profils du centre ; {@code nurse} / {@code doctor} : visible de l'infirmier / du médecin seul ; {@code role} : visible
+ * des seuls utilisateurs ayant ce rôle ; {@code kind} : groupe de la barre de module (travail par défaut).
  */
 type NavItem = {
-  route: string; label: string; icon: string; owner?: boolean; nurse?: boolean; doctor?: boolean; role?: string;
+  route: string; label: string; icon: string; kind?: NavItemKind; owner?: boolean; ownerAndCentre?: boolean;
+  nurse?: boolean; doctor?: boolean; role?: string;
 };
+
+/** Entrée affichée dans la barre de module, avec son groupe résolu et le séparateur qui la précède éventuellement. */
+export type ModuleBarItem = {
+  route: string; label: string; icon: string; kind: NavItemKind; separatorBefore: boolean;
+};
+
+const KIND_ORDER: Record<NavItemKind, number> = {'tableau-de-bord': 0, travail: 1, parametrage: 2};
+
+/**
+ * Range les entrées visibles par groupe (tableau de bord | travail | paramétrage, ordre stable dans un groupe) et marque
+ * la première entrée de chaque nouveau groupe pour afficher un séparateur.
+ */
+export function toModuleBarItems(items: ReadonlyArray<NavItem>): ModuleBarItem[] {
+  const sorted = items
+    .map((item, index) => ({item, index, kind: item.kind ?? 'travail' as NavItemKind}))
+    .sort((a, b) => KIND_ORDER[a.kind] - KIND_ORDER[b.kind] || a.index - b.index);
+  return sorted.map(({item, kind}, i) => ({
+    route: item.route,
+    label: item.label,
+    icon: item.icon,
+    kind,
+    separatorBefore: i > 0 && sorted[i - 1].kind !== kind,
+  }));
+}
+
+/**
+ * Entrée active de la barre de module : celle dont la route est le plus long préfixe (par segment) de l'URL courante,
+ * parmi les entrées du module actif uniquement. Une entrée déclarée dans un autre module (ex. le référentiel des
+ * infirmiers dans la barre Administration) n'est donc jamais active quand l'URL appartient à son module d'origine.
+ */
+export function activeModuleItemRoute(url: string, items: ReadonlyArray<{ route: string }>): string | null {
+  const path = url.split(/[?#]/)[0];
+  let best: string | null = null;
+  for (const {route} of items) {
+    const matches = path === route || path.startsWith(route.endsWith('/') ? route : route + '/');
+    if (matches && (best === null || route.length > best.length)) {
+      best = route;
+    }
+  }
+  return best;
+}
+
+/** Libellés i18n des segments d'URL du fil d'Ariane (règle commune à tous les modules). */
+const BREADCRUMB_LABELS: Record<string, string> = {
+  // modules
+  dashboard: 'NAV.TABLEAU_DE_BORD',
+  'tableau-de-bord': 'NAV.TABLEAU_DE_BORD',
+  accueil: 'NAV.ACCUEIL',
+  direction: 'NAV.DIRECTION',
+  medecin: 'NAV.PLANNING_SEMAINE',
+  patients: 'NAV.PATIENTS',
+  seances: 'NAV.SEANCES',
+  infirmiers: 'NAV.INFIRMIERS',
+  facturation: 'NAV.FACTURATION',
+  reglement: 'NAV.REGLEMENT',
+  stock: 'NAV.STOCK',
+  gmao: 'NAV.GMAO',
+  comptabilite: 'NAV.COMPTABILITE',
+  admin: 'NAV.ADMIN',
+  // patients
+  new: 'COMMON.NEW',
+  'pec-admin': 'NAV.PEC_ADMIN',
+  'pec-list': 'NAV.PATIENTS_PEC_LISTE',
+  'attestations-list': 'NAV.PATIENTS_ATTESTATIONS',
+  mouvements: 'NAV.MOUVEMENTS_PATIENTS',
+  // séances / infirmiers
+  historique: 'NAV.SEANCES_HISTORIQUE',
+  planning: 'NAV.PLANNING_SEMAINE',
+  salles: 'NAV.SALLES_GENERATEURS',
+  optimisation: 'NAV.PLANNING_OPTIMISATION',
+  'absences-patients': 'NAV.ABSENCES_PATIENTS',
+  referentiel: 'NAV.INFIRMIERS_REFERENTIEL',
+  absences: 'NAV.INFIRMIERS_ABSENCES',
+  charge: 'NAV.INFIRMIERS_CHARGE',
+  moi: 'NAV.INFIRMIERS_MOI',
+  // stock
+  articles: 'NAV.STOCK_ARTICLES',
+  'bons-commande': 'NAV.STOCK_BONS_COMMANDE',
+  'bons-reception': 'NAV.STOCK_BONS_RECEPTION',
+  'bons-sortie': 'NAV.STOCK_BONS_SORTIE',
+  'sorties-pour-seances': 'NAV.STOCK_SORTIES_SEANCES',
+  inventaires: 'NAV.STOCK_INVENTAIRES',
+  fournisseurs: 'NAV.STOCK_FOURNISSEURS',
+  // gmao
+  equipements: 'NAV.GMAO_EQUIPEMENTS',
+  interventions: 'NAV.GMAO_INTERVENTIONS',
+  intervenants: 'NAV.GMAO_INTERVENANTS',
+  // administration
+  societes: 'NAV.ADMIN_SOCIETES',
+  licenses: 'NAV.ADMIN_LICENCES',
+  audit: 'NAV.ADMIN_AUDIT',
+  performance: 'NAV.PERFORMANCE_BASE',
+  users: 'NAV.ADMIN_UTILISATEURS',
+  roles: 'NAV.ADMIN_ROLES',
+  parametrage: 'NAV.PARAMETRAGE',
+  'calendrier-clinique': 'NAV.ADMIN_CALENDRIER_CLINIQUE',
+  tva: 'NAV.ADMIN_TVA',
+  referentiels: 'NAV.ADMIN_REFERENTIELS',
+  'groupes-articles': 'NAV.ADMIN_GROUPES_ARTICLES',
+  'planning-centre': 'NAV.ADMIN_PLANNING',
+  reprise: 'NAV.ADMIN_REPRISE',
+  'modeles-document': 'NAV.MODELES_DOCUMENT',
+};
+
+/** Segment d'identifiant technique (numérique ou UUID) : affiché comme « Fiche », jamais tel quel. */
+const ID_SEGMENT = /^(\d+|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i;
+
+/**
+ * Libellés (clés i18n ou texte brut) du fil d'Ariane pour une URL. Le libellé d'un segment ne dépend que du segment,
+ * sauf les sous-pages du paramétrage d'administration, dont « facturation » désigne le paramétrage de la facturation.
+ */
+export function breadcrumbLabels(url: string): string[] {
+  const segs = url.split(/[?#]/)[0].split('/').filter(Boolean);
+  return segs.map((s, index) => {
+    if (s === 'facturation' && segs[index - 1] === 'parametrage') return 'NAV.ADMIN_PARAMETRAGE_FACTURATION';
+    if (ID_SEGMENT.test(s)) return 'NAV.FICHE';
+    return BREADCRUMB_LABELS[s] ?? s;
+  });
+}
 
 @Component({
   selector: 'app-shell',
@@ -86,7 +214,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
       icon: 'insights',
       label: 'NAV.DIRECTION',
       items: [
-        {route: '/direction', label: 'Tableau de bord', icon: 'space_dashboard', direction: true},
+        {route: '/direction', label: 'NAV.TABLEAU_DE_BORD', icon: 'insights', kind: 'tableau-de-bord'},
       ],
     },
     {
@@ -104,8 +232,8 @@ export class ShellComponent implements OnInit, AfterViewInit {
       icon: 'dashboard',
       label: 'NAV.DASHBOARD',
       items: [
-        {route: '/dashboard', label: 'Dashboard', icon: 'space_dashboard'},
-        {route: '/modeles-document', label: 'Modèles documents', icon: 'description'},
+        {route: '/dashboard', label: 'NAV.TABLEAU_DE_BORD', icon: 'space_dashboard', kind: 'tableau-de-bord'},
+        {route: '/modeles-document', label: 'NAV.MODELES_DOCUMENT', icon: 'description', kind: 'parametrage'},
       ],
     },
     {
@@ -114,10 +242,10 @@ export class ShellComponent implements OnInit, AfterViewInit {
       icon: 'people',
       label: 'NAV.PATIENTS',
       items: [
-        {route: '/patients', label: 'Dashboard patients', icon: 'space_dashboard', doctor: true},
-        {route: '/patients/new', label: 'Nouveau patient', icon: 'person_add'},
-        {route: '/patients/pec-list', label: 'Liste PEC', icon: 'fact_check'},
-        {route: '/patients/attestations-list', label: 'Attestations', icon: 'badge'},
+        {route: '/patients', label: 'NAV.PATIENTS_LISTE', icon: 'space_dashboard', doctor: true},
+        {route: '/patients/new', label: 'NAV.PATIENTS_NOUVEAU', icon: 'person_add'},
+        {route: '/patients/pec-list', label: 'NAV.PATIENTS_PEC_LISTE', icon: 'fact_check'},
+        {route: '/patients/attestations-list', label: 'NAV.PATIENTS_ATTESTATIONS', icon: 'badge'},
         {route: '/patients/mouvements', label: 'NAV.MOUVEMENTS_PATIENTS', icon: 'swap_horiz'},
       ],
     },
@@ -146,7 +274,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
       items: [
         {route: '/infirmiers/moi', label: 'NAV.INFIRMIERS_MOI', icon: 'person_pin', nurse: true, role: 'INFIRMIER'},
         {route: '/infirmiers', label: 'NAV.INFIRMIERS_PRESENCE', icon: 'calendar_view_week'},
-        {route: '/infirmiers/referentiel', label: 'NAV.INFIRMIERS_REFERENTIEL', icon: 'badge'},
+        {route: '/infirmiers/referentiel', label: 'NAV.INFIRMIERS_REFERENTIEL', icon: 'badge', kind: 'parametrage'},
         {route: '/infirmiers/absences', label: 'NAV.INFIRMIERS_ABSENCES', icon: 'event_busy'},
         {route: '/infirmiers/charge', label: 'NAV.INFIRMIERS_CHARGE', icon: 'balance'},
       ],
@@ -157,7 +285,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
       icon: 'receipt',
       label: 'NAV.FACTURATION',
       items: [
-        {route: '/facturation', label: 'Dashboard facturation', icon: 'space_dashboard', role: 'ADMIN'},
+        {route: '/facturation', label: 'NAV.FACTURATION_CALCUL', icon: 'space_dashboard', role: 'ADMIN'},
       ],
     },
     {
@@ -166,7 +294,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
       icon: 'payments',
       label: 'NAV.REGLEMENT',
       items: [
-        {route: '/reglement', label: 'Dashboard règlement', icon: 'space_dashboard'},
+        {route: '/reglement', label: 'NAV.REGLEMENT_SAISIE', icon: 'space_dashboard'},
       ],
     },
     {
@@ -175,13 +303,13 @@ export class ShellComponent implements OnInit, AfterViewInit {
       icon: 'inventory_2',
       label: 'NAV.STOCK',
       items: [
-        {route: '/stock', label: 'Dashboard stock', icon: 'space_dashboard'},
-        {route: '/stock/bons-commande', label: 'Bons commande', icon: 'request_quote'},
-        {route: '/stock/bons-reception', label: 'Bons réception', icon: 'inventory_2'},
-        {route: '/stock/bons-sortie', label: 'Bons sortie', icon: 'logout'},
+        {route: '/stock', label: 'NAV.STOCK_ETAT', icon: 'space_dashboard'},
+        {route: '/stock/bons-commande', label: 'NAV.STOCK_BONS_COMMANDE', icon: 'request_quote'},
+        {route: '/stock/bons-reception', label: 'NAV.STOCK_BONS_RECEPTION', icon: 'inventory_2'},
+        {route: '/stock/bons-sortie', label: 'NAV.STOCK_BONS_SORTIE', icon: 'logout'},
         {route: '/stock/sorties-pour-seances', label: 'NAV.STOCK_SORTIES_SEANCES', icon: 'outbox'},
-        {route: '/stock/inventaires', label: 'Inventaires', icon: 'fact_check'},
-        {route: '/stock/fournisseurs', label: 'Fournisseurs', icon: 'local_shipping'},
+        {route: '/stock/inventaires', label: 'NAV.STOCK_INVENTAIRES', icon: 'fact_check'},
+        {route: '/stock/fournisseurs', label: 'NAV.STOCK_FOURNISSEURS', icon: 'local_shipping', kind: 'parametrage'},
       ],
     },
     {
@@ -190,7 +318,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
       icon: 'build_circle',
       label: 'NAV.GMAO',
       items: [
-        {route: '/gmao/dashboard', label: 'NAV.GMAO_DASHBOARD', icon: 'space_dashboard'},
+        {route: '/gmao/dashboard', label: 'NAV.GMAO_DASHBOARD', icon: 'space_dashboard', kind: 'tableau-de-bord'},
         {route: '/gmao/equipements', label: 'NAV.GMAO_EQUIPEMENTS', icon: 'precision_manufacturing'},
         {route: '/gmao/interventions', label: 'NAV.GMAO_INTERVENTIONS', icon: 'build'},
         {route: '/gmao/intervenants', label: 'NAV.GMAO_INTERVENANTS', icon: 'engineering'},
@@ -202,7 +330,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
       icon: 'calculate',
       label: 'NAV.COMPTABILITE',
       items: [
-        {route: '/comptabilite', label: 'Journal comptable', icon: 'menu_book'},
+        {route: '/comptabilite', label: 'NAV.COMPTABILITE_JOURNAL', icon: 'menu_book'},
       ],
     },
     {
@@ -211,21 +339,35 @@ export class ShellComponent implements OnInit, AfterViewInit {
       icon: 'tune',
       label: 'NAV.ADMIN',
       items: [
-        {route: '/admin/societes', label: 'Sociétés', icon: 'apartment', owner: true},
-        {route: '/admin/licenses', label: 'Licences', icon: 'verified_user', owner: true},
-        {route: '/admin/audit', label: 'Journal d\'audit', icon: 'fact_check', owner: true},
+        {route: '/admin/societes', label: 'NAV.ADMIN_SOCIETES', icon: 'apartment', owner: true},
+        {route: '/admin/licenses', label: 'NAV.ADMIN_LICENCES', icon: 'verified_user', owner: true},
         {route: '/admin/performance', label: 'NAV.PERFORMANCE_BASE', icon: 'speed', owner: true},
-        {route: '/admin/users', label: 'Utilisateurs', icon: 'manage_accounts'},
-        {route: '/admin/roles', label: 'Rôles', icon: 'admin_panel_settings'},
-        {route: '/admin/audit', label: 'Journal d\'audit', icon: 'fact_check'},
-        {route: '/admin/parametrage/calendrier-clinique', label: 'Calendrier clinique/centre', icon: 'calendar_month'},
-        {route: '/admin/parametrage/facturation', label: 'Paramétrage facturation', icon: 'tune'},
-        {route: '/admin/parametrage/tva', label: 'Types de TVA', icon: 'percent'},
-        {route: '/admin/parametrage/referentiels', label: 'Référentiels', icon: 'dataset'},
-        {route: '/admin/parametrage/groupes-articles', label: 'NAV.ADMIN_GROUPES_ARTICLES', icon: 'category'},
-        {route: '/admin/parametrage/planning-centre', label: 'NAV.ADMIN_PLANNING', icon: 'event_available'},
-        {route: '/infirmiers/referentiel', label: 'NAV.INFIRMIERS_REFERENTIEL', icon: 'medical_services'},
-        {route: '/admin/parametrage/reprise', label: 'Reprise de données', icon: 'move_down'},
+        {route: '/admin/users', label: 'NAV.ADMIN_UTILISATEURS', icon: 'manage_accounts'},
+        {route: '/admin/roles', label: 'NAV.ADMIN_ROLES', icon: 'admin_panel_settings'},
+        {route: '/admin/audit', label: 'NAV.ADMIN_AUDIT', icon: 'fact_check', ownerAndCentre: true},
+        {
+          route: '/admin/parametrage/calendrier-clinique', label: 'NAV.ADMIN_CALENDRIER_CLINIQUE',
+          icon: 'calendar_month', kind: 'parametrage'
+        },
+        {
+          route: '/admin/parametrage/facturation', label: 'NAV.ADMIN_PARAMETRAGE_FACTURATION', icon: 'tune',
+          kind: 'parametrage'
+        },
+        {route: '/admin/parametrage/tva', label: 'NAV.ADMIN_TVA', icon: 'percent', kind: 'parametrage'},
+        {route: '/admin/parametrage/referentiels', label: 'NAV.ADMIN_REFERENTIELS', icon: 'dataset', kind: 'parametrage'},
+        {
+          route: '/admin/parametrage/groupes-articles', label: 'NAV.ADMIN_GROUPES_ARTICLES', icon: 'category',
+          kind: 'parametrage'
+        },
+        {
+          route: '/admin/parametrage/planning-centre', label: 'NAV.ADMIN_PLANNING', icon: 'event_available',
+          kind: 'parametrage'
+        },
+        {
+          route: '/infirmiers/referentiel', label: 'NAV.INFIRMIERS_REFERENTIEL', icon: 'medical_services',
+          kind: 'parametrage'
+        },
+        {route: '/admin/parametrage/reprise', label: 'NAV.ADMIN_REPRISE', icon: 'move_down', kind: 'parametrage'},
       ],
     },
   ];
@@ -234,17 +376,21 @@ export class ShellComponent implements OnInit, AfterViewInit {
     .filter((m) => !this.ownerMode || m.key === 'admin')
     .map((m) => ({
       ...m,
-      items: (m.items as ReadonlyArray<NavItem>)
-        .filter((item) => this.directionMode || !!item.owner === this.ownerMode)
+      items: toModuleBarItems((m.items as ReadonlyArray<NavItem>)
+        .filter((item) => this.directionMode || !!item.ownerAndCentre || !!item.owner === this.ownerMode)
         .filter((item) => !this.infirmierMode || !!item.nurse)
         .filter((item) => !this.medecinMode || !!item.doctor)
-        .filter((item) => !item.role || this.roleAuth.hasRole(item.role)),
+        .filter((item) => !item.role || this.roleAuth.hasRole(item.role))),
     }))
     // un module sans écran visible pour ce profil disparaît du menu (ex. l'infirmier seul : planning + séances)
     .filter((m) => m.items.length > 0);
 
   readonly navItems = this.modules.map(m => ({route: m.route, icon: m.icon, label: m.label}));
-  readonly activeModuleItems = signal<{ route: string; label: string; icon: string }[]>([]);
+  readonly activeModuleItems = signal<ModuleBarItem[]>([]);
+  /** URL courante (sans paramètres), mise à jour à chaque fin de navigation. */
+  private readonly currentUrl = signal('');
+  /** Route de l'unique entrée active de la barre de module (plus long préfixe parmi les entrées du module actif). */
+  readonly activeItemRoute = computed(() => activeModuleItemRoute(this.currentUrl(), this.activeModuleItems()));
 
   readonly auth = inject(AuthStore);
   readonly lang = inject(LangStore);
@@ -294,7 +440,7 @@ export class ShellComponent implements OnInit, AfterViewInit {
   }
 
   hasOverflowActiveRoute(): boolean {
-    return this.overflowNavItems().some((item) => this.isRouteActive(item.route));
+    return this.overflowNavItems().some((item) => this.isUnderRoute(item.route));
   }
 
   goBreadcrumb(index: number): void {
@@ -303,7 +449,13 @@ export class ShellComponent implements OnInit, AfterViewInit {
     this.router.navigateByUrl(target);
   }
 
+  /** Entrée de la barre de module active : une seule à la fois, celle du plus long préfixe de l'URL. */
   isRouteActive(route: string): boolean {
+    return this.activeItemRoute() === route;
+  }
+
+  /** Module (barre latérale) contenant l'URL courante. */
+  isUnderRoute(route: string): boolean {
     const currentUrl = this.router.url.split('?')[0];
     return currentUrl === route || currentUrl.startsWith(route + '/');
   }
@@ -324,47 +476,8 @@ export class ShellComponent implements OnInit, AfterViewInit {
   }
 
   private computeBreadcrumb(url: string): void {
-    const map: Record<string, string> = {
-      dashboard: 'Dashboard',
-      patients: 'Patients',
-      new: 'COMMON.NEW',
-      'pec-admin': 'Validation PEC',
-      'pec-list': 'Liste PEC',
-      'attestations-list': 'Liste attestations',
-      admin: 'Administration',
-      parametrage: 'Paramétrage',
-      facturation: 'Facturation',
-      'calendrier-clinique': 'Calendrier clinique/centre',
-      users: 'Utilisateurs',
-      'modeles-document': 'Modèles documents',
-      tva: 'Types de TVA',
-      referentiels: 'Référentiels',
-      reprise: 'Reprise de données',
-      planning: 'NAV.PLANNING_SEMAINE',
-      'planning-centre': 'NAV.ADMIN_PLANNING',
-      infirmiers: 'NAV.INFIRMIERS',
-      medecin: 'NAV.PLANNING_SEMAINE',
-      referentiel: 'NAV.INFIRMIERS_REFERENTIEL',
-      absences: 'NAV.INFIRMIERS_ABSENCES',
-      'absences-patients': 'NAV.ABSENCES_PATIENTS',
-      mouvements: 'NAV.MOUVEMENTS_PATIENTS',
-      salles: 'NAV.SALLES_GENERATEURS',
-      optimisation: 'NAV.PLANNING_OPTIMISATION',
-      charge: 'NAV.INFIRMIERS_CHARGE',
-      moi: 'NAV.INFIRMIERS_MOI',
-    };
-    const segs = url.split('?')[0].split('/').filter(Boolean);
-    this.breadcrumbRoutes = segs;
-    this.breadcrumbs.set(segs.map((s, index) => {
-      if (segs[0] === 'gmao') {
-        if (index === 0) return 'NAV.GMAO';
-        if (s === 'dashboard') return 'NAV.GMAO_DASHBOARD';
-        if (s === 'equipements') return 'NAV.GMAO_EQUIPEMENTS';
-        if (s === 'interventions') return 'NAV.GMAO_INTERVENTIONS';
-        if (s === 'intervenants') return 'NAV.GMAO_INTERVENANTS';
-      }
-      return map[s] ?? s;
-    }));
+    this.breadcrumbRoutes = url.split(/[?#]/)[0].split('/').filter(Boolean);
+    this.breadcrumbs.set(breadcrumbLabels(url));
   }
 
   protected openModule(route: string): void {
@@ -379,7 +492,8 @@ export class ShellComponent implements OnInit, AfterViewInit {
       || (m.key === 'dashboard' && currentUrl === '/modeles-document'));
 
     const active = moduleFound ?? this.modules[0];
-    this.activeModuleItems.set(active.items);
+    this.activeModuleItems.set(active?.items ?? []);
+    this.currentUrl.set(currentUrl);
   }
 
   private finalizeLogout(): void {
