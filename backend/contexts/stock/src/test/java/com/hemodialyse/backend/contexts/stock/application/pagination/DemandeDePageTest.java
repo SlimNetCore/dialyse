@@ -60,6 +60,40 @@ class DemandeDePageTest {
         assertEquals("FILTRE_INVALIDE", code(() -> FiltresDePage.enumeration("statut", "RECU", Statut.class)));
     }
 
+    private static FiltresDePage.FiltreNumerique nombre(String saisie) {
+        return FiltresDePage.numerique("quantite", saisie).orElseThrow();
+    }
+
+    @Test
+    void grammaire_numerique_operateurs_difference_et_plages() {
+        assertEquals(new FiltresDePage.FiltreNumerique(FiltresDePage.Comparateur.EGAL, new BigDecimal("5")), nombre("=5"));
+        assertEquals(FiltresDePage.Comparateur.SUPERIEUR, nombre(">5").comparateur());
+        assertEquals(FiltresDePage.Comparateur.INFERIEUR_OU_EGAL, nombre(" <= 5 ").comparateur());
+        FiltresDePage.FiltreNumerique different = nombre("!=0");
+        assertEquals(FiltresDePage.Comparateur.DIFFERENT, different.comparateur());
+        assertTrue(different.accepte(new BigDecimal("0.01")));
+        assertFalse(different.accepte(new BigDecimal("0.00")));
+        FiltresDePage.FiltreNumerique entre = nombre("10..50");
+        assertEquals(new FiltresDePage.FiltreNumerique(FiltresDePage.Comparateur.ENTRE, new BigDecimal("10"), new BigDecimal("50")), entre);
+        assertTrue(entre.accepte(new BigDecimal("10")));
+        assertTrue(entre.accepte(new BigDecimal("50.0")));
+        assertFalse(entre.accepte(new BigDecimal("50.01")));
+        assertFalse(entre.accepte(new BigDecimal("9.99")));
+        assertEquals(new BigDecimal("2.5"), nombre("1,5 .. 2,5").borneHaute());
+        assertEquals(FiltresDePage.Comparateur.ENTRE, nombre("5..5").comparateur());
+        assertEquals(new FiltresDePage.FiltreNumerique(FiltresDePage.Comparateur.SUPERIEUR_OU_EGAL, new BigDecimal("10")), nombre("10.."));
+        assertEquals(new FiltresDePage.FiltreNumerique(FiltresDePage.Comparateur.INFERIEUR_OU_EGAL, new BigDecimal("0.5")), nombre("..0.5"));
+        assertEquals(new FiltresDePage.FiltreNumerique(FiltresDePage.Comparateur.ENTRE, new BigDecimal("-5"), new BigDecimal("-1")), nombre("-5..-1"));
+    }
+
+    @Test
+    void grammaire_numerique_refuse_le_reste() {
+        for (String saisie : List.of("abc", "50..10", "..", "10..x", "!=", "!=5..6", ">>5", "=<5", "1e3", "5..10..20", "1.2.3", "10-50", "!5")) {
+            assertEquals("FILTRE_INVALIDE", code(() -> FiltresDePage.numerique("quantite", saisie)), saisie);
+        }
+        assertTrue(FiltresDePage.numerique("quantite", " ").isEmpty());
+    }
+
     @Test
     void decoupage_en_memoire_des_donnees_calculees() {
         PageDeResultats<Integer> page = PageDeResultats.decouper(List.of(1, 2, 3, 4, 5), new DemandeDePage(1, 2, "x", false));

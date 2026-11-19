@@ -3,6 +3,7 @@ package com.hemodialyse.backend.contexts.stock.infrastructure.persistence.pages;
 import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import com.hemodialyse.backend.contexts.stock.application.consultation.etat.PagesDeLEtatDuStock;
 import com.hemodialyse.backend.contexts.stock.application.pagination.DemandeDePage;
+import com.hemodialyse.backend.contexts.stock.application.pagination.FiltresDePage;
 import com.hemodialyse.backend.contexts.stock.application.pagination.FiltresDePage.FiltreNumerique;
 import com.hemodialyse.backend.contexts.stock.application.pagination.PageDeResultats;
 import com.hemodialyse.backend.contexts.stock.domain.lectures.LecturesDuStock.ArticleValorise;
@@ -36,12 +37,20 @@ public class EtatDuStockPagineJdbc implements PagesDeLEtatDuStock {
 
     static void comparer(StringBuilder where, List<Object> parametres, String expression, Optional<FiltreNumerique> filtre) {
         filtre.ifPresent(f -> {
+            if (f.comparateur() == FiltresDePage.Comparateur.ENTRE) {
+                where.append(" AND ").append(expression).append(" BETWEEN ? AND ?");
+                parametres.add(f.valeur());
+                parametres.add(f.borneHaute());
+                return;
+            }
             String op = switch (f.comparateur()) {
                 case EGAL -> "=";
+                case DIFFERENT -> "<>";
                 case SUPERIEUR -> ">";
                 case SUPERIEUR_OU_EGAL -> ">=";
                 case INFERIEUR -> "<";
                 case INFERIEUR_OU_EGAL -> "<=";
+                case ENTRE -> throw new IllegalStateException("ENTRE traite ci-dessus");
             };
             where.append(" AND ").append(expression).append(' ').append(op).append(" ?");
             parametres.add(f.valeur());

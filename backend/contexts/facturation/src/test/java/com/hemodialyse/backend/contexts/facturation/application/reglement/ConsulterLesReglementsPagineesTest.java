@@ -128,7 +128,7 @@ class ConsulterLesReglementsPagineesTest {
         refuse(PaginationInvalide.TRI_INVALIDE, () -> triee("etat,asc,desc"));
         refuse(PaginationInvalide.TRI_INVALIDE, () -> triee("numeroFacture; DROP TABLE factures"));
         refuse(PaginationInvalide.FILTRE_INVALIDE, () -> filtree(Map.of("montantFacture", "abc")));
-        refuse(PaginationInvalide.FILTRE_INVALIDE, () -> filtree(Map.of("montantRegle", "!=0")));
+        refuse(PaginationInvalide.FILTRE_INVALIDE, () -> filtree(Map.of("montantRegle", "800..200")));
         refuse(PaginationInvalide.FILTRE_INVALIDE, () -> filtree(Map.of("etat", "reglee")));
         refuse(PaginationInvalide.FILTRE_INVALIDE, () -> filtree(Map.of("soldeType", "SOLDE")));
         assertThat(page(null, 100, null, Map.of()).size()).isEqualTo(100);

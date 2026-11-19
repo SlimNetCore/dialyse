@@ -148,6 +148,21 @@ class ReglementControleurPageTest {
     }
 
     @Test
+    void les_plages_et_la_difference_numeriques_sont_filtrees_par_le_serveur() throws Exception {
+        page("montantFacture", "500..800").andExpect(status().isOk())
+                .andExpect(jsonPath("$.total").value(2))
+                .andExpect(jsonPath("$.items[*].numeroFacture").value(contains("FAC-0003", "FAC-0002")));
+        page("montantRegle", "!=0").andExpect(status().isOk())
+                .andExpect(jsonPath("$.items[*].numeroFacture").value(contains("FAC-0003", "FAC-0002")));
+        page("montantFacture", "800..").andExpect(status().isOk())
+                .andExpect(jsonPath("$.items[*].numeroFacture").value(contains("FAC-0003", "FAC-0001")));
+        page("montantFacture", "..500").andExpect(status().isOk())
+                .andExpect(jsonPath("$.items[*].numeroFacture").value(contains("FAC-0002")));
+        refuseeAvecLeCode("FILTRE_INVALIDE", "montantFacture", "800..500");
+        refuseeAvecLeCode("FILTRE_INVALIDE", "montantFacture", "..");
+    }
+
+    @Test
     void les_parametres_refuses_portent_un_code_stable() throws Exception {
         refuseeAvecLeCode("PAGE_INVALIDE", "page", "-1");
         refuseeAvecLeCode("TAILLE_INVALIDE", "size", "101");
