@@ -253,7 +253,6 @@ export class ShellComponent implements OnInit, AfterViewInit {
           doctor: true
         },
         {route: '/patients', label: 'NAV.PATIENTS_LISTE', icon: 'people', doctor: true},
-        {route: '/patients/new', label: 'NAV.PATIENTS_NOUVEAU', icon: 'person_add'},
         {route: '/patients/pec-list', label: 'NAV.PATIENTS_PEC_LISTE', icon: 'fact_check'},
         {route: '/patients/pec-admin', label: 'NAV.PEC_ADMIN', icon: 'task_alt', role: 'ADMIN'},
         {route: '/patients/attestations-list', label: 'NAV.PATIENTS_ATTESTATIONS', icon: 'badge'},

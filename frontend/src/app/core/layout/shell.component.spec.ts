@@ -100,7 +100,7 @@ describe('ShellComponent — barre de module', () => {
       const {component} = await renderAt('/patients');
 
       expect(component.activeModuleItems().map((i) => i.route)).toEqual(['/patients/tableau-de-bord', '/patients',
-        '/patients/new', '/patients/pec-list', '/patients/pec-admin', '/patients/attestations-list',
+        '/patients/pec-list', '/patients/pec-admin', '/patients/attestations-list',
         '/patients/mouvements']);
       expect(component.activeModuleItems()[0]).toMatchObject({label: 'NAV.TABLEAU_DE_BORD', icon: 'insights'});
     });
