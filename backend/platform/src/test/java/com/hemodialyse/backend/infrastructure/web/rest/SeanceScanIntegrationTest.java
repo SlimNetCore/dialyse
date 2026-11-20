@@ -1,5 +1,7 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
+import com.hemodialyse.backend.contexts.seance.application.HorlogeDuCentre;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,7 +43,15 @@ class SeanceScanIntegrationTest {
     @Autowired
     private JdbcTemplate jdbc;
 
+    /** Le scan prend le jour du centre (KB-SEA-01, fuseau du centre), jamais celui de la JVM ni de la session SQL. */
+    @Autowired
+    private HorlogeDuCentre horlogeDuCentre;
+
     private MockMvc mockMvc;
+
+    private LocalDate aujourdhuiDuCentre() {
+        return horlogeDuCentre.aujourdhui(new CentreId(CENTER_ID));
+    }
 
     @BeforeEach
     void setup() {
@@ -259,8 +269,8 @@ class SeanceScanIntegrationTest {
     /**
      * Colonne « jour de dialyse » du patient correspondant à aujourd'hui.
      */
-    private static String colonneAujourdhui() {
-        return switch (LocalDate.now().getDayOfWeek()) {
+    private String colonneAujourdhui() {
+        return switch (aujourdhuiDuCentre().getDayOfWeek()) {
             case MONDAY -> "jour_lundi";
             case TUESDAY -> "jour_mardi";
             case WEDNESDAY -> "jour_mercredi";
@@ -285,7 +295,7 @@ class SeanceScanIntegrationTest {
                         INSERT INTO patients (
                             id, center_id, code_patient, nom, prenom, sexe, date_admission,
                             numero_assurance, type_patient, created_at
-                        ) VALUES (?, ?, ?, ?, ?, ?, CURRENT_DATE, ?, ?, ?)
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                         """,
                 PATIENT_ID,
                 CENTER_ID,
@@ -293,6 +303,7 @@ class SeanceScanIntegrationTest {
                 "Patient",
                 "SansGenerateur",
                 "M",
+                aujourdhuiDuCentre(),
                 "ASS-SCAN-NULL-GEN",
                 "NON_VACANCIER",
                 OffsetDateTime.now(ZoneOffset.UTC)
@@ -366,8 +377,8 @@ class SeanceScanIntegrationTest {
         cleanup();
         seedBillablePatientWithoutGenerateur();
         UUID fermeture = UUID.randomUUID();
-        jdbc.update("INSERT INTO center_holiday (id, center_id, day_date, label) VALUES (?, ?, CURRENT_DATE, ?)",
-                fermeture, CENTER_ID, "Fermeture test");
+        jdbc.update("INSERT INTO center_holiday (id, center_id, day_date, label) VALUES (?, ?, ?, ?)",
+                fermeture, CENTER_ID, aujourdhuiDuCentre(), "Fermeture test");
         try {
             mockMvc.perform(post("/api/v1/seances/scan").with(SessionsDeTest.session(CENTER_ID, "infirmer-01", "INFIRMIER"))
                             .contentType(MediaType.APPLICATION_JSON).content(scanPayloadAvecMotif("URGENCE", null)))

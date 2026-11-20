@@ -1,5 +1,7 @@
 package com.hemodialyse.backend.infrastructure.web.rest;
 
+import com.hemodialyse.backend.contexts.seance.application.HorlogeDuCentre;
+import com.hemodialyse.backend.contexts.sharedkernel.domain.CentreId;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,18 +45,26 @@ class SeanceDeverrouillageIntegrationTest {
     @Autowired
     private JdbcTemplate jdbc;
 
+    /** « Aujourd'hui » est le jour du centre (KB-SEA-01, fuseau du centre), jamais celui de la JVM ni de la session SQL. */
+    @Autowired
+    private HorlogeDuCentre horlogeDuCentre;
+
     private MockMvc mockMvc;
+
+    private LocalDate aujourdhuiDuCentre() {
+        return horlogeDuCentre.aujourdhui(new CentreId(CENTER));
+    }
 
     @BeforeEach
     void seed() {
         mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
         cleanup();
         jdbc.update("INSERT INTO patients (id, center_id, code_patient, nom, prenom, sexe, date_admission, numero_assurance, "
-                        + "type_patient, created_at) VALUES (?, ?, ?, ?, ?, ?, CURRENT_DATE, ?, ?, ?)",
-                PATIENT, CENTER, "DEV-001", "Dupont", "Jean", "M", "ASS-DEV-001", "NON_VACANCIER",
+                        + "type_patient, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                PATIENT, CENTER, "DEV-001", "Dupont", "Jean", "M", aujourdhuiDuCentre(), "ASS-DEV-001", "NON_VACANCIER",
                 OffsetDateTime.now(ZoneOffset.UTC));
-        seance(OUBLIEE, LocalDate.now().minusDays(2));
-        seance(DU_JOUR, LocalDate.now());
+        seance(OUBLIEE, aujourdhuiDuCentre().minusDays(2));
+        seance(DU_JOUR, aujourdhuiDuCentre());
     }
 
     @AfterEach
@@ -113,8 +123,8 @@ class SeanceDeverrouillageIntegrationTest {
 
     @Test
     void the_nurse_list_only_shows_unlocked_sessions_while_the_admin_list_shows_them_all() throws Exception {
-        String debut = LocalDate.now().minusDays(7).toString();
-        String fin = LocalDate.now().minusDays(1).toString();
+        String debut = aujourdhuiDuCentre().minusDays(7).toString();
+        String fin = aujourdhuiDuCentre().minusDays(1).toString();
 
         mockMvc.perform(get("/api/v1/seances").param("centerId", CENTER.toString()).param("status", "CREE")
                         .param("from", debut).param("to", fin).param("deverrouillee", "true")
