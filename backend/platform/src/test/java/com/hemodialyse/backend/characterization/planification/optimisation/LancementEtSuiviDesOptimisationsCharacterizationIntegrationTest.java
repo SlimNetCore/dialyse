@@ -315,6 +315,10 @@ class LancementEtSuiviDesOptimisationsCharacterizationIntegrationTest extends Op
     @Test
     void la_suppression_est_refusee_pendant_le_calcul_puis_retire_l_execution_et_son_calendrier() throws Exception {
         unPatientEnAttente();
+        // Un poste unique laisse le solveur sans mouvement faisable : il finit en ~15 ms et la suppression « pendant le calcul »
+        // pouvait arriver après la fin (204, ligne supprimée, attente en EmptyResultDataAccessException). Un second générateur
+        // donne des mouvements faisables : le calcul dure jusqu'à sa limite sans amélioration (2 s), la fenêtre est stable.
+        g1b = generateur(CENTRE_A, "G1B", salle1, "EN_SERVICE");
         Map<String, Object> issues = new LinkedHashMap<>();
         Resp lancement = lancer("PATIENTS", semaine(1, JourSemaine.DIMANCHE), 1, planifAdmin());
         UUID run = UUID.fromString(corps(lancement).path("id").asString());
